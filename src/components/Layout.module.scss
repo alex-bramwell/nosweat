@@ -1,0 +1,14 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+.main {
+  flex: 1;
+  width: 100%;
+  padding: 2rem 0;
+  @include container-break(768px) {
+    padding: 1rem 0;
+  }
+}

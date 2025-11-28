@@ -1,0 +1,31 @@
+@import './variables.scss';
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @include header;
+  color: var(--color-header);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 0.2s;
+  &:hover {
+    color: var(--color-accent2);
+  }
+}
+
+.container {
+  container-type: inline-size;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem;
+}

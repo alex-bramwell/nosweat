@@ -1,0 +1,44 @@
+.navbar {
+  @include grid(3, 2rem);
+  align-items: center;
+  background: var(--color-surface);
+  padding: 1rem 2rem;
+  border-bottom: 2px solid var(--color-accent);
+  color: var(--color-header);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  font-size: 2rem;
+  font-family: var(--font-header);
+  color: var(--color-accent);
+  letter-spacing: 0.1em;
+}
+.links {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  a {
+    @include header;
+    color: var(--color-header);
+    &:hover {
+      color: var(--color-accent2);
+    }
+  }
+}
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+@container (max-width: 768px) {
+  .navbar {
+    @include grid(1);
+    padding: 1rem;
+    .links, .actions {
+      justify-content: center;
+      gap: 1rem;
+    }
+  }
+}

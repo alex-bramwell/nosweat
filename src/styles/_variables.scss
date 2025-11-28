@@ -1,0 +1,52 @@
+// Theme variables for CrossFit Comet
+:root {
+  --color-bg: #181820;
+  --color-surface: #23232e;
+  --color-accent: #ff4f1f;
+  --color-accent2: #ff1f4f;
+  --color-text: #fff;
+  --color-muted: #888;
+  --color-header: #fff;
+  --color-footer: #fff;
+  --font-header: 'Oswald', 'Impact', 'Arial Narrow', sans-serif;
+  --font-body: 'Inter', 'Arial', sans-serif;
+  --border-radius: 1rem;
+}
+
+// Breakpoints for container queries and layout
+$breakpoints: (
+  'xs': 320px,
+  'sm': 480px,
+  'md': 768px,
+  'lg': 1024px,
+  'xl': 1280px,
+  'xxl': 1600px
+);
+
+// Container query mixin
+@mixin container-break($min) {
+  @container (min-width: $min) {
+    @content;
+  }
+}
+
+// Grid mixin
+@mixin grid($columns, $gap: 1rem) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: $gap;
+}
+
+// Typography mixins
+@mixin header {
+  font-family: var(--font-header);
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@mixin body {
+  font-family: var(--font-body);
+  font-weight: normal;
+  letter-spacing: 0.01em;
+}

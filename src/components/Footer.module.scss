@@ -1,0 +1,26 @@
+.footer {
+  background: var(--color-surface);
+  color: var(--color-footer);
+  padding: 2rem 1rem;
+  border-top: 2px solid var(--color-accent);
+  text-align: center;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  letter-spacing: 0.05em;
+}
+.links {
+  margin-bottom: 1rem;
+  a {
+    color: var(--color-accent);
+    margin: 0 0.5rem;
+    &:hover {
+      color: var(--color-accent2);
+    }
+  }
+}
+@container (max-width: 768px) {
+  .footer {
+    font-size: 0.9rem;
+    padding: 1rem 0.5rem;
+  }
+}
