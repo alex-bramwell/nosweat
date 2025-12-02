@@ -59,7 +59,7 @@
 }
 
 .movements {
-  background: var(--color-bg);
+  background: linear-gradient(135deg, #181820 0%, #1d1d26 100%);
   border-radius: 0.5rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -91,7 +91,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 1rem;
-  background: var(--color-bg);
+  background: linear-gradient(135deg, #181820 0%, #1d1d26 100%);
   border-radius: 0.5rem;
   margin-bottom: 1.5rem;
 }

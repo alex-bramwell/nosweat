@@ -16,7 +16,7 @@
   text-align: center;
   padding: 2rem;
   border-radius: 0.5rem;
-  background: var(--color-bg);
+  background: linear-gradient(135deg, #181820 0%, #1d1d26 100%);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
