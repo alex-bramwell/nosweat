@@ -29,7 +29,7 @@ const Programs = () => {
                     </li>
                   ))}
                 </ul>
-                <Button variant="primary" fullWidth>
+                <Button variant="primary" as="a" href="/programs">
                   Learn More
                 </Button>
               </div>
