@@ -1,3 +1,5 @@
+@use '../styles/variables' as *;
+
 .navbar {
   @include grid(3, 2rem);
   align-items: center;

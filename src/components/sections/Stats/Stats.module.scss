@@ -1,0 +1,48 @@
+@use '../../../styles/variables' as *;
+
+.stats {
+  @include grid(4, 2rem);
+
+  @container (max-width: 1024px) {
+    @include grid(2, 1.5rem);
+  }
+
+  @container (max-width: 640px) {
+    @include grid(1, 1rem);
+  }
+}
+
+.stat {
+  text-align: center;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  background: var(--color-bg);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(255, 79, 31, 0.15);
+  }
+}
+
+.value {
+  @include header;
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.suffix {
+  font-size: 0.7em;
+  margin-left: 0.1em;
+}
+
+.label {
+  @include body;
+  font-size: 1rem;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
