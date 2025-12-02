@@ -1,0 +1,95 @@
+@use '../../../styles/variables' as *;
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  @include header;
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--color-text);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  @include body;
+  font-size: 1.125rem;
+  color: var(--color-muted);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+
+  @container (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.testimonial {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.quote {
+  @include body;
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: var(--color-text);
+  flex-grow: 1;
+  position: relative;
+  padding-left: 1.5rem;
+
+  &::before {
+    content: '"';
+    position: absolute;
+    left: 0;
+    top: -0.25rem;
+    font-size: 3rem;
+    color: var(--color-accent);
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+}
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--color-bg-light);
+}
+
+.authorInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.name {
+  @include body;
+  font-weight: 700;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.program {
+  @include body;
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.memberSince {
+  @include body;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}

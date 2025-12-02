@@ -1,0 +1,92 @@
+@use '../../../styles/variables' as *;
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  @include header;
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--color-text);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  @include body;
+  font-size: 1.125rem;
+  color: var(--color-muted);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+
+  @container (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.programCard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.level {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--color-accent);
+  color: var(--color-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+  align-self: flex-start;
+}
+
+.programTitle {
+  @include header;
+  font-size: 1.5rem;
+  color: var(--color-text);
+  margin-bottom: 0.75rem;
+}
+
+.description {
+  @include body;
+  color: var(--color-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  flex-grow: 0;
+}
+
+.features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+  flex-grow: 1;
+}
+
+.feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.checkmark {
+  color: var(--color-accent);
+  font-weight: bold;
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}

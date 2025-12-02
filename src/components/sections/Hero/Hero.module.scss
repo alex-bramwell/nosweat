@@ -1,0 +1,100 @@
+@use '../../../styles/variables' as *;
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--color-bg-dark) 0%, var(--color-bg) 100%);
+
+  // Optional: Add pattern/texture overlay
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.05;
+    background-image:
+      repeating-linear-gradient(45deg, transparent, transparent 10px, var(--color-accent) 10px, var(--color-accent) 11px);
+    pointer-events: none;
+  }
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.title {
+  @include header;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  margin-bottom: 1.5rem;
+  color: var(--color-text);
+  line-height: 1.1;
+
+  background: linear-gradient(to right, var(--color-text), var(--color-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  @include body;
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  color: var(--color-muted);
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.features {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.featureIcon {
+  color: var(--color-accent);
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+// Responsive adjustments
+@container (max-width: 768px) {
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .features {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+}
