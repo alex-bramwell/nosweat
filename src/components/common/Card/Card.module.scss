@@ -1,0 +1,57 @@
+@use '../../../styles/variables' as *;
+
+.card {
+  background: var(--color-surface);
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+// Variants
+.default {
+  background: var(--color-surface);
+}
+
+.elevated {
+  background: var(--color-surface);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.bordered {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bg-light);
+}
+
+// Padding
+.padding-none {
+  padding: 0;
+}
+
+.padding-small {
+  padding: 1rem;
+}
+
+.padding-medium {
+  padding: 1.5rem;
+}
+
+.padding-large {
+  padding: 2rem;
+}
+
+// Modifiers
+.hoverable {
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: translateY(-2px);
+  }
+}

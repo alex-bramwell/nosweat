@@ -1,0 +1,42 @@
+@use '../../../styles/variables' as *;
+
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  container-type: inline-size;
+}
+
+// Size variants
+.small {
+  max-width: 768px;
+}
+
+.medium {
+  max-width: 1200px;
+}
+
+.large {
+  max-width: 1440px;
+}
+
+.full {
+  max-width: 100%;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+// Responsive padding
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .full {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
