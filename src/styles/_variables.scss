@@ -10,8 +10,8 @@
   --color-muted: #888;
   --color-header: #fff;
   --color-footer: #fff;
-  --font-header: 'Oswald', 'Impact', 'Arial Narrow', sans-serif;
-  --font-body: 'Inter', 'Arial', sans-serif;
+  --font-header: 'Poppins', sans-serif;
+  --font-body: 'Open Sans', 'Arial', sans-serif;
   --border-radius: 1rem;
 }
 
@@ -42,9 +42,9 @@ $breakpoints: (
 // Typography mixins
 @mixin header {
   font-family: var(--font-header);
-  font-weight: bold;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 @mixin body {

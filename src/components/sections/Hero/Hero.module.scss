@@ -29,11 +29,14 @@
 }
 
 .title {
-  @include header;
+  font-family: 'Knewave', cursive, sans-serif;
+  font-weight: normal;
   font-size: clamp(2.5rem, 5vw, 4rem);
   margin-bottom: 1.5rem;
   color: var(--color-text);
   line-height: 1.1;
+  text-transform: none;
+  letter-spacing: 0.02em;
 
   background: linear-gradient(to right, var(--color-text), var(--color-accent));
   -webkit-background-clip: text;
