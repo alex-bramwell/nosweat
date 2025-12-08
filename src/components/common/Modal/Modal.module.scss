@@ -1,0 +1,126 @@
+@use '../../../styles/variables' as *;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background: var(--color-surface);
+  border-radius: 16px;
+  padding: 2.5rem;
+  padding-right: 2rem; // Less padding on right to accommodate scrollbar
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 16px;
+
+    @media (max-width: 768px) {
+      width: 18px; // Even wider for touch devices
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0 16px 16px 0;
+    margin: 0; // No margin, let the track follow modal corners
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(100, 100, 100, 0.6);
+    border-radius: 10px;
+    border: 3px solid var(--color-surface);
+    transition: background 0.3s ease;
+
+    &:hover {
+      background: rgba(120, 120, 120, 0.8);
+    }
+
+    &:active {
+      background: rgba(80, 80, 80, 0.9);
+    }
+  }
+
+  // Hide scrollbar buttons (arrows)
+  &::-webkit-scrollbar-button {
+    width: 0px;
+    height: 0px;
+  }
+
+  // Firefox scrollbar styling
+  scrollbar-width: auto;
+  scrollbar-color: rgba(100, 100, 100, 0.6) rgba(0, 0, 0, 0.2);
+
+  @media (max-width: 768px) {
+    padding: 2rem 1.5rem;
+    padding-right: 1rem;
+    max-width: 95%;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 2.5rem;
+  color: var(--color-muted);
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  line-height: 1;
+  padding: 0;
+
+  &:hover {
+    background: rgba(255, 79, 31, 0.1);
+    color: var(--color-accent);
+    transform: rotate(90deg);
+  }
+
+  &:active {
+    transform: rotate(90deg) scale(0.95);
+  }
+}
