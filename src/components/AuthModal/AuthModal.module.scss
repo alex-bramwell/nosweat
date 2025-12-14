@@ -88,6 +88,39 @@
   text-align: center;
 }
 
+.success {
+  @include body;
+  padding: 0.75rem 1rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  color: rgb(34, 197, 94);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.linkButton {
+  @include body;
+  background: none;
+  border: none;
+  color: var(--color-secondary);
+  cursor: pointer;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  padding: 0;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: var(--color-secondary2);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
 .footer {
   text-align: center;
   padding-top: 1rem;
