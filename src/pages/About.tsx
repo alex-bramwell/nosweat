@@ -163,7 +163,7 @@ const About = () => {
       </Section>
 
       {/* Location */}
-      <Section spacing="large" background="surface">
+      <Section spacing="large" background="surface" id="visit">
         <Container>
           <div className={styles.locationWrapper}>
             <div className={styles.locationInfo}>

@@ -77,6 +77,15 @@
   }
 }
 
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 6px 24px rgba(0, 229, 255, 0.8), 0 0 40px rgba(0, 229, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(0, 229, 255, 1), 0 0 60px rgba(0, 229, 255, 0.6);
+  }
+}
+
 .logo {
   display: flex;
   flex-direction: column;
@@ -166,10 +175,27 @@
     @include header;
     color: var(--color-header);
     font-size: 1rem;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
+    position: relative;
+    padding-bottom: 0.25rem;
 
     &:hover {
       color: var(--color-accent2);
+    }
+
+    &.activeLink {
+      color: var(--color-secondary);
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+        border-radius: 2px;
+      }
     }
   }
 
@@ -187,6 +213,12 @@
       color: var(--color-text);
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 229, 255, 0.5);
+    }
+
+    &.activeWod {
+      box-shadow: 0 6px 24px rgba(0, 229, 255, 0.8), 0 0 40px rgba(0, 229, 255, 0.4);
+      transform: translateY(-2px) scale(1.08);
+      animation: pulse 2s ease-in-out infinite;
     }
   }
 
@@ -236,13 +268,14 @@
 
   .signInButton {
     @include header;
-    padding: 0.625rem 1.25rem;
-    border-radius: 8px;
+    padding: 0.625rem 1.5rem;
+    border-radius: 2rem;
     border: 2px solid var(--color-secondary);
     background: transparent;
     color: var(--color-secondary);
     cursor: pointer;
     font-size: 0.95rem;
+    font-weight: 600;
     transition: all 0.2s ease;
     white-space: nowrap;
 
@@ -250,6 +283,7 @@
       background: rgba(0, 212, 255, 0.1);
       border-color: var(--color-secondary2);
       color: var(--color-secondary2);
+      transform: translateY(-1px);
     }
   }
 
@@ -290,6 +324,12 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
       background: linear-gradient(135deg, #9F7AEA 0%, #7C3AED 100%);
+    }
+
+    &.activeLink {
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.6);
+      background: linear-gradient(135deg, #9F7AEA 0%, #7C3AED 100%);
+      transform: translateY(-1px);
     }
   }
 
