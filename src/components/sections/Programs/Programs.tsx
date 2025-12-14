@@ -99,7 +99,16 @@ const Programs = () => {
                   {getScheduleInfo(program.title)}
                 </div>
                 <h3 className={styles.programTitle}>{program.title}</h3>
-                <p className={styles.description}>{program.description}</p>
+                {program.price && (
+                  <div className={styles.pricing}>
+                    <span className={styles.price}>£{program.price}</span>
+                    <span className={styles.priceUnit}>{program.priceUnit}</span>
+                    {program.priceNote && (
+                      <span className={styles.priceNote}>{program.priceNote}</span>
+                    )}
+                  </div>
+                )}
+                <p className={styles.description} dangerouslySetInnerHTML={{ __html: program.description }} />
                 <ul className={styles.features}>
                   {program.features.map((feature, index) => (
                     <li key={index} className={styles.feature}>

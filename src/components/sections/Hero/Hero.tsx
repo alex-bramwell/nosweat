@@ -20,14 +20,6 @@ const Hero = () => {
             Where strength meets community. Transform your fitness journey with expert coaching,
             world-class programming, and a supportive atmosphere.
           </p>
-          <div className={styles.actions}>
-            <Button variant="primary" size="large" onClick={() => setIsTrialModalOpen(true)}>
-              Book Free Trial
-            </Button>
-            <Button variant="outline" size="large" as="a" href="/schedule">
-              View Schedule
-            </Button>
-          </div>
           <div className={styles.features}>
             <div className={styles.feature}>
               <span className={styles.featureIcon}>✓</span>
@@ -41,6 +33,24 @@ const Hero = () => {
               <span className={styles.featureIcon}>✓</span>
               <span>Proven Results</span>
             </div>
+          </div>
+          <div className={styles.infoCard}>
+            <span className={styles.infoContent}>
+              <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+              <span className={styles.infoText}>Please create an account to book a free trial</span>
+            </span>
+            <Button variant="outline" size="small" onClick={() => setIsTrialModalOpen(true)}>
+              Book Trial
+            </Button>
+          </div>
+          <div className={styles.actions}>
+            <Button variant="primary" size="large" as="a" href="/schedule">
+              View Schedule
+            </Button>
           </div>
         </div>
       </Container>

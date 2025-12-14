@@ -146,19 +146,11 @@
   @include body;
   font-size: clamp(1.125rem, 2vw, 1.5rem);
   color: var(--color-muted);
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
   line-height: 1.6;
   max-width: 700px;
   margin-left: auto;
   margin-right: auto;
-}
-
-.actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 3rem;
 }
 
 .features {
@@ -166,6 +158,7 @@
   gap: 2rem;
   justify-content: center;
   flex-wrap: wrap;
+  margin-bottom: 1.5rem;
 }
 
 .feature {
@@ -180,6 +173,55 @@
   color: var(--color-accent);
   font-weight: bold;
   font-size: 1.25rem;
+}
+
+.infoCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 550px;
+  margin: 0 auto 2rem auto;
+  padding: 0.625rem 1rem;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 191, 230, 0.1) 100%);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 0.5rem;
+  backdrop-filter: blur(10px);
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
+
+.infoContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.infoIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-secondary);
+  flex-shrink: 0;
+}
+
+.infoText {
+  @include body;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
 }
 
 // Responsive adjustments
