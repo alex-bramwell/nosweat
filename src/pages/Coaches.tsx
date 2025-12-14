@@ -1,8 +1,12 @@
+import { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Section, Container, Card } from '../components/common';
 import { coaches } from '../data/coaches';
 import styles from './Coaches.module.scss';
 
 const Coaches = () => {
+  const location = useLocation();
+  const coachRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   // Generate initials for avatar
   const getInitials = (name: string) => {
     const parts = name.split(' ');
@@ -25,10 +29,24 @@ const Coaches = () => {
     return colors[index % colors.length];
   };
 
+  // Scroll to and highlight coach if hash is present
+  useEffect(() => {
+    if (location.hash) {
+      const coachId = location.hash.replace('#', '');
+      const coachElement = coachRefs.current[coachId];
+
+      if (coachElement) {
+        setTimeout(() => {
+          coachElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+  }, [location]);
+
   return (
     <>
       {/* Hero Section */}
-      <Section spacing="large" background="dark">
+      <Section spacing="large" background="dark" className={styles.heroSection}>
         <Container>
           <div className={styles.hero}>
             <h1 className={styles.heroTitle}>Meet Our Coaches</h1>
@@ -46,8 +64,16 @@ const Coaches = () => {
         <Container>
           <div className={styles.coachesGrid}>
             {coaches.map((coach) => (
-              <Card key={coach.id} variant="elevated" padding="large">
-                <div className={styles.coachCard}>
+              <Card
+                key={coach.id}
+                variant="elevated"
+                padding="large"
+                id={coach.id}
+              >
+                <div
+                  className={`${styles.coachCard} ${location.hash === `#${coach.id}` ? styles.highlighted : ''}`}
+                  ref={(el) => { coachRefs.current[coach.id] = el; }}
+                >
                   <div
                     className={styles.avatar}
                     style={{ background: getAvatarColor(coach.id) }}
