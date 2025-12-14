@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { supabase } from '../lib/supabase';
 
 export interface User {
   id: string;
@@ -6,6 +7,10 @@ export interface User {
   name: string;
   membershipType: 'trial' | 'crossfit' | 'comet-plus' | 'open-gym' | 'specialty';
   joinDate: string;
+  avatarUrl?: string;
+  phone?: string;
+  emergencyContact?: string;
+  emergencyPhone?: string;
 }
 
 interface AuthContextType {
@@ -14,7 +19,9 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updateProfile: (updates: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,95 +42,154 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for existing authentication on mount
-    const checkAuth = () => {
-      const isAuth = localStorage.getItem('isAuthenticated') === 'true';
-      const userData = localStorage.getItem('user');
+  // Fetch user profile from database
+  const fetchUserProfile = async (userId: string): Promise<User | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-      if (isAuth && userData) {
-        try {
-          setUser(JSON.parse(userData));
-        } catch (error) {
-          console.error('Failed to parse user data:', error);
-          localStorage.removeItem('isAuthenticated');
-          localStorage.removeItem('user');
-        }
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return null;
       }
 
-      setIsLoading(false);
+      return {
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        membershipType: data.membership_type,
+        joinDate: data.join_date,
+        avatarUrl: data.avatar_url || undefined,
+        phone: data.phone || undefined,
+        emergencyContact: data.emergency_contact || undefined,
+        emergencyPhone: data.emergency_phone || undefined,
+      };
+    } catch (error) {
+      console.error('Error in fetchUserProfile:', error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    // Check active session on mount
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          const profile = await fetchUserProfile(session.user.id);
+          setUser(profile);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    checkAuth();
+    initializeAuth();
 
-    // Listen for auth state changes
-    const handleAuthChange = () => {
-      const isAuth = localStorage.getItem('isAuthenticated') === 'true';
-      const userData = localStorage.getItem('user');
-
-      if (isAuth && userData) {
-        try {
-          setUser(JSON.parse(userData));
-        } catch (error) {
-          console.error('Failed to parse user data:', error);
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (session?.user) {
+          const profile = await fetchUserProfile(session.user.id);
+          setUser(profile);
+        } else {
           setUser(null);
         }
-      } else {
-        setUser(null);
+        setIsLoading(false);
       }
-    };
+    );
 
-    window.addEventListener('auth-change', handleAuthChange);
-    return () => window.removeEventListener('auth-change', handleAuthChange);
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const login = async (email: string, _password: string) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  const login = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    const existingUser = localStorage.getItem('user');
-    let userData: User;
-
-    if (existingUser) {
-      userData = JSON.parse(existingUser);
-    } else {
-      // Create a default user for demo purposes
-      userData = {
-        id: Date.now().toString(),
-        email,
-        name: email.split('@')[0],
-        membershipType: 'crossfit',
-        joinDate: new Date().toISOString(),
-      };
-      localStorage.setItem('user', JSON.stringify(userData));
+    if (error) {
+      throw new Error(error.message);
     }
 
-    localStorage.setItem('isAuthenticated', 'true');
-    setUser(userData);
+    if (data.user) {
+      const profile = await fetchUserProfile(data.user.id);
+      setUser(profile);
+    }
   };
 
-  const signup = async (email: string, _password: string, name: string) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const userData: User = {
-      id: Date.now().toString(),
+  const signup = async (email: string, password: string, name: string) => {
+    const { data, error } = await supabase.auth.signUp({
       email,
-      name,
-      membershipType: 'trial',
-      joinDate: new Date().toISOString(),
-    };
+      password,
+      options: {
+        data: {
+          name,
+        },
+      },
+    });
 
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('isAuthenticated', 'true');
-    setUser(userData);
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (data.user) {
+      // Profile is created automatically via database trigger
+      // Wait a moment for the trigger to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const profile = await fetchUserProfile(data.user.id);
+      setUser(profile);
+    }
   };
 
-  const logout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('user');
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw new Error(error.message);
+    }
     setUser(null);
-    window.dispatchEvent(new Event('auth-change'));
+  };
+
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  };
+
+  const updateProfile = async (updates: Partial<User>) => {
+    if (!user) {
+      throw new Error('No user logged in');
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        name: updates.name,
+        phone: updates.phone,
+        membership_type: updates.membershipType,
+        emergency_contact: updates.emergencyContact,
+        emergency_phone: updates.emergencyPhone,
+      })
+      .eq('id', user.id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    // Update local state
+    setUser({ ...user, ...updates });
   };
 
   const value: AuthContextType = {
@@ -133,6 +199,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     signup,
     logout,
+    resetPassword,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
