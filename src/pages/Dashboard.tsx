@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Section, Container, Card, Button } from '../components/common';
+import { ProfileSettings } from '../components/ProfileSettings';
 import styles from './Dashboard.module.scss';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'membership' | 'wod' | 'booking'>('membership');
+  const [activeTab, setActiveTab] = useState<'membership' | 'wod' | 'booking' | 'profile'>('membership');
 
   if (!user) return null;
 
@@ -57,6 +58,12 @@ const Dashboard = () => {
               onClick={() => setActiveTab('booking')}
             >
               Book Classes
+            </button>
+            <button
+              className={`${styles.tab} ${activeTab === 'profile' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('profile')}
+            >
+              Profile Settings
             </button>
           </div>
 
@@ -228,6 +235,12 @@ const Dashboard = () => {
                     <strong>Note:</strong> You can book up to 7 days in advance. Cancel at least 2 hours before class to avoid charges.
                   </div>
                 </div>
+              </div>
+            )}
+
+            {activeTab === 'profile' && (
+              <div className={styles.tabContent}>
+                <ProfileSettings />
               </div>
             )}
           </div>
