@@ -69,10 +69,11 @@ const Coaches = () => {
                 variant="elevated"
                 padding="large"
                 id={coach.id}
+                className={location.hash === `#${coach.id}` ? styles.highlighted : ''}
+                ref={(el) => { coachRefs.current[coach.id] = el; }}
               >
                 <div
-                  className={`${styles.coachCard} ${location.hash === `#${coach.id}` ? styles.highlighted : ''}`}
-                  ref={(el) => { coachRefs.current[coach.id] = el; }}
+                  className={styles.coachCard}
                 >
                   <div
                     className={styles.avatar}

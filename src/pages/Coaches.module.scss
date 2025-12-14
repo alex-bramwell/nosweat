@@ -89,20 +89,21 @@
   align-items: center;
   text-align: center;
   transition: all 0.3s ease;
+}
 
-  &.highlighted {
-    animation: highlightPulse 2s ease-in-out;
-  }
+// Highlight animation on outer card
+.highlighted {
+  animation: highlightPulse 2s ease-in-out;
 }
 
 @keyframes highlightPulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
   50% {
     transform: scale(1.02);
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.6), 0 4px 20px rgba(0, 212, 255, 0.3);
   }
 }
 
