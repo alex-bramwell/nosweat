@@ -22,6 +22,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
+  loginWithOAuth: (provider: 'google' | 'facebook') => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -134,6 +135,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         data: {
           name,
         },
+        emailRedirectTo: `${window.location.origin}/dashboard`,
       },
     });
 
@@ -141,7 +143,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw new Error(error.message);
     }
 
-    if (data.user) {
+    // If email confirmation is enabled, user won't have a session yet
+    if (data.user && !data.session) {
+      throw new Error('Please check your email to verify your account before signing in.');
+    }
+
+    if (data.user && data.session) {
       // Profile is created automatically via database trigger
       // Wait a moment for the trigger to complete
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -192,6 +199,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser({ ...user, ...updates });
   };
 
+  const loginWithOAuth = async (provider: 'google' | 'facebook') => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+    // OAuth will redirect, so no need to set user here
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -201,6 +222,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     resetPassword,
     updateProfile,
+    loginWithOAuth,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
