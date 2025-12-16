@@ -11,23 +11,23 @@
 }
 
 .spacing-small {
-  padding-top: 2rem;
-  padding-bottom: 2rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
 }
 
 .spacing-medium {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
 }
 
 .spacing-large {
-  padding-top: 6rem;
-  padding-bottom: 6rem;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
 }
 
 .spacing-xlarge {
-  padding-top: 8rem;
-  padding-bottom: 8rem;
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
 }
 
 // Background variants
@@ -52,22 +52,22 @@
 // Responsive spacing
 @container (max-width: 768px) {
   .spacing-small {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
   }
 
   .spacing-medium {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
   }
 
   .spacing-large {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
   }
 
   .spacing-xlarge {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
   }
 }
