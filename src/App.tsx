@@ -1,7 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { useState } from 'react';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useSessionTimeout } from './hooks/useSessionTimeout';
 import Layout from './components/Layout';
 import ScrollToHash from './components/ScrollToHash';
+import { SessionWarning } from './components/SessionWarning';
 import Home from './pages/Home';
 import Schedule from './pages/Schedule';
 import About from './pages/About';
@@ -9,9 +12,29 @@ import Coaches from './pages/Coaches';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
+function AppContent() {
+  const { logout } = useAuth();
+  const [showSessionWarning, setShowSessionWarning] = useState(false);
+
+  const sessionTimeout = useSessionTimeout({
+    timeoutMinutes: 30,
+    warningMinutes: 5,
+    onWarning: () => setShowSessionWarning(true),
+    onTimeout: () => setShowSessionWarning(false)
+  });
+
+  const handleExtendSession = () => {
+    sessionTimeout.extendSession();
+    setShowSessionWarning(false);
+  };
+
+  const handleLogout = async () => {
+    setShowSessionWarning(false);
+    await logout();
+  };
+
   return (
-    <AuthProvider>
+    <>
       <BrowserRouter>
         <ScrollToHash />
         <Layout>
@@ -31,6 +54,21 @@ function App() {
           </Routes>
         </Layout>
       </BrowserRouter>
+
+      <SessionWarning
+        isOpen={showSessionWarning}
+        remainingTime={sessionTimeout.remainingTimeFormatted}
+        onExtend={handleExtendSession}
+        onLogout={handleLogout}
+      />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }
