@@ -238,13 +238,11 @@
     padding-top: 6rem;
     gap: 2rem;
     transform: translateX(-100%);
-    opacity: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition: transform 0.3s ease;
     z-index: 999;
 
     &.linksOpen {
       transform: translateX(0);
-      opacity: 1;
     }
 
     a {
