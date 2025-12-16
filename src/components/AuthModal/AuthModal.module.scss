@@ -90,6 +90,216 @@
   }
 }
 
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.passwordInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .input {
+    padding-right: 3.5rem;
+  }
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted);
+  transition: all 0.2s ease;
+  border-radius: 6px;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    color: var(--color-secondary);
+    background: rgba(0, 229, 255, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.securityWarning {
+  @include body;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: linear-gradient(135deg, rgba(255, 170, 0, 0.08) 0%, rgba(255, 136, 0, 0.12) 100%);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+  border-radius: 8px;
+  color: #ffaa00;
+  font-size: 0.8rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+.warningIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #ffaa00;
+}
+
+.passwordStrength {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.strengthBar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.strengthFill {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 3px;
+}
+
+.strengthLabel {
+  @include body;
+  font-size: 0.875rem;
+  font-weight: 600;
+  min-width: 70px;
+  text-align: right;
+}
+
+.compromisedWarning {
+  @include body;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(255, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.15) 100%);
+  border: 2px solid rgba(255, 68, 68, 0.4);
+  border-radius: 8px;
+  animation: slideIn 0.3s ease-out;
+
+  .warningIcon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: #ff4444;
+    margin-top: 0.125rem;
+  }
+}
+
+.compromisedTitle {
+  @include body;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #ff4444;
+  margin-bottom: 0.25rem;
+}
+
+.compromisedText {
+  @include body;
+  font-size: 0.8rem;
+  color: rgba(255, 68, 68, 0.9);
+  line-height: 1.4;
+}
+
+.passwordRequirements {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.requirementsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.requirement {
+  @include body;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  transition: all 0.3s ease;
+
+  &.met {
+    color: rgba(34, 197, 94, 0.9);
+
+    .checkmark {
+      background: rgba(34, 197, 94, 0.2);
+      color: rgb(34, 197, 94);
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+  }
+}
+
+.checkmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.passwordTip {
+  @include body;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.85rem;
+  color: var(--color-secondary);
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.05) 0%, rgba(0, 212, 255, 0.08) 100%);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 8px;
+  line-height: 1.4;
+}
+
+.tipIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+  color: var(--color-secondary);
+}
+
 .error {
   @include body;
   padding: 0.875rem 1.125rem;
@@ -178,6 +388,14 @@
   }
 }
 
+.loginFooter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
 .linkButton {
   @include body;
   background: none;
@@ -187,7 +405,6 @@
   font-size: 0.875rem;
   text-decoration: underline;
   padding: 0;
-  margin-bottom: 0.75rem;
   transition: all 0.2s ease;
 
   &:hover {
@@ -270,7 +487,6 @@
 .footer {
   text-align: center;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .switchText {
