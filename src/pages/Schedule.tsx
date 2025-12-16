@@ -1,9 +1,14 @@
+import { useState } from 'react';
 import { Section, Container, Button } from '../components/common';
+import { AuthModal } from '../components/AuthModal';
+import { TrialModal } from '../components/TrialModal';
 import { weeklySchedule } from '../data/schedule';
 import type { ClassSchedule } from '../types';
 import styles from './Schedule.module.scss';
 
 const Schedule = () => {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
   const daysOfWeek = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
   const dayLabels = {
     monday: 'MON',
@@ -68,6 +73,19 @@ const Schedule = () => {
             <p className={styles.subtitle}>
               Choose from our variety of classes throughout the week. All fitness levels welcome!
             </p>
+            <div className={styles.infoCard}>
+              <span className={styles.infoContent}>
+                <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="16" x2="12" y2="12"/>
+                  <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <span className={styles.infoText}>Please sign in to book a class</span>
+              </span>
+              <Button variant="outline" size="small" onClick={() => setIsAuthModalOpen(true)}>
+                Sign In
+              </Button>
+            </div>
             <div className={styles.legend}>
               <div className={styles.legendItem}>
                 <span className={`${styles.legendColor} ${styles.legendCrossFit}`}></span>
@@ -212,10 +230,10 @@ const Schedule = () => {
               <h3>Ready to Join a Class?</h3>
               <p>Book your spot or start with a free trial class today!</p>
               <div className={styles.footerActions}>
-                <Button variant="primary" size="large">
+                <Button variant="primary" size="large" onClick={() => setIsAuthModalOpen(true)}>
                   Book a Class
                 </Button>
-                <Button variant="outline" size="large">
+                <Button variant="outline" size="large" onClick={() => setIsTrialModalOpen(true)}>
                   Free Trial
                 </Button>
               </div>
@@ -223,6 +241,17 @@ const Schedule = () => {
           </div>
         </Container>
       </Section>
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode="login"
+      />
+
+      <TrialModal
+        isOpen={isTrialModalOpen}
+        onClose={() => setIsTrialModalOpen(false)}
+      />
     </>
   );
 };

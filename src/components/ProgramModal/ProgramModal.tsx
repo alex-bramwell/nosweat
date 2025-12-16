@@ -7,10 +7,19 @@ interface ProgramModalProps {
   isOpen: boolean;
   onClose: () => void;
   programId: string;
+  onGetStarted?: () => void;
 }
 
-const ProgramModal: React.FC<ProgramModalProps> = ({ isOpen, onClose, programId }) => {
+const ProgramModal: React.FC<ProgramModalProps> = ({ isOpen, onClose, programId, onGetStarted }) => {
   const program = programDetails[programId];
+
+  const handleGetStarted = () => {
+    if (onGetStarted) {
+      onGetStarted();
+    } else {
+      onClose();
+    }
+  };
 
   if (!program) return null;
 
@@ -71,7 +80,7 @@ const ProgramModal: React.FC<ProgramModalProps> = ({ isOpen, onClose, programId 
         )}
 
         <div className={styles.actions}>
-          <Button variant="primary" size="large" fullWidth onClick={onClose}>
+          <Button variant="primary" size="large" fullWidth onClick={handleGetStarted}>
             Get Started
           </Button>
         </div>
