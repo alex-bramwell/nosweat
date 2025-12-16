@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { Section, Container, Button } from '../../common';
-import { AuthModal } from '../../AuthModal';
+import { TrialModal } from '../../TrialModal';
 import styles from './CTA.module.scss';
 
 const CTA = () => {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
 
-  const openAuthModal = () => {
-    setIsAuthModalOpen(true);
+  const openTrialModal = () => {
+    setIsTrialModalOpen(true);
   };
 
-  const closeAuthModal = () => {
-    setIsAuthModalOpen(false);
+  const closeTrialModal = () => {
+    setIsTrialModalOpen(false);
   };
 
   return (
@@ -24,7 +24,7 @@ const CTA = () => {
               Join CrossFit Comet today and experience the difference. Your first class is free!
             </p>
             <div className={styles.actions}>
-              <Button variant="primary" size="large" onClick={openAuthModal}>
+              <Button variant="primary" size="large" onClick={openTrialModal}>
                 Book Free Trial
               </Button>
               <Button variant="outline" size="large" as="a" href="/about#visit">
@@ -37,7 +37,7 @@ const CTA = () => {
           </div>
         </Container>
       </Section>
-      <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} initialMode="signup" />
+      <TrialModal isOpen={isTrialModalOpen} onClose={closeTrialModal} />
     </>
   );
 };
