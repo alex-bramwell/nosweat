@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { Section, Container, Card, Button } from '../../common';
 import { ProgramModal } from '../../ProgramModal';
-import { AuthModal } from '../../AuthModal';
 import { programs } from '../../../data/programs';
 import { weeklySchedule } from '../../../data/schedule';
 import styles from './Programs.module.scss';
 
 const Programs = () => {
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const getLevelStyle = (title: string): string => {
     const normalizedTitle = title.toLowerCase();
 
@@ -133,18 +131,8 @@ const Programs = () => {
           isOpen={!!selectedProgram}
           onClose={() => setSelectedProgram(null)}
           programId={selectedProgram}
-          onGetStarted={() => {
-            setSelectedProgram(null);
-            setIsAuthModalOpen(true);
-          }}
         />
       )}
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        initialMode="signup"
-      />
     </Section>
   );
 };

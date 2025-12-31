@@ -6,6 +6,119 @@
   gap: 2rem;
 }
 
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+
+  &.clickable {
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+
+    &:hover {
+      .stepNumber {
+        background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+        color: var(--color-text);
+      }
+
+      .stepLabel {
+        color: var(--color-secondary);
+      }
+    }
+  }
+
+  &.active {
+    .stepNumber {
+      background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+      color: var(--color-text);
+      box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
+    }
+
+    .stepLabel {
+      color: var(--color-text);
+      font-weight: 600;
+    }
+  }
+}
+
+.stepNumber {
+  @include header;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.stepLabel {
+  @include body;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  font-weight: 500;
+  transition: all 0.3s ease;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.stepDivider {
+  width: 40px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+
+  @media (max-width: 768px) {
+    width: 20px;
+  }
+}
+
+.authContainer {
+  width: 100%;
+}
+
+.note {
+  @include body;
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+}
+
+.link {
+  @include header;
+  background: none;
+  border: none;
+  color: var(--color-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0;
+
+  &:hover {
+    color: var(--color-secondary2);
+    text-decoration: underline;
+  }
+}
+
 .header {
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
