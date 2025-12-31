@@ -167,9 +167,9 @@ const EmailVerified = () => {
                 </svg>
               </div>
               <h1 className={styles.title}>Verification Failed</h1>
-              <p className={styles.message}>
+              <div className={styles.errorMessage}>
                 {errorMessage || 'We encountered an error verifying your email. This link may have expired or already been used.'}
-              </p>
+              </div>
 
               {!resendSuccess && (
                 <div className={styles.resendSection}>
