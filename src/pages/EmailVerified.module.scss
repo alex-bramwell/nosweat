@@ -1,0 +1,256 @@
+@use '../styles/variables' as *;
+
+.container {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+}
+
+.content {
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+// Verifying state
+.spinner {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 2rem;
+  animation: rotate 1.5s linear infinite;
+
+  svg {
+    width: 100%;
+    height: 100%;
+
+    circle {
+      stroke: var(--color-secondary);
+      stroke-linecap: round;
+      animation: dash 1.5s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+// Success state
+.successIcon {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(0, 229, 255, 0.4);
+  animation: scaleIn 0.5s ease-out;
+
+  svg {
+    width: 56px;
+    height: 56px;
+    stroke: var(--color-text);
+    stroke-width: 3;
+  }
+}
+
+// Error state
+.errorIcon {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(255, 68, 68, 0.4);
+  animation: scaleIn 0.5s ease-out;
+
+  svg {
+    width: 56px;
+    height: 56px;
+    stroke: white;
+    stroke-width: 3;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.title {
+  @include header;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  color: var(--color-text);
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.message {
+  @include body;
+  font-size: 1.125rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+  margin-bottom: 3rem;
+  max-width: 500px;
+}
+
+.features {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  padding: 0 1rem;
+}
+
+.feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  text-align: left;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(0, 229, 255, 0.2);
+    transform: translateX(4px);
+  }
+}
+
+.featureIcon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, rgba(0, 212, 255, 0.3) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 28px;
+    height: 28px;
+    stroke: var(--color-secondary);
+  }
+}
+
+.featureText {
+  flex: 1;
+
+  h3 {
+    @include header;
+    font-size: 1.125rem;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+
+  p {
+    @include body;
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+}
+
+.helpSection {
+  width: 100%;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  text-align: left;
+
+  h3 {
+    @include header;
+    font-size: 1.125rem;
+    color: var(--color-text);
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      @include body;
+      font-size: 0.9375rem;
+      color: var(--color-muted);
+      line-height: 1.8;
+      padding-left: 1.5rem;
+      position: relative;
+
+      &::before {
+        content: '•';
+        position: absolute;
+        left: 0.5rem;
+        color: var(--color-secondary);
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  button {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  @media (max-width: 500px) {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

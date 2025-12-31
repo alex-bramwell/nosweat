@@ -520,3 +520,145 @@
     cursor: not-allowed;
   }
 }
+
+// Completion screen styles
+.completionContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.completionIcon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 229, 255, 0.4);
+  animation: scaleIn 0.5s ease-out;
+
+  svg {
+    width: 48px;
+    height: 48px;
+    stroke: var(--color-text);
+    stroke-width: 3;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.completionTitle {
+  @include header;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  color: var(--color-text);
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.completionMessage {
+  @include body;
+  font-size: 1rem;
+  color: var(--color-muted);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+
+  strong {
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+}
+
+.completionSteps {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.completionStep {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  text-align: left;
+}
+
+.stepCircle {
+  @include header;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, rgba(0, 212, 255, 0.3) 100%);
+  border: 2px solid var(--color-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-secondary);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.stepText {
+  flex: 1;
+
+  h4 {
+    @include header;
+    font-size: 1rem;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+
+  p {
+    @include body;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    line-height: 1.5;
+  }
+}
+
+.completionNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+
+  p {
+    @include body;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    line-height: 1.6;
+    text-align: left;
+  }
+}
+
+.infoIcon {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  stroke: var(--color-secondary);
+  opacity: 0.8;
+}
