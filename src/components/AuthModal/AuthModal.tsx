@@ -27,6 +27,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   const [isCheckingPassword, setIsCheckingPassword] = useState(false);
   const [passwordCompromised, setPasswordCompromised] = useState<{ compromised: boolean; count?: number } | null>(null);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [showResetCompletion, setShowResetCompletion] = useState(false);
 
   // Password strength validation
   const validatePassword = (pwd: string) => {
@@ -112,12 +113,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           throw new Error('Please enter your email address');
         }
         await resetPassword(email);
-        setSuccess('Password reset email sent! Check your inbox.');
-        setTimeout(() => {
-          setMode('login');
-          setSuccess('');
-          setEmail('');
-        }, 3000);
+        setShowResetCompletion(true);
       } else if (mode === 'signup') {
         // Signup validation
         if (!email || !password || !name) {
@@ -199,6 +195,88 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
       setIsLoading(false);
     }
   };
+
+  // Show completion screen after password reset request
+  if (showResetCompletion) {
+    const resetCompletionContent = (
+      <div className={styles.content}>
+        <div className={styles.completionContainer}>
+          <div className={styles.completionIcon}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4" />
+              <path d="M12 16h.01" />
+            </svg>
+          </div>
+          <h2 className={styles.completionTitle}>Reset Email Sent!</h2>
+          <p className={styles.completionMessage}>
+            We've sent password reset instructions to <strong>{email}</strong>
+          </p>
+          <div className={styles.completionSteps}>
+            <div className={styles.completionStep}>
+              <div className={styles.stepCircle}>1</div>
+              <div className={styles.stepText}>
+                <h4>Check your email</h4>
+                <p>Look for a password reset email from CrossFit Comet</p>
+              </div>
+            </div>
+            <div className={styles.completionStep}>
+              <div className={styles.stepCircle}>2</div>
+              <div className={styles.stepText}>
+                <h4>Click the reset link</h4>
+                <p>Follow the secure link to create a new password</p>
+              </div>
+            </div>
+            <div className={styles.completionStep}>
+              <div className={styles.stepCircle}>3</div>
+              <div className={styles.stepText}>
+                <h4>Create a new password</h4>
+                <p>Set a strong, secure password for your account</p>
+              </div>
+            </div>
+            <div className={styles.completionStep}>
+              <div className={styles.stepCircle}>4</div>
+              <div className={styles.stepText}>
+                <h4>Sign in with new password</h4>
+                <p>Return here and log in with your new credentials</p>
+              </div>
+            </div>
+          </div>
+          <div className={styles.completionNote}>
+            <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            <p>Didn't receive the email? Check your spam folder or wait a few minutes and try again.</p>
+          </div>
+          <Button
+            variant="primary"
+            size="large"
+            fullWidth
+            onClick={() => {
+              setShowResetCompletion(false);
+              setEmail('');
+              setMode('login');
+              onClose();
+            }}
+          >
+            Got It
+          </Button>
+        </div>
+      </div>
+    );
+
+    if (embedded) {
+      return resetCompletionContent;
+    }
+
+    return (
+      <Modal isOpen={isOpen} onClose={onClose}>
+        {resetCompletionContent}
+      </Modal>
+    );
+  }
 
   // Show completion screen after signup
   if (showCompletion) {
