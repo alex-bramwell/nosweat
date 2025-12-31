@@ -23,6 +23,7 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
   loginWithOAuth: (provider: 'google' | 'facebook') => Promise<void>;
+  resendVerificationEmail: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -213,6 +214,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // OAuth will redirect, so no need to set user here
   };
 
+  const resendVerificationEmail = async (email: string) => {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/email-verified`,
+      },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -223,6 +238,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     resetPassword,
     updateProfile,
     loginWithOAuth,
+    resendVerificationEmail,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

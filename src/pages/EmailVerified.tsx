@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { Section, Container, Button } from '../components/common';
 import styles from './EmailVerified.module.scss';
 
 const EmailVerified = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { resendVerificationEmail } = useAuth();
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const [errorMessage, setErrorMessage] = useState('');
+  const [email, setEmail] = useState('');
+  const [isResending, setIsResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendError, setResendError] = useState('');
 
   useEffect(() => {
     // Check if there's an error in the URL hash (Supabase uses hash for auth)
@@ -53,6 +59,26 @@ const EmailVerified = () => {
 
   const handleSignIn = () => {
     navigate('/?signin=true');
+  };
+
+  const handleResendEmail = async () => {
+    if (!email) {
+      setResendError('Please enter your email address');
+      return;
+    }
+
+    setIsResending(true);
+    setResendError('');
+    setResendSuccess(false);
+
+    try {
+      await resendVerificationEmail(email);
+      setResendSuccess(true);
+    } catch (err) {
+      setResendError(err instanceof Error ? err.message : 'Failed to resend verification email');
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
@@ -144,8 +170,44 @@ const EmailVerified = () => {
               <p className={styles.message}>
                 {errorMessage || 'We encountered an error verifying your email. This link may have expired or already been used.'}
               </p>
+
+              {!resendSuccess && (
+                <div className={styles.resendSection}>
+                  <h3>Resend Verification Email</h3>
+                  <p>Enter your email address to receive a new verification link:</p>
+                  <div className={styles.resendForm}>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your.email@example.com"
+                      className={styles.emailInput}
+                      disabled={isResending}
+                    />
+                    <Button
+                      variant="primary"
+                      onClick={handleResendEmail}
+                      disabled={isResending || !email}
+                    >
+                      {isResending ? 'Sending...' : 'Resend Email'}
+                    </Button>
+                  </div>
+                  {resendError && <div className={styles.resendError}>{resendError}</div>}
+                </div>
+              )}
+
+              {resendSuccess && (
+                <div className={styles.resendSuccessMessage}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                  <p>Verification email sent! Please check your inbox and click the new verification link.</p>
+                </div>
+              )}
+
               <div className={styles.helpSection}>
-                <h3>What can you do?</h3>
+                <h3>Other Options</h3>
                 <ul>
                   <li>Try signing in - your account may already be verified</li>
                   <li>Create a new account if this was your first signup</li>
