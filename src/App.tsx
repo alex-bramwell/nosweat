@@ -11,6 +11,7 @@ import About from './pages/About';
 import Coaches from './pages/Coaches';
 import Dashboard from './pages/Dashboard';
 import EmailVerified from './pages/EmailVerified';
+import ResetPassword from './pages/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function AppContent() {
@@ -45,6 +46,7 @@ function AppContent() {
             <Route path="/coaches" element={<Coaches />} />
             <Route path="/about" element={<About />} />
             <Route path="/email-verified" element={<EmailVerified />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route
               path="/dashboard"
               element={
