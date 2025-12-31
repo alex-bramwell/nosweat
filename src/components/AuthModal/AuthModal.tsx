@@ -26,6 +26,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   const [honeypot, setHoneypot] = useState('');
   const [isCheckingPassword, setIsCheckingPassword] = useState(false);
   const [passwordCompromised, setPasswordCompromised] = useState<{ compromised: boolean; count?: number } | null>(null);
+  const [showCompletion, setShowCompletion] = useState(false);
 
   // Password strength validation
   const validatePassword = (pwd: string) => {
@@ -145,13 +146,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         }
 
         await signup(sanitizedEmail, password, sanitizedName);
-        setSuccess('Account created successfully!');
-        setTimeout(() => {
-          setEmail('');
-          setPassword('');
-          setName('');
-          onClose();
-        }, 1500);
+        setShowCompletion(true);
       } else {
         // Login validation
         if (!email || !password) {
@@ -204,6 +199,82 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
       setIsLoading(false);
     }
   };
+
+  // Show completion screen after signup
+  if (showCompletion) {
+    const completionContent = (
+      <div className={styles.content}>
+        <div className={styles.completionContainer}>
+          <div className={styles.completionIcon}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </div>
+          <h2 className={styles.completionTitle}>Account Created Successfully!</h2>
+          <p className={styles.completionMessage}>
+            We've sent a verification email to <strong>{email}</strong>
+          </p>
+          <div className={styles.completionSteps}>
+            <div className={styles.completionStep}>
+              <div className={styles.stepCircle}>1</div>
+              <div className={styles.stepText}>
+                <h4>Check your email</h4>
+                <p>Look for an email from CrossFit Comet</p>
+              </div>
+            </div>
+            <div className={styles.completionStep}>
+              <div className={styles.stepCircle}>2</div>
+              <div className={styles.stepText}>
+                <h4>Verify your account</h4>
+                <p>Click the verification link in the email</p>
+              </div>
+            </div>
+            <div className={styles.completionStep}>
+              <div className={styles.stepCircle}>3</div>
+              <div className={styles.stepText}>
+                <h4>Sign in and start training</h4>
+                <p>Access your dashboard and begin your journey</p>
+              </div>
+            </div>
+          </div>
+          <div className={styles.completionNote}>
+            <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            <p>Didn't receive the email? Check your spam folder or contact us for help.</p>
+          </div>
+          <Button
+            variant="primary"
+            size="large"
+            fullWidth
+            onClick={() => {
+              setShowCompletion(false);
+              setEmail('');
+              setPassword('');
+              setName('');
+              setMode('login');
+              onClose();
+            }}
+          >
+            Got It
+          </Button>
+        </div>
+      </div>
+    );
+
+    if (embedded) {
+      return completionContent;
+    }
+
+    return (
+      <Modal isOpen={isOpen} onClose={onClose}>
+        {completionContent}
+      </Modal>
+    );
+  }
 
   const content = (
     <div className={styles.content}>
