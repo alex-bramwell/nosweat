@@ -15,7 +15,7 @@
 .navbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   background: rgba(13, 13, 13, 0.5);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -27,6 +27,7 @@
   border: 2px solid transparent;
   transition: all 0.4s ease;
   min-height: 70px;
+  gap: 1.5rem;
 
   &::before {
     content: '';
@@ -67,6 +68,7 @@
   @media (max-width: 768px) {
     padding: 1rem 1.5rem;
     flex-wrap: wrap;
+    gap: 0.5rem;
   }
 }
 
@@ -87,6 +89,147 @@
   }
   50% {
     box-shadow: 0 8px 32px rgba(0, 229, 255, 1), 0 0 60px rgba(0, 229, 255, 0.6);
+  }
+}
+
+.navDropdown {
+  position: relative;
+  z-index: 1001;
+  margin-left: auto;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.navDropdownButton {
+  @include header;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
+  flex-shrink: 0;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 229, 255, 0.5);
+    background: linear-gradient(135deg, var(--color-secondary2) 0%, var(--color-secondary) 100%);
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.75rem 1.125rem;
+    font-size: 0.9rem;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.navDropdownContent {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  left: 0;
+  min-width: 220px;
+  background: rgba(13, 13, 13, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(0, 229, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  z-index: 1002;
+  animation: dropdownSlide 0.2s ease-out;
+}
+
+.navDropdownItem {
+  @include header;
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1.25rem;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &:hover {
+    background: rgba(0, 229, 255, 0.15);
+    color: var(--color-secondary);
+    padding-left: 1.5rem;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.navDropdownItem_active {
+  @include header;
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1.25rem;
+  color: var(--color-secondary);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 229, 255, 0.1);
+  border-left: 3px solid var(--color-secondary);
+  padding-left: 1.22rem;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &:hover {
+    background: rgba(0, 229, 255, 0.15);
+    color: var(--color-secondary2);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.navDropdownWodActive {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, rgba(0, 212, 255, 0.15) 100%);
+  color: var(--color-secondary) !important;
+  border-left: 3px solid var(--color-secondary);
+  padding-left: 1.22rem !important;
+  font-weight: 700;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -167,13 +310,30 @@
 }
 
 .links {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-  flex: 1;
-  justify-content: center;
-  margin: 0 auto;
-  max-width: 500px;
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(13, 13, 13, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 6rem;
+    gap: 2rem;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 999;
+
+    &.linksOpen {
+      transform: translateX(0);
+    }
+  }
 
   a {
     @include header;
@@ -225,55 +385,18 @@
       animation: pulse 2s ease-in-out infinite;
     }
   }
-
-  @media (max-width: 768px) {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(13, 13, 13, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    flex-direction: column;
-    justify-content: flex-start;
-    padding-top: 6rem;
-    gap: 2rem;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 999;
-
-    &.linksOpen {
-      transform: translateX(0);
-    }
-
-    a {
-      font-size: 1.5rem;
-      text-align: center;
-    }
-
-    .wodLink {
-      font-size: 1.5rem;
-      width: auto;
-    }
-  }
 }
 
 .actions {
-  display: none; // Hidden on mobile by default, shown when menu is open
-  gap: 0.75rem;
+  display: flex;
+  gap: 1rem;
   align-items: center;
-
-  @media (min-width: 769px) {
-    display: flex; // Always visible on desktop
-    position: absolute;
-    right: 2rem;
-  }
+  flex-shrink: 0;
 
   .signInButton {
     @include header;
     padding: 0.625rem 1.5rem;
-    border-radius: 2rem;
+    border-radius: 12px;
     border: 2px solid var(--color-secondary);
     background: transparent;
     color: var(--color-secondary);
@@ -370,17 +493,6 @@
     animation: dropdownSlide 0.2s ease-out;
   }
 
-  @keyframes dropdownSlide {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
   .dropdownItem {
     @include header;
     display: flex;
@@ -418,11 +530,6 @@
     width: auto;
     order: 3;
     margin-top: 1.5rem;
-
-    &.actionsOpen {
-      display: flex;
-      flex-direction: column;
-    }
 
     .signInButton,
     .joinButton {
