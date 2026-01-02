@@ -611,6 +611,19 @@
   color: var(--color-secondary);
   font-size: 1rem;
   font-weight: 700;
+
+  &.completed {
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+    border: 2px solid var(--color-secondary);
+    color: var(--color-dark);
+  }
+
+  &.inactive {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: var(--color-muted);
+    opacity: 0.6;
+  }
 }
 
 .completionNote {

@@ -315,11 +315,27 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           </div>
         ) : (
           // Step 2: Password form
-          <form onSubmit={handleSubmit} className={styles.form}>
-            {error && <div className={styles.error}>{error}</div>}
-            {success && <div className={styles.success}>{success}</div>}
+          <>
+            <div className={styles.completionSteps}>
+              <div className={styles.completionStep}>
+                <div className={styles.stepText}>
+                  <h4><span className={`${styles.stepNumber} ${styles.completed}`}>✓</span> Email Verified</h4>
+                  <p>You clicked the link from your email successfully</p>
+                </div>
+              </div>
+              <div className={styles.completionStep}>
+                <div className={styles.stepText}>
+                  <h4><span className={styles.stepNumber}>2</span> Create New Password</h4>
+                  <p>Set a strong, secure password for your account</p>
+                </div>
+              </div>
+            </div>
 
-            <div className={styles.field}>
+            <form onSubmit={handleSubmit} className={styles.form}>
+              {error && <div className={styles.error}>{error}</div>}
+              {success && <div className={styles.success}>{success}</div>}
+
+              <div className={styles.field}>
               <label htmlFor="new-password" className={styles.label}>New Password</label>
               <div className={styles.passwordField}>
                 <input
@@ -405,16 +421,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
               />
             </div>
 
-            <Button
-              type="submit"
-              variant="primary"
-              size="large"
-              fullWidth
-              disabled={isLoading || !isPasswordValid || (passwordCompromised?.compromised ?? false)}
-            >
-              {isLoading ? 'Updating...' : 'Update Password'}
-            </Button>
-          </form>
+              <Button
+                type="submit"
+                variant="primary"
+                size="large"
+                fullWidth
+                disabled={isLoading || !isPasswordValid || (passwordCompromised?.compromised ?? false)}
+              >
+                {isLoading ? 'Updating...' : 'Update Password'}
+              </Button>
+            </form>
+          </>
         )}
       </div>
     );
