@@ -645,6 +645,13 @@
   }
 }
 
+.iconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .infoIcon {
   width: 20px;
   height: 20px;
