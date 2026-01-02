@@ -172,6 +172,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
 
     if (error) {
+      // Provide better error message for rate limiting
+      if (error.message.includes('429') || error.message.toLowerCase().includes('rate limit')) {
+        throw new Error('Too many password reset requests. Please wait 1 hour before trying again.');
+      }
       throw new Error(error.message);
     }
   };

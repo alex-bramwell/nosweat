@@ -10,10 +10,11 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialMode?: 'login' | 'signup' | 'reset' | 'changePassword';
+  initialError?: string;
   embedded?: boolean;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login', embedded = false }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login', initialError = '', embedded = false }) => {
   const { login, signup, resetPassword, loginWithOAuth } = useAuth();
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'signup' | 'reset' | 'changePassword'>(initialMode);
@@ -21,7 +22,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(initialError);
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -153,6 +154,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         });
 
         if (updateError) {
+          // Provide better error message for rate limiting
+          if (updateError.message.includes('429') || updateError.message.toLowerCase().includes('rate limit')) {
+            throw new Error('Too many password update requests. Please wait a moment and try again.');
+          }
           throw updateError;
         }
 

@@ -11,6 +11,7 @@ const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup' | 'reset' | 'changePassword'>('login');
+  const [authModalInitialError, setAuthModalInitialError] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('');
 
@@ -42,9 +43,18 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     if (searchParams.get('password-reset') === 'true') {
       setAuthModalMode('changePassword');
+      setAuthModalInitialError('');
       setIsAuthModalOpen(true);
       // Remove the query parameter from URL
       searchParams.delete('password-reset');
+      setSearchParams(searchParams, { replace: true });
+    } else if (searchParams.get('reset-expired') === 'true') {
+      // Open modal in reset mode with error message about expired link
+      setAuthModalMode('reset');
+      setAuthModalInitialError('Your password reset link has expired or been used already. Please request a new one.');
+      setIsAuthModalOpen(true);
+      // Remove the query parameter from URL
+      searchParams.delete('reset-expired');
       setSearchParams(searchParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -59,6 +69,7 @@ const Navbar: React.FC = () => {
 
   const openAuthModal = () => {
     setAuthModalMode('login');
+    setAuthModalInitialError('');
     setIsAuthModalOpen(true);
     closeMenu();
   };
@@ -66,6 +77,7 @@ const Navbar: React.FC = () => {
   const closeAuthModal = () => {
     setIsAuthModalOpen(false);
     setAuthModalMode('login');
+    setAuthModalInitialError('');
   };
 
   return (
@@ -143,7 +155,12 @@ const Navbar: React.FC = () => {
         </div>
       </nav>
 
-      <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} initialMode={authModalMode} />
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
+        initialMode={authModalMode}
+        initialError={authModalInitialError}
+      />
     </div>
   );
 };

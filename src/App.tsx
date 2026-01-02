@@ -24,6 +24,17 @@ function PasswordRecoveryRedirect() {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const type = hashParams.get('type');
     const accessToken = hashParams.get('access_token');
+    const error = hashParams.get('error');
+    const errorCode = hashParams.get('error_code');
+
+    // Handle expired or invalid tokens
+    if (error === 'access_denied' && errorCode === 'otp_expired') {
+      // Redirect to home with error flag
+      if (!location.search.includes('reset-expired=true')) {
+        navigate('/?reset-expired=true', { replace: true });
+      }
+      return;
+    }
 
     // If we have a recovery token, redirect to home with a flag to open the password change modal
     if (type === 'recovery' && accessToken) {
