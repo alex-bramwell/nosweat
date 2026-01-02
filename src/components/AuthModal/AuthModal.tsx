@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 import { Modal, Button } from '../common';
 import { checkPasswordCompromised, sanitizeInput, isValidEmail } from '../../utils/security';
 import styles from './AuthModal.module.scss';
@@ -7,17 +9,20 @@ import styles from './AuthModal.module.scss';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: 'login' | 'signup' | 'reset';
+  initialMode?: 'login' | 'signup' | 'reset' | 'changePassword';
+  initialError?: string;
   embedded?: boolean;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login', embedded = false }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login', initialError = '', embedded = false }) => {
   const { login, signup, resetPassword, loginWithOAuth } = useAuth();
-  const [mode, setMode] = useState<'login' | 'signup' | 'reset'>(initialMode);
+  const navigate = useNavigate();
+  const [mode, setMode] = useState<'login' | 'signup' | 'reset' | 'changePassword'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(initialError);
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -28,6 +33,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   const [passwordCompromised, setPasswordCompromised] = useState<{ compromised: boolean; count?: number } | null>(null);
   const [showCompletion, setShowCompletion] = useState(false);
   const [showResetCompletion, setShowResetCompletion] = useState(false);
+  const [changePasswordStep, setChangePasswordStep] = useState(1);
 
   // Password strength validation
   const validatePassword = (pwd: string) => {
@@ -40,7 +46,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     };
   };
 
-  const passwordRequirements = mode === 'signup' ? validatePassword(password) : null;
+  // Sync mode state with initialMode prop when it changes
+  useEffect(() => {
+    setMode(initialMode);
+    // Reset changePasswordStep to 1 when entering changePassword mode
+    if (initialMode === 'changePassword') {
+      setChangePasswordStep(1);
+    }
+  }, [initialMode]);
+
+  // Sync error state with initialError prop when it changes
+  useEffect(() => {
+    if (initialError) {
+      setError(initialError);
+    }
+  }, [initialError]);
+
+  const passwordRequirements = (mode === 'signup' || mode === 'changePassword') ? validatePassword(password) : null;
   const isPasswordValid = passwordRequirements
     ? Object.values(passwordRequirements).every(Boolean)
     : true;
@@ -64,11 +86,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     return { strength, label: 'Strong', color: '#22c55e' };
   };
 
-  const passwordStrength = mode === 'signup' ? calculatePasswordStrength(password) : null;
+  const passwordStrength = (mode === 'signup' || mode === 'changePassword') ? calculatePasswordStrength(password) : null;
 
   // Check password against Have I Been Pwned database (debounced)
   useEffect(() => {
-    if (mode === 'signup' && password && isPasswordValid) {
+    if ((mode === 'signup' || mode === 'changePassword') && password && isPasswordValid) {
       const timer = setTimeout(async () => {
         setIsCheckingPassword(true);
         const result = await checkPasswordCompromised(password);
@@ -114,6 +136,57 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         }
         await resetPassword(email);
         setShowResetCompletion(true);
+      } else if (mode === 'changePassword') {
+        // Change password (password recovery)
+        if (changePasswordStep === 1) {
+          // Step 1: Just move to step 2
+          setChangePasswordStep(2);
+          setIsLoading(false);
+          return;
+        }
+
+        // Step 2: Update the password
+        if (!password || !confirmPassword) {
+          throw new Error('Please fill in all fields');
+        }
+
+        if (!isPasswordValid) {
+          throw new Error('Password does not meet security requirements');
+        }
+
+        if (password !== confirmPassword) {
+          throw new Error('Passwords do not match');
+        }
+
+        // Check if password has been compromised
+        if (passwordCompromised?.compromised) {
+          throw new Error(
+            `This password has been found in ${passwordCompromised.count?.toLocaleString()} data breaches. Please choose a different password.`
+          );
+        }
+
+        const { error: updateError } = await supabase.auth.updateUser({
+          password: password,
+        });
+
+        if (updateError) {
+          // Provide better error message for rate limiting
+          if (updateError.message.includes('429') || updateError.message.toLowerCase().includes('rate limit')) {
+            throw new Error('Too many password update requests. Please wait a moment and try again.');
+          }
+          throw updateError;
+        }
+
+        // Success - show completion message and redirect
+        setSuccess('Password updated successfully! Redirecting to sign in...');
+        setTimeout(() => {
+          onClose();
+          setMode('login');
+          setPassword('');
+          setConfirmPassword('');
+          setChangePasswordStep(1);
+          navigate('/', { replace: true });
+        }, 2000);
       } else if (mode === 'signup') {
         // Signup validation
         if (!email || !password || !name) {
@@ -196,6 +269,211 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     }
   };
 
+  // Show change password modal (2-step flow for password recovery)
+  if (mode === 'changePassword') {
+    const changePasswordContent = (
+      <div className={styles.content}>
+        <h2 className={styles.title}>
+          {changePasswordStep === 1 ? 'Reset Your Password' : 'Create New Password'}
+        </h2>
+
+        {/* Step indicators - always visible */}
+        <div className={styles.completionSteps}>
+          <div className={styles.completionStep}>
+            <div className={styles.stepText}>
+              <h4>
+                <span className={`${styles.stepNumber} ${styles.completed}`}>
+                  ✓
+                </span>
+                Check your email
+              </h4>
+              <p>Look for a password reset email from CrossFit Comet</p>
+            </div>
+          </div>
+          <div className={styles.completionStep}>
+            <div className={styles.stepText}>
+              <h4>
+                <span className={`${styles.stepNumber} ${styles.completed}`}>
+                  ✓
+                </span>
+                Click the reset link
+              </h4>
+              <p>Follow the secure link to create a new password</p>
+            </div>
+          </div>
+          <div className={styles.completionStep}>
+            <div className={styles.stepText}>
+              <h4>
+                <span className={changePasswordStep === 1 ? styles.stepNumber : `${styles.stepNumber} ${styles.completed}`}>
+                  {changePasswordStep === 1 ? '3' : '✓'}
+                </span>
+                Verify your identity
+              </h4>
+              <p>Confirm your email has been verified</p>
+            </div>
+          </div>
+          <div className={styles.completionStep}>
+            <div className={styles.stepText}>
+              <h4>
+                <span className={changePasswordStep === 2 ? styles.stepNumber : `${styles.stepNumber} ${styles.inactive}`}>
+                  4
+                </span>
+                Create new password
+              </h4>
+              <p>Set a strong, secure password for your account</p>
+            </div>
+          </div>
+        </div>
+
+        {changePasswordStep === 1 ? (
+          // Step 1: Confirmation content
+          <div className={styles.completionContainer}>
+            <div className={styles.completionIcon}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <p className={styles.completionMessage}>
+              You've successfully verified your email. Let's create a new secure password for your account.
+            </p>
+            <Button
+              variant="primary"
+              size="large"
+              fullWidth
+              onClick={() => setChangePasswordStep(2)}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Loading...' : 'Continue'}
+            </Button>
+          </div>
+        ) : (
+          // Step 2: Password form
+          <form onSubmit={handleSubmit} className={styles.form}>
+              {error && <div className={styles.error}>{error}</div>}
+              {success && <div className={styles.success}>{success}</div>}
+
+              <div className={styles.field}>
+              <label htmlFor="new-password" className={styles.label}>New Password</label>
+              <div className={styles.passwordField}>
+                <input
+                  id="new-password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your new password"
+                  disabled={isLoading}
+                  autoComplete="new-password"
+                  className={styles.input}
+                />
+                <button
+                  type="button"
+                  className={styles.passwordToggle}
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+
+              {passwordStrength && (
+                <div className={styles.passwordStrength}>
+                  <div className={styles.strengthBar}>
+                    <div
+                      className={styles.strengthFill}
+                      style={{
+                        width: `${passwordStrength.strength}%`,
+                        backgroundColor: passwordStrength.color,
+                      }}
+                    />
+                  </div>
+                  <span style={{ color: passwordStrength.color }}>
+                    {passwordStrength.label}
+                  </span>
+                </div>
+              )}
+
+              {passwordRequirements && (
+                <div className={styles.passwordRequirements}>
+                  <div className={passwordRequirements.minLength ? styles.valid : styles.invalid}>
+                    {passwordRequirements.minLength ? '✓' : '✗'} At least 12 characters
+                  </div>
+                  <div className={passwordRequirements.hasUppercase ? styles.valid : styles.invalid}>
+                    {passwordRequirements.hasUppercase ? '✓' : '✗'} One uppercase letter
+                  </div>
+                  <div className={passwordRequirements.hasLowercase ? styles.valid : styles.invalid}>
+                    {passwordRequirements.hasLowercase ? '✓' : '✗'} One lowercase letter
+                  </div>
+                  <div className={passwordRequirements.hasNumber ? styles.valid : styles.invalid}>
+                    {passwordRequirements.hasNumber ? '✓' : '✗'} One number
+                  </div>
+                  <div className={passwordRequirements.hasSpecial ? styles.valid : styles.invalid}>
+                    {passwordRequirements.hasSpecial ? '✓' : '✗'} One special character
+                  </div>
+                </div>
+              )}
+
+              {isCheckingPassword && (
+                <div className={styles.checkingPassword}>Checking password security...</div>
+              )}
+
+              {passwordCompromised && passwordCompromised.compromised && (
+                <div className={styles.passwordWarning}>
+                  ⚠️ This password has been found in {passwordCompromised.count?.toLocaleString()} data breaches.
+                  Please choose a different password.
+                </div>
+              )}
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="confirm-password" className={styles.label}>Confirm Password</label>
+              <input
+                id="confirm-password"
+                type={showPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm your new password"
+                disabled={isLoading}
+                autoComplete="new-password"
+                className={styles.input}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              variant="primary"
+              size="large"
+              fullWidth
+              disabled={isLoading || !isPasswordValid || (passwordCompromised?.compromised ?? false)}
+            >
+              {isLoading ? 'Updating...' : 'Update Password'}
+            </Button>
+          </form>
+        )}
+      </div>
+    );
+
+    if (embedded) {
+      return changePasswordContent;
+    }
+
+    return (
+      <Modal isOpen={isOpen} onClose={onClose}>
+        {changePasswordContent}
+      </Modal>
+    );
+  }
+
   // Show completion screen after password reset request
   if (showResetCompletion) {
     const resetCompletionContent = (
@@ -239,11 +517,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             </div>
           </div>
           <div className={styles.completionNote}>
-            <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="16" x2="12" y2="12" />
-              <line x1="12" y1="8" x2="12.01" y2="8" />
-            </svg>
+            <span className={styles.iconWrapper}>
+              <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+            </span>
             <p>Didn't receive the email? Check your spam folder or wait a few minutes and try again.</p>
           </div>
           <Button
@@ -310,11 +590,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             </div>
           </div>
           <div className={styles.completionNote}>
-            <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="16" x2="12" y2="12" />
-              <line x1="12" y1="8" x2="12.01" y2="8" />
-            </svg>
+            <span className={styles.iconWrapper}>
+              <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+            </span>
             <p>Didn't receive the email? Check your spam folder or contact us for help.</p>
           </div>
           <Button
