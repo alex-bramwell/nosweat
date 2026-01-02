@@ -49,6 +49,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   // Sync mode state with initialMode prop when it changes
   useEffect(() => {
     setMode(initialMode);
+    // Reset changePasswordStep to 1 when entering changePassword mode
+    if (initialMode === 'changePassword') {
+      setChangePasswordStep(1);
+    }
   }, [initialMode]);
 
   // Sync error state with initialError prop when it changes
@@ -316,7 +320,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             {success && <div className={styles.success}>{success}</div>}
 
             <div className={styles.field}>
-              <label htmlFor="new-password">New Password</label>
+              <label htmlFor="new-password" className={styles.label}>New Password</label>
               <div className={styles.passwordField}>
                 <input
                   id="new-password"
@@ -326,6 +330,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                   placeholder="Enter your new password"
                   disabled={isLoading}
                   autoComplete="new-password"
+                  className={styles.input}
                 />
                 <button
                   type="button"
@@ -387,7 +392,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="confirm-password">Confirm Password</label>
+              <label htmlFor="confirm-password" className={styles.label}>Confirm Password</label>
               <input
                 id="confirm-password"
                 type={showPassword ? 'text' : 'password'}
@@ -396,6 +401,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                 placeholder="Confirm your new password"
                 disabled={isLoading}
                 autoComplete="new-password"
+                className={styles.input}
               />
             </div>
 
