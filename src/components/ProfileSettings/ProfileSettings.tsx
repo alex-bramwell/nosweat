@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../common';
+import { checkPasswordCompromised } from '../../utils/security';
 import styles from './ProfileSettings.module.scss';
 
 const ProfileSettings: React.FC = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, changePassword } = useAuth();
   const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [emergencyContact, setEmergencyContact] = useState(user?.emergencyContact || '');
@@ -12,6 +13,90 @@ const ProfileSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Password change state
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPasswords, setShowPasswords] = useState(false);
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [isCheckingPassword, setIsCheckingPassword] = useState(false);
+  const [passwordCompromised, setPasswordCompromised] = useState<{ compromised: boolean; count?: number } | null>(null);
+
+  // Password strength validation
+  const validatePassword = (pwd: string) => {
+    return {
+      minLength: pwd.length >= 12,
+      hasUppercase: /[A-Z]/.test(pwd),
+      hasLowercase: /[a-z]/.test(pwd),
+      hasNumber: /[0-9]/.test(pwd),
+      hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
+    };
+  };
+
+  const passwordRequirements = validatePassword(newPassword);
+  const isPasswordValid = newPassword
+    ? Object.values(passwordRequirements).every(Boolean)
+    : false;
+
+  // Check password against Have I Been Pwned database
+  React.useEffect(() => {
+    if (newPassword && isPasswordValid) {
+      const timer = setTimeout(async () => {
+        setIsCheckingPassword(true);
+        const result = await checkPasswordCompromised(newPassword);
+        setPasswordCompromised(result);
+        setIsCheckingPassword(false);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    } else {
+      setPasswordCompromised(null);
+    }
+  }, [newPassword, isPasswordValid]);
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (!newPassword || !confirmPassword) {
+      setPasswordError('Please fill in all password fields');
+      return;
+    }
+
+    if (!isPasswordValid) {
+      setPasswordError('Password does not meet security requirements');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+
+    if (passwordCompromised?.compromised) {
+      setPasswordError(
+        `This password has been found in ${passwordCompromised.count?.toLocaleString()} data breaches. Please choose a different password.`
+      );
+      return;
+    }
+
+    setIsPasswordLoading(true);
+
+    try {
+      await changePassword(newPassword);
+      setPasswordSuccess('Password changed successfully!');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordSuccess(''), 3000);
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Failed to change password');
+    } finally {
+      setIsPasswordLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,6 +228,95 @@ const ProfileSettings: React.FC = () => {
             disabled={isLoading}
           >
             {isLoading ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
+      </form>
+
+      <div className={styles.divider} />
+
+      <form onSubmit={handlePasswordChange} className={styles.form}>
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Change Password</h3>
+          <p className={styles.subtitle}>Update your account password</p>
+
+          <div className={styles.field}>
+            <label htmlFor="newPassword" className={styles.label}>New Password *</label>
+            <div className={styles.passwordField}>
+              <input
+                id="newPassword"
+                type={showPasswords ? 'text' : 'password'}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className={styles.input}
+                placeholder="Enter your new password"
+                disabled={isPasswordLoading}
+              />
+              <button
+                type="button"
+                className={styles.passwordToggle}
+                onClick={() => setShowPasswords(!showPasswords)}
+                aria-label={showPasswords ? 'Hide passwords' : 'Show passwords'}
+              >
+                {showPasswords ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
+
+            {newPassword && (
+              <div className={styles.passwordRequirements}>
+                <div className={passwordRequirements.minLength ? styles.valid : styles.invalid}>
+                  {passwordRequirements.minLength ? '✓' : '✗'} At least 12 characters
+                </div>
+                <div className={passwordRequirements.hasUppercase ? styles.valid : styles.invalid}>
+                  {passwordRequirements.hasUppercase ? '✓' : '✗'} One uppercase letter
+                </div>
+                <div className={passwordRequirements.hasLowercase ? styles.valid : styles.invalid}>
+                  {passwordRequirements.hasLowercase ? '✓' : '✗'} One lowercase letter
+                </div>
+                <div className={passwordRequirements.hasNumber ? styles.valid : styles.invalid}>
+                  {passwordRequirements.hasNumber ? '✓' : '✗'} One number
+                </div>
+                <div className={passwordRequirements.hasSpecial ? styles.valid : styles.invalid}>
+                  {passwordRequirements.hasSpecial ? '✓' : '✗'} One special character
+                </div>
+              </div>
+            )}
+
+            {isCheckingPassword && (
+              <div className={styles.checkingPassword}>Checking password security...</div>
+            )}
+
+            {passwordCompromised && passwordCompromised.compromised && (
+              <div className={styles.passwordWarning}>
+                ⚠️ This password has been found in {passwordCompromised.count?.toLocaleString()} data breaches.
+                Please choose a different password.
+              </div>
+            )}
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="confirmPassword" className={styles.label}>Confirm New Password *</label>
+            <input
+              id="confirmPassword"
+              type={showPasswords ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className={styles.input}
+              placeholder="Confirm your new password"
+              disabled={isPasswordLoading}
+            />
+          </div>
+        </div>
+
+        {passwordError && <div className={styles.error}>{passwordError}</div>}
+        {passwordSuccess && <div className={styles.success}>{passwordSuccess}</div>}
+
+        <div className={styles.actions}>
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={isPasswordLoading || !isPasswordValid || (passwordCompromised?.compromised ?? false)}
+          >
+            {isPasswordLoading ? 'Changing Password...' : 'Change Password'}
           </Button>
         </div>
       </form>
