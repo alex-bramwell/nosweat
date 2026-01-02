@@ -27,8 +27,11 @@ function PasswordRecoveryRedirect() {
     const error = hashParams.get('error');
     const errorCode = hashParams.get('error_code');
 
+    console.log('PasswordRecoveryRedirect:', { type, hasToken: !!accessToken, error, errorCode, pathname: location.pathname, search: location.search });
+
     // Handle expired or invalid tokens
     if (error === 'access_denied' && errorCode === 'otp_expired') {
+      console.log('Detected expired token, redirecting to reset-expired');
       // Redirect to home with error flag
       if (!location.search.includes('reset-expired=true')) {
         navigate('/?reset-expired=true', { replace: true });
@@ -38,10 +41,13 @@ function PasswordRecoveryRedirect() {
 
     // If we have a recovery token, redirect to home with a flag to open the password change modal
     if (type === 'recovery' && accessToken) {
+      console.log('Detected recovery token, redirecting to password-reset=true');
       // Navigate to home with password-reset query param and preserve the hash
       const currentPath = location.pathname + location.search;
       if (!currentPath.includes('password-reset=true')) {
-        navigate('/?password-reset=true' + window.location.hash, { replace: true });
+        const newUrl = '/?password-reset=true' + window.location.hash;
+        console.log('Navigating to:', newUrl);
+        navigate(newUrl, { replace: true });
       }
     }
   }, [navigate, location]);

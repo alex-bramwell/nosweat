@@ -41,14 +41,20 @@ const Navbar: React.FC = () => {
 
   // Check for password reset parameter and open modal
   useEffect(() => {
-    if (searchParams.get('password-reset') === 'true') {
+    const passwordReset = searchParams.get('password-reset');
+    const resetExpired = searchParams.get('reset-expired');
+    console.log('Navbar useEffect:', { passwordReset, resetExpired });
+
+    if (passwordReset === 'true') {
+      console.log('Opening changePassword modal');
       setAuthModalMode('changePassword');
       setAuthModalInitialError('');
       setIsAuthModalOpen(true);
       // Remove the query parameter from URL
       searchParams.delete('password-reset');
       setSearchParams(searchParams, { replace: true });
-    } else if (searchParams.get('reset-expired') === 'true') {
+    } else if (resetExpired === 'true') {
+      console.log('Opening reset modal with expired error');
       // Open modal in reset mode with error message about expired link
       setAuthModalMode('reset');
       setAuthModalInitialError('Your password reset link has expired or been used already. Please request a new one.');
