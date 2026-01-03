@@ -53,6 +53,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     // Reset changePasswordStep to 1 when entering changePassword mode
     if (initialMode === 'changePassword') {
       setChangePasswordStep(1);
+
+      // Verify session is established when entering password change mode
+      const checkSession = async () => {
+        console.log('Checking session on modal open...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('Modal session check:', {
+          hasSession: !!session,
+          error,
+          user: session?.user?.email,
+          expiresAt: session?.expires_at
+        });
+      };
+      checkSession();
     }
   }, [initialMode]);
 

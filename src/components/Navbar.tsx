@@ -49,12 +49,20 @@ const Navbar: React.FC = () => {
 
     if (passwordReset === 'true') {
       console.log('Opening changePassword modal');
+      console.log('Current hash before modal open:', window.location.hash);
       setAuthModalMode('changePassword');
       setAuthModalInitialError('');
       setIsAuthModalOpen(true);
-      // Remove the query parameter from URL
+      // Remove the query parameter from URL but preserve the hash
       searchParams.delete('password-reset');
+      // Preserve the hash when updating search params
+      const currentHash = window.location.hash;
       setSearchParams(searchParams, { replace: true });
+      // Restore hash if it was removed
+      if (currentHash && !window.location.hash) {
+        console.log('Hash was lost, restoring:', currentHash);
+        window.location.hash = currentHash;
+      }
     } else if (resetExpired === 'true') {
       console.log('Opening reset modal with expired error');
       // Open modal in reset mode with error message about expired link
