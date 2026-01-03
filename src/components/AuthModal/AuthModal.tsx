@@ -15,7 +15,7 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login', initialError = '', embedded = false }) => {
-  const { login, signup, resetPassword, loginWithOAuth } = useAuth();
+  const { login, signup, resetPassword, loginWithOAuth, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'signup' | 'reset' | 'changePassword'>(initialMode);
   const [email, setEmail] = useState('');
@@ -55,48 +55,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     if (initialMode === 'changePassword') {
       setChangePasswordStep(1);
       setIsSessionReady(false);
-
-      // Check if session already exists (non-blocking with timeout)
-      console.log('Checking for existing session...');
-      const sessionCheckTimeout = setTimeout(async () => {
-        try {
-          // Use a Promise race to timeout the getSession call if it hangs
-          const sessionPromise = supabase.auth.getSession();
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Session check timeout')), 2000)
-          );
-
-          const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
-          console.log('Existing session check:', { hasSession: !!session, user: session?.user?.email });
-          if (session) {
-            console.log('Session already exists - ready immediately');
-            setIsSessionReady(true);
-          }
-        } catch (err) {
-          console.log('Session check failed or timed out, will wait for auth event:', err);
-        }
-      }, 100);
-
-      // Also listen for auth state changes in case session isn't ready yet
-      console.log('Setting up auth state listener for password recovery...');
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        console.log('Auth state change:', { event, hasSession: !!session, user: session?.user?.email });
-        if (event === 'PASSWORD_RECOVERY') {
-          console.log('PASSWORD_RECOVERY event received - session is ready');
-          setIsSessionReady(true);
-        } else if (event === 'SIGNED_IN' && session) {
-          console.log('SIGNED_IN event received - session is ready');
-          setIsSessionReady(true);
-        }
-      });
-
-      return () => {
-        console.log('Cleaning up auth state listener');
-        clearTimeout(sessionCheckTimeout);
-        subscription.unsubscribe();
-      };
     }
   }, [initialMode]);
+
+  // Check if user is authenticated from AuthContext for password recovery
+  useEffect(() => {
+    if (mode === 'changePassword') {
+      console.log('Checking auth status for password recovery:', { isAuthenticated, hasUser: !!user });
+      if (isAuthenticated && user) {
+        console.log('User is authenticated - session ready');
+        setIsSessionReady(true);
+      } else {
+        console.log('Waiting for authentication...');
+      }
+    }
+  }, [mode, isAuthenticated, user]);
 
   // Sync error state with initialError prop when it changes
   useEffect(() => {
