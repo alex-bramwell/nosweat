@@ -50,9 +50,15 @@ const Navbar: React.FC = () => {
     if (passwordReset === 'true') {
       console.log('Opening changePassword modal');
       console.log('Current hash before modal open:', window.location.hash);
-      setAuthModalMode('changePassword');
-      setAuthModalInitialError('');
-      setIsAuthModalOpen(true);
+
+      // Wait a moment for Supabase to process the auth hash and establish session
+      setTimeout(async () => {
+        console.log('Waiting for Supabase to process auth hash...');
+        setAuthModalMode('changePassword');
+        setAuthModalInitialError('');
+        setIsAuthModalOpen(true);
+      }, 500);
+
       // Remove the query parameter from URL but preserve the hash
       searchParams.delete('password-reset');
       // Preserve the hash when updating search params
