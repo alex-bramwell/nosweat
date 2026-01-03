@@ -56,7 +56,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
       setChangePasswordStep(1);
       setIsSessionReady(false);
 
-      // Listen for auth state changes to detect when session is established
+      // Check if session already exists (non-blocking with timeout)
+      console.log('Checking for existing session...');
+      const sessionCheckTimeout = setTimeout(async () => {
+        try {
+          // Use a Promise race to timeout the getSession call if it hangs
+          const sessionPromise = supabase.auth.getSession();
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Session check timeout')), 2000)
+          );
+
+          const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+          console.log('Existing session check:', { hasSession: !!session, user: session?.user?.email });
+          if (session) {
+            console.log('Session already exists - ready immediately');
+            setIsSessionReady(true);
+          }
+        } catch (err) {
+          console.log('Session check failed or timed out, will wait for auth event:', err);
+        }
+      }, 100);
+
+      // Also listen for auth state changes in case session isn't ready yet
       console.log('Setting up auth state listener for password recovery...');
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         console.log('Auth state change:', { event, hasSession: !!session, user: session?.user?.email });
@@ -71,6 +92,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
       return () => {
         console.log('Cleaning up auth state listener');
+        clearTimeout(sessionCheckTimeout);
         subscription.unsubscribe();
       };
     }
