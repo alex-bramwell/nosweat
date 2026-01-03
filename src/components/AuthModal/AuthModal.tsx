@@ -54,18 +54,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     if (initialMode === 'changePassword') {
       setChangePasswordStep(1);
 
-      // Verify session is established when entering password change mode
-      const checkSession = async () => {
-        console.log('Checking session on modal open...');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        console.log('Modal session check:', {
-          hasSession: !!session,
-          error,
-          user: session?.user?.email,
-          expiresAt: session?.expires_at
-        });
+      // Listen for auth state changes to detect when session is established
+      console.log('Setting up auth state listener for password recovery...');
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth state change:', { event, hasSession: !!session, user: session?.user?.email });
+        if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
+          console.log('Session established for password recovery');
+        }
+      });
+
+      return () => {
+        console.log('Cleaning up auth state listener');
+        subscription.unsubscribe();
       };
-      checkSession();
     }
   }, [initialMode]);
 
@@ -181,19 +182,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
         console.log('Attempting to update password...');
 
-        // First, verify we have a valid session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log('Current session:', { hasSession: !!session, sessionError });
-
-        if (!session) {
-          throw new Error('No active session found. Please try using the password reset link again.');
-        }
-
-        const { error: updateError } = await supabase.auth.updateUser({
+        // Try to update the password directly
+        // Supabase will return an error if there's no valid session
+        const { data, error: updateError } = await supabase.auth.updateUser({
           password: password,
         });
 
-        console.log('Update result:', { error: updateError });
+        console.log('Update result:', { error: updateError, hasUser: !!data?.user });
 
         if (updateError) {
           console.error('Password update error:', updateError);
