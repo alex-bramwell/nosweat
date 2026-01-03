@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import { AuthModal } from './AuthModal';
 import styles from './Navbar.module.scss';
 
@@ -41,45 +42,37 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [location]);
 
-  // Check for password reset parameter and open modal
+  // Listen for Supabase PASSWORD_RECOVERY event to open modal
   useEffect(() => {
-    const passwordReset = searchParams.get('password-reset');
-    const resetExpired = searchParams.get('reset-expired');
-    console.log('Navbar useEffect:', { passwordReset, resetExpired });
+    console.log('Setting up PASSWORD_RECOVERY listener in Navbar');
 
-    if (passwordReset === 'true') {
-      console.log('Opening changePassword modal');
-      console.log('Current hash before modal open:', window.location.hash);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Navbar auth state change:', { event, hasSession: !!session });
 
-      // Wait a moment for Supabase to process the auth hash and establish session
-      setTimeout(async () => {
-        console.log('Waiting for Supabase to process auth hash...');
+      if (event === 'PASSWORD_RECOVERY') {
+        console.log('PASSWORD_RECOVERY event detected - opening modal');
         setAuthModalMode('changePassword');
         setAuthModalInitialError('');
         setIsAuthModalOpen(true);
-      }, 500);
-
-      // Remove the query parameter from URL but preserve the hash
-      searchParams.delete('password-reset');
-      // Preserve the hash when updating search params
-      const currentHash = window.location.hash;
-      setSearchParams(searchParams, { replace: true });
-      // Restore hash if it was removed
-      if (currentHash && !window.location.hash) {
-        console.log('Hash was lost, restoring:', currentHash);
-        window.location.hash = currentHash;
       }
-    } else if (resetExpired === 'true') {
+    });
+
+    // Also check for expired token in query params
+    const resetExpired = searchParams.get('reset-expired');
+    if (resetExpired === 'true') {
       console.log('Opening reset modal with expired error');
-      // Open modal in reset mode with error message about expired link
       setAuthModalMode('reset');
       setAuthModalInitialError('Your password reset link has expired or been used already. Please request a new one.');
       setIsAuthModalOpen(true);
-      // Remove the query parameter from URL
       searchParams.delete('reset-expired');
       setSearchParams(searchParams, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
+
+    return () => {
+      console.log('Cleaning up PASSWORD_RECOVERY listener in Navbar');
+      subscription.unsubscribe();
+    };
+  }, []); // Empty deps - only set up once
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
