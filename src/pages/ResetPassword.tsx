@@ -85,10 +85,17 @@ const ResetPassword = () => {
       if (tokenHash && type === 'recovery') {
         console.log('ResetPassword: Using token_hash from query params...');
         try {
-          const { data, error: verifyError } = await supabase.auth.verifyOtp({
+          // Add timeout to prevent hanging
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Request timed out')), 10000);
+          });
+
+          const verifyPromise = supabase.auth.verifyOtp({
             token_hash: tokenHash,
             type: 'recovery',
           });
+
+          const { data, error: verifyError } = await Promise.race([verifyPromise, timeoutPromise]) as Awaited<typeof verifyPromise>;
 
           console.log('ResetPassword: verifyOtp result', { 
             hasSession: !!data.session, 
@@ -110,7 +117,7 @@ const ResetPassword = () => {
           }
         } catch (err) {
           console.error('ResetPassword: verifyOtp exception', err);
-          setError('An error occurred. Please try again.');
+          setError('Unable to verify your reset link. Please request a new password reset.');
           return;
         }
       }
