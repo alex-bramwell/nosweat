@@ -342,7 +342,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             if (intent.type === 'day-pass') {
               updateStep('class-selection');
               onClose();
-              navigate('/schedule');
+              // Reload to pick up session, then redirect to schedule
+              window.location.href = '/schedule';
               return;
             } else if (intent.type === 'trial' && !embedded) {
               updateStep('payment');
