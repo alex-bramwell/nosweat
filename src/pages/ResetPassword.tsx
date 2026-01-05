@@ -13,6 +13,7 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   // Password validation
   const validatePassword = (pwd: string) => {
@@ -110,21 +111,10 @@ const ResetPassword = () => {
             return;
           }
 
-          // Now set the session with the tokens we got
-          if (result.access_token && result.refresh_token) {
-            console.log('ResetPassword: Setting session with tokens from API...');
-            const { error: sessionError } = await supabase.auth.setSession({
-              access_token: result.access_token,
-              refresh_token: result.refresh_token,
-            });
-
-            if (sessionError) {
-              console.error('ResetPassword: setSession error', sessionError);
-              setError('Failed to establish session. Please try again.');
-              return;
-            }
-
-            console.log('ResetPassword: Session established!');
+          // Store the access token - skip SDK setSession entirely
+          if (result.access_token) {
+            console.log('ResetPassword: Token received, ready for password update!');
+            setAccessToken(result.access_token);
             setIsSessionReady(true);
             window.history.replaceState(null, '', window.location.pathname);
             return;
@@ -168,12 +158,26 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     try {
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password,
+      // Use direct API call with the access token we stored
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          password: password,
+        }),
       });
 
-      if (updateError) {
-        throw updateError;
+      const result = await response.json();
+
+      if (!response.ok || result.error) {
+        throw new Error(result.error_description || result.error || 'Failed to update password');
       }
 
       setSuccess(true);
