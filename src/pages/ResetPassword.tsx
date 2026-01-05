@@ -51,21 +51,17 @@ const ResetPassword = () => {
   const [isSessionReady, setIsSessionReady] = useState(false);
 
   useEffect(() => {
-    // Check if this is a valid password reset link and set up the session
+    // Check if this is a valid password reset link and wait for Supabase to process it
+    // Supabase has detectSessionInUrl: true, so it will automatically process the hash
     const checkResetToken = async () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get('access_token');
-      const refreshToken = hashParams.get('refresh_token');
       const type = hashParams.get('type');
 
-      console.log('ResetPassword: checking token', { type, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken });
+      console.log('ResetPassword: checking token', { type, hasAccessToken: !!accessToken, hash: window.location.hash.substring(0, 50) });
 
-      // Only show error if we're sure there's no recovery session
-      if (type && type !== 'recovery') {
-        setError('This link is not for password recovery. Please use the correct reset link from your email.');
-        return;
-      } else if (!accessToken && !type) {
-        // No hash params - check if we already have a session from a previous token
+      // No hash params - check if we already have a session
+      if (!accessToken && !type) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           console.log('ResetPassword: Found existing session');
@@ -75,61 +71,67 @@ const ResetPassword = () => {
         // No hash params at all - user navigated directly
         setError('Please use the password reset link from your email to access this page.');
         return;
-      } else if (type === 'recovery' && !accessToken) {
+      }
+
+      // Only show error if wrong type
+      if (type && type !== 'recovery') {
+        setError('This link is not for password recovery. Please use the correct reset link from your email.');
+        return;
+      }
+
+      if (type === 'recovery' && !accessToken) {
         setError('Invalid or expired password reset link. Please request a new one.');
         return;
       }
 
-      // We have a recovery token - manually set the session
-      console.log('ResetPassword: Setting session from recovery token...');
+      // We have a recovery token - Supabase should auto-process it due to detectSessionInUrl: true
+      // Set up a listener for the auth state change and also poll for session
+      console.log('ResetPassword: Waiting for Supabase to auto-process recovery token...');
       
-      try {
-        // Use setSession to establish the session from the tokens in the URL
-        // Add a timeout in case it hangs
-        const setSessionPromise = supabase.auth.setSession({
-          access_token: accessToken!,
-          refresh_token: refreshToken || '',
-        });
-
-        const timeoutPromise = new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Session setup timed out')), 10000)
-        );
-
-        const { data, error: sessionError } = await Promise.race([setSessionPromise, timeoutPromise]);
-
-        console.log('ResetPassword: setSession result', { 
-          hasSession: !!data.session, 
-          hasUser: !!data.user,
-          error: sessionError 
-        });
-
-        if (sessionError) {
-          console.error('ResetPassword: Session error', sessionError);
-          if (sessionError.message.includes('expired') || sessionError.message.includes('invalid')) {
-            setError('Your password reset link has expired. Please request a new one.');
-          } else {
-            setError(sessionError.message);
+      let resolved = false;
+      
+      // Set up auth state change listener
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log('ResetPassword: Auth state changed', { event, hasSession: !!session });
+        if (!resolved && (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY' || event === 'TOKEN_REFRESHED')) {
+          if (session) {
+            resolved = true;
+            setIsSessionReady(true);
+            // Clear the hash from URL for cleaner appearance
+            window.history.replaceState(null, '', window.location.pathname);
+            subscription.unsubscribe();
           }
-          return;
         }
+      });
 
-        if (data.session) {
-          console.log('ResetPassword: Session established successfully!');
-          setIsSessionReady(true);
-          // Clear the hash from URL for cleaner appearance
-          window.history.replaceState(null, '', window.location.pathname);
-        } else {
-          setError('Unable to verify your reset link. Please request a new one.');
+      // Also poll for session in case the event already fired
+      const pollForSession = async () => {
+        for (let i = 0; i < 20; i++) {  // Try for 10 seconds
+          if (resolved) return;
+          
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          const { data: { session } } = await supabase.auth.getSession();
+          console.log('ResetPassword: Polling for session', { attempt: i + 1, hasSession: !!session });
+          
+          if (session && !resolved) {
+            resolved = true;
+            setIsSessionReady(true);
+            // Clear the hash from URL for cleaner appearance
+            window.history.replaceState(null, '', window.location.pathname);
+            subscription.unsubscribe();
+            return;
+          }
         }
-      } catch (err) {
-        console.error('ResetPassword: Exception setting session', err);
-        const message = err instanceof Error ? err.message : 'An error occurred';
-        if (message.includes('timed out')) {
-          setError('Verification took too long. Please try clicking the link again or request a new one.');
-        } else {
-          setError('An error occurred verifying your reset link. Please try again.');
+        
+        // Timeout - no session after 10 seconds
+        if (!resolved) {
+          subscription.unsubscribe();
+          setError('Unable to verify your reset link. It may have expired. Please request a new one.');
         }
-      }
+      };
+
+      pollForSession();
     };
 
     checkResetToken();
