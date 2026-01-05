@@ -169,10 +169,10 @@ const Schedule = () => {
                       <line x1="12" y1="8" x2="12.01" y2="8"/>
                     </svg>
                   </span>
-                  <span className={styles.infoText}>Create an account to continue booking your day pass</span>
+                  <span className={styles.infoText}>Sign in to continue booking your day pass</span>
                 </span>
                 <Button variant="outline" size="small" onClick={() => setIsAuthModalOpen(true)}>
-                  Create Account
+                  Sign In
                 </Button>
               </div>
             )}
@@ -345,7 +345,7 @@ const Schedule = () => {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        initialMode={isDayPassMode ? "signup" : "login"}
+        initialMode="login"
       />
 
       <TrialModal

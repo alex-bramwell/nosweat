@@ -1028,17 +1028,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
               >
                 Forgot password?
               </button>
-              <p className={styles.switchText}>
-                Don't have an account?{' '}
+              <div className={styles.signupPrompt}>
+                <p className={styles.switchText}>New to CrossFit Comet?</p>
                 <button
                   type="button"
                   onClick={() => switchMode('signup')}
-                  className={styles.switchButton}
+                  className={styles.signupButton}
                   disabled={isLoading}
                 >
-                  Sign Up
+                  Create an Account
                 </button>
-              </p>
+              </div>
             </div>
           )}
         </form>
