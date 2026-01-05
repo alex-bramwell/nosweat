@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { RegistrationProvider } from './contexts/RegistrationContext';
 import { useSessionTimeout } from './hooks/useSessionTimeout';
 import Layout from './components/Layout';
 import ScrollToHash from './components/ScrollToHash';
@@ -12,6 +13,7 @@ import Coaches from './pages/Coaches';
 import Dashboard from './pages/Dashboard';
 import EmailVerified from './pages/EmailVerified';
 import ResetPassword from './pages/ResetPassword';
+import BookingConfirmation from './pages/BookingConfirmation';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Component to detect password recovery tokens and redirect to home with modal trigger
@@ -99,6 +101,7 @@ function AppContent() {
             <Route path="/about" element={<About />} />
             <Route path="/email-verified" element={<EmailVerified />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/booking-confirmation" element={<BookingConfirmation />} />
             <Route
               path="/dashboard"
               element={
@@ -124,7 +127,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <RegistrationProvider>
+        <AppContent />
+      </RegistrationProvider>
     </AuthProvider>
   );
 }
