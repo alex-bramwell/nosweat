@@ -42,6 +42,22 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
     }
   }, []);
 
+  // Listen for storage changes (e.g., when logout clears the intent)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = sessionStorage.getItem(STORAGE_KEY);
+      if (!stored && intent) {
+        // Storage was cleared externally (e.g., by logout)
+        setIntentState(null);
+      }
+    };
+
+    // Check periodically since storage events don't fire for same-tab changes
+    const intervalId = setInterval(handleStorageChange, 500);
+
+    return () => clearInterval(intervalId);
+  }, [intent]);
+
   // Save intent to sessionStorage whenever it changes
   useEffect(() => {
     if (intent) {
