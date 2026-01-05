@@ -78,6 +78,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     }
   }, [initialError]);
 
+  // Close modal when user becomes authenticated during login
+  useEffect(() => {
+    if (mode === 'login' && isAuthenticated && isLoading) {
+      console.log('User authenticated during login - closing modal');
+      setIsLoading(false);
+      setEmail('');
+      setPassword('');
+      onClose();
+    }
+  }, [isAuthenticated, mode, isLoading, onClose]);
+
   const passwordRequirements = (mode === 'signup' || mode === 'changePassword') ? validatePassword(password) : null;
   const isPasswordValid = passwordRequirements
     ? Object.values(passwordRequirements).every(Boolean)
@@ -278,11 +289,35 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         if (!email || !password) {
           throw new Error('Please fill in all required fields');
         }
-        await login(email, password);
-        setEmail('');
-        setPassword('');
-        setFailedAttempts(0); // Reset on success
-        onClose();
+        
+        // Don't await - let onAuthStateChange handle the state update
+        login(email, password).then(() => {
+          setEmail('');
+          setPassword('');
+          setFailedAttempts(0);
+          onClose();
+        }).catch(err => {
+          setError(err instanceof Error ? err.message : 'An error occurred');
+          // Rate limiting logic for failed login attempts
+          const newFailedAttempts = failedAttempts + 1;
+          setFailedAttempts(newFailedAttempts);
+          
+          if (newFailedAttempts >= 5) {
+            setIsRateLimited(true);
+            setError('Too many failed attempts. Please wait 5 minutes before trying again.');
+            setTimeout(() => {
+              setIsRateLimited(false);
+              setFailedAttempts(0);
+            }, 300000);
+          }
+          setIsLoading(false);
+        });
+        
+        // Set a timeout to close modal if login succeeds via auth state change
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 5000);
+        return; // Don't run finally block
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
