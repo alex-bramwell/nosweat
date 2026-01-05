@@ -45,30 +45,58 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch user profile from database
-  const fetchUserProfile = async (userId: string): Promise<User | null> => {
+  // Fetch user profile from database using direct API
+  const fetchUserProfile = async (userId: string, accessToken?: string): Promise<User | null> => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      // Get access token from localStorage if not provided
+      if (!accessToken) {
+        const storageKey = `sb-${supabaseUrl.split('//')[1].split('.')[0]}-auth-token`;
+        const storedSession = localStorage.getItem(storageKey);
+        if (storedSession) {
+          const session = JSON.parse(storedSession);
+          accessToken = session?.access_token;
+        }
+      }
 
-      if (error) {
-        console.error('Error fetching user profile:', error);
+      console.log('Fetching profile via direct API for user:', userId);
+      
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=*`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${accessToken || supabaseKey}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        console.error('Profile fetch failed:', response.status);
         return null;
       }
 
+      const data = await response.json();
+      console.log('Profile data:', data);
+      
+      if (!data || data.length === 0) {
+        console.log('No profile found for user');
+        return null;
+      }
+
+      const profile = data[0];
       return {
-        id: data.id,
-        email: data.email,
-        name: data.name,
-        membershipType: data.membership_type,
-        joinDate: data.join_date,
-        avatarUrl: data.avatar_url || undefined,
-        phone: data.phone || undefined,
-        emergencyContact: data.emergency_contact || undefined,
-        emergencyPhone: data.emergency_phone || undefined,
+        id: profile.id,
+        email: profile.email,
+        name: profile.name,
+        membershipType: profile.membership_type,
+        joinDate: profile.join_date,
+        avatarUrl: profile.avatar_url || undefined,
+        phone: profile.phone || undefined,
+        emergencyContact: profile.emergency_contact || undefined,
+        emergencyPhone: profile.emergency_phone || undefined,
       };
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
@@ -97,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             let profile: User | null = null;
             
             try {
-              profile = await fetchUserProfile(session.user.id);
+              profile = await fetchUserProfile(session.user.id, session.access_token);
               console.log('AuthContext: Fetched profile:', profile?.name);
             } catch (e) {
               console.error('AuthContext: Profile fetch failed:', e);
