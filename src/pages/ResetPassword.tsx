@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import { Section, Container, Button } from '../components/common';
 import styles from './ResetPassword.module.scss';
 
