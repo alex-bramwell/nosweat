@@ -11,9 +11,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    // Disable auto URL detection - we handle recovery tokens manually in ResetPassword.tsx
-    // This prevents race conditions where Supabase and our code both try to process tokens
-    detectSessionInUrl: false
+    // Re-enabled - password reset now uses direct API calls
+    detectSessionInUrl: true
   }
 });
 
