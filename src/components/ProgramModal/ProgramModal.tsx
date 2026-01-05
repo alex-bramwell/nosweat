@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Modal, Button } from '../common';
 import { AuthModal } from '../AuthModal';
+import { useAuth } from '../../contexts/AuthContext';
 import { programDetails } from '../../data/programDetails';
 import styles from './ProgramModal.module.scss';
 
@@ -11,11 +13,20 @@ interface ProgramModalProps {
 }
 
 const ProgramModal: React.FC<ProgramModalProps> = ({ isOpen, onClose, programId }) => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState<1 | 2>(1);
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
   const program = programDetails[programId];
 
   const handleGetStarted = () => {
+    // If user is logged in, redirect to dashboard to book a session
+    if (isAuthenticated) {
+      onClose();
+      navigate('/dashboard');
+      return;
+    }
+    // Otherwise show signup flow
     setAuthMode('signup');
     setStep(2);
   };
@@ -117,14 +128,16 @@ const ProgramModal: React.FC<ProgramModalProps> = ({ isOpen, onClose, programId 
 
           <div className={styles.actions}>
             <Button variant="primary" size="large" fullWidth onClick={handleGetStarted}>
-              Continue to Get Started
+              {isAuthenticated ? 'Book a Session' : 'Continue to Get Started'}
             </Button>
-            <p className={styles.note}>
-              Already have an account?{' '}
-              <button onClick={handleSignIn} className={styles.link}>
-                Sign in
-              </button>
-            </p>
+            {!isAuthenticated && (
+              <p className={styles.note}>
+                Already have an account?{' '}
+                <button onClick={handleSignIn} className={styles.link}>
+                  Sign in
+                </button>
+              </p>
+            )}
           </div>
         </div>
       ) : (
