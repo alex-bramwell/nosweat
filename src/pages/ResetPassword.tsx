@@ -54,23 +54,16 @@ const ResetPassword = () => {
     const verifyToken = async () => {
       console.log('ResetPassword: Starting token verification...');
       
-      // Check for token in QUERY PARAMS first (new format from custom email template)
+      // Check for token in query params
       const urlParams = new URLSearchParams(window.location.search);
       const tokenHash = urlParams.get('token_hash');
       const type = urlParams.get('type');
-      
-      // Also check hash params (old format from {{ .ConfirmationURL }})
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hashParams.get('access_token');
-      const hashType = hashParams.get('type');
-      const errorParam = hashParams.get('error') || urlParams.get('error');
-      const errorDescription = hashParams.get('error_description') || urlParams.get('error_description');
+      const errorParam = urlParams.get('error');
+      const errorDescription = urlParams.get('error_description');
 
       console.log('ResetPassword: URL params', { 
         tokenHash: !!tokenHash, 
         type, 
-        accessToken: !!accessToken,
-        hashType,
         error: errorParam
       });
 
@@ -81,7 +74,7 @@ const ResetPassword = () => {
         return;
       }
 
-      // Method 1: Use token_hash from query params (new recommended way)
+      // Verify token via direct API call
       if (tokenHash && type === 'recovery') {
         console.log('ResetPassword: Using token_hash from query params...');
         try {
@@ -143,89 +136,14 @@ const ResetPassword = () => {
           setError('Unable to verify your reset link. Please request a new password reset.');
           return;
         }
+      } else {
+        // No valid token found
+        console.log('ResetPassword: No valid token found in URL');
+        setError('Please use the password reset link from your email to access this page.');
       }
-
-      // Method 2: Check for hash params (old format) - manually set session
-      if (accessToken || hashType === 'recovery') {
-        console.log('ResetPassword: Hash params found, attempting manual session setup...');
-        
-        const refreshToken = hashParams.get('refresh_token');
-        
-        if (!accessToken || !refreshToken) {
-          console.error('ResetPassword: Missing tokens in hash', { 
-            hasAccess: !!accessToken, 
-            hasRefresh: !!refreshToken 
-          });
-          setError('Invalid reset link. Please request a new password reset.');
-          return;
-        }
-
-        // Set up timeout FIRST before any async operations
-        const timeoutId = setTimeout(() => {
-          console.log('ResetPassword: Timeout reached');
-          setError('Unable to verify your reset link. It may have expired. Please request a new one.');
-        }, 10000);
-
-        try {
-          // Try to set session manually with the tokens from the URL
-          console.log('ResetPassword: Calling setSession...');
-          const { data, error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
-
-          clearTimeout(timeoutId);
-
-          console.log('ResetPassword: setSession result', {
-            hasSession: !!data.session,
-            hasUser: !!data.user,
-            error: sessionError?.message
-          });
-
-          if (sessionError) {
-            console.error('ResetPassword: setSession error', sessionError);
-            setError('Your password reset link has expired or is invalid. Please request a new one.');
-            return;
-          }
-
-          if (data.session) {
-            console.log('ResetPassword: Session established via setSession!');
-            setIsSessionReady(true);
-            window.history.replaceState(null, '', window.location.pathname);
-            return;
-          }
-
-          // No session and no error - unexpected state
-          setError('Unable to verify your reset link. Please request a new one.');
-        } catch (err) {
-          clearTimeout(timeoutId);
-          console.error('ResetPassword: setSession exception', err);
-          setError('An error occurred. Please try requesting a new password reset link.');
-        }
-        
-        return;
-      }
-
-      // No valid token found
-      console.log('ResetPassword: No valid token found in URL');
-      setError('Please use the password reset link from your email to access this page.');
     };
 
     verifyToken();
-  }, []);
-
-  useEffect(() => {
-    // Also listen for hash changes (in case of redirect)
-    const handleHashChange = () => {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      if (hashParams.get('type') === 'recovery' && hashParams.get('access_token')) {
-        // Re-run the check
-        window.location.reload();
-      }
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -273,13 +191,10 @@ const ResetPassword = () => {
 
   // Show helpful error page if accessed without valid reset token
   const urlParams = new URLSearchParams(window.location.search);
-  const hashParams = new URLSearchParams(window.location.hash.substring(1));
-  const hasValidToken = 
-    (urlParams.get('token_hash') && urlParams.get('type') === 'recovery') || 
-    (hashParams.get('type') === 'recovery' && hashParams.get('access_token'));
+  const hasValidToken = urlParams.get('token_hash') && urlParams.get('type') === 'recovery';
 
   // Show loading state while waiting for session
-  if ((hasValidToken || !error) && !isSessionReady && !error) {
+  if (hasValidToken && !isSessionReady && !error) {
     return (
       <Section spacing="large" background="default">
         <Container>
