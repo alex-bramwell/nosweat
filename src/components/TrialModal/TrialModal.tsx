@@ -169,7 +169,6 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
 
           <div className={styles.authContainer}>
             <AuthModal
-              key={authMode}
               isOpen={true}
               onClose={handleAuthSuccess}
               initialMode={authMode}
