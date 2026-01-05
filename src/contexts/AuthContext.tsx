@@ -262,10 +262,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      throw new Error(error.message);
+    // Clear the session from localStorage (used by direct API login)
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const storageKey = `sb-${supabaseUrl.split('//')[1].split('.')[0]}-auth-token`;
+    localStorage.removeItem(storageKey);
+    
+    // Try to sign out via Supabase SDK (may fail if session was set manually)
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      // Ignore errors - we've already cleared localStorage
+      console.log('Supabase signOut error (ignored):', error);
     }
+    
     setUser(null);
     // Clear registration intent on logout to prevent stale redirects
     sessionStorage.removeItem('cf_comet_registration_intent');
