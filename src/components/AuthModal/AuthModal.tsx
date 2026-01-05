@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRegistrationIntent } from '../../contexts/RegistrationContext';
 import { supabase } from '../../lib/supabase';
 import { Modal, Button } from '../common';
 import { checkPasswordCompromised, sanitizeInput, isValidEmail } from '../../utils/security';
@@ -16,6 +17,7 @@ interface AuthModalProps {
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login', initialError = '', embedded = false }) => {
   const { signup, resetPassword, loginWithOAuth, isAuthenticated, user } = useAuth();
+  const { intent, updateStep } = useRegistrationIntent();
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'signup' | 'reset' | 'changePassword'>(initialMode);
   const [email, setEmail] = useState('');
@@ -272,7 +274,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         }
 
         await signup(sanitizedEmail, password, sanitizedName);
-        setShowCompletion(true);
+
+        // Check if there's a registration intent
+        if (intent && intent.type === 'trial' && !embedded) {
+          // For trial flow, close this modal and let TrialModal handle next step
+          updateStep('payment');
+          onClose();
+        } else {
+          setShowCompletion(true);
+        }
       } else {
         // Login validation
         if (!email || !password) {
@@ -317,8 +327,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           setEmail('');
           setPassword('');
           setFailedAttempts(0);
+
+          // Check if there's a registration intent before closing/reloading
+          if (intent) {
+            if (intent.type === 'day-pass') {
+              updateStep('class-selection');
+              onClose();
+              navigate('/schedule');
+              return;
+            } else if (intent.type === 'trial' && !embedded) {
+              updateStep('payment');
+              onClose();
+              window.location.reload();
+              return;
+            }
+          }
+
           onClose();
-          
           // Reload to pick up the session
           window.location.reload();
         }
