@@ -183,13 +183,31 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
         console.log('Attempting to update password...');
 
-        // Try to update the password directly
-        // Supabase will return an error if there's no valid session
-        const { data, error: updateError } = await supabase.auth.updateUser({
+        // First verify we have a valid session
+        const { data: sessionData } = await supabase.auth.getSession();
+        console.log('Current session before update:', { 
+          hasSession: !!sessionData.session,
+          userId: sessionData.session?.user?.id,
+          expiresAt: sessionData.session?.expires_at
+        });
+
+        if (!sessionData.session) {
+          throw new Error('Your session has expired. Please request a new password reset link.');
+        }
+
+        // Try to update the password with a timeout
+        const updatePromise = supabase.auth.updateUser({
           password: password,
         });
 
-        console.log('Update result:', { error: updateError, hasUser: !!data?.user });
+        // Add a 15 second timeout
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Password update timed out. Please try again.')), 15000)
+        );
+
+        const { data, error: updateError } = await Promise.race([updatePromise, timeoutPromise]) as Awaited<typeof updatePromise>;
+
+        console.log('Update result:', { error: updateError, hasUser: !!data?.user, user: data?.user });
 
         if (updateError) {
           console.error('Password update error:', updateError);
@@ -197,13 +215,26 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           if (updateError.message.includes('429') || updateError.message.toLowerCase().includes('rate limit')) {
             throw new Error('Too many password update requests. Please wait a moment and try again.');
           }
+          // Check for same password error
+          if (updateError.message.toLowerCase().includes('same') || updateError.message.toLowerCase().includes('different')) {
+            throw new Error('New password must be different from your current password.');
+          }
           throw updateError;
+        }
+
+        // Check if the update actually returned a user (some edge cases may not)
+        if (!data?.user) {
+          console.warn('No user returned from updateUser - but no error either');
         }
 
         // Success - show completion message and redirect
         console.log('Password updated successfully!');
         setSuccess('Password updated successfully! Redirecting to sign in...');
         setIsLoading(false); // Reset loading state immediately
+        
+        // Sign out the user so they can log in fresh with new password
+        await supabase.auth.signOut();
+        
         setTimeout(() => {
           console.log('Redirecting to sign in...');
           onClose();
