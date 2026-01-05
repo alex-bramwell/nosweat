@@ -50,15 +50,24 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     };
   };
 
-  // Sync mode state with initialMode prop when it changes
+  // Sync mode state with initialMode prop when it changes or modal opens
   useEffect(() => {
-    setMode(initialMode);
+    if (isOpen) {
+      setMode(initialMode);
+      // Reset form state when modal opens
+      setError('');
+      setSuccess('');
+      setPassword('');
+      setConfirmPassword('');
+      setShowCompletion(false);
+      setShowResetCompletion(false);
+    }
     // Reset changePasswordStep to 1 when entering changePassword mode
     if (initialMode === 'changePassword') {
       setChangePasswordStep(1);
       setIsSessionReady(false);
     }
-  }, [initialMode]);
+  }, [initialMode, isOpen]);
 
   // Check if user is authenticated from AuthContext for password recovery
   useEffect(() => {
