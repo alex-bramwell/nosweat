@@ -254,7 +254,20 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         onClose();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
+
+      // Auto-switch to login mode if account already exists
+      if (mode === 'signup' && errorMessage.includes('already exists')) {
+        // Keep the email but switch to login mode after a short delay
+        setTimeout(() => {
+          setMode('login');
+          setPassword('');
+          setConfirmPassword('');
+          setName('');
+          // Keep the email so user doesn't have to retype it
+        }, 3000);
+      }
 
       // Rate limiting logic for failed login attempts
       if (mode === 'login') {

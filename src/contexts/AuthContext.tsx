@@ -130,6 +130,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signup = async (email: string, password: string, name: string) => {
+    console.log('Signup attempt for:', email);
+    console.log('Email redirect URL:', `${window.location.origin}/email-verified`);
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -141,12 +144,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       },
     });
 
+    console.log('Signup response:', { 
+      hasUser: !!data.user, 
+      hasSession: !!data.session, 
+      userId: data.user?.id,
+      userEmail: data.user?.email,
+      emailConfirmedAt: data.user?.email_confirmed_at,
+      confirmationSentAt: data.user?.confirmation_sent_at,
+      identities: data.user?.identities,
+      identitiesLength: data.user?.identities?.length,
+      error 
+    });
+
     if (error) {
       throw new Error(error.message);
     }
 
+    // Check if user already exists - Supabase returns a fake user with empty identities
+    // to prevent email enumeration attacks
+    if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+      console.log('Detected existing user - identities array is empty or missing');
+      throw new Error('An account with this email already exists. Please sign in instead.');
+    }
+
+    // Additional check: if user exists but email is already confirmed, they're an existing user
+    if (data.user && data.user.email_confirmed_at && !data.session) {
+      console.log('Detected existing user - email already confirmed');
+      throw new Error('An account with this email already exists. Please sign in instead.');
+    }
+
+    // Check if confirmation was actually sent (for new users)
+    if (data.user && !data.session && !data.user.confirmation_sent_at) {
+      console.log('WARNING: No confirmation email sent - user may already exist');
+      throw new Error('An account with this email may already exist. Please try signing in, or use a different email.');
+    }
+
     // If email confirmation is enabled, user won't have a session yet
     if (data.user && !data.session) {
+      console.log('Email confirmation required - no session provided');
       throw new Error('Please check your email to verify your account before signing in.');
     }
 
