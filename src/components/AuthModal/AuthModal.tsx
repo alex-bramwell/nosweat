@@ -354,8 +354,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           }
 
           onClose();
-          // Reload to pick up the session
-          window.location.reload();
+          // Redirect to dashboard after login
+          window.location.href = '/dashboard';
         }
       }
     } catch (err) {
