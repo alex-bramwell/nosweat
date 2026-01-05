@@ -10,7 +10,7 @@ import type { ClassSchedule } from '../types';
 import styles from './Schedule.module.scss';
 
 const Schedule = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
   const { intent, updateStep } = useRegistrationIntent();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
@@ -20,6 +20,9 @@ const Schedule = () => {
 
   // Check for day-pass intent on mount
   useEffect(() => {
+    // Wait for auth to finish loading before checking intent
+    if (isLoading) return;
+    
     if (intent && intent.type === 'day-pass') {
       setIsDayPassMode(true);
       if (intent.step === 'class-selection') {
@@ -33,7 +36,7 @@ const Schedule = () => {
       setIsDayPassMode(false);
       setSelectedClass(null);
     }
-  }, [intent, isAuthenticated]);
+  }, [intent, isAuthenticated, isLoading]);
   const daysOfWeek = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
   const dayLabels = {
     monday: 'MON',
