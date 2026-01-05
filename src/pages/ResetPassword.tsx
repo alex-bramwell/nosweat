@@ -51,68 +51,58 @@ const ResetPassword = () => {
   const [isSessionReady, setIsSessionReady] = useState(false);
 
   useEffect(() => {
-    // Simple approach: Just wait for Supabase to process the URL and check for session
-    const initializeSession = async () => {
-      console.log('ResetPassword: Initializing...');
-      
-      // Check for error in URL hash
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const errorParam = hashParams.get('error');
-      const errorDescription = hashParams.get('error_description');
-      
-      if (errorParam) {
-        console.error('ResetPassword: Error in URL', { errorParam, errorDescription });
-        setError(errorDescription || 'Your password reset link has expired or is invalid. Please request a new one.');
-        return;
-      }
+    console.log('ResetPassword: Setting up auth listener...');
+    
+    // Check for error in URL hash first
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const errorParam = hashParams.get('error');
+    const errorDescription = hashParams.get('error_description');
+    
+    if (errorParam) {
+      console.error('ResetPassword: Error in URL', { errorParam, errorDescription });
+      setError(errorDescription || 'Your password reset link has expired or is invalid. Please request a new one.');
+      return;
+    }
 
-      // Give Supabase time to process the URL hash (detectSessionInUrl: true)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check if we have a session now
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log('ResetPassword: Session check', { hasSession: !!session, error: sessionError?.message });
-      
-      if (session) {
-        console.log('ResetPassword: Session found!');
-        setIsSessionReady(true);
-        // Clear the hash from URL
-        window.history.replaceState(null, '', window.location.pathname);
-        return;
-      }
+    // Check if there's no hash at all (user navigated directly)
+    if (!window.location.hash || window.location.hash === '#') {
+      console.log('ResetPassword: No hash in URL');
+      setError('Please use the password reset link from your email to access this page.');
+      return;
+    }
 
-      // No session yet - set up listener and wait
-      console.log('ResetPassword: No session yet, waiting for auth state change...');
+    console.log('ResetPassword: Hash found, waiting for Supabase...', { 
+      hashLength: window.location.hash.length,
+      hasAccessToken: window.location.hash.includes('access_token')
+    });
+
+    // Set up auth state listener FIRST - this should catch the PASSWORD_RECOVERY event
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('ResetPassword: Auth event received', { event, hasSession: !!session });
       
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        console.log('ResetPassword: Auth state changed', { event, hasSession: !!session });
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (session) {
+          console.log('ResetPassword: Session established via auth event!');
           setIsSessionReady(true);
           window.history.replaceState(null, '', window.location.pathname);
           subscription.unsubscribe();
         }
-      });
+      }
+    });
 
-      // Timeout after 10 seconds
-      setTimeout(async () => {
-        // Final check
-        const { data: { session: finalSession } } = await supabase.auth.getSession();
-        if (finalSession) {
-          setIsSessionReady(true);
-          window.history.replaceState(null, '', window.location.pathname);
-        } else if (!isSessionReady) {
-          // Check if user navigated directly (no hash)
-          if (!window.location.hash || window.location.hash === '#') {
-            setError('Please use the password reset link from your email to access this page.');
-          } else {
-            setError('Unable to verify your reset link. It may have expired. Please request a new one.');
-          }
-        }
-        subscription.unsubscribe();
-      }, 10000);
+    // Timeout - if no auth event after 15 seconds, show error
+    const timeoutId = setTimeout(() => {
+      console.log('ResetPassword: Timeout reached');
+      subscription.unsubscribe();
+      if (!isSessionReady) {
+        setError('Unable to verify your reset link. It may have expired. Please request a new one.');
+      }
+    }, 15000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeoutId);
     };
-
-    initializeSession();
   }, []);
 
   useEffect(() => {
