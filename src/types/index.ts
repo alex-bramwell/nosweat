@@ -58,3 +58,56 @@ export interface ClassSchedule {
   coach?: string;
   capacity?: number;
 }
+
+export interface Booking {
+  id: string;
+  userId: string;
+  classId: string;
+  classDay: string;
+  classTime: string;
+  className: string;
+  coachName?: string;
+  bookingType: 'day-pass' | 'trial' | 'membership';
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  bookedAt: string;
+  classDate: string;
+  paymentId?: string;
+}
+
+export interface Payment {
+  id: string;
+  userId: string;
+  stripePaymentIntentId: string;
+  stripeCustomerId: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'cancelled';
+  paymentType: 'day-pass' | 'trial-setup' | 'membership';
+  metadata?: Record<string, any>;
+  createdAt: string;
+}
+
+export interface TrialMembership {
+  id: string;
+  userId: string;
+  stripeSetupIntentId?: string;
+  stripePaymentMethodId?: string;
+  trialStartDate: string;
+  trialEndDate: string;
+  status: 'active' | 'converted' | 'cancelled' | 'expired';
+  autoConvertEnabled: boolean;
+  createdAt: string;
+}
+
+export interface RegistrationIntent {
+  type: 'day-pass' | 'trial' | null;
+  selectedClass?: {
+    id: string;
+    day: string;
+    time: string;
+    className: string;
+    coach?: string;
+  };
+  timestamp: number;
+  step: 'intent' | 'auth' | 'payment' | 'class-selection' | 'complete';
+}

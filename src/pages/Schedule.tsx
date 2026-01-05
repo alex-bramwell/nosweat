@@ -1,14 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Section, Container, Button } from '../components/common';
 import { AuthModal } from '../components/AuthModal';
 import { TrialModal } from '../components/TrialModal';
+import { DayPassPaymentModal } from '../components/DayPassPaymentModal';
+import { useAuth } from '../contexts/AuthContext';
+import { useRegistrationIntent } from '../contexts/RegistrationContext';
 import { weeklySchedule } from '../data/schedule';
 import type { ClassSchedule } from '../types';
 import styles from './Schedule.module.scss';
 
 const Schedule = () => {
+  const { isAuthenticated, user } = useAuth();
+  const { intent, updateStep } = useRegistrationIntent();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
+  const [selectedClass, setSelectedClass] = useState<ClassSchedule | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isDayPassMode, setIsDayPassMode] = useState(false);
+
+  // Check for day-pass intent on mount
+  useEffect(() => {
+    if (intent && intent.type === 'day-pass') {
+      setIsDayPassMode(true);
+      if (intent.step === 'class-selection') {
+        // User needs to select a class
+        if (!isAuthenticated) {
+          // Show auth modal
+          setIsAuthModalOpen(true);
+        }
+      }
+    } else {
+      setIsDayPassMode(false);
+      setSelectedClass(null);
+    }
+  }, [intent, isAuthenticated]);
   const daysOfWeek = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
   const dayLabels = {
     monday: 'MON',
@@ -64,6 +89,24 @@ const Schedule = () => {
     return { badge: styles.badgeSpecialty, label: 'SP' };
   };
 
+  const handleClassClick = (classInfo: ClassSchedule) => {
+    if (isDayPassMode && isAuthenticated) {
+      setSelectedClass(classInfo);
+      updateStep('payment');
+    }
+  };
+
+  const handleContinueToPayment = () => {
+    if (selectedClass && user) {
+      setShowPaymentModal(true);
+    }
+  };
+
+  const handlePaymentModalClose = () => {
+    setShowPaymentModal(false);
+    setSelectedClass(null);
+  };
+
   return (
     <>
       <Section spacing="xlarge" background="dark" className={styles.scheduleHero}>
@@ -73,19 +116,64 @@ const Schedule = () => {
             <p className={styles.subtitle}>
               Choose from our variety of classes throughout the week. All fitness levels welcome!
             </p>
-            <div className={styles.infoCard}>
-              <span className={styles.infoContent}>
-                <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="12" y1="16" x2="12" y2="12"/>
-                  <line x1="12" y1="8" x2="12.01" y2="8"/>
-                </svg>
-                <span className={styles.infoText}>Please sign in to book a class</span>
-              </span>
-              <Button variant="outline" size="small" onClick={() => setIsAuthModalOpen(true)}>
-                Sign In
-              </Button>
-            </div>
+            {isDayPassMode && isAuthenticated && !selectedClass && (
+              <div className={styles.infoCard}>
+                <span className={styles.infoContent}>
+                  <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                  </svg>
+                  <span className={styles.infoText}>Select a class to book your day pass (£10)</span>
+                </span>
+              </div>
+            )}
+            {isDayPassMode && isAuthenticated && selectedClass && (
+              <div className={`${styles.infoCard} ${styles.infoCardSuccess}`}>
+                <span className={styles.infoContent}>
+                  <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  <span className={styles.infoText}>
+                    {selectedClass.className} - {selectedClass.day} at {selectedClass.time}
+                  </span>
+                </span>
+                <Button variant="primary" size="small" onClick={handleContinueToPayment}>
+                  Continue to Payment (£10)
+                </Button>
+              </div>
+            )}
+            {!isDayPassMode && !isAuthenticated && (
+              <div className={styles.infoCard}>
+                <span className={styles.infoContent}>
+                  <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                  </svg>
+                  <span className={styles.infoText}>Please sign in to book a class</span>
+                </span>
+                <Button variant="outline" size="small" onClick={() => setIsAuthModalOpen(true)}>
+                  Sign In
+                </Button>
+              </div>
+            )}
+            {isDayPassMode && !isAuthenticated && (
+              <div className={styles.infoCard}>
+                <span className={styles.infoContent}>
+                  <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                  </svg>
+                  <span className={styles.infoText}>Sign in to continue booking your day pass</span>
+                </span>
+                <Button variant="outline" size="small" onClick={() => setIsAuthModalOpen(true)}>
+                  Sign In
+                </Button>
+              </div>
+            )}
             <div className={styles.legend}>
               <div className={styles.legendItem}>
                 <span className={`${styles.legendColor} ${styles.legendCrossFit}`}></span>
@@ -122,12 +210,16 @@ const Schedule = () => {
                 <div className={styles.timeCell}>{time}</div>
                 {daysOfWeek.map(day => {
                   const classInfo = getClassForTimeAndDay(time, day);
+                  const isSelected = isDayPassMode && selectedClass?.id === classInfo?.id;
+                  const isClickable = isDayPassMode && isAuthenticated && classInfo;
                   return (
                     <div
                       key={`${time}-${day}`}
                       className={`${styles.classCell} ${
                         classInfo ? getClassTypeStyle(classInfo.className) : styles.cellEmpty
-                      }`}
+                      } ${isClickable ? styles.classCellClickable : ''} ${isSelected ? styles.classCellSelected : ''}`}
+                      onClick={() => classInfo && handleClassClick(classInfo)}
+                      style={{ cursor: isClickable ? 'pointer' : 'default' }}
                     >
                       {classInfo ? (
                         <div className={styles.cellContent}>
@@ -181,14 +273,19 @@ const Schedule = () => {
                   </h3>
                   <div className={styles.dayCardClasses}>
                     {dayClasses.length > 0 ? (
-                      dayClasses.map(({ time, classInfo }) => (
-                        <div
-                          key={`${time}-${day}`}
-                          className={`${styles.mobileClassItem} ${
-                            classInfo ? getClassTypeStyle(classInfo.className) : ''
-                          }`}
-                        >
-                          <div className={styles.mobileClassTime}>{time}</div>
+                      dayClasses.map(({ time, classInfo }) => {
+                        const isSelected = isDayPassMode && selectedClass?.id === classInfo?.id;
+                        const isClickable = isDayPassMode && isAuthenticated && classInfo;
+                        return (
+                          <div
+                            key={`${time}-${day}`}
+                            className={`${styles.mobileClassItem} ${
+                              classInfo ? getClassTypeStyle(classInfo.className) : ''
+                            } ${isClickable ? styles.classCellClickable : ''} ${isSelected ? styles.classCellSelected : ''}`}
+                            onClick={() => classInfo && handleClassClick(classInfo)}
+                            style={{ cursor: isClickable ? 'pointer' : 'default' }}
+                          >
+                            <div className={styles.mobileClassTime}>{time}</div>
                           <div className={styles.mobileClassName}>
                             {classInfo?.className.includes('|') ? (
                               <div className={styles.splitClassName}>
@@ -214,8 +311,9 @@ const Schedule = () => {
                           {classInfo?.coach && (
                             <div className={styles.mobileClassCoach}>{classInfo.coach}</div>
                           )}
-                        </div>
-                      ))
+                          </div>
+                        );
+                      })
                     ) : (
                       <div className={styles.noClasses}>No classes scheduled</div>
                     )}
@@ -252,6 +350,21 @@ const Schedule = () => {
         isOpen={isTrialModalOpen}
         onClose={() => setIsTrialModalOpen(false)}
       />
+
+      {selectedClass && user && (
+        <DayPassPaymentModal
+          isOpen={showPaymentModal}
+          onClose={handlePaymentModalClose}
+          selectedClass={{
+            id: selectedClass.id,
+            day: selectedClass.day,
+            time: selectedClass.time,
+            className: selectedClass.className,
+            coach: selectedClass.coach,
+          }}
+          userId={user.id}
+        />
+      )}
     </>
   );
 };

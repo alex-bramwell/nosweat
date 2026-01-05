@@ -1,10 +1,24 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Section, Container } from '../../common';
 import { TrialModal } from '../../TrialModal';
+import { useRegistrationIntent } from '../../../contexts/RegistrationContext';
 import styles from './Hero.module.scss';
 
 const Hero = () => {
+  const navigate = useNavigate();
+  const { setIntent } = useRegistrationIntent();
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
+
+  const handleDayPassClick = () => {
+    setIntent({ type: 'day-pass', step: 'class-selection' });
+    navigate('/schedule');
+  };
+
+  const handleTrialClick = () => {
+    setIntent({ type: 'trial', step: 'intent' });
+    setIsTrialModalOpen(true);
+  };
 
   return (
     <Section spacing="xlarge" background="dark" className={styles.hero}>
@@ -35,7 +49,7 @@ const Hero = () => {
               <p className={styles.cardDescription}>
                 Drop in for a single session and experience our community
               </p>
-              <Button variant="primary" size="medium" as="a" href="/schedule">
+              <Button variant="primary" size="medium" onClick={handleDayPassClick}>
                 Book Day Pass
               </Button>
             </div>
@@ -50,7 +64,7 @@ const Hero = () => {
               <p className={styles.cardDescription}>
                 New to CrossFit? Try your first class on us—no commitment
               </p>
-              <Button variant="secondary" size="medium" onClick={() => setIsTrialModalOpen(true)}>
+              <Button variant="secondary" size="medium" onClick={handleTrialClick}>
                 Book Trial Pass
               </Button>
             </div>
