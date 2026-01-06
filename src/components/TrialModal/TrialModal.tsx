@@ -21,7 +21,6 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
   const [setupError, setSetupError] = useState<string | null>(null);
 
   const handleCreateAccount = () => {
-    setAuthMode('signup');
     setStep(2);
   };
 
@@ -33,7 +32,6 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
 
   const resetModal = () => {
     setStep(1);
-    setAuthMode('signup');
     setSetupError(null);
   };
 
