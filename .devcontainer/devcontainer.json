@@ -13,7 +13,8 @@
     "54321": {
       "label": "Supabase API",
       "onAutoForward": "silent",
-      "visibility": "public"
+      "visibility": "public",
+      "requireLocalPort": true
     },
     "54322": {
       "label": "Supabase DB",
