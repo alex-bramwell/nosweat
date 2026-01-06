@@ -1,0 +1,44 @@
+{
+  "name": "CrossFit Comet",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [5173, 54321, 54322, 54323, 54324],
+  "portsAttributes": {
+    "5173": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "openBrowser"
+    },
+    "54321": {
+      "label": "Supabase API",
+      "onAutoForward": "silent",
+      "visibility": "public"
+    },
+    "54322": {
+      "label": "Supabase DB",
+      "onAutoForward": "silent"
+    },
+    "54323": {
+      "label": "Supabase Studio",
+      "onAutoForward": "silent",
+      "visibility": "public"
+    },
+    "54324": {
+      "label": "Supabase Inbucket",
+      "onAutoForward": "silent",
+      "visibility": "public"
+    }
+  },
+  "postCreateCommand": "npm install && npm install -g supabase@latest",
+  "postStartCommand": "supabase start",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  }
+}
