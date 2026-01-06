@@ -15,6 +15,7 @@ A modern, full-featured gym management web application built with React, TypeScr
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Quick Start](#quick-start)
+- [Local Development with Supabase](#local-development-with-supabase)
 - [Project Structure](#project-structure)
 - [Git Workflow & GitFlow Guidelines](#git-workflow--gitflow-guidelines)
 - [Component Library](#component-library)
@@ -24,6 +25,8 @@ A modern, full-featured gym management web application built with React, TypeScr
 - [Design System](#design-system)
 - [Environment Variables](#environment-variables)
 - [Deployment](#deployment)
+  - [Production Release (GitFlow)](#production-release-gitflow)
+  - [Supabase Migrations](#supabase-migrations)
 - [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
@@ -98,6 +101,73 @@ npm run dev      # Start development server (http://localhost:5173)
 npm run build    # Build for production (TypeScript + Vite)
 npm run preview  # Preview production build locally
 npm run lint     # Run ESLint checks
+```
+
+### Local Development with Supabase
+
+For full local development without needing to configure remote Supabase redirect URLs (especially useful in GitHub Codespaces), you can run Supabase locally:
+
+#### Prerequisites
+- Docker (available in Codespaces by default)
+
+#### Setup
+
+```bash
+# Initialize Supabase (first time only)
+npx supabase init
+
+# Start local Supabase (pulls Docker images on first run)
+npx supabase start
+```
+
+This will start the following services:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Supabase Studio** | http://127.0.0.1:54323 | Database GUI, view/edit tables |
+| **Supabase API** | http://127.0.0.1:54321 | REST & GraphQL endpoints |
+| **Mailpit** | http://127.0.0.1:54324 | Email testing (view sent emails) |
+| **Database** | postgresql://postgres:postgres@127.0.0.1:54322/postgres | Direct DB connection |
+
+#### Environment Configuration
+
+The `.env.local` file is automatically configured for local Supabase:
+
+```env
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_ANON_KEY=<your-local-anon-key>
+SUPABASE_SERVICE_KEY=<your-local-service-key>
+```
+
+> **Note:** Keys are displayed when you run `npx supabase start` or `npx supabase status`
+
+#### Testing Authentication Locally
+
+1. Start the dev server: `npm run dev`
+2. Open http://localhost:5173
+3. Sign up with any email (e.g., `test@test.com`)
+4. **No email verification required** - you'll be logged in immediately
+5. Access Dashboard at http://localhost:5173/dashboard
+
+> **Tip:** Email verification is disabled locally (`enable_confirmations = false` in `supabase/config.toml`). Any emails that would be sent can be viewed in Mailpit at http://127.0.0.1:54324
+
+#### Useful Supabase Commands
+
+```bash
+npx supabase start      # Start all services
+npx supabase stop       # Stop all services (data persisted)
+npx supabase status     # View service URLs and keys
+npx supabase db reset   # Reset database and re-run migrations
+npx supabase db push    # Push local migrations to remote
+```
+
+#### GitHub Codespaces
+
+When developing in Codespaces, local Supabase eliminates the need to configure redirect URLs in the Supabase dashboard. The dynamic Codespace URL (e.g., `https://<codespace-name>-5173.app.github.dev/`) works automatically since all auth is handled locally.
+
+Alternatively, add this wildcard to your remote Supabase project's Redirect URLs:
+```
+https://*.app.github.dev/**
 ```
 
 ---
@@ -955,13 +1025,108 @@ In Vercel Dashboard → Project Settings → Environment Variables:
 
 ## Deployment
 
-### Vercel (Recommended)
+### Production Release (GitFlow)
+
+Follow this process when deploying to production:
+
+```bash
+# 1. Ensure develop is up to date
+git checkout develop
+git pull origin develop
+
+# 2. Create a release branch
+git checkout -b release/1.0.0
+
+# 3. Make any final adjustments (version bump, changelog, etc.)
+git commit -m "chore: prepare release 1.0.0"
+
+# 4. Merge to main
+git checkout main
+git pull origin main
+git merge --no-ff release/1.0.0
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin main --tags
+
+# 5. Merge back to develop
+git checkout develop
+git merge --no-ff release/1.0.0
+git push origin develop
+
+# 6. Delete release branch
+git branch -d release/1.0.0
+```
+
+### What Happens on Push to Main
+
+| Step | Service | Action |
+|------|---------|--------|
+| 1 | **Vercel** | Automatically deploys code |
+| 2 | **GitHub Actions** | Automatically runs Supabase migrations |
+
+### Supabase Migrations
+
+#### Automated (Recommended)
+
+Migrations are automatically applied via GitHub Actions when you push to `main`. See `.github/workflows/supabase-migrations.yml`.
+
+**Required GitHub Secrets:**
+- `SUPABASE_ACCESS_TOKEN` - Your Supabase access token
+- `SUPABASE_PROJECT_ID` - Your project reference ID
+- `SUPABASE_DB_PASSWORD` - Your database password
+
+To get these values:
+1. **Access Token**: Supabase Dashboard → Account → Access Tokens → Generate
+2. **Project ID**: Supabase Dashboard → Settings → General → Reference ID
+3. **DB Password**: Supabase Dashboard → Settings → Database → Database Password
+
+#### Manual Deployment
+
+If you need to manually push migrations:
+
+```bash
+# Login to Supabase (one-time)
+npx supabase login
+
+# Link your project (one-time)
+npx supabase link --project-ref <your-project-ref>
+
+# Push migrations to production
+npx supabase db push
+```
+
+#### Useful Migration Commands
+
+```bash
+# View pending migrations
+npx supabase migration list
+
+# See what will change in production
+npx supabase db diff
+
+# Push to production (will prompt for confirmation)
+npx supabase db push
+
+# Pull remote schema to local (if production has manual changes)
+npx supabase db pull
+
+# Create a new migration
+npx supabase migration new <migration_name>
+```
+
+#### ⚠️ Migration Safety
+
+1. **Always test locally first** with `npx supabase db reset`
+2. **Backup production** before applying destructive migrations
+3. **Review migrations** with `npx supabase db diff` before pushing
+4. **Destructive changes** (dropping tables/columns) require `--include-all` flag
+
+### Vercel Deployment
 
 ```bash
 # Install Vercel CLI
 npm i -g vercel
 
-# Deploy
+# Deploy preview
 vercel
 
 # Production deployment
@@ -978,12 +1143,14 @@ npm run build
 npm run preview
 ```
 
-### Post-Deployment
+### Post-Deployment Checklist
 
-1. Update Stripe webhook URL to production domain
-2. Verify all environment variables are set
-3. Run through day pass and trial flows
-4. Check Vercel function logs for any errors
+- [ ] Verify Vercel deployment succeeded
+- [ ] Verify GitHub Actions migration workflow passed
+- [ ] Update Stripe webhook URL to production domain
+- [ ] Verify all environment variables are set
+- [ ] Run through day pass and trial flows
+- [ ] Check Vercel function logs for any errors
 
 ---
 
