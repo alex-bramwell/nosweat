@@ -17,7 +17,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
   const { user, isAuthenticated } = useAuth();
   const { updateStep, clearIntent } = useRegistrationIntent();
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
+  // Removed unused: authMode
   const [setupError, setSetupError] = useState<string | null>(null);
 
   const handleCreateAccount = () => {
@@ -25,10 +25,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
     setStep(2);
   };
 
-  const handleSignIn = () => {
-    setAuthMode('login');
-    setStep(2);
-  };
+  // Removed unused: handleSignIn
 
   const handleBack = () => {
     setStep(1);

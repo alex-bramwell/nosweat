@@ -53,16 +53,7 @@ const Dashboard = () => {
     setSelectedClasses(new Set());
   };
 
-  const getMembershipTypeName = (type: string) => {
-    const names: Record<string, string> = {
-      'trial': 'Free Trial',
-      'crossfit': 'CrossFit',
-      'comet-plus': 'Comet Plus',
-      'open-gym': 'Open Gym',
-      'specialty': 'Specialty Program'
-    };
-    return names[type] || type;
-  };
+  // Removed unused: getMembershipTypeName
 
   const handleLogout = () => {
     logout();
