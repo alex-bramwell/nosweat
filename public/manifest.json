@@ -1,0 +1,17 @@
+{
+  "name": "CrossFit Comet",
+  "short_name": "CF Comet",
+  "description": "Transform your fitness journey with expert coaching and world-class programming",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#181820",
+  "theme_color": "#181820",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
