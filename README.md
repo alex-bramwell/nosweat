@@ -516,6 +516,108 @@ git cherry-pick <commit-hash>
 git diff develop..feature/my-feature
 ```
 
+### Quick Reference: Local Development & Production
+
+Copy-paste commands for common workflows.
+
+#### 🔧 Working Locally (Day-to-Day Development)
+
+```bash
+# 1. Start local Supabase (if not running)
+cd /workspaces/gym.CrossFit.Comet
+supabase start
+
+# 2. Start the development server
+npm run dev
+
+# 3. Make changes, then commit to feature branch
+git checkout develop
+git pull origin develop
+git checkout -b feature/your-feature-name
+
+# 4. Commit your work
+git add -A
+git commit -m "feat: your feature description"
+
+# 5. Push feature branch and merge to develop
+git push origin feature/your-feature-name
+git checkout develop
+git merge --no-ff feature/your-feature-name -m "merge: feature/your-feature-name into develop"
+git push origin develop
+
+# 6. Clean up feature branch
+git branch -d feature/your-feature-name
+git push origin --delete feature/your-feature-name
+```
+
+#### 🚀 Push to Production (Release to Main)
+
+```bash
+# 1. Ensure develop is up to date
+git checkout develop
+git pull origin develop
+
+# 2. Create release branch
+git checkout -b release/X.X.X
+
+# 3. Merge release to main
+git checkout main
+git pull origin main
+git merge --no-ff release/X.X.X -m "release: version X.X.X"
+
+# 4. Tag the release
+git tag -a vX.X.X -m "Release version X.X.X"
+git push origin main --tags
+
+# 5. Merge release back to develop
+git checkout develop
+git merge --no-ff release/X.X.X -m "merge: release/X.X.X back to develop"
+git push origin develop
+
+# 6. Clean up release branch
+git branch -d release/X.X.X
+```
+
+**Note:** When migrations in `supabase/migrations/` are pushed to main, GitHub Actions automatically deploys them to production Supabase.
+
+#### 🐳 Supabase Local Commands
+
+```bash
+# Start local Supabase
+supabase start
+
+# Stop local Supabase
+supabase stop
+
+# View local Supabase status
+supabase status
+
+# Reset local database (runs all migrations fresh)
+supabase db reset
+
+# Create new migration
+supabase migration new <migration_name>
+
+# View local Studio (database UI)
+# Open: http://127.0.0.1:54323
+```
+
+#### 📋 Quick Status Check
+
+```bash
+# What branch am I on?
+git branch --show-current
+
+# What's the status?
+git status
+
+# View recent commits
+git log --oneline -10
+
+# Is local Supabase running?
+supabase status
+```
+
 ---
 
 ## Component Library
