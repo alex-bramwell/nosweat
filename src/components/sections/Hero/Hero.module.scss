@@ -195,40 +195,22 @@
     &:hover {
       border-color: rgba(255, 79, 31, 0.6);
     }
-
-    .cardIcon {
-      background: linear-gradient(135deg, rgba(255, 79, 31, 0.2) 0%, rgba(255, 79, 31, 0.1) 100%);
-      
-      svg {
-        color: var(--color-accent);
-      }
-    }
-  }
-}
-
-.cardIcon {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 191, 230, 0.1) 100%);
-  border-radius: 50%;
-  margin-bottom: 1rem;
-
-  svg {
-    width: 28px;
-    height: 28px;
-    color: var(--color-secondary);
   }
 }
 
 .cardTitle {
   font-family: 'Knewave', cursive, sans-serif;
-  font-size: 1.25rem;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
   font-weight: normal;
   color: var(--color-text);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+
+  background: linear-gradient(to right, var(--color-text), var(--color-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .cardDescription {

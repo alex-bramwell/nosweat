@@ -1,24 +1,24 @@
-@use '../../styles/variables' as *;
+@import '../../styles/variables';
 
 .content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 2rem;
 }
 
+// Progress Bar - matching DayPassModal style
 .stepIndicator {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  width: 100%;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+  padding: 0 1rem;
 }
 
 .step {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 0.5rem;
+  flex: 0 0 auto;
   transition: all 0.3s ease;
 
   &.clickable {
@@ -29,8 +29,7 @@
 
     &:hover {
       .stepNumber {
-        background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
-        color: var(--color-text);
+        border-color: var(--color-secondary);
       }
 
       .stepLabel {
@@ -42,56 +41,56 @@
   &.active {
     .stepNumber {
       background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
-      color: var(--color-text);
-      box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
+      border-color: var(--color-secondary);
+      color: white;
     }
 
     .stepLabel {
       color: var(--color-text);
-      font-weight: 600;
+    }
+  }
+
+  &.completed {
+    .stepNumber {
+      background: var(--color-secondary2);
+      border-color: var(--color-secondary2);
+      color: white;
+    }
+
+    .stepLabel {
+      color: var(--color-text);
     }
   }
 }
 
 .stepNumber {
-  @include header;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-bg-light);
+  border: 2px solid var(--color-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  min-height: 32px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
   color: var(--color-muted);
-  font-size: 0.875rem;
-  font-weight: 700;
   transition: all 0.3s ease;
-  flex-shrink: 0;
+  font-size: 1rem;
 }
 
 .stepLabel {
-  @include body;
   font-size: 0.875rem;
   color: var(--color-muted);
-  font-weight: 500;
-  transition: all 0.3s ease;
-
-  @media (max-width: 768px) {
-    display: none;
-  }
+  transition: color 0.3s ease;
+  text-align: center;
 }
 
 .stepDivider {
-  width: 40px;
+  flex: 1;
   height: 2px;
-  background: rgba(255, 255, 255, 0.1);
-
-  @media (max-width: 768px) {
-    width: 20px;
-  }
+  background: var(--color-bg-light);
+  margin: 0 1rem;
+  margin-bottom: 2rem;
 }
 
 .authContainer {
@@ -99,44 +98,38 @@
 }
 
 .title {
-  @include header;
-  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-size: 1.75rem;
+  font-weight: 700;
   color: var(--color-text);
-  margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  margin: 0 0 0.5rem 0;
   text-align: center;
 }
 
 .subtitle {
-  @include body;
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: var(--color-muted);
-  margin-bottom: 2rem;
+  margin: 0 0 2rem 0;
   text-align: center;
 }
 
 .benefits {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  gap: 1rem;
+  margin-bottom: 2rem;
   width: 100%;
 }
 
 .benefit {
-  padding: 1rem;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.3s ease;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  background: var(--color-bg-light);
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(0, 229, 255, 0.2);
-    transform: translateX(4px);
+    border-color: var(--color-secondary);
+    transform: translateY(-2px);
   }
 }
 
@@ -148,33 +141,31 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
-  color: var(--color-text);
-  font-size: 1.25rem;
+  color: white;
+  font-size: 1rem;
   font-weight: 700;
   margin-right: 0.75rem;
   flex-shrink: 0;
-  vertical-align: middle;
 }
 
 .benefitTitle {
-  @include header;
   font-size: 1.125rem;
+  font-weight: 700;
   color: var(--color-text);
-  margin-bottom: 0.5rem;
-  line-height: 1.4;
+  margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
 }
 
 .benefitText {
-  @include body;
   font-size: 0.9375rem;
   color: var(--color-muted);
   line-height: 1.6;
+  margin: 0;
 }
 
 .actions {
@@ -186,13 +177,12 @@
 }
 
 .note {
-  @include body;
   font-size: 0.9375rem;
   color: var(--color-muted);
+  margin: 0;
 }
 
 .link {
-  @include header;
   background: none;
   border: none;
   color: var(--color-secondary);
@@ -206,5 +196,64 @@
   &:hover {
     color: var(--color-secondary2);
     text-decoration: underline;
+  }
+}
+
+.setupFormContainer {
+  width: 100%;
+}
+
+.errorBanner {
+  background: rgba(255, 79, 31, 0.1);
+  border: 1px solid rgba(255, 79, 31, 0.3);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  svg {
+    width: 48px;
+    height: 48px;
+    color: var(--color-accent);
+  }
+
+  p {
+    color: var(--color-text);
+    margin: 0;
+    text-align: center;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .content {
+    padding: 1.5rem;
+  }
+
+  .stepIndicator {
+    margin-bottom: 2rem;
+    padding: 0;
+  }
+
+  .stepLabel {
+    font-size: 0.75rem;
+  }
+
+  .stepNumber {
+    width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
+  }
+
+  .stepDivider {
+    margin: 0 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
   }
 }

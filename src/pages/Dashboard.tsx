@@ -6,9 +6,52 @@ import styles from './Dashboard.module.scss';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'membership' | 'wod' | 'booking' | 'profile'>('membership');
+  const [activeTab, setActiveTab] = useState<'wod' | 'booking' | 'profile'>('wod');
+  const [classType, setClassType] = useState<'crossfit' | 'opengym'>('crossfit');
+  const [bookingClassType, setBookingClassType] = useState<'crossfit' | 'opengym'>('crossfit');
+  const [selectedClasses, setSelectedClasses] = useState<Set<string>>(new Set());
 
   if (!user) return null;
+
+  // Generate next 7 days starting from today
+  const getNext7Days = () => {
+    const days = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      days.push(date);
+    }
+    return days;
+  };
+
+  const next7Days = getNext7Days();
+
+  const toggleClassSelection = (classId: string) => {
+    setSelectedClasses(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(classId)) {
+        newSet.delete(classId);
+      } else {
+        newSet.add(classId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleBlockBook = () => {
+    if (selectedClasses.size === 0) {
+      alert('Please select at least one class to book');
+      return;
+    }
+    // TODO: Implement actual booking logic
+    alert(`Booking ${selectedClasses.size} class(es)`);
+    setSelectedClasses(new Set());
+  };
+
+  const clearSelection = () => {
+    setSelectedClasses(new Set());
+  };
 
   const getMembershipTypeName = (type: string) => {
     const names: Record<string, string> = {
@@ -42,12 +85,6 @@ const Dashboard = () => {
 
           <div className={styles.tabs}>
             <button
-              className={`${styles.tab} ${activeTab === 'membership' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('membership')}
-            >
-              Membership
-            </button>
-            <button
               className={`${styles.tab} ${activeTab === 'wod' ? styles.tabActive : ''}`}
               onClick={() => setActiveTab('wod')}
             >
@@ -68,58 +105,91 @@ const Dashboard = () => {
           </div>
 
           <div className={styles.content}>
-            {activeTab === 'membership' && (
-              <div className={styles.tabContent}>
-                <h2 className={styles.sectionTitle}>Your Membership</h2>
-
-                <div className={styles.membershipGrid}>
-                  <Card variant="elevated">
-                    <div className={styles.infoCard}>
-                      <div className={styles.infoLabel}>Membership Type</div>
-                      <div className={styles.infoValue}>{getMembershipTypeName(user.membershipType)}</div>
-                    </div>
-                  </Card>
-
-                  <Card variant="elevated">
-                    <div className={styles.infoCard}>
-                      <div className={styles.infoLabel}>Member Since</div>
-                      <div className={styles.infoValue}>
-                        {new Date(user.joinDate).toLocaleDateString('en-US', {
-                          month: 'long',
-                          year: 'numeric'
-                        })}
-                      </div>
-                    </div>
-                  </Card>
-
-                  <Card variant="elevated">
-                    <div className={styles.infoCard}>
-                      <div className={styles.infoLabel}>Email</div>
-                      <div className={styles.infoValue}>{user.email}</div>
-                    </div>
-                  </Card>
-
-                  <Card variant="elevated">
-                    <div className={styles.infoCard}>
-                      <div className={styles.infoLabel}>Status</div>
-                      <div className={styles.infoValueActive}>Active</div>
-                    </div>
-                  </Card>
-                </div>
-
-                <div className={styles.membershipActions}>
-                  <h3 className={styles.actionsTitle}>Membership Actions</h3>
-                  <div className={styles.actionButtons}>
-                    <Button variant="primary">Upgrade Membership</Button>
-                    <Button variant="secondary">Update Payment Method</Button>
-                    <Button variant="secondary">Freeze Membership</Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {activeTab === 'wod' && (
               <div className={styles.tabContent}>
+                <div className={styles.bookingSection}>
+                  <div className={styles.bookingHeader}>
+                    <h3 className={styles.bookingSectionTitle}>Book Today's Class</h3>
+
+                    <div className={styles.classTypeToggle}>
+                      <button
+                        type="button"
+                        className={`${styles.toggleButton} ${classType === 'crossfit' ? styles.active : ''}`}
+                        onClick={() => setClassType('crossfit')}
+                      >
+                        CrossFit
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.toggleButton} ${classType === 'opengym' ? styles.active : ''}`}
+                        onClick={() => setClassType('opengym')}
+                      >
+                        Open Gym
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={styles.todayClasses}>
+                    {classType === 'crossfit' ? (
+                      <>
+                        <div className={styles.classSlot}>
+                          <div className={styles.classTime}>6:00 AM</div>
+                          <div className={styles.classSpots}>8 spots left</div>
+                          <Button variant="primary" size="small">Book</Button>
+                        </div>
+                        <div className={styles.classSlot}>
+                          <div className={styles.classTime}>9:00 AM</div>
+                          <div className={styles.classSpots}>5 spots left</div>
+                          <Button variant="primary" size="small">Book</Button>
+                        </div>
+                        <div className={styles.classSlot}>
+                          <div className={styles.classTime}>12:00 PM</div>
+                          <div className={styles.classSpots}>6 spots left</div>
+                          <Button variant="primary" size="small">Book</Button>
+                        </div>
+                        <div className={styles.classSlot}>
+                          <div className={styles.classTime}>4:30 PM</div>
+                          <div className={styles.classSpots}>4 spots left</div>
+                          <Button variant="primary" size="small">Book</Button>
+                        </div>
+                        <div className={styles.classSlot}>
+                          <div className={styles.classTime}>5:30 PM</div>
+                          <div className={styles.classSpots}>3 spots left</div>
+                          <Button variant="primary" size="small">Book</Button>
+                        </div>
+                        <div className={styles.classSlot}>
+                          <div className={styles.classTime}>6:30 PM</div>
+                          <div className={styles.classSpots}>7 spots left</div>
+                          <Button variant="primary" size="small">Book</Button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className={styles.classSlot}>
+                          <div className={styles.classTime}>6:00 AM</div>
+                          <div className={styles.classSpots}>12 spots left</div>
+                          <Button variant="primary" size="small">Book</Button>
+                        </div>
+                        <div className={styles.classSlot}>
+                          <div className={styles.classTime}>10:00 AM</div>
+                          <div className={styles.classSpots}>10 spots left</div>
+                          <Button variant="primary" size="small">Book</Button>
+                        </div>
+                        <div className={styles.classSlot}>
+                          <div className={styles.classTime}>2:00 PM</div>
+                          <div className={styles.classSpots}>15 spots left</div>
+                          <Button variant="primary" size="small">Book</Button>
+                        </div>
+                        <div className={styles.classSlot}>
+                          <div className={styles.classTime}>6:00 PM</div>
+                          <div className={styles.classSpots}>8 spots left</div>
+                          <Button variant="primary" size="small">Book</Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
                 <h2 className={styles.sectionTitle}>Today's Workout</h2>
 
                 <Card variant="elevated">
@@ -174,65 +244,119 @@ const Dashboard = () => {
 
             {activeTab === 'booking' && (
               <div className={styles.tabContent}>
-                <h2 className={styles.sectionTitle}>Book Your Classes</h2>
-
-                <div className={styles.bookingSection}>
-                  <div className={styles.dateSelector}>
-                    <Button variant="secondary" size="small">← Previous Week</Button>
-                    <h3 className={styles.weekTitle}>
-                      Week of {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
-                    </h3>
-                    <Button variant="secondary" size="small">Next Week →</Button>
+                <div className={styles.bookingTopBar}>
+                  <div className={styles.bookingHeader}>
+                    <h2 className={styles.sectionTitle}>Book Your Classes</h2>
+                    {selectedClasses.size > 0 && (
+                      <div className={styles.blockBookActions}>
+                        <span className={styles.selectedCount}>
+                          {selectedClasses.size} class{selectedClasses.size !== 1 ? 'es' : ''} selected
+                        </span>
+                        <Button variant="secondary" size="small" onClick={clearSelection}>
+                          Clear
+                        </Button>
+                        <Button variant="primary" size="small" onClick={handleBlockBook}>
+                          Book Selected ({selectedClasses.size})
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
+                  <div className={styles.classTypeToggle}>
+                    <button
+                      type="button"
+                      className={`${styles.toggleButton} ${bookingClassType === 'crossfit' ? styles.active : ''}`}
+                      onClick={() => setBookingClassType('crossfit')}
+                    >
+                      CrossFit
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.toggleButton} ${bookingClassType === 'opengym' ? styles.active : ''}`}
+                      onClick={() => setBookingClassType('opengym')}
+                    >
+                      Open Gym
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.bookingSection}>
                   <div className={styles.classGrid}>
-                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, index) => (
-                      <Card key={day} variant="elevated">
-                        <div className={styles.dayCard}>
-                          <h4 className={styles.dayTitle}>{day}</h4>
-                          <div className={styles.classList}>
-                            <div className={styles.classItem}>
-                              <div className={styles.classTime}>6:00 AM</div>
-                              <div className={styles.className}>CrossFit</div>
-                              <div className={styles.classSpots}>8 spots left</div>
-                              <Button variant="primary" size="small" fullWidth>
-                                Book
-                              </Button>
+                    {next7Days.map((date, dayIndex) => {
+                      const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+                      const dateString = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                      const isToday = date.toDateString() === new Date().toDateString();
+
+                      // Sample classes for each day based on selected type
+                      let classes = [];
+
+                      if (bookingClassType === 'crossfit') {
+                        classes = [
+                          { time: '6:00 AM', name: 'CrossFit', spots: 8, type: 'crossfit' },
+                          { time: '9:00 AM', name: 'CrossFit', spots: 5, type: 'crossfit' },
+                          { time: '5:30 PM', name: 'CrossFit', spots: 3, type: 'crossfit' },
+                        ];
+                        // Add Saturday special class
+                        if (date.getDay() === 6) {
+                          classes.push({ time: '10:30 AM', name: 'Gymnastics', spots: 6, type: 'crossfit' });
+                        }
+                      } else {
+                        classes = [
+                          { time: '6:00 AM', name: 'Open Gym', spots: 12, type: 'opengym' },
+                          { time: '10:00 AM', name: 'Open Gym', spots: 10, type: 'opengym' },
+                          { time: '2:00 PM', name: 'Open Gym', spots: 15, type: 'opengym' },
+                          { time: '6:00 PM', name: 'Open Gym', spots: 8, type: 'opengym' },
+                        ];
+                      }
+
+                      return (
+                        <Card key={dayIndex} variant="elevated">
+                          <div className={styles.dayCard}>
+                            <div className={styles.dayHeader}>
+                              <h4 className={styles.dayTitle}>{dayName}</h4>
+                              <span className={styles.dateLabel}>
+                                {isToday ? 'Today' : dateString}
+                              </span>
                             </div>
-                            <div className={styles.classItem}>
-                              <div className={styles.classTime}>9:00 AM</div>
-                              <div className={styles.className}>CrossFit</div>
-                              <div className={styles.classSpots}>5 spots left</div>
-                              <Button variant="primary" size="small" fullWidth>
-                                Book
-                              </Button>
+                            <div className={styles.classList}>
+                              {classes.map((classInfo, classIndex) => {
+                                const classId = `${dayIndex}-${classIndex}`;
+                                const isSelected = selectedClasses.has(classId);
+
+                                return (
+                                  <div
+                                    key={classIndex}
+                                    className={`${styles.classItem} ${isSelected ? styles.selected : ''} ${styles[classInfo.type]}`}
+                                    onClick={() => toggleClassSelection(classId)}
+                                  >
+                                    <div className={styles.classItemHeader}>
+                                      <div className={styles.classTime}>{classInfo.time}</div>
+                                      <div className={styles.checkboxWrapper}>
+                                        <input
+                                          type="checkbox"
+                                          checked={isSelected}
+                                          onChange={() => toggleClassSelection(classId)}
+                                          className={styles.classCheckbox}
+                                          onClick={(e) => e.stopPropagation()}
+                                          id={`class-${classId}`}
+                                        />
+                                        <label htmlFor={`class-${classId}`} className={styles.checkboxLabel}></label>
+                                      </div>
+                                    </div>
+                                    <div className={styles.className}>{classInfo.name}</div>
+                                    <div className={styles.classSpots}>{classInfo.spots} spots left</div>
+                                  </div>
+                                );
+                              })}
                             </div>
-                            <div className={styles.classItem}>
-                              <div className={styles.classTime}>5:30 PM</div>
-                              <div className={styles.className}>CrossFit</div>
-                              <div className={styles.classSpots}>3 spots left</div>
-                              <Button variant="primary" size="small" fullWidth>
-                                Book
-                              </Button>
-                            </div>
-                            {index === 5 && (
-                              <div className={styles.classItem}>
-                                <div className={styles.classTime}>10:30 AM</div>
-                                <div className={styles.className}>Gymnastics</div>
-                                <div className={styles.classSpots}>6 spots left</div>
-                                <Button variant="primary" size="small" fullWidth>
-                                  Book
-                                </Button>
-                              </div>
-                            )}
                           </div>
-                        </div>
-                      </Card>
-                    ))}
+                        </Card>
+                      );
+                    })}
                   </div>
 
                   <div className={styles.bookingNote}>
-                    <strong>Note:</strong> You can book up to 7 days in advance. Cancel at least 2 hours before class to avoid charges.
+                    <strong>Tip:</strong> Click on classes to select them, then use "Book Selected" to book multiple classes at once. Cancel at least 2 hours before class to avoid charges.
                   </div>
                 </div>
               </div>

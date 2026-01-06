@@ -140,12 +140,6 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
             >
               Continue to Create Account
             </Button>
-            <p className={styles.note}>
-              Already have an account?{' '}
-              <button onClick={handleSignIn} className={styles.link}>
-                Sign in
-              </button>
-            </p>
           </div>
         </div>
       ) : step === 2 ? (
@@ -158,7 +152,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
             <div className={styles.stepDivider} />
             <div className={`${styles.step} ${styles.active}`}>
               <span className={styles.stepNumber}>2</span>
-              <span className={styles.stepLabel}>{authMode === 'signup' ? 'Create Account' : 'Sign In'}</span>
+              <span className={styles.stepLabel}>Create Account</span>
             </div>
             <div className={styles.stepDivider} />
             <div className={styles.step}>
@@ -171,7 +165,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
             <AuthModal
               isOpen={true}
               onClose={handleAuthSuccess}
-              initialMode={authMode}
+              initialMode="signup"
               embedded={true}
             />
           </div>

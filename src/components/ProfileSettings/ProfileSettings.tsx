@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Button } from '../common';
+import { Button, Card } from '../common';
 import { checkPasswordCompromised } from '../../utils/security';
 import styles from './ProfileSettings.module.scss';
 
@@ -146,6 +146,18 @@ const ProfileSettings: React.FC = () => {
     }
   };
 
+  const getMembershipTypeName = (type: string) => {
+    const names: Record<string, string> = {
+      'trial': 'Free Trial',
+      'crossfit': 'CrossFit',
+      'comet-plus': 'Comet Plus',
+      'open-gym': 'Open Gym',
+      'specialty': 'Specialty Program'
+    };
+    if (!type) return 'Unknown';
+    return names[type] || type;
+  };
+
   if (!user) {
     return null;
   }
@@ -154,8 +166,58 @@ const ProfileSettings: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>Profile Settings</h2>
-        <p className={styles.subtitle}>Manage your personal information and emergency contacts</p>
+        <p className={styles.subtitle}>Manage your membership, personal information and security</p>
       </div>
+
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>Membership Overview</h3>
+
+        <div className={styles.membershipActions}>
+          <h4 className={styles.actionsTitle}>Membership Actions</h4>
+          <div className={styles.actionButtons}>
+            <Button variant="primary">Upgrade Membership</Button>
+            <Button variant="secondary">Update Payment Method</Button>
+            <Button variant="secondary">Freeze Membership</Button>
+          </div>
+        </div>
+
+        <div className={styles.membershipGrid}>
+          <Card variant="elevated">
+            <div className={styles.infoCard}>
+              <div className={styles.infoLabel}>Membership Type</div>
+              <div className={styles.infoValue}>{getMembershipTypeName(user.membershipType)}</div>
+            </div>
+          </Card>
+
+          <Card variant="elevated">
+            <div className={styles.infoCard}>
+              <div className={styles.infoLabel}>Member Since</div>
+              <div className={styles.infoValue}>
+                {new Date(user.joinDate).toLocaleDateString('en-US', {
+                  month: 'long',
+                  year: 'numeric'
+                })}
+              </div>
+            </div>
+          </Card>
+
+          <Card variant="elevated">
+            <div className={styles.infoCard}>
+              <div className={styles.infoLabel}>Email</div>
+              <div className={styles.infoValue}>{user.email}</div>
+            </div>
+          </Card>
+
+          <Card variant="elevated">
+            <div className={styles.infoCard}>
+              <div className={styles.infoLabel}>Status</div>
+              <div className={styles.infoValueActive}>Active</div>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Divider removed above personal info section */}
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.section}>
@@ -203,7 +265,7 @@ const ProfileSettings: React.FC = () => {
           <div className={styles.field}>
             <label className={styles.label}>Membership Type</label>
             <div className={styles.badge}>
-              {user.membershipType.replace('-', ' ').toUpperCase()}
+              {(user.membershipType ? user.membershipType.replace('-', ' ').toUpperCase() : 'Unknown')}
             </div>
             <p className={styles.helpText}>Contact us to change your membership</p>
           </div>

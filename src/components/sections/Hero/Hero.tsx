@@ -1,22 +1,18 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button, Section, Container } from '../../common';
 import { TrialModal } from '../../TrialModal';
-import { useRegistrationIntent } from '../../../contexts/RegistrationContext';
+import { DayPassModal } from '../../DayPassModal';
 import styles from './Hero.module.scss';
 
 const Hero = () => {
-  const navigate = useNavigate();
-  const { setIntent } = useRegistrationIntent();
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
+  const [isDayPassModalOpen, setIsDayPassModalOpen] = useState(false);
 
   const handleDayPassClick = () => {
-    setIntent({ type: 'day-pass', step: 'class-selection' });
-    navigate('/schedule');
+    setIsDayPassModalOpen(true);
   };
 
   const handleTrialClick = () => {
-    setIntent({ type: 'trial', step: 'intent' });
     setIsTrialModalOpen(true);
   };
 
@@ -37,14 +33,6 @@ const Hero = () => {
 
           <div className={styles.actionCards}>
             <div className={styles.actionCard}>
-              <div className={styles.cardIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-              </div>
               <h3 className={styles.cardTitle}>Day Pass</h3>
               <p className={styles.cardDescription}>
                 Drop in for a single session and experience our community
@@ -55,11 +43,6 @@ const Hero = () => {
             </div>
 
             <div className={styles.actionCard}>
-              <div className={styles.cardIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-              </div>
               <h3 className={styles.cardTitle}>Free Trial</h3>
               <p className={styles.cardDescription}>
                 New to CrossFit? Try your first class on us—no commitment
@@ -70,12 +53,6 @@ const Hero = () => {
             </div>
 
             <div className={styles.actionCard}>
-              <div className={styles.cardIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <polyline points="12 6 12 12 16 14"/>
-                </svg>
-              </div>
               <h3 className={styles.cardTitle}>Class Schedule</h3>
               <p className={styles.cardDescription}>
                 View our full timetable and find a class that fits your day
@@ -89,6 +66,7 @@ const Hero = () => {
       </Container>
 
       <TrialModal isOpen={isTrialModalOpen} onClose={() => setIsTrialModalOpen(false)} />
+      <DayPassModal isOpen={isDayPassModalOpen} onClose={() => setIsDayPassModalOpen(false)} />
     </Section>
   );
 };

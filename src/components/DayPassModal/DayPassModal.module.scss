@@ -1,0 +1,547 @@
+@import '../../styles/variables';
+
+.dayPassModal {
+  max-width: 800px;
+}
+
+.modalContent {
+  padding: 2rem;
+}
+
+// Progress Bar
+.progressBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+  padding: 0 1rem;
+}
+
+.progressStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+
+  .stepNumber {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-bg-light);
+    border: 2px solid var(--color-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--color-muted);
+    transition: all 0.3s ease;
+  }
+
+  .stepLabel {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    transition: color 0.3s ease;
+  }
+
+  &.active {
+    .stepNumber {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: white;
+    }
+
+    .stepLabel {
+      color: var(--color-text);
+    }
+  }
+}
+
+.progressLine {
+  flex: 1;
+  height: 2px;
+  background: var(--color-bg-light);
+  margin: 0 1rem;
+  margin-bottom: 2rem;
+}
+
+// Step Content
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--color-muted);
+  margin: 0;
+  text-align: center;
+}
+
+// Authentication
+.authToggle {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  background: var(--color-bg-light);
+  border-radius: 0.5rem;
+}
+
+.toggleBtn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--color-muted);
+  font-weight: 600;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &.active {
+    background: var(--color-accent);
+    color: white;
+  }
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  input {
+    padding: 0.875rem 1rem;
+    background: var(--color-bg-light);
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    color: var(--color-text);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      background: var(--color-bg);
+    }
+
+    &::placeholder {
+      color: var(--color-muted);
+    }
+  }
+}
+
+// Class Type Toggle
+.classTypeToggle {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  background: var(--color-bg-light);
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.toggleButton {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: var(--color-muted);
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(.active) {
+    color: var(--color-text);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &.active {
+    background: var(--color-accent);
+    color: white;
+  }
+}
+
+// Disclaimer
+.disclaimer {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: rgba(255, 79, 31, 0.1);
+  border: 2px solid rgba(255, 79, 31, 0.3);
+  border-radius: 0.5rem;
+}
+
+.disclaimerLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.disclaimerCheckbox {
+  margin-top: 0.25rem;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  cursor: pointer;
+  accent-color: var(--color-accent);
+}
+
+.disclaimerText {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.disclaimerNote {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  margin: 0.75rem 0 0 0;
+  font-style: italic;
+}
+
+// Class Selection
+.classSchedule {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--color-bg-light);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-muted);
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--color-accent);
+    }
+  }
+}
+
+.daySection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dayHeader {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-bg-light);
+}
+
+.classList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.classCard {
+  padding: 1rem;
+  background: var(--color-bg-light);
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.classTime {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.className {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.classCoach {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.requiresDisclaimer {
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+// Class Type Styles
+.classCrossFit {
+  background: linear-gradient(135deg, rgba(255, 79, 31, 0.1) 0%, rgba(255, 79, 31, 0.05) 100%);
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(255, 79, 31, 0.15) 0%, rgba(255, 79, 31, 0.08) 100%);
+  }
+}
+
+.classOpenGym {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 212, 255, 0.08) 100%);
+  }
+
+  .classTime {
+    color: var(--color-secondary);
+  }
+}
+
+.classBoth {
+  background: linear-gradient(135deg, rgba(255, 79, 31, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(255, 79, 31, 0.15) 0%, rgba(0, 212, 255, 0.15) 100%);
+  }
+}
+
+.classSpecialty {
+  background: linear-gradient(135deg, rgba(157, 78, 221, 0.1) 0%, rgba(157, 78, 221, 0.05) 100%);
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(157, 78, 221, 0.15) 0%, rgba(157, 78, 221, 0.08) 100%);
+  }
+
+  .classTime {
+    color: var(--color-specialty);
+  }
+}
+
+// Payment Section
+.classDetails {
+  background: var(--color-bg-light);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.125rem;
+    color: var(--color-text);
+  }
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-bg);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.label {
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+}
+
+.value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.priceValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.paymentForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.paymentElementWrapper {
+  padding: 1.5rem;
+  background: var(--color-bg-light);
+  border-radius: 0.5rem;
+}
+
+// Loading & States
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--color-bg-light);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  p {
+    color: var(--color-muted);
+    margin: 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  background: rgba(255, 79, 31, 0.1);
+  border: 1px solid rgba(255, 79, 31, 0.3);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  svg {
+    width: 48px;
+    height: 48px;
+    color: var(--color-accent);
+  }
+
+  p {
+    color: var(--color-text);
+    margin: 0;
+    text-align: center;
+  }
+}
+
+.success {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 0.5rem;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+
+  svg {
+    width: 64px;
+    height: 64px;
+    color: var(--color-secondary2);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--color-text);
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-muted);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .modalContent {
+    padding: 1.5rem;
+  }
+
+  .progressBar {
+    margin-bottom: 2rem;
+    padding: 0;
+  }
+
+  .progressStep {
+    .stepLabel {
+      font-size: 0.75rem;
+    }
+
+    .stepNumber {
+      width: 32px;
+      height: 32px;
+      font-size: 0.875rem;
+    }
+  }
+
+  .progressLine {
+    margin: 0 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .classList {
+    grid-template-columns: 1fr;
+  }
+
+  .classSchedule {
+    max-height: 400px;
+  }
+}

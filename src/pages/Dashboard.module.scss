@@ -252,7 +252,171 @@
   }
 }
 
+.bookingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.bookingSectionTitle {
+  @include header;
+  font-size: 1.75rem;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.classTypeToggle {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: fit-content;
+  align-self: flex-start;
+
+  @media (min-width: 769px) {
+    align-self: auto;
+  }
+}
+
+.toggleButton {
+  @include header;
+  padding: 0.625rem 1.25rem;
+  border: none;
+  background: transparent;
+  color: var(--color-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &.active {
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent2) 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 153, 0, 0.3);
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+.bookingSubtitle {
+  @include body;
+  font-size: 0.95rem;
+  color: var(--color-muted);
+  margin-bottom: 1.5rem;
+}
+
+.todayClasses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 500px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.classSlot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 229, 255, 0.05);
+    border-color: rgba(0, 229, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.75rem 0.875rem;
+  }
+}
+
+.classCard {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+
+  @media (max-width: 500px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.classInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
 // Booking Tab Styles
+.bookingTopBar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (min-width: 769px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.blockBookActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+  }
+}
+
+.selectedCount {
+  @include header;
+  font-size: 0.95rem;
+  color: var(--color-secondary);
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 229, 255, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 229, 255, 0.2);
+}
+
 .bookingSection {
   display: flex;
   flex-direction: column;
@@ -291,13 +455,30 @@
   padding: 1.5rem;
 }
 
+.dayHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
 .dayTitle {
   @include header;
   font-size: 1.25rem;
   color: var(--color-text);
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  margin: 0;
+}
+
+.dateLabel {
+  @include body;
+  font-size: 0.875rem;
+  color: var(--color-secondary);
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  background: rgba(0, 229, 255, 0.1);
+  border-radius: 4px;
 }
 
 .classList {
@@ -314,13 +495,146 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  &.crossfit {
+    &:hover {
+      border-color: rgba(255, 153, 0, 0.3);
+      background: rgba(255, 153, 0, 0.05);
+    }
+
+    &.selected {
+      background: rgba(255, 153, 0, 0.15);
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 2px rgba(255, 153, 0, 0.2);
+
+      .classTime {
+        color: var(--color-accent);
+      }
+    }
+  }
+
+  &.opengym {
+    &:hover {
+      border-color: rgba(0, 229, 255, 0.3);
+      background: rgba(0, 229, 255, 0.05);
+    }
+
+    &.selected {
+      background: rgba(0, 229, 255, 0.15);
+      border-color: var(--color-secondary);
+      box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2);
+
+      .classTime {
+        color: var(--color-secondary);
+      }
+
+      .checkboxLabel {
+        background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+        border-color: var(--color-secondary);
+      }
+    }
+
+    .checkboxLabel:hover {
+      border-color: var(--color-secondary);
+      background: rgba(0, 229, 255, 0.1);
+    }
+
+    .classCheckbox:checked + .checkboxLabel {
+      background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+      border-color: var(--color-secondary);
+    }
+  }
+}
+
+.classItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.checkboxWrapper {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+
+.classCheckbox {
+  position: absolute;
+  opacity: 0;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  z-index: 2;
+
+  &:checked + .checkboxLabel {
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent2) 100%);
+    border-color: var(--color-accent);
+
+    &::after {
+      opacity: 1;
+      transform: rotate(45deg) scale(1);
+    }
+  }
+}
+
+.checkboxLabel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    opacity: 0;
+    transition: all 0.2s ease;
+  }
+
+  &:hover {
+    border-color: var(--color-accent);
+    background: rgba(255, 153, 0, 0.1);
+  }
 }
 
 .classTime {
   @include header;
-  font-size: 1rem;
-  color: var(--color-secondary);
-  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  font-weight: 700;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+
+  @media (max-width: 768px) {
+    font-size: 0.875rem;
+  }
+
+  .crossfit & {
+    color: rgba(255, 153, 0, 0.8);
+  }
+
+  .opengym & {
+    color: rgba(0, 229, 255, 0.8);
+  }
 }
 
 .className {
@@ -332,9 +646,14 @@
 
 .classSpots {
   @include body;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: var(--color-muted);
-  margin-bottom: 0.5rem;
+  white-space: nowrap;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 0.7rem;
+  }
 }
 
 .bookingNote {
