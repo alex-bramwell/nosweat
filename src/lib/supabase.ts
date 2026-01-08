@@ -14,10 +14,14 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     // Re-enabled - password reset now uses direct API calls
     detectSessionInUrl: true
   },
+  db: {
+    schema: 'public'
+  },
   global: {
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
     }
   }
 });
