@@ -315,6 +315,12 @@
     display: none;
   }
 
+  .authButtons {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
   .signInButton {
     @include header;
     padding: 0.625rem 1.5rem;
@@ -332,6 +338,26 @@
       background: rgba(0, 212, 255, 0.1);
       border-color: var(--color-secondary2);
       color: var(--color-secondary2);
+      transform: translateY(-1px);
+    }
+  }
+
+  .coachLoginButton {
+    @include header;
+    padding: 0.625rem 1.5rem;
+    border-radius: 12px;
+    border: 2px solid var(--color-accent);
+    background: transparent;
+    color: var(--color-accent);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background: var(--color-accent);
+      color: white;
       transform: translateY(-1px);
     }
   }

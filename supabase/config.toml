@@ -40,8 +40,14 @@ file_size_limit = "50MiB"
 
 [auth]
 enabled = true
-site_url = "http://localhost:5173"
-additional_redirect_urls = ["http://localhost:5173", "http://localhost:5173/**"]
+site_url = "https://urban-zebra-pj9945gx446v27wp9-5173.app.github.dev"
+additional_redirect_urls = [
+  "http://localhost:5173",
+  "http://localhost:5173/**",
+  "https://urban-zebra-pj9945gx446v27wp9-5173.app.github.dev",
+  "https://urban-zebra-pj9945gx446v27wp9-5173.app.github.dev/**",
+  "https://*.app.github.dev/**"
+]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10

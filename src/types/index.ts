@@ -111,3 +111,47 @@ export interface RegistrationIntent {
   timestamp: number;
   step: 'intent' | 'auth' | 'payment' | 'class-selection' | 'complete';
 }
+
+// Extended WOD type with database fields
+export interface WorkoutDB extends WOD {
+  warmup?: string[];
+  strength?: string[];
+  metcon?: string[];
+  cooldown?: string[];
+  coachNotes?: string;
+  scalingNotes?: string;
+  createdBy?: string;
+  updatedBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  status: 'draft' | 'published';
+}
+
+// Workout form data for creating/editing
+export interface WorkoutFormData {
+  date: string;
+  title: string;
+  description: string;
+  workoutType: 'amrap' | 'fortime' | 'emom' | 'strength' | 'endurance';
+  duration?: string;
+  rounds?: number;
+  warmup?: string[];
+  strength?: string[];
+  metcon?: string[];
+  cooldown?: string[];
+  movements: string[];
+  coachNotes?: string;
+  scalingNotes?: string;
+  status: 'draft' | 'published';
+}
+
+// Role-based permission helper type
+export interface UserPermissions {
+  canViewCoachDashboard: boolean;
+  canCreateWorkouts: boolean;
+  canEditWorkouts: boolean;
+  canDeleteWorkouts: boolean;
+  canManageUsers: boolean;
+  isAdmin: boolean;
+  isCoach: boolean;
+}

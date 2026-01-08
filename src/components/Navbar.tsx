@@ -17,6 +17,7 @@ const Navbar: React.FC = () => {
   const [activeSection, setActiveSection] = useState('');
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
+  const [isCoachLogin, setIsCoachLogin] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -235,7 +236,7 @@ const Navbar: React.FC = () => {
           {isAuthenticated ? (
             <div className={styles.userMenu}>
               <button
-                className={`${styles.userButton} ${location.pathname === '/dashboard' ? styles.activeLink : ''}`}
+                className={`${styles.userButton} ${(location.pathname === '/dashboard' || location.pathname === '/coach-dashboard') ? styles.activeLink : ''}`}
                 onClick={toggleUserDropdown}
                 aria-label="User menu"
               >
@@ -246,20 +247,58 @@ const Navbar: React.FC = () => {
               </button>
               {isUserDropdownOpen && (
                 <div className={styles.userDropdown}>
-                  <Link
-                    to="/dashboard"
-                    className={styles.dropdownItem}
-                    onClick={() => {
-                      closeUserDropdown();
-                      closeMenu();
-                    }}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                      <line x1="9" y1="3" x2="9" y2="21"></line>
-                    </svg>
-                    Dashboard
-                  </Link>
+                  {/* Show appropriate dashboard based on role */}
+                  {user?.role === 'coach' || user?.role === 'admin' ? (
+                    <Link
+                      to="/coach-dashboard"
+                      className={styles.dropdownItem}
+                      onClick={() => {
+                        closeUserDropdown();
+                        closeMenu();
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="3" x2="9" y2="21"></line>
+                      </svg>
+                      Coach Dashboard
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/dashboard"
+                      className={styles.dropdownItem}
+                      onClick={() => {
+                        closeUserDropdown();
+                        closeMenu();
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="3" x2="9" y2="21"></line>
+                      </svg>
+                      Dashboard
+                    </Link>
+                  )}
+
+                  {/* If admin, show both dashboards */}
+                  {user?.role === 'admin' && (
+                    <Link
+                      to="/dashboard"
+                      className={styles.dropdownItem}
+                      onClick={() => {
+                        closeUserDropdown();
+                        closeMenu();
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                      </svg>
+                      Member View
+                    </Link>
+                  )}
+
                   <button
                     className={styles.dropdownItem}
                     onClick={async () => {
@@ -284,7 +323,14 @@ const Navbar: React.FC = () => {
               )}
             </div>
           ) : (
-            <button className={styles.signInButton} onClick={openAuthModal}>Sign In</button>
+            <div className={styles.authButtons}>
+              <button className={styles.signInButton} onClick={() => {
+                setIsCoachLogin(false);
+                openAuthModal();
+              }}>
+                Sign In
+              </button>
+            </div>
           )}
         </div>
       </nav>
@@ -466,6 +512,13 @@ const Navbar: React.FC = () => {
         onClose={closeAuthModal}
         initialMode={authModalMode}
         initialError={authModalInitialError}
+        isCoachLogin={isCoachLogin}
+        onCoachLoginClick={() => {
+          setIsCoachLogin(true);
+          setIsAuthModalOpen(false);
+          // Reopen modal with coach login flag
+          setTimeout(() => setIsAuthModalOpen(true), 100);
+        }}
       />
     </div>
   );

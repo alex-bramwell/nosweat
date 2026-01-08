@@ -3,10 +3,16 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requiredRole?: 'member' | 'coach' | 'admin';
+  redirectTo?: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requiredRole,
+  redirectTo = '/'
+}) => {
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -24,7 +30,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={redirectTo} replace />;
+  }
+
+  // Role-based access control
+  if (requiredRole) {
+    const roleHierarchy = { member: 0, coach: 1, admin: 2 };
+    const userRoleLevel = roleHierarchy[user?.role || 'member'];
+    const requiredRoleLevel = roleHierarchy[requiredRole];
+
+    if (userRoleLevel < requiredRoleLevel) {
+      // Redirect based on user's role
+      if (user?.role === 'coach') {
+        return <Navigate to="/coach-dashboard" replace />;
+      }
+      return <Navigate to="/dashboard" replace />;
+    }
   }
 
   return <>{children}</>;

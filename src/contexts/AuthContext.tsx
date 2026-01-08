@@ -5,12 +5,14 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  role: 'member' | 'coach' | 'admin';
   membershipType: 'trial' | 'crossfit' | 'comet-plus' | 'open-gym' | 'specialty';
   joinDate: string;
   avatarUrl?: string;
   phone?: string;
   emergencyContact?: string;
   emergencyPhone?: string;
+  coachId?: string;
 }
 
 interface AuthContextType {
@@ -91,12 +93,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         id: profile.id,
         email: profile.email,
         name: profile.name,
+        role: profile.role || 'member',
         membershipType: profile.membership_type,
         joinDate: profile.join_date,
         avatarUrl: profile.avatar_url || undefined,
         phone: profile.phone || undefined,
         emergencyContact: profile.emergency_contact || undefined,
         emergencyPhone: profile.emergency_phone || undefined,
+        coachId: profile.coach_id || undefined,
       };
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
@@ -138,8 +142,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 id: session.user.id,
                 email: session.user.email || '',
                 name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                role: session.user.user_metadata?.role || 'member',
                 membershipType: 'trial',
                 joinDate: session.user.created_at || new Date().toISOString(),
+                coachId: session.user.user_metadata?.coach_id,
               };
             }
             

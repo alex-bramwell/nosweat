@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Section, Container, Card, Button } from '../components/common';
 import { ProfileSettings } from '../components/ProfileSettings';
+import { workoutService } from '../services/workoutService';
+import type { WorkoutDB } from '../types';
 import styles from './Dashboard.module.scss';
 
 const Dashboard = () => {
@@ -10,6 +12,23 @@ const Dashboard = () => {
   const [classType, setClassType] = useState<'crossfit' | 'opengym'>('crossfit');
   const [bookingClassType, setBookingClassType] = useState<'crossfit' | 'opengym'>('crossfit');
   const [selectedClasses, setSelectedClasses] = useState<Set<string>>(new Set());
+  const [todaysWorkout, setTodaysWorkout] = useState<WorkoutDB | null>(null);
+  const [isWorkoutLoading, setIsWorkoutLoading] = useState(true);
+
+  useEffect(() => {
+    loadTodaysWorkout();
+  }, []);
+
+  const loadTodaysWorkout = async () => {
+    try {
+      const workout = await workoutService.getTodaysWorkout();
+      setTodaysWorkout(workout);
+    } catch (error) {
+      console.error('Error loading workout:', error);
+    } finally {
+      setIsWorkoutLoading(false);
+    }
+  };
 
   if (!user) return null;
 
@@ -181,55 +200,94 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                <h2 className={styles.sectionTitle}>Today's Workout</h2>
+                <h2 className={styles.sectionTitle}>Today&apos;s Workout</h2>
 
-                <Card variant="elevated">
-                  <div className={styles.wodCard}>
-                    <div className={styles.wodHeader}>
-                      <h3 className={styles.wodTitle}>
-                        {new Date().toLocaleDateString('en-US', {
-                          weekday: 'long',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </h3>
-                      <span className={styles.wodType}>CrossFit</span>
+                {isWorkoutLoading ? (
+                  <Card variant="elevated">
+                    <div style={{ padding: '2rem', textAlign: 'center' }}>
+                      Loading workout...
                     </div>
+                  </Card>
+                ) : todaysWorkout ? (
+                  <Card variant="elevated">
+                    <div className={styles.wodCard}>
+                      <div className={styles.wodHeader}>
+                        <h3 className={styles.wodTitle}>
+                          {new Date(todaysWorkout.date).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </h3>
+                        <span className={styles.wodType}>{todaysWorkout.type.toUpperCase()}</span>
+                      </div>
 
-                    <div className={styles.wodSection}>
-                      <h4 className={styles.wodSectionTitle}>Warm-Up</h4>
-                      <ul className={styles.wodList}>
-                        <li>3 Rounds:</li>
-                        <li>10 Air Squats</li>
-                        <li>10 Push-Ups</li>
-                        <li>10 Sit-Ups</li>
-                        <li>200m Run</li>
-                      </ul>
-                    </div>
+                      {todaysWorkout.warmup && todaysWorkout.warmup.length > 0 && (
+                        <div className={styles.wodSection}>
+                          <h4 className={styles.wodSectionTitle}>Warm-Up</h4>
+                          <ul className={styles.wodList}>
+                            {todaysWorkout.warmup.map((item, idx) => (
+                              <li key={idx}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
-                    <div className={styles.wodSection}>
-                      <h4 className={styles.wodSectionTitle}>Strength</h4>
-                      <ul className={styles.wodList}>
-                        <li>Back Squat</li>
-                        <li>5-5-5-5-5 @ 75% 1RM</li>
-                        <li>Rest 2-3 minutes between sets</li>
-                      </ul>
-                    </div>
+                      {todaysWorkout.strength && todaysWorkout.strength.length > 0 && (
+                        <div className={styles.wodSection}>
+                          <h4 className={styles.wodSectionTitle}>Strength</h4>
+                          <ul className={styles.wodList}>
+                            {todaysWorkout.strength.map((item, idx) => (
+                              <li key={idx}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
-                    <div className={styles.wodSection}>
-                      <h4 className={styles.wodSectionTitle}>MetCon (15 min AMRAP)</h4>
-                      <ul className={styles.wodList}>
-                        <li>15 Wall Balls (20/14 lbs)</li>
-                        <li>12 Box Jumps (24/20 in)</li>
-                        <li>9 Burpees</li>
-                      </ul>
-                    </div>
+                      {todaysWorkout.metcon && todaysWorkout.metcon.length > 0 && (
+                        <div className={styles.wodSection}>
+                          <h4 className={styles.wodSectionTitle}>
+                            MetCon {todaysWorkout.duration && `(${todaysWorkout.duration})`}
+                          </h4>
+                          <ul className={styles.wodList}>
+                            {todaysWorkout.metcon.map((item, idx) => (
+                              <li key={idx}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
-                    <div className={styles.wodNotes}>
-                      <strong>Coach's Notes:</strong> Scale the movements as needed. Focus on maintaining consistent pace throughout the AMRAP. The goal is to complete 6+ rounds.
+                      {todaysWorkout.cooldown && todaysWorkout.cooldown.length > 0 && (
+                        <div className={styles.wodSection}>
+                          <h4 className={styles.wodSectionTitle}>Cool-Down</h4>
+                          <ul className={styles.wodList}>
+                            {todaysWorkout.cooldown.map((item, idx) => (
+                              <li key={idx}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {todaysWorkout.coachNotes && (
+                        <div className={styles.wodNotes}>
+                          <strong>Coach&apos;s Notes:</strong> {todaysWorkout.coachNotes}
+                        </div>
+                      )}
+
+                      {todaysWorkout.scalingNotes && (
+                        <div className={styles.wodNotes}>
+                          <strong>Scaling:</strong> {todaysWorkout.scalingNotes}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                ) : (
+                  <Card variant="elevated">
+                    <div style={{ padding: '2rem', textAlign: 'center' }}>
+                      No workout scheduled for today. Check back later!
+                    </div>
+                  </Card>
+                )}
               </div>
             )}
 

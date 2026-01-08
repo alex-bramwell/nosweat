@@ -1,11 +1,38 @@
 import { Button, Card, Container, Section } from '../components/common';
+import { userManagementService } from '../services/userManagementService';
+import { supabase } from '../lib/supabase';
 
 const ComponentDemo = () => {
+  const handleMakeDanAdmin = async () => {
+    try {
+      const { data: users, error: userError } = await supabase.auth.admin.listUsers();
+      if (userError) throw userError;
+      const danUser = users.users.find(u => u.email === 'dan@crossfitcomet.com');
+
+      if (!danUser) {
+        alert("Dan's user not found. Please ensure the seed script has been run.");
+        return;
+      }
+
+      await userManagementService.updateUserRole({ userId: danUser.id, role: 'admin' });
+      // Password reset would need to be done through Supabase dashboard or email flow
+      alert('Dan is now an admin!');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to make Dan an admin. Check the console for errors.');
+    }
+  };
+
   return (
     <div>
       <Section spacing="large" background="default">
         <Container>
           <h1 style={{ marginBottom: '2rem' }}>UI Component Library</h1>
+
+          <div style={{ border: '1px solid #ff4f1f', padding: '1rem', borderRadius: '8px', marginBottom: '2rem' }}>
+            <h2 style={{ marginTop: 0 }}>Dev Tools</h2>
+            <Button variant="primary" onClick={handleMakeDanAdmin}>Make Dan Admin</Button>
+          </div>
 
           <h2 style={{ marginTop: '2rem', marginBottom: '1rem' }}>Buttons</h2>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>

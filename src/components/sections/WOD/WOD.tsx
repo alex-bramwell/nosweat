@@ -1,9 +1,31 @@
+import { useState, useEffect } from 'react';
 import { Section, Container, Card, Button } from '../../common';
+import { workoutService } from '../../../services/workoutService';
 import { todaysWOD } from '../../../data/wod';
 import { stats } from '../../../data/stats';
+import type { WorkoutDB } from '../../../types';
 import styles from './WOD.module.scss';
 
 const WOD = () => {
+  const [workout, setWorkout] = useState<WorkoutDB | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadTodaysWorkout();
+  }, []);
+
+  const loadTodaysWorkout = async () => {
+    try {
+      const data = await workoutService.getTodaysWorkout();
+      setWorkout(data || { ...todaysWOD, status: 'published' as const }); // Fallback to static if no DB workout
+    } catch (error) {
+      console.error('Error loading workout:', error);
+      setWorkout({ ...todaysWOD, status: 'published' as const }); // Fallback
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const wodTypeLabels = {
     amrap: 'AMRAP',
     fortime: 'For Time',
@@ -11,6 +33,30 @@ const WOD = () => {
     strength: 'Strength',
     endurance: 'Endurance',
   };
+
+  if (isLoading) {
+    return (
+      <Section spacing="large" background="surface" id="wod">
+        <Container>
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            Loading today&apos;s workout...
+          </div>
+        </Container>
+      </Section>
+    );
+  }
+
+  if (!workout) {
+    return (
+      <Section spacing="large" background="surface" id="wod">
+        <Container>
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            No workout scheduled for today. Check back later!
+          </div>
+        </Container>
+      </Section>
+    );
+  }
 
   return (
     <Section spacing="large" background="surface" id="wod">
@@ -28,12 +74,12 @@ const WOD = () => {
             <Card variant="elevated" padding="large">
           <div className={styles.wod}>
             <div className={styles.wodHeader}>
-              <h3 className={styles.wodTitle}>{todaysWOD.title}</h3>
-              <span className={styles.wodType}>{wodTypeLabels[todaysWOD.type]}</span>
+              <h3 className={styles.wodTitle}>{workout.title}</h3>
+              <span className={styles.wodType}>{wodTypeLabels[workout.type]}</span>
             </div>
 
             <div className={styles.wodDate}>
-              {new Date(todaysWOD.date).toLocaleDateString('en-US', {
+              {new Date(workout.date).toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
@@ -41,21 +87,30 @@ const WOD = () => {
               })}
             </div>
 
-            <p className={styles.description}>{todaysWOD.description}</p>
+            <p className={styles.description}>{workout.description}</p>
 
             <div className={styles.movements}>
-              {todaysWOD.movements.map((movement, index) => (
-                <div key={index} className={styles.movement}>
-                  <span className={styles.bullet}>•</span>
-                  <span>{movement}</span>
-                </div>
-              ))}
+              {workout.metcon && workout.metcon.length > 0 ? (
+                workout.metcon.map((movement, index) => (
+                  <div key={index} className={styles.movement}>
+                    <span className={styles.bullet}>•</span>
+                    <span>{movement}</span>
+                  </div>
+                ))
+              ) : (
+                workout.movements.map((movement, index) => (
+                  <div key={index} className={styles.movement}>
+                    <span className={styles.bullet}>•</span>
+                    <span>{movement}</span>
+                  </div>
+                ))
+              )}
             </div>
 
-            {todaysWOD.duration && (
+            {workout.duration && (
               <div className={styles.meta}>
                 <span className={styles.metaLabel}>Time Cap:</span>
-                <span className={styles.metaValue}>{todaysWOD.duration}</span>
+                <span className={styles.metaValue}>{workout.duration}</span>
               </div>
             )}
 
