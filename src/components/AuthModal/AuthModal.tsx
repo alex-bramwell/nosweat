@@ -882,8 +882,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             onChange={(e) => setHoneypot(e.target.value)}
             className={styles.honeypot}
             tabIndex={-1}
-            autoComplete="off"
+            autoComplete="new-password"
             aria-hidden="true"
+            style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
           />
 
           {mode === 'signup' && (
