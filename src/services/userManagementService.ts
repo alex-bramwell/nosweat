@@ -45,7 +45,7 @@ class UserManagementService {
     return (data || []).map(profile => ({
       id: profile.id,
       email: profile.email,
-      name: profile.name,
+      name: profile.full_name,
       role: profile.role || 'member',
       membershipType: profile.membership_type,
       joinDate: profile.join_date || profile.created_at,
@@ -64,7 +64,7 @@ class UserManagementService {
       .from('profiles')
       .select('*')
       .eq('role', role)
-      .order('name', { ascending: true });
+      .order('full_name', { ascending: true });
 
     if (error) {
       console.error('Error fetching users by role:', error);
@@ -74,7 +74,7 @@ class UserManagementService {
     return (data || []).map(profile => ({
       id: profile.id,
       email: profile.email,
-      name: profile.name,
+      name: profile.full_name,
       role: profile.role || 'member',
       membershipType: profile.membership_type,
       joinDate: profile.join_date || profile.created_at,
@@ -221,7 +221,7 @@ class UserManagementService {
     return {
       id: data.id,
       email: data.email,
-      name: data.name,
+      name: data.full_name,
       role: data.role || 'member',
       membershipType: data.membership_type,
       joinDate: data.join_date || data.created_at,

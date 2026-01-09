@@ -34,34 +34,43 @@ export interface Database {
         Row: {
           id: string;
           email: string;
-          name: string;
+          full_name: string;
           membership_type: 'trial' | 'crossfit' | 'comet-plus' | 'open-gym' | 'specialty';
           join_date: string;
           avatar_url: string | null;
           phone: string | null;
           emergency_contact: string | null;
           emergency_phone: string | null;
+          role: 'member' | 'coach' | 'admin';
+          coach_id: string | null;
+          stripe_customer_id: string | null;
+          trial_used: boolean;
+          trial_started_at: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id: string;
           email: string;
-          name: string;
+          full_name: string;
           membership_type?: 'trial' | 'crossfit' | 'comet-plus' | 'open-gym' | 'specialty';
           join_date?: string;
           avatar_url?: string | null;
           phone?: string | null;
           emergency_contact?: string | null;
           emergency_phone?: string | null;
+          role?: 'member' | 'coach' | 'admin';
+          coach_id?: string | null;
         };
         Update: {
-          name?: string;
+          full_name?: string;
           membership_type?: 'trial' | 'crossfit' | 'comet-plus' | 'open-gym' | 'specialty';
           avatar_url?: string | null;
           phone?: string | null;
           emergency_contact?: string | null;
           emergency_phone?: string | null;
+          role?: 'member' | 'coach' | 'admin';
+          coach_id?: string | null;
         };
       };
     };
