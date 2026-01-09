@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Section, Container, Button } from '../components/common';
+import { supabase } from '../lib/supabase';
 import styles from './ResetPassword.module.scss';
 
 const ResetPassword = () => {
@@ -12,9 +13,7 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  // Password validation
   const validatePassword = (pwd: string) => {
     return {
       minLength: pwd.length >= 12,
@@ -51,88 +50,55 @@ const ResetPassword = () => {
   const [isSessionReady, setIsSessionReady] = useState(false);
 
   useEffect(() => {
-    const verifyToken = async () => {
-      console.log('ResetPassword: Starting token verification...');
-      
-      // Check for token in query params
+    const checkSession = async () => {
+      console.log('ResetPassword: Checking session...');
+
+      // First check if we already have a session (handled by supabase-js from hash)
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        console.log('ResetPassword: Found existing session');
+        setIsSessionReady(true);
+        return;
+      }
+
+      // If no session, check for token_hash (PKCE/Magic Link flow)
       const urlParams = new URLSearchParams(window.location.search);
       const tokenHash = urlParams.get('token_hash');
       const type = urlParams.get('type');
       const errorParam = urlParams.get('error');
       const errorDescription = urlParams.get('error_description');
 
-      console.log('ResetPassword: URL params', { 
-        tokenHash: !!tokenHash, 
-        type, 
-        error: errorParam
-      });
-
-      // Check for error in URL
       if (errorParam) {
         console.error('ResetPassword: Error in URL', { errorParam, errorDescription });
-        setError(errorDescription || 'Your password reset link has expired or is invalid. Please request a new one.');
+        setError(errorDescription || 'Your password reset link has expired or is invalid.');
         return;
       }
 
-      // Verify token via direct API call
       if (tokenHash && type === 'recovery') {
-        console.log('ResetPassword: Using token_hash from query params...');
-        try {
-          // Try direct API call first to bypass any SDK issues
-          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-          const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-          
-          console.log('ResetPassword: Making direct API call to verify token...');
-          
-          const response = await fetch(`${supabaseUrl}/auth/v1/verify`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': supabaseKey,
-            },
-            body: JSON.stringify({
-              token_hash: tokenHash,
-              type: 'recovery',
-            }),
-          });
+        console.log('ResetPassword: Verifying token_hash...');
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: 'recovery',
+        });
 
-          console.log('ResetPassword: API response status', response.status);
-          
-          const result = await response.json();
-          console.log('ResetPassword: API result', { 
-            hasAccessToken: !!result.access_token,
-            hasRefreshToken: !!result.refresh_token,
-            error: result.error || result.error_description
-          });
-
-          if (!response.ok || result.error) {
-            setError(result.error_description || result.error || 'Your password reset link has expired or is invalid. Please request a new one.');
-            return;
-          }
-
-          // Store the access token - skip SDK setSession entirely
-          if (result.access_token) {
-            console.log('ResetPassword: Token received, ready for password update!');
-            setAccessToken(result.access_token);
-            setIsSessionReady(true);
-            window.history.replaceState(null, '', window.location.pathname);
-            return;
-          }
-
-          setError('Invalid response from server. Please try again.');
-        } catch (err) {
-          console.error('ResetPassword: Exception', err);
-          setError('Unable to verify your reset link. Please request a new password reset.');
-          return;
+        if (error) {
+          console.error('ResetPassword: Verification failed', error);
+          setError(error.message);
+        } else {
+          // Verification successful, session should be set
+          console.log('ResetPassword: Verification successful');
+          setIsSessionReady(true);
+          // Clear URL params
+          window.history.replaceState(null, '', window.location.pathname);
         }
       } else {
-        // No valid token found
-        console.log('ResetPassword: No valid token found in URL');
+        console.log('ResetPassword: No valid session or token found');
         setError('Please use the password reset link from your email to access this page.');
       }
     };
 
-    verifyToken();
+    checkSession();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -157,26 +123,12 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     try {
-      // Use direct API call with the access token we stored
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-      const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          password: password,
-        }),
+      const { error } = await supabase.auth.updateUser({
+        password: password
       });
 
-      const result = await response.json();
-
-      if (!response.ok || result.error) {
-        throw new Error(result.error_description || result.error || 'Failed to update password');
+      if (error) {
+        throw error;
       }
 
       setSuccess(true);
