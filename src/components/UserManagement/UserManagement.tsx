@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Button } from '../common';
+import { Card, Button, Select, type SelectOption } from '../common';
 import Modal from '../common/Modal/Modal';
 import { userManagementService, type UserProfile, type InviteUserData } from '../../services/userManagementService';
 import styles from './UserManagement.module.scss';
@@ -287,16 +287,16 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
 
           <div className={styles.filterGroup}>
             <label htmlFor="roleFilter">Filter by Role</label>
-            <select
-              id="roleFilter"
+            <Select
+              options={[
+                { value: 'all', label: 'All Users' },
+                { value: 'admin', label: 'Admins' },
+                { value: 'coach', label: 'Coaches' },
+                { value: 'member', label: 'Members' },
+              ]}
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value as typeof roleFilter)}
-            >
-              <option value="all">All Users</option>
-              <option value="admin">Admins</option>
-              <option value="coach">Coaches</option>
-              <option value="member">Members</option>
-            </select>
+              onChange={(value) => setRoleFilter(value as typeof roleFilter)}
+            />
           </div>
         </div>
       </Card>
@@ -340,15 +340,16 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
               </div>
 
               <div className={styles.userActions}>
-                <select
+                <Select
+                  options={[
+                    { value: 'member', label: 'Member' },
+                    { value: 'coach', label: 'Coach' },
+                    { value: 'admin', label: 'Admin' },
+                  ]}
                   value={user.role}
-                  onChange={(e) => handleUpdateRole(user.id, e.target.value as typeof user.role, user.coachId)}
+                  onChange={(value) => handleUpdateRole(user.id, value as typeof user.role, user.coachId)}
                   className={styles.roleSelect}
-                >
-                  <option value="member">Member</option>
-                  <option value="coach">Coach</option>
-                  <option value="admin">Admin</option>
-                </select>
+                />
 
                 <Button
                   variant="secondary"
