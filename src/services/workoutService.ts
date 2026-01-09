@@ -11,14 +11,15 @@ export const workoutService = {
       .select('*')
       .eq('date', today)
       .eq('status', 'published')
-      .single();
+      .maybeSingle();
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        // No rows returned - this is normal
-        return null;
-      }
       console.error('Error fetching today\'s workout:', error);
+      return null;
+    }
+
+    if (!data) {
+      // No workout for today - this is normal
       return null;
     }
 
@@ -31,14 +32,15 @@ export const workoutService = {
       .from('workouts')
       .select('*')
       .eq('date', date)
-      .single();
+      .maybeSingle();
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        // No rows returned - this is normal
-        return null;
-      }
       console.error('Error fetching workout:', error);
+      return null;
+    }
+
+    if (!data) {
+      // No workout for this date - this is normal
       return null;
     }
 
