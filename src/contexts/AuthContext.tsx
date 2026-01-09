@@ -92,7 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return {
         id: profile.id,
         email: profile.email,
-        name: profile.name,
+        name: profile.full_name,
         role: profile.role || 'member',
         membershipType: profile.membership_type,
         joinDate: profile.join_date,
@@ -326,7 +326,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const { error } = await supabase
       .from('profiles')
       .update({
-        name: updates.name,
+        full_name: updates.name,
         phone: updates.phone,
         membership_type: updates.membershipType,
         emergency_contact: updates.emergencyContact,
