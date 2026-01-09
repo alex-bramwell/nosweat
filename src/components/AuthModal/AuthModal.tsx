@@ -139,7 +139,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     setSuccess('');
 
     // Honeypot check - if filled, it's likely a bot
-    if (honeypot) {
+    // However, password managers often auto-fill this field with the email
+    // So we check if it matches the email field (likely auto-fill) vs actual bot behavior
+    if (honeypot && honeypot !== email) {
       // Silently fail to not alert the bot
       setIsLoading(true);
       setTimeout(() => {
@@ -147,6 +149,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         setError('An error occurred. Please try again.');
       }, 2000);
       return;
+    }
+
+    // Clear honeypot if it was auto-filled with email (password manager behavior)
+    if (honeypot === email) {
+      setHoneypot('');
     }
 
     // Rate limiting check
