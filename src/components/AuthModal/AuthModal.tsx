@@ -318,8 +318,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
         const result = await response.json();
 
+        console.log('Login API response:', { status: response.status, result });
+
         if (!response.ok || result.error) {
-          throw new Error(result.error_description || result.error || 'Invalid email or password');
+          const errorMsg = result.error_description || result.error || 'Invalid email or password';
+          console.error('Login failed:', errorMsg, result);
+          throw new Error(errorMsg);
         }
 
         // Set session using the tokens we got
