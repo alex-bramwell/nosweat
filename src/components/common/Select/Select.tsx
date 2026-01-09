@@ -81,8 +81,8 @@ export const Select: React.FC<SelectProps> = ({
         </span>
         <span className={styles.selectChevron}>
           <svg width="20" height="20" viewBox="0 0 20 20">
-            <circle cx="10" cy="10" r="9" fill="var(--primary)" fillOpacity="0.15" stroke="var(--primary)" strokeWidth="1" />
-            <path fill="var(--primary)" d="M10 12L6 8h8z" />
+            <circle cx="10" cy="10" r="9" fill="rgba(255, 255, 255, 0.05)" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="1" />
+            <path fill="rgba(255, 255, 255, 0.7)" d="M10 12L6 8h8z" />
           </svg>
         </span>
       </button>

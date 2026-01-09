@@ -8,11 +8,11 @@
 .selectButton {
   width: 100%;
   padding: 0.75rem 1rem;
-  padding-right: 3rem;
+  padding-right: 3.5rem;
   border: 2px solid var(--border-color);
   border-radius: 8px;
   font-size: 1rem;
-  background: var(--background-default);
+  background: rgba(13, 13, 13, 0.8);
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
@@ -20,10 +20,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 
   &:hover {
     border-color: var(--primary);
-    background-color: rgba(255, 82, 82, 0.05);
+    background: rgba(13, 13, 13, 0.95);
   }
 
   &:focus {
@@ -46,12 +47,16 @@
 }
 
 .selectChevron {
+  position: absolute;
+  right: 0.625rem;
+  top: 50%;
+  transform: translateY(-50%);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 0.5rem;
   transition: transform 0.2s;
+  pointer-events: none;
 
   svg {
     display: block;
@@ -59,7 +64,7 @@
 }
 
 .select.open .selectChevron {
-  transform: rotate(180deg);
+  transform: translateY(-50%) rotate(180deg);
 }
 
 .selectDropdown {
