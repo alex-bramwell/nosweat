@@ -176,15 +176,17 @@ class UserManagementService {
 
   /**
    * Delete a user (admin only)
-   * Note: This requires admin API access
+   * This uses the database function which handles the deletion with proper RLS
    */
   async deleteUser(userId: string): Promise<void> {
-    // Delete auth user (this will cascade to profile via trigger)
-    const { error } = await supabase.auth.admin.deleteUser(userId);
+    // Use the RPC function to delete the user
+    const { error } = await supabase.rpc('delete_user', {
+      target_user_id: userId,
+    });
 
     if (error) {
       console.error('Error deleting user:', error);
-      throw new Error(`Failed to delete user: ${error.message}`);
+      throw new Error(`Database error deleting user: ${error.message}`);
     }
   }
 
