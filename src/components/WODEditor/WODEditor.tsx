@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Button } from '../common';
+import { Select, type SelectOption } from '../common/Select/Select';
 import type { WorkoutFormData } from '../../types';
 import styles from './WODEditor.module.scss';
 
@@ -35,6 +36,20 @@ export const WODEditor: React.FC<WODEditorProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Select options
+  const workoutTypeOptions: SelectOption[] = [
+    { value: 'amrap', label: 'AMRAP' },
+    { value: 'fortime', label: 'For Time' },
+    { value: 'emom', label: 'EMOM' },
+    { value: 'strength', label: 'Strength' },
+    { value: 'endurance', label: 'Endurance' }
+  ];
+
+  const statusOptions: SelectOption[] = [
+    { value: 'draft', label: 'Draft' },
+    { value: 'published', label: 'Published' }
+  ];
 
   // Helper to update array fields
   const updateArrayField = (field: keyof WorkoutFormData, value: string) => {
@@ -82,21 +97,15 @@ export const WODEditor: React.FC<WODEditorProps> = ({
 
           <div className={styles.formGroup}>
             <label htmlFor="workoutType">Type *</label>
-            <select
-              id="workoutType"
-              required
+            <Select
+              options={workoutTypeOptions}
               value={formData.workoutType}
-              onChange={(e) => setFormData(prev => ({
+              onChange={(value) => setFormData(prev => ({
                 ...prev,
-                workoutType: e.target.value as WorkoutFormData['workoutType']
+                workoutType: value as WorkoutFormData['workoutType']
               }))}
-            >
-              <option value="amrap">AMRAP</option>
-              <option value="fortime">For Time</option>
-              <option value="emom">EMOM</option>
-              <option value="strength">Strength</option>
-              <option value="endurance">Endurance</option>
-            </select>
+              placeholder="Select workout type"
+            />
           </div>
         </div>
 
@@ -219,17 +228,15 @@ export const WODEditor: React.FC<WODEditorProps> = ({
 
         <div className={styles.formGroup}>
           <label htmlFor="status">Status</label>
-          <select
-            id="status"
+          <Select
+            options={statusOptions}
             value={formData.status}
-            onChange={(e) => setFormData(prev => ({
+            onChange={(value) => setFormData(prev => ({
               ...prev,
-              status: e.target.value as 'draft' | 'published'
+              status: value as 'draft' | 'published'
             }))}
-          >
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-          </select>
+            placeholder="Select status"
+          />
           <small>Draft workouts are only visible to coaches</small>
         </div>
 

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { MovementBuilder } from './MovementBuilder';
+import { Select, type SelectOption } from '../common/Select/Select';
+import { ArrowUpIcon, ArrowDownIcon, CloseIcon } from '../common/Icons';
 import type { WorkoutFormData, MovementSelection } from '../../types';
 import styles from './WODEditorEnhanced.module.scss';
 
@@ -41,6 +43,15 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
   const [coachNotes, setCoachNotes] = useState(initialData?.coachNotes || '');
   const [scalingNotes, setScalingNotes] = useState(initialData?.scalingNotes || '');
   const [status, setStatus] = useState<'draft' | 'published'>(initialData?.status || 'draft');
+
+  // Workout type options for Select component
+  const workoutTypeOptions: SelectOption[] = [
+    { value: 'amrap', label: 'AMRAP' },
+    { value: 'fortime', label: 'For Time' },
+    { value: 'emom', label: 'EMOM' },
+    { value: 'strength', label: 'Strength' },
+    { value: 'endurance', label: 'Endurance' }
+  ];
 
   // Builder mode: structured movements
   const [sectionMovements, setSectionMovements] = useState<SectionMovements>({
@@ -178,7 +189,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
                     className={styles.iconButton}
                     title="Move up"
                   >
-                    ↑
+                    <ArrowUpIcon size={16} />
                   </button>
                   <button
                     type="button"
@@ -187,7 +198,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
                     className={styles.iconButton}
                     title="Move down"
                   >
-                    ↓
+                    <ArrowDownIcon size={16} />
                   </button>
                 </div>
                 <div className={styles.movementContent}>
@@ -206,7 +217,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
                   className={styles.removeButton}
                   title="Remove movement"
                 >
-                  ×
+                  <CloseIcon size={18} />
                 </button>
               </div>
             ))}
@@ -279,19 +290,13 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
 
           <div className={styles.formGroup}>
             <label htmlFor="workoutType">Workout Type *</label>
-            <select
-              id="workoutType"
+            <Select
+              options={workoutTypeOptions}
               value={workoutType}
-              onChange={(e) => setWorkoutType(e.target.value as WorkoutFormData['workoutType'])}
-              required
-              className={styles.select}
-            >
-              <option value="amrap">AMRAP</option>
-              <option value="fortime">For Time</option>
-              <option value="emom">EMOM</option>
-              <option value="strength">Strength</option>
-              <option value="endurance">Endurance</option>
-            </select>
+              onChange={(value) => setWorkoutType(value as WorkoutFormData['workoutType'])}
+              placeholder="Select workout type"
+              className={styles.selectWrapper}
+            />
           </div>
         </div>
 

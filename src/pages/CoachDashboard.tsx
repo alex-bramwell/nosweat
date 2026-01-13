@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
 import { Section, Container, Card, Button } from '../components/common';
+import { EditIcon, DeleteIcon } from '../components/common/Icons';
 import { WODEditorEnhanced } from '../components/WODEditor/WODEditorEnhanced';
 import { CoachAnalytics } from '../components/CoachAnalytics/CoachAnalytics';
 import { UserManagement } from '../components/UserManagement';
@@ -150,7 +151,8 @@ const CoachDashboard = () => {
                           setActiveTab('create');
                         }}
                       >
-                        Edit
+                        <EditIcon size={16} />
+                        <span style={{ marginLeft: '0.5rem' }}>Edit</span>
                       </Button>
                     </div>
                   </Card>
@@ -243,7 +245,8 @@ const CoachDashboard = () => {
                                 setActiveTab('create');
                               }}
                             >
-                              Edit
+                              <EditIcon size={16} />
+                              <span style={{ marginLeft: '0.5rem' }}>Edit</span>
                             </Button>
                             {permissions.canDeleteWorkouts && (
                               <Button
@@ -251,7 +254,8 @@ const CoachDashboard = () => {
                                 size="small"
                                 onClick={() => handleDeleteWorkout(workout.id)}
                               >
-                                Delete
+                                <DeleteIcon size={16} />
+                                <span style={{ marginLeft: '0.5rem' }}>Delete</span>
                               </Button>
                             )}
                           </div>
