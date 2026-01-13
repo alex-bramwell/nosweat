@@ -40,17 +40,27 @@ const CoachDashboard = () => {
   };
 
   const handleCreateWorkout = async (workout: WorkoutFormData) => {
-    await workoutService.createWorkout(workout);
-    await loadWorkouts();
-    setActiveTab('overview');
+    try {
+      await workoutService.createWorkout(workout);
+      await loadWorkouts();
+      setActiveTab('overview');
+    } catch (error) {
+      console.error('Failed to create workout:', error);
+      alert('Failed to create workout. Please try again.');
+    }
   };
 
   const handleUpdateWorkout = async (workout: WorkoutFormData) => {
     if (editingWorkout) {
-      await workoutService.updateWorkout(editingWorkout.id, workout);
-      await loadWorkouts();
-      setEditingWorkout(null);
-      setActiveTab('manage');
+      try {
+        await workoutService.updateWorkout(editingWorkout.id, workout);
+        await loadWorkouts();
+        setEditingWorkout(null);
+        setActiveTab('manage');
+      } catch (error) {
+        console.error('Failed to update workout:', error);
+        alert('Failed to update workout. Please try again.');
+      }
     }
   };
 
