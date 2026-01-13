@@ -91,3 +91,83 @@ export const ArrowDownIcon: React.FC<IconProps> = ({ className = '', size = 16 }
     <polyline points="19 12 12 19 5 12" />
   </svg>
 );
+
+// Movement Category Icons
+export const GymnasticIcon: React.FC<IconProps> = ({ className = '', size = 20 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="4" r="2" />
+    <path d="M10 8v4l-2 2" />
+    <path d="M14 8v4l2 2" />
+    <path d="M8 14l-2 8" />
+    <path d="M16 14l2 8" />
+    <line x1="8" y1="14" x2="16" y2="14" />
+  </svg>
+);
+
+export const WeightliftingIcon: React.FC<IconProps> = ({ className = '', size = 20 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M6.5 6.5h11" />
+    <path d="M6.5 17.5h11" />
+    <rect x="3" y="6" width="3" height="12" rx="1" />
+    <rect x="18" y="6" width="3" height="12" rx="1" />
+    <rect x="8" y="10" width="8" height="4" rx="1" />
+  </svg>
+);
+
+export const MetabolicIcon: React.FC<IconProps> = ({ className = '', size = 20 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="5" r="2" />
+    <path d="M10 8l-1 5 3 3" />
+    <path d="M14 8l1 5-3 3" />
+    <path d="M9 16l-2 6" />
+    <path d="M15 16l2 6" />
+  </svg>
+);
+
+export const SkillIcon: React.FC<IconProps> = ({ className = '', size = 20 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+);

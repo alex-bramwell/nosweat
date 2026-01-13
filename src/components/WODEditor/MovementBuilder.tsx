@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { movementService } from '../../services/movementService';
+import { GymnasticIcon, WeightliftingIcon, MetabolicIcon, SkillIcon } from '../common/Icons';
 import type { CrossFitMovement, MuscleGroup, MovementSelection } from '../../types';
 import styles from './MovementBuilder.module.scss';
 
@@ -120,11 +121,11 @@ export const MovementBuilder: React.FC<MovementBuilderProps> = ({ onAddMovement,
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'gymnastic': return '🤸';
-      case 'weightlifting': return '🏋️';
-      case 'metabolic': return '🏃';
-      case 'skill': return '🎯';
-      default: return '💪';
+      case 'gymnastic': return <GymnasticIcon size={24} />;
+      case 'weightlifting': return <WeightliftingIcon size={24} />;
+      case 'metabolic': return <MetabolicIcon size={24} />;
+      case 'skill': return <SkillIcon size={24} />;
+      default: return <GymnasticIcon size={24} />;
     }
   };
 

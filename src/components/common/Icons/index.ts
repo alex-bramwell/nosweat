@@ -1,1 +1,11 @@
-export { EditIcon, DeleteIcon, CloseIcon, ArrowUpIcon, ArrowDownIcon } from './Icons';
+export {
+  EditIcon,
+  DeleteIcon,
+  CloseIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  GymnasticIcon,
+  WeightliftingIcon,
+  MetabolicIcon,
+  SkillIcon
+} from './Icons';
