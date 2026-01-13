@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
 import { Section, Container, Card, Button } from '../components/common';
-import { WODEditor } from '../components/WODEditor';
+import { WODEditorEnhanced } from '../components/WODEditor/WODEditorEnhanced';
+import { CoachAnalytics } from '../components/CoachAnalytics/CoachAnalytics';
 import { UserManagement } from '../components/UserManagement';
 import { workoutService } from '../services/workoutService';
 import type { WorkoutDB, WorkoutFormData } from '../types';
@@ -11,7 +12,7 @@ import styles from './CoachDashboard.module.scss';
 const CoachDashboard = () => {
   const { user, logout } = useAuth();
   const permissions = usePermissions();
-  const [activeTab, setActiveTab] = useState<'overview' | 'create' | 'manage' | 'users'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'create' | 'manage' | 'analytics' | 'users'>('overview');
   const [workouts, setWorkouts] = useState<WorkoutDB[]>([]);
   const [todaysWorkout, setTodaysWorkout] = useState<WorkoutDB | null>(null);
   const [editingWorkout, setEditingWorkout] = useState<WorkoutDB | null>(null);
@@ -108,6 +109,12 @@ const CoachDashboard = () => {
             >
               Manage Workouts
             </button>
+            <button
+              className={`${styles.tab} ${activeTab === 'analytics' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('analytics')}
+            >
+              Analytics
+            </button>
             {permissions.canManageUsers && (
               <button
                 className={`${styles.tab} ${activeTab === 'users' ? styles.tabActive : ''}`}
@@ -189,12 +196,18 @@ const CoachDashboard = () => {
 
             {activeTab === 'create' && (
               <div className={styles.tabContent}>
-                <WODEditor
+                <WODEditorEnhanced
                   initialData={editingWorkout || undefined}
                   onSave={editingWorkout ? handleUpdateWorkout : handleCreateWorkout}
                   onCancel={() => setActiveTab('overview')}
                   isEditing={!!editingWorkout}
                 />
+              </div>
+            )}
+
+            {activeTab === 'analytics' && (
+              <div className={styles.tabContent}>
+                <CoachAnalytics />
               </div>
             )}
 

@@ -155,3 +155,74 @@ export interface UserPermissions {
   isAdmin: boolean;
   isCoach: boolean;
 }
+
+// CrossFit Movement types
+export type MuscleGroup = 'shoulders' | 'back' | 'chest' | 'arms' | 'legs' | 'core';
+export type MovementCategory = 'gymnastic' | 'weightlifting' | 'metabolic' | 'skill';
+export type MovementDifficulty = 'beginner' | 'intermediate' | 'advanced';
+
+export interface CrossFitMovement {
+  id: string;
+  name: string;
+  category: MovementCategory;
+  primary_muscle_groups: MuscleGroup[];
+  secondary_muscle_groups: MuscleGroup[];
+  equipment: string[];
+  difficulty: MovementDifficulty;
+  description?: string;
+  scaling_options: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Movement selection in workout builder
+export interface MovementSelection {
+  movement: CrossFitMovement;
+  reps?: string;
+  weight?: string;
+  distance?: string;
+  duration?: string;
+  notes?: string;
+}
+
+// Analytics types
+export interface MuscleGroupStats {
+  muscleGroup: MuscleGroup;
+  hitCount: number; // Primary = 1.0, Secondary = 0.5
+  percentage: number;
+}
+
+export interface WorkoutTypeStats {
+  type: 'amrap' | 'fortime' | 'emom' | 'strength' | 'endurance';
+  count: number;
+  percentage: number;
+}
+
+export interface MovementUsageStats {
+  movementName: string;
+  count: number;
+  rank: number;
+}
+
+export interface MuscleGroupBias {
+  muscleGroup: MuscleGroup;
+  hitCount: number;
+  percentage: number;
+  status: 'balanced' | 'underused' | 'overused';
+  recommendation: string;
+}
+
+export interface WorkoutAnalytics {
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  totalWorkouts: number;
+  muscleGroupDistribution: MuscleGroupStats[];
+  workoutTypeBreakdown: WorkoutTypeStats[];
+  topMovements: MovementUsageStats[];
+  detectedBiases: MuscleGroupBias[];
+  recommendations: string[];
+}
+
+export type AnalyticsPeriod = '7days' | '30days' | '1year';

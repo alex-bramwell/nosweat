@@ -105,51 +105,230 @@ npm run lint     # Run ESLint checks
 
 ### Local Development with Supabase
 
-For full local development without needing to configure remote Supabase redirect URLs (especially useful in GitHub Codespaces), you can run Supabase locally:
+For full local development without affecting production data, you can run Supabase locally in Docker.
 
-#### Prerequisites
-- Docker (available in Codespaces by default)
+#### Quick Start: GitHub Codespaces (Step-by-Step)
 
-#### Setup
+Follow these steps in order to set up local development in Codespaces:
+
+> **⚡ Quick Troubleshooting**: If you see "502 Bad Gateway" errors, make sure ports **5173** AND **54321** are set to **Public** in the PORTS tab (bottom panel of VS Code). This is the #1 cause of connection issues!
+
+##### Step 1: Start Local Supabase
 
 ```bash
-# Initialize Supabase (first time only)
-npx supabase init
-
-# Start local Supabase (pulls Docker images on first run)
+# Start local Supabase (pulls Docker images on first run, takes ~2 minutes)
 npx supabase start
 ```
 
-This will start the following services:
+Wait for all services to start. You'll see output like:
+```
+Started supabase local development setup.
+API URL: http://127.0.0.1:54321
+```
+
+##### Step 2: Make Ports Public
+
+**🚨 CRITICAL**: Both the app and Supabase ports must be publicly accessible in Codespaces to avoid 502 errors.
+
+1. In VS Code, click the **"PORTS"** tab in the bottom panel
+2. Find port **54321** (Supabase - should say `supabase_kong_gym-crossfit-comet`)
+   - Right-click → **"Port Visibility"** → **"Public"**
+   - The lock icon 🔒 should change to a globe icon 🌐
+3. Find port **5173** (Vite dev server - should say `Vite` or `Node`)
+   - Right-click → **"Port Visibility"** → **"Public"**
+   - The lock icon 🔒 should change to a globe icon 🌐
+
+> **Why?** Your browser runs outside the Codespace and needs public access to both services. Without public ports, you'll get "Bad Gateway" (502) or "Connection Refused" errors.
+
+##### Step 3: Get Your Codespace Name
+
+```bash
+# Get your Codespace name (you'll need this for the next step)
+echo $CODESPACE_NAME
+```
+
+You'll see something like: `urban-zebra-pj9945gx446v27wp9`
+
+##### Step 4: Create .env.local File
+
+Replace `<YOUR-CODESPACE-NAME>` with the value from Step 3:
+
+```bash
+# Get the anon key
+npx supabase status --output env | grep ANON_KEY
+
+# Create .env.local (replace <YOUR-CODESPACE-NAME> and <ANON-KEY>)
+cat > .env.local << 'EOF'
+# Local Supabase Configuration for Codespaces
+VITE_SUPABASE_URL=https://<YOUR-CODESPACE-NAME>-54321.app.github.dev
+VITE_SUPABASE_ANON_KEY=<paste-anon-key-from-above>
+EOF
+```
+
+**Example** (using codespace name from Step 3):
+```bash
+cat > .env.local << 'EOF'
+VITE_SUPABASE_URL=https://urban-zebra-pj9945gx446v27wp9-54321.app.github.dev
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJFUzI1NiIsImtpZCI6ImI4MTI2OWYxLTIxZDgtNGYyZS1iNzE5LWMyMjQwYTg0MGQ5MCIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjIwODMzMzI4OTR9.zvwRhC-fdr5l_oODragy_vr2P_ns3Rfe_bMYaRSG5VYeiBoBvKt4xVr_pzYjq5Yw9Nkgh_02TMMo9_KhtGbRnw
+EOF
+```
+
+##### Step 5: Create Admin User in Local Database
+
+Replace the email and password with your own:
+
+```bash
+docker exec -i supabase_db_gym-crossfit-comet psql -U postgres -d postgres <<'EOF'
+DO $$
+DECLARE
+  user_id UUID;
+BEGIN
+  -- Get or create user ID
+  SELECT id INTO user_id FROM auth.users WHERE email = 'your-email@example.com';
+
+  IF user_id IS NULL THEN
+    -- Create new auth user
+    INSERT INTO auth.users (
+      id, instance_id, email, encrypted_password,
+      email_confirmed_at, created_at, updated_at,
+      raw_app_meta_data, raw_user_meta_data,
+      is_super_admin, role, aud
+    )
+    VALUES (
+      gen_random_uuid(), '00000000-0000-0000-0000-000000000000',
+      'your-email@example.com', crypt('your-password', gen_salt('bf')),
+      NOW(), NOW(), NOW(),
+      '{"provider":"email","providers":["email"]}', '{}',
+      false, 'authenticated', 'authenticated'
+    )
+    RETURNING id INTO user_id;
+  ELSE
+    -- Update existing user password
+    UPDATE auth.users
+    SET encrypted_password = crypt('your-password', gen_salt('bf')),
+        email_confirmed_at = NOW()
+    WHERE id = user_id;
+  END IF;
+
+  -- Create/update profile with admin role
+  INSERT INTO profiles (id, email, role, coach_id, created_at)
+  VALUES (user_id, 'your-email@example.com', 'admin', 'your-username', NOW())
+  ON CONFLICT (id) DO UPDATE SET role = 'admin', coach_id = 'your-username';
+
+  RAISE NOTICE 'Admin user ready: your-email@example.com';
+END $$;
+EOF
+```
+
+You should see: `NOTICE: Admin user ready: your-email@example.com`
+
+##### Step 6: Start Development Server
+
+```bash
+# Start the dev server (or restart if already running)
+npm run dev
+```
+
+**Important**: After the server starts, **verify port 5173 appears in the PORTS tab and is set to Public** (globe icon 🌐). If it's not public, right-click → "Port Visibility" → "Public".
+
+##### Step 7: Access Your App
+
+1. **Check PORTS tab**: Verify both port **5173** and **54321** show globe icons 🌐 (public)
+2. Open the forwarded URL for port 5173:
+   - Click the globe icon 🌐 next to port 5173 in PORTS tab
+   - OR open: `https://<YOUR-CODESPACE-NAME>-5173.app.github.dev`
+3. **Hard refresh** the browser: `Ctrl + Shift + R` (Windows/Linux) or `Cmd + Shift + R` (Mac)
+4. Open browser DevTools (F12) → Console tab → Type: `localStorage.clear()` and press Enter
+5. Type: `sessionStorage.clear()` and press Enter
+6. Refresh the page again
+
+##### Step 8: Sign In
+
+Use the credentials you created in Step 5:
+- Email: `your-email@example.com`
+- Password: `your-password`
+
+You should now be logged into your local instance! 🎉
+
+---
+
+#### Local Services & URLs
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Supabase Studio** | http://127.0.0.1:54323 | Database GUI, view/edit tables |
-| **Supabase API** | http://127.0.0.1:54321 | REST & GraphQL endpoints |
-| **Mailpit** | http://127.0.0.1:54324 | Email testing (view sent emails) |
-| **Database** | postgresql://postgres:postgres@127.0.0.1:54322/postgres | Direct DB connection |
+| **App** | `https://<codespace>-5173.app.github.dev` | Your React app |
+| **Supabase API** | `https://<codespace>-54321.app.github.dev` | REST & Auth endpoints |
+| **Supabase Studio** | `https://<codespace>-54323.app.github.dev` | Database admin UI |
+| **Mailpit** | `https://<codespace>-54324.app.github.dev` | Email testing |
 
-#### Environment Configuration
+> **Tip:** All these ports should be set to "Public" in the PORTS tab for browser access.
 
-The `.env.local` file is automatically configured for local Supabase:
+---
 
-```env
+#### Quick Setup for Local Machine (Non-Codespaces)
+
+If you're running locally (not in Codespaces), the setup is simpler:
+
+```bash
+# 1. Start Supabase
+npx supabase start
+
+# 2. Get credentials
+npx supabase status --output env | grep ANON_KEY
+
+# 3. Create .env.local
+cat > .env.local << 'EOF'
 VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_ANON_KEY=<your-local-anon-key>
-SUPABASE_SERVICE_KEY=<your-local-service-key>
+VITE_SUPABASE_ANON_KEY=<paste-anon-key-from-above>
+EOF
+
+# 4. Start dev server
+npm run dev
+
+# 5. Open http://localhost:5173
 ```
 
-> **Note:** Keys are displayed when you run `npx supabase start` or `npx supabase status`
+No port forwarding needed - everything runs on localhost!
 
-#### Testing Authentication Locally
+---
 
-1. Start the dev server: `npm run dev`
-2. Open http://localhost:5173
-3. Sign up with any email (e.g., `test@test.com`)
-4. **No email verification required** - you'll be logged in immediately
-5. Access Dashboard at http://localhost:5173/dashboard
+#### Common Issues & Solutions
 
-> **Tip:** Email verification is disabled locally (`enable_confirmations = false` in `supabase/config.toml`). Any emails that would be sent can be viewed in Mailpit at http://127.0.0.1:54324
+**🚨 "Bad Gateway" or "502 Error" (Most Common)**
+- ✅ **FIRST**: Make sure **BOTH** ports **5173** and **54321** are set to **Public** in PORTS tab
+  - Port 5173 = Your app (Vite dev server)
+  - Port 54321 = Supabase API
+  - Right-click each port → "Port Visibility" → "Public"
+  - Look for the globe icon 🌐 (not lock 🔒)
+- ✅ Verify `.env.local` has the correct Codespace URL (not `127.0.0.1`)
+- ✅ Restart dev server after changing `.env.local`: Kill it and run `npm run dev`
+- ✅ Check dev server is running: `ps aux | grep vite`
+
+**"An error occurred. Please try again" when logging in**
+- ✅ Port 54321 must be **Public** (see above)
+- ✅ Clear browser cache: F12 → Console → `localStorage.clear()` and `sessionStorage.clear()`
+- ✅ Hard refresh: `Ctrl/Cmd + Shift + R`
+- ✅ Check that Supabase is running: `npx supabase status`
+- ✅ Verify `.env.local` URL matches your Codespace name
+
+**Changes to `.env.local` not reflecting**
+- ✅ Kill and restart dev server: `Ctrl+C` then `npm run dev`
+- ✅ Vite only loads env files on startup
+
+**Database is empty**
+- ✅ Migrations run automatically when you start Supabase
+- ✅ Check migrations ran: `docker exec supabase_db_gym-crossfit-comet psql -U postgres -c "\dt"`
+- ✅ Reset database: `npx supabase db reset` (warning: deletes all data)
+
+---
+
+#### Important Notes
+
+- ✅ `.env.local` overrides `.env` (production config stays safe)
+- ✅ `.env.local` is gitignored - never committed
+- ✅ Local database is isolated - changes don't affect production
+- ✅ Email verification disabled locally - instant login
+- ✅ View sent emails in Mailpit (port 54324)
 
 #### Useful Supabase Commands
 
@@ -159,15 +338,6 @@ npx supabase stop       # Stop all services (data persisted)
 npx supabase status     # View service URLs and keys
 npx supabase db reset   # Reset database and re-run migrations
 npx supabase db push    # Push local migrations to remote
-```
-
-#### GitHub Codespaces
-
-When developing in Codespaces, local Supabase eliminates the need to configure redirect URLs in the Supabase dashboard. The dynamic Codespace URL (e.g., `https://<codespace-name>-5173.app.github.dev/`) works automatically since all auth is handled locally.
-
-Alternatively, add this wildcard to your remote Supabase project's Redirect URLs:
-```
-https://*.app.github.dev/**
 ```
 
 ---
@@ -1096,10 +1266,12 @@ new RateLimiter(
 
 ## Environment Variables
 
-Create a `.env` file in the root directory:
+### Production Environment (`.env`)
+
+Create a `.env` file in the root directory for production credentials:
 
 ```env
-# Supabase
+# Supabase (Production)
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_KEY=your_supabase_service_role_key
@@ -1109,6 +1281,18 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key
 STRIPE_SECRET_KEY=sk_test_your_secret_key
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 ```
+
+### Local Development Environment (`.env.local`)
+
+For local development with Supabase running in Docker:
+
+```env
+# Supabase (Local)
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_ANON_KEY=<from-npx-supabase-status>
+```
+
+> **Important:** `.env.local` takes priority over `.env` and is gitignored, allowing you to work locally without affecting production. See the [Local Development with Supabase](#local-development-with-supabase) section for setup instructions.
 
 ### Vercel Environment Variables
 
