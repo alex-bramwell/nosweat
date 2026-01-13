@@ -1,0 +1,396 @@
+@import '../../styles/variables';
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  h2 {
+    color: var(--color-text);
+    font-size: 2rem;
+    margin: 0;
+  }
+}
+
+.periodSelector {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--color-surface);
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.periodButton {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &.active {
+    background: var(--color-accent);
+    color: white;
+  }
+}
+
+.summaryStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.statValue {
+  color: var(--color-accent);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.statLabel {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.section {
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  h3 {
+    color: var(--color-text);
+    font-size: 1.5rem;
+    margin: 0 0 1.5rem 0;
+  }
+}
+
+.chartContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.barItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.barLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.muscleGroupName {
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.percentage {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.barTrack {
+  height: 24px;
+  background: var(--color-bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+
+  &.balanced {
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+  }
+
+  &.underused {
+    background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+  }
+
+  &.overused {
+    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+  }
+}
+
+.barMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.statusIcon {
+  font-size: 1rem;
+}
+
+.hitCount {
+  color: var(--color-muted);
+}
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.typeCard {
+  background: var(--color-bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.typeIcon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.typeName {
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.typeCount {
+  color: var(--color-accent);
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.typePercentage {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.topMovementsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.topMovementItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--color-bg);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.rank {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+  border-radius: 50%;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.movementName {
+  flex: 1;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.count {
+  color: var(--color-muted);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.biasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.biasCard {
+  border-radius: 8px;
+  padding: 1.25rem;
+  border: 2px solid;
+
+  &.balanced {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: #22c55e;
+  }
+
+  &.underused {
+    background: rgba(251, 191, 36, 0.1);
+    border-color: #fbbf24;
+  }
+
+  &.overused {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+  }
+}
+
+.biasHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.biasIcon {
+  font-size: 1.25rem;
+}
+
+.biasLabel {
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.biasStats {
+  display: flex;
+  gap: 0.5rem;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.biasAction {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.recommendationsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recommendationItem {
+  background: var(--color-bg);
+  border-left: 3px solid;
+  border-radius: 4px;
+  padding: 1rem;
+
+  .positive {
+    color: #22c55e;
+    border-color: #22c55e;
+  }
+
+  .warning {
+    color: #fbbf24;
+    border-color: #fbbf24;
+  }
+
+  .suggestion {
+    color: #60a5fa;
+    border-color: #60a5fa;
+  }
+
+  span {
+    display: block;
+  }
+}
+
+.loading,
+.error,
+.noData {
+  padding: 3rem;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+.error {
+  color: #ef4444;
+}
+
+.retryButton {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-accent);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--color-accent2);
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .periodSelector {
+    width: 100%;
+  }
+
+  .periodButton {
+    flex: 1;
+  }
+
+  .summaryStats {
+    grid-template-columns: 1fr;
+  }
+
+  .typeGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .biasGrid {
+    grid-template-columns: 1fr;
+  }
+}
