@@ -128,6 +128,12 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
       cooldown = textCooldown.split('\n').filter(line => line.trim());
     }
 
+    // Validate that metcon has at least one movement
+    if (metcon.length === 0) {
+      alert('Please add at least one movement to the MetCon section.');
+      return;
+    }
+
     const allMovements = [...warmup, ...strength, ...metcon, ...cooldown];
 
     const formData: WorkoutFormData = {
