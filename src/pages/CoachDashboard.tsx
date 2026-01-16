@@ -174,12 +174,6 @@ const CoachDashboard = () => {
     return days;
   };
 
-  const handleCreateForDate = (date: Date) => {
-    setNewWorkoutDate(date.toISOString().split('T')[0]);
-    setEditingWorkout(null);
-    setActiveTab('create');
-  };
-
   // Modal handlers for editing from manage page
   const openEditModal = (workout: WorkoutDB) => {
     setModalEditingWorkout(workout);
@@ -276,26 +270,6 @@ const CoachDashboard = () => {
     d.setDate(d.getDate() + diff);
     d.setHours(0, 0, 0, 0);
     return d;
-  };
-
-  // Get weeks in current month view
-  const getWeeksInMonth = (): Date[] => {
-    const days = getMonthDays(currentMonth);
-    const weeks: Date[] = [];
-    const seenWeeks = new Set<string>();
-
-    days.forEach(day => {
-      if (day) {
-        const weekStart = getWeekStartForDate(day);
-        const key = weekStart.toISOString();
-        if (!seenWeeks.has(key)) {
-          seenWeeks.add(key);
-          weeks.push(weekStart);
-        }
-      }
-    });
-
-    return weeks;
   };
 
   if (!user) return null;

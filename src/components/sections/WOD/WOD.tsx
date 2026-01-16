@@ -25,12 +25,13 @@ const WOD = () => {
     }
   };
 
-  const wodTypeLabels = {
+  const wodTypeLabels: Record<string, string> = {
     amrap: 'AMRAP',
     fortime: 'For Time',
     emom: 'EMOM',
     strength: 'Strength',
     endurance: 'Endurance',
+    tabata: 'Tabata',
   };
 
   if (isLoading) {
