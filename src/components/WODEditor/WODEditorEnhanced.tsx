@@ -25,6 +25,28 @@ interface SectionMovements {
   cooldown: MovementSelection[];
 }
 
+// Helper to convert string movement to MovementSelection for builder mode
+const stringToMovementSelection = (movementStr: string): MovementSelection => {
+  // Create a custom movement object from the string
+  const customMovement: import('../../types').CrossFitMovement = {
+    id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    name: movementStr,
+    category: 'metabolic',
+    primary_muscle_groups: [],
+    secondary_muscle_groups: [],
+    equipment: [],
+    difficulty: 'intermediate',
+    scaling_options: [],
+  };
+  return { movement: customMovement };
+};
+
+// Helper to convert string array to MovementSelection array
+const stringsToMovementSelections = (strings?: string[]): MovementSelection[] => {
+  if (!strings || strings.length === 0) return [];
+  return strings.map(stringToMovementSelection);
+};
+
 export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
   initialData,
   onSave,
@@ -39,7 +61,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [workoutType, setWorkoutType] = useState<WorkoutFormData['workoutType']>(
-    initialData?.workoutType || 'amrap'
+    initialData?.workoutType || (initialData as any)?.type || 'amrap'
   );
   const [duration, setDuration] = useState(initialData?.duration || '');
   const [rounds, setRounds] = useState<number | undefined>(initialData?.rounds);
@@ -60,19 +82,19 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
     { value: 'endurance', label: 'Endurance' }
   ];
 
-  // Builder mode: structured movements
+  // Builder mode: structured movements - initialize from initialData if editing
   const [sectionMovements, setSectionMovements] = useState<SectionMovements>({
-    warmup: [],
-    strength: [],
-    metcon: [],
-    cooldown: []
+    warmup: stringsToMovementSelections(initialData?.warmup),
+    strength: stringsToMovementSelections(initialData?.strength),
+    metcon: stringsToMovementSelections(initialData?.metcon),
+    cooldown: stringsToMovementSelections(initialData?.cooldown)
   });
 
-  // Text mode: raw text input
-  const [textWarmup, setTextWarmup] = useState('');
-  const [textStrength, setTextStrength] = useState('');
-  const [textMetcon, setTextMetcon] = useState('');
-  const [textCooldown, setTextCooldown] = useState('');
+  // Text mode: raw text input - initialize from initialData if editing
+  const [textWarmup, setTextWarmup] = useState(initialData?.warmup?.join('\n') || '');
+  const [textStrength, setTextStrength] = useState(initialData?.strength?.join('\n') || '');
+  const [textMetcon, setTextMetcon] = useState(initialData?.metcon?.join('\n') || '');
+  const [textCooldown, setTextCooldown] = useState(initialData?.cooldown?.join('\n') || '');
 
   const handleAddMovement = (section: WorkoutSection, selection: MovementSelection) => {
     setSectionMovements(prev => ({

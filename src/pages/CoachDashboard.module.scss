@@ -1,3 +1,9 @@
+.calendarDayOutOfMonth {
+  background: var(--color-bg-dark);
+  opacity: 0.5;
+  filter: grayscale(0.5);
+  cursor: default;
+}
 .dashboard {
   min-height: 60vh;
 }
@@ -145,6 +151,13 @@
   color: var(--color-muted);
 }
 
+.statCta {
+  font-size: 0.875rem;
+  color: var(--color-secondary);
+  margin-top: 0.75rem;
+  font-weight: 500;
+}
+
 .workoutsList {
   display: flex;
   flex-direction: column;
@@ -188,4 +201,457 @@
 .workoutActions {
   display: flex;
   gap: 0.5rem;
+}
+
+// Calendar Styles
+.calendarDesktop {
+  display: block;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.calendarMobile {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
+.calendarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.calendarTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.calendarWeekdays {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+
+  .calendarWeekday {
+    flex: 1;
+
+    &:last-child {
+      width: 120px;
+      flex: none;
+    }
+  }
+}
+
+.calendarWeekday {
+  text-align: center;
+  padding: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.calendarGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.calendarDay {
+  min-height: 120px;
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &:hover .calendarDayAdd {
+    opacity: 1;
+  }
+}
+
+.calendarDayEmpty {
+  background: transparent;
+  cursor: default;
+
+  &:hover {
+    background: transparent;
+  }
+}
+
+.calendarDayToday {
+  border: 2px solid var(--color-accent);
+  background: rgba(255, 79, 31, 0.1);
+}
+
+.calendarDayNumber {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin-bottom: 0.5rem;
+
+  .calendarDayToday & {
+    color: var(--color-accent);
+  }
+}
+
+.calendarDayWorkouts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calendarDayAdd {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  color: var(--color-muted);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+// Workout Cards (used in both desktop and mobile)
+.workoutCard {
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.workoutCardPublished {
+  background: linear-gradient(135deg, var(--color-accent), #ff6b3d);
+  color: white;
+}
+
+.workoutCardDraft {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  color: var(--color-muted);
+}
+
+.workoutCardTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workoutCardMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.workoutCardType {
+  font-size: 0.625rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+}
+
+.muscleGroupIndicators {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.muscleGroupDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.muscleGroupBadge {
+  font-size: 0.5rem;
+  font-weight: 700;
+  padding: 1px 3px;
+  border-radius: 3px;
+  color: white;
+  text-transform: uppercase;
+}
+
+// Weekly Summary (Desktop - sidebar)
+.calendarWeekRow {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.calendarWeekDays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  flex: 1;
+}
+
+.weekSummary {
+  width: 140px;
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.375rem;
+}
+
+.weekFocusHighlight {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.375rem 0.5rem;
+  border-radius: 6px;
+  color: white;
+}
+
+.weekFocusLabel {
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.weekFocusPercent {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.weekSummaryBar {
+  height: 8px;
+  border-radius: 4px;
+  display: flex;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.weekSummarySegment {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.weekSummaryLabels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.weekSummaryLabel {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.weekSummaryEmpty {
+  font-size: 0.625rem;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+// Mobile Weekly Summary
+.mobileWeekSummary {
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mobileWeekSummaryHeader {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.mobileWeekFocusHighlight {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: white;
+  margin-bottom: 0.75rem;
+}
+
+.mobileWeekFocusLabel {
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.mobileWeekFocusPercent {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.mobileWeekSummaryBar {
+  height: 12px;
+  border-radius: 6px;
+  display: flex;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 0.75rem;
+}
+
+.mobileWeekSummaryLabels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.mobileWeekSummaryLabel {
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  color: white;
+  text-transform: uppercase;
+}
+
+// Mobile Week View
+.weekView {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.weekDay {
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.weekDayToday {
+  border: 2px solid var(--color-accent);
+  background: rgba(255, 79, 31, 0.1);
+}
+
+.weekDayHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.weekDayName {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.weekDayNumber {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-muted);
+
+  .weekDayToday & {
+    color: var(--color-accent);
+  }
+}
+
+.weekDayWorkouts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.addWorkoutBtn {
+  background: none;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 0.75rem;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+
+  &:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background: rgba(255, 79, 31, 0.1);
+  }
+}
+
+// Drafts List
+.draftsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.draftItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+.draftInfo {
+  flex: 1;
+
+  h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+  }
+}
+
+.draftMeta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.draftDate {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.draftType {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  background: var(--color-accent);
+  color: white;
+  border-radius: 4px;
+}
+
+.draftDescription {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  margin-top: 0.5rem;
+}
+
+.draftActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }

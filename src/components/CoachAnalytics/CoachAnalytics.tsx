@@ -167,13 +167,6 @@ export const CoachAnalytics: React.FC = () => {
             <div className={styles.typeGrid}>
               {analytics.workoutTypeBreakdown.map(stat => (
                 <div key={stat.type} className={styles.typeCard}>
-                  <div className={styles.typeIcon}>
-                    {stat.type === 'amrap' && '⏱️'}
-                    {stat.type === 'fortime' && '🏃'}
-                    {stat.type === 'emom' && '⏰'}
-                    {stat.type === 'strength' && '💪'}
-                    {stat.type === 'endurance' && '🏃‍♂️'}
-                  </div>
                   <div className={styles.typeName}>{stat.type.toUpperCase()}</div>
                   <div className={styles.typeCount}>{stat.count}</div>
                   <div className={styles.typePercentage}>{stat.percentage.toFixed(0)}%</div>

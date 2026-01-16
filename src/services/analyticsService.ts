@@ -124,7 +124,28 @@ class AnalyticsService {
       throw new Error('Failed to fetch workouts');
     }
 
-    return data || [];
+    // Map database rows to WorkoutDB format
+    return (data || []).map(row => ({
+      id: row.id,
+      date: row.date,
+      title: row.title,
+      description: row.description || '',
+      type: row.workout_type,
+      duration: row.duration,
+      rounds: row.rounds,
+      movements: row.movements || [],
+      warmup: row.warmup || [],
+      strength: row.strength || [],
+      metcon: row.metcon || [],
+      cooldown: row.cooldown || [],
+      coachNotes: row.coach_notes,
+      scalingNotes: row.scaling_notes,
+      createdBy: row.created_by,
+      updatedBy: row.updated_by,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      status: row.status,
+    }));
   }
 
   /**
@@ -242,16 +263,22 @@ class AnalyticsService {
    * Calculate workout type breakdown
    */
   private calculateWorkoutTypeStats(workouts: WorkoutDB[]): WorkoutTypeStats[] {
+    const validTypes = ['amrap', 'fortime', 'emom', 'strength', 'endurance', 'tabata'] as const;
     const typeCounts: Record<string, number> = {
       amrap: 0,
       fortime: 0,
       emom: 0,
       strength: 0,
-      endurance: 0
+      endurance: 0,
+      tabata: 0
     };
 
     workouts.forEach(workout => {
-      typeCounts[workout.type] = (typeCounts[workout.type] || 0) + 1;
+      // Handle undefined, null, or invalid types by skipping them
+      const workoutType = workout.type?.toLowerCase();
+      if (workoutType && validTypes.includes(workoutType as typeof validTypes[number])) {
+        typeCounts[workoutType] = (typeCounts[workoutType] || 0) + 1;
+      }
     });
 
     const total = workouts.length;
@@ -416,6 +443,52 @@ class AnalyticsService {
       detectedBiases,
       recommendations
     };
+  }
+
+  /**
+   * Get muscle groups hit by a single workout
+   * Returns primary and secondary muscle groups with their weights
+   */
+  async getMuscleGroupsForWorkout(workout: WorkoutDB): Promise<Record<MuscleGroup, number>> {
+    await this.ensureMovementsLoaded();
+
+    const muscleGroupCounts: Record<MuscleGroup, number> = {
+      shoulders: 0,
+      back: 0,
+      chest: 0,
+      arms: 0,
+      legs: 0,
+      core: 0
+    };
+
+    const movements = this.extractWorkoutMovements(workout);
+
+    movements.forEach(movement => {
+      // Primary muscle groups count as 1.0
+      movement.primary_muscle_groups.forEach(mg => {
+        muscleGroupCounts[mg] += 1.0;
+      });
+
+      // Secondary muscle groups count as 0.5
+      movement.secondary_muscle_groups.forEach(mg => {
+        muscleGroupCounts[mg] += 0.5;
+      });
+    });
+
+    return muscleGroupCounts;
+  }
+
+  /**
+   * Get the top muscle groups for a workout (those with hits > 0)
+   */
+  async getTopMuscleGroupsForWorkout(workout: WorkoutDB, limit = 3): Promise<MuscleGroup[]> {
+    const muscleGroups = await this.getMuscleGroupsForWorkout(workout);
+
+    return Object.entries(muscleGroups)
+      .filter(([, count]) => count > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([mg]) => mg as MuscleGroup);
   }
 }
 

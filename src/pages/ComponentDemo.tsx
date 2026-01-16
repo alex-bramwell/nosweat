@@ -10,7 +10,7 @@ const ComponentDemo = () => {
       const danUser = users.users.find(u => u.email === 'dan@crossfitcomet.com');
 
       if (!danUser) {
-        alert("Dan's user not found. Please ensure the seed script has been run.");
+        alert("Dan's user not found.");
         return;
       }
 

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Section, Container, Card, Button } from '../../common';
 import { workoutService } from '../../../services/workoutService';
-import { todaysWOD } from '../../../data/wod';
 import { stats } from '../../../data/stats';
 import type { WorkoutDB } from '../../../types';
 import styles from './WOD.module.scss';
@@ -17,10 +16,10 @@ const WOD = () => {
   const loadTodaysWorkout = async () => {
     try {
       const data = await workoutService.getTodaysWorkout();
-      setWorkout(data || { ...todaysWOD, status: 'published' as const }); // Fallback to static if no DB workout
+      setWorkout(data);
     } catch (error) {
       console.error('Error loading workout:', error);
-      setWorkout({ ...todaysWOD, status: 'published' as const }); // Fallback
+      setWorkout(null);
     } finally {
       setIsLoading(false);
     }

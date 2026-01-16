@@ -101,41 +101,14 @@
 .outline {
   position: relative;
   background: var(--color-bg);
-  color: transparent;
-  background-image: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  border: 2px solid transparent;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 2rem;
-    padding: 2px;
-    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    pointer-events: none;
-  }
+  color: var(--color-secondary);
+  border: 2px solid var(--color-secondary);
 
   &:hover:not(:disabled) {
     background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
-    background-clip: border-box;
-    -webkit-background-clip: border-box;
     color: var(--color-bg);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
-
-    &::before {
-      opacity: 0;
-    }
   }
 
   &:active:not(:disabled) {
