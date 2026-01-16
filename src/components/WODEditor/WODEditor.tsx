@@ -138,7 +138,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
             <label htmlFor="duration">Duration</label>
             <DurationInput
               id="duration"
-              value={formData.duration}
+              value={formData.duration || ''}
               onChange={(value) => setFormData(prev => ({ ...prev, duration: value }))}
             />
           </div>
