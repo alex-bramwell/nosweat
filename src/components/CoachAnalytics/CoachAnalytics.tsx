@@ -31,6 +31,7 @@ const muscleGroupColors: Record<MuscleGroup, string> = {
 
 export const CoachAnalytics: React.FC = () => {
   const [period, setPeriod] = useState<AnalyticsPeriod>('7days');
+  const [dateOffset, setDateOffset] = useState(0);
   const [analytics, setAnalytics] = useState<WorkoutAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,8 +45,27 @@ export const CoachAnalytics: React.FC = () => {
   const [programmingHealth, setProgrammingHealth] = useState<ProgrammingHealth | null>(null);
   const [weekComparison, setWeekComparison] = useState<WeekComparison | null>(null);
 
+  const loadAnalytics = async () => {
+    try {
+      setLoading(true);
+      const data = await analyticsService.getWorkoutAnalytics(period, undefined, dateOffset);
+      setAnalytics(data);
+      setError(null);
+    } catch (err) {
+      console.error('Error loading analytics:', err);
+      setError('Failed to load analytics');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadAnalytics();
+  }, [period, dateOffset]);
+
+  useEffect(() => {
+    setDateOffset(0);
+    // These do not depend on the offset, so they are in a separate effect
     loadUpcomingWODs();
     loadProgrammingHealth();
     loadWeekComparison();
@@ -81,6 +101,9 @@ export const CoachAnalytics: React.FC = () => {
     }
   };
 
+  const handlePrevPeriod = () => setDateOffset(prev => prev - 1);
+  const handleNextPeriod = () => setDateOffset(prev => (prev < 0 ? prev + 1 : 0));
+
   const toggleSuggestions = (movementName: string) => {
     setExpandedSuggestions(prev => prev === movementName ? null : movementName);
   };
@@ -111,25 +134,11 @@ export const CoachAnalytics: React.FC = () => {
     setExerciseDetails([]);
   };
 
-  const loadAnalytics = async () => {
-    try {
-      setLoading(true);
-      const data = await analyticsService.getWorkoutAnalytics(period);
-      setAnalytics(data);
-      setError(null);
-    } catch (err) {
-      console.error('Error loading analytics:', err);
-      setError('Failed to load analytics');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getPeriodLabel = (p: AnalyticsPeriod): string => {
+  const getPeriodButtonLabel = (p: AnalyticsPeriod): string => {
     switch (p) {
-      case '7days': return 'Last 7 Days';
-      case '30days': return 'Last 30 Days';
-      case '1year': return 'Last Year';
+      case '7days': return 'Week';
+      case '30days': return 'Month';
+      case '1year': return 'Year';
     }
   };
 
@@ -147,6 +156,29 @@ export const CoachAnalytics: React.FC = () => {
       case 'underused': return styles.underused;
       case 'overused': return styles.overused;
     }
+  };
+  
+  const formatDateRange = (start: string, end: string, period: AnalyticsPeriod) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    if (period === '1year') {
+      return startDate.getFullYear();
+    }
+
+    if (period === '30days') {
+      return startDate.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+    }
+
+    // 7days
+    const startFormat: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
+    const endFormat: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+
+    if (startDate.getFullYear() !== endDate.getFullYear()) {
+      startFormat.year = 'numeric';
+    }
+    
+    return `${startDate.toLocaleDateString('en-GB', startFormat)} - ${endDate.toLocaleDateString('en-GB', endFormat)}`;
   };
 
   if (loading) {
@@ -182,35 +214,38 @@ export const CoachAnalytics: React.FC = () => {
               onClick={() => setPeriod(p)}
               className={`${styles.periodButton} ${period === p ? styles.active : ''}`}
             >
-              {getPeriodLabel(p)}
+              {getPeriodButtonLabel(p)}
             </button>
           ))}
         </div>
       </div>
-
-      {/* Summary Stats */}
-      <div className={styles.summaryStats}>
+      
+      {/* Date Navigator & Summary Stats */}
+      <div className={styles.navigationAndStats}>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{analytics.totalWorkouts}</div>
           <div className={styles.statLabel}>Total Workouts</div>
         </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>
-            {new Date(analytics.dateRange.start).toLocaleDateString('en-GB', {
-              day: 'numeric',
-              month: 'short'
-            })}
+
+        <div className={styles.dateNavigator}>
+          <button onClick={handlePrevPeriod} className={styles.navButton} aria-label="Previous period">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div className={styles.dateDisplay}>
+            <div className={styles.dateValue}>
+              {formatDateRange(analytics.dateRange.start, analytics.dateRange.end, period)}
+            </div>
+            <div className={styles.dateLabel}>
+              {dateOffset === 0 ? 'Current Period' : `${-dateOffset} ${getPeriodButtonLabel(period)}${ -dateOffset > 1 ? 's' : ''} ago`}
+            </div>
           </div>
-          <div className={styles.statLabel}>From</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>
-            {new Date(analytics.dateRange.end).toLocaleDateString('en-GB', {
-              day: 'numeric',
-              month: 'short'
-            })}
-          </div>
-          <div className={styles.statLabel}>To</div>
+          <button onClick={handleNextPeriod} className={styles.navButton} disabled={dateOffset === 0} aria-label="Next period">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -540,11 +575,34 @@ export const CoachAnalytics: React.FC = () => {
             <div className={styles.chartContainer}>
               {analytics.muscleGroupDistribution.map(stat => {
                 const bias = analytics.detectedBiases.find(b => b.muscleGroup === stat.muscleGroup);
+                const status = bias?.status || 'balanced';
+
+                const statusColors = {
+                  balanced: 'rgba(34, 197, 94, 0.8)', // Green
+                  underused: 'rgba(251, 191, 36, 0.8)', // Yellow
+                  overused: 'rgba(239, 68, 68, 0.8)'  // Red
+                };
+                
+                const pillBgColor = statusColors[status];
+                const pillTextColor = status === 'underused' ? '#1f2937' : '#ffffff';
+
                 return (
                   <div key={stat.muscleGroup} className={styles.barItem}>
                     <div className={styles.barLabel}>
-                      <span className={styles.muscleGroupName}>
-                        {stat.muscleGroup.charAt(0).toUpperCase() + stat.muscleGroup.slice(1)}
+                      <span
+                        className={styles.muscleGroupName}
+                        style={{
+                          backgroundColor: pillBgColor,
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          color: pillTextColor,
+                          fontSize: '0.75rem',
+                          textTransform: 'uppercase',
+                          fontWeight: '700',
+                          backdropFilter: 'blur(5px)'
+                        }}
+                      >
+                        {stat.muscleGroup}
                       </span>
                       <span className={styles.percentage}>
                         {stat.percentage.toFixed(1)}%
@@ -552,19 +610,13 @@ export const CoachAnalytics: React.FC = () => {
                     </div>
                     <div className={styles.barTrack}>
                       <div
-                        className={`${styles.barFill} ${bias ? getStatusColor(bias.status) : ''}`}
+                        className={`${styles.barFill} ${bias ? getStatusColor(bias.status) : styles.balanced }`}
                         style={{
                           width: `${Math.min(stat.percentage, 100)}%`,
-                          background: muscleGroupColors[stat.muscleGroup]
                         }}
                       />
                     </div>
                     <div className={styles.barMeta}>
-                      {bias && (
-                        <span className={styles.statusIcon}>
-                          {getStatusIcon(bias.status)}
-                        </span>
-                      )}
                       <span className={styles.hitCount}>
                         {stat.hitCount.toFixed(1)} movements
                       </span>
@@ -676,7 +728,7 @@ export const CoachAnalytics: React.FC = () => {
               <h3>Workout Type Breakdown</h3>
               <div className={styles.sectionHeaderRight}>
                 <InfoTooltip content="Shows the mix of workout types you've programmed. A good variety includes AMRAP, EMOM, For Time, and strength work to develop different energy systems." />
-                <span className={styles.periodLabel}>{getPeriodLabel(period)}</span>
+                <span className={styles.periodLabel}>{getPeriodButtonLabel(period)}</span>
               </div>
             </div>
             <div className={styles.typeGrid}>

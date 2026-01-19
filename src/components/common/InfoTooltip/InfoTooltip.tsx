@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from './InfoTooltip.module.scss';
-import { CloseIcon } from '../Icons';
 
 export interface InfoTooltipProps {
   content: string;
@@ -73,6 +72,7 @@ const parseContent = (content: string): React.ReactNode[] => {
 
 export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '' }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [position, setPosition] = useState<'top' | 'bottom'>('top');
   const [isMobile, setIsMobile] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -132,15 +132,35 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '
   };
 
   // Mobile: render as fixed bottom bar
+  const handleMobileClose = () => {
+    setClosing(true);
+    setTimeout(() => {
+      setIsVisible(false);
+      setClosing(false);
+    }, 500); // match slower animation duration
+  };
+
   if (isVisible && isMobile) {
     return (
       <>
-        <div className={styles.mobileTooltipBackdrop} onClick={() => setIsVisible(false)} />
-        <div className={styles.mobileTooltipBar} ref={tooltipRef} role="dialog" aria-modal="true">
+        <div className={styles.mobileTooltipBackdrop} onClick={handleMobileClose} />
+        <div
+          className={
+            styles.mobileTooltipBar + (closing ? ' ' + styles.closing : '')
+          }
+          ref={tooltipRef}
+          role="dialog"
+          aria-modal="true"
+        >
           <div className={styles.mobileTooltipHeader}>
             <span className={styles.mobileTooltipTitle}>Info</span>
-            <button className={styles.mobileTooltipClose} onClick={() => setIsVisible(false)} aria-label="Close info">
-              <CloseIcon size={24} />
+            <button
+              className={styles.mobileTooltipClose}
+              onClick={handleMobileClose}
+              aria-label="Close info"
+              disabled={closing}
+            >
+              ×
             </button>
           </div>
           <div className={styles.mobileTooltipContent}>{parseContent(content)}</div>
