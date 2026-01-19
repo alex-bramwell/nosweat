@@ -73,18 +73,29 @@ const parseContent = (content: string): React.ReactNode[] => {
 export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '' }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState<'top' | 'bottom'>('top');
+  const [isMobile, setIsMobile] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
+  // Detect mobile/tablet
   useEffect(() => {
-    if (isVisible && triggerRef.current) {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isVisible && triggerRef.current && !isMobile) {
       const rect = triggerRef.current.getBoundingClientRect();
       const spaceAbove = rect.top;
 
       // If not enough space above (less than 100px), show below
       setPosition(spaceAbove < 100 ? 'bottom' : 'top');
     }
-  }, [isVisible]);
+  }, [isVisible, isMobile]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -119,6 +130,21 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '
     setIsVisible(!isVisible);
   };
 
+  // Mobile: render as fixed bottom bar
+  if (isVisible && isMobile) {
+    return (
+      <>
+        <div className={styles.mobileTooltipBackdrop} onClick={() => setIsVisible(false)} />
+        <div className={styles.mobileTooltipBar} ref={tooltipRef} role="dialog" aria-modal="true">
+          <button className={styles.mobileTooltipClose} onClick={() => setIsVisible(false)} aria-label="Close info">
+            ×
+          </button>
+          <div className={styles.mobileTooltipContent}>{parseContent(content)}</div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className={`${styles.tooltipWrapper} ${className}`}>
       <button
@@ -142,7 +168,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '
         </svg>
       </button>
 
-      {isVisible && (
+      {isVisible && !isMobile && (
         <div
           ref={tooltipRef}
           className={`${styles.tooltip} ${styles[position]}`}
