@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from './InfoTooltip.module.scss';
+import { CloseIcon } from '../Icons';
 
 export interface InfoTooltipProps {
   content: string;
@@ -136,9 +137,12 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '
       <>
         <div className={styles.mobileTooltipBackdrop} onClick={() => setIsVisible(false)} />
         <div className={styles.mobileTooltipBar} ref={tooltipRef} role="dialog" aria-modal="true">
-          <button className={styles.mobileTooltipClose} onClick={() => setIsVisible(false)} aria-label="Close info">
-            ×
-          </button>
+          <div className={styles.mobileTooltipHeader}>
+            <span className={styles.mobileTooltipTitle}>Info</span>
+            <button className={styles.mobileTooltipClose} onClick={() => setIsVisible(false)} aria-label="Close info">
+              <CloseIcon size={24} />
+            </button>
+          </div>
           <div className={styles.mobileTooltipContent}>{parseContent(content)}</div>
         </div>
       </>
