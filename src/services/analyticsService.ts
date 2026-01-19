@@ -14,7 +14,8 @@ import type {
   MuscleGroupBias,
   AnalyticsPeriod,
   MuscleGroup,
-  CrossFitMovement
+  CrossFitMovement,
+  DailyMuscleGroupData
 } from '../types';
 
 // Common CrossFit movement abbreviations
@@ -422,6 +423,7 @@ class AnalyticsService {
     const workouts = await this.getWorkoutsInRange(start, end, userId);
 
     const muscleGroupDistribution = this.calculateMuscleGroupStats(workouts);
+    const dailyMuscleData = this.calculateDailyMuscleData(workouts, start, end);
     const workoutTypeBreakdown = this.calculateWorkoutTypeStats(workouts);
     const topMovements = this.getTopMovements(workouts, 10);
     const detectedBiases = this.detectBiases(muscleGroupDistribution);
@@ -438,11 +440,74 @@ class AnalyticsService {
       },
       totalWorkouts: workouts.length,
       muscleGroupDistribution,
+      dailyMuscleData,
       workoutTypeBreakdown,
       topMovements,
       detectedBiases,
       recommendations
     };
+  }
+
+  /**
+   * Calculate daily muscle group data for heatmap visualization
+   */
+  private calculateDailyMuscleData(
+    workouts: WorkoutDB[],
+    startDate: Date,
+    endDate: Date
+  ): DailyMuscleGroupData[] {
+    const dailyData: DailyMuscleGroupData[] = [];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    // Create a map of workouts by date
+    const workoutsByDate = new Map<string, WorkoutDB[]>();
+    workouts.forEach(workout => {
+      const dateKey = workout.date;
+      if (!workoutsByDate.has(dateKey)) {
+        workoutsByDate.set(dateKey, []);
+      }
+      workoutsByDate.get(dateKey)!.push(workout);
+    });
+
+    // Iterate through each day in the range
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const dayWorkouts = workoutsByDate.get(dateStr) || [];
+
+      // Calculate muscle group hits for this day
+      const muscleGroupHits: Record<MuscleGroup, number> = {
+        shoulders: 0,
+        back: 0,
+        chest: 0,
+        arms: 0,
+        legs: 0,
+        core: 0
+      };
+
+      dayWorkouts.forEach(workout => {
+        const movements = this.extractWorkoutMovements(workout);
+        movements.forEach(movement => {
+          movement.primary_muscle_groups.forEach(mg => {
+            muscleGroupHits[mg] += 1.0;
+          });
+          movement.secondary_muscle_groups.forEach(mg => {
+            muscleGroupHits[mg] += 0.5;
+          });
+        });
+      });
+
+      dailyData.push({
+        date: dateStr,
+        dayLabel: dayNames[currentDate.getDay()],
+        muscleGroups: (Object.entries(muscleGroupHits) as [MuscleGroup, number][])
+          .map(([muscleGroup, hitCount]) => ({ muscleGroup, hitCount }))
+      });
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return dailyData;
   }
 
   /**
@@ -490,6 +555,432 @@ class AnalyticsService {
       .slice(0, limit)
       .map(([mg]) => mg as MuscleGroup);
   }
+
+  /**
+   * Get exercises for a specific date and muscle group
+   */
+  async getExercisesForDateAndMuscle(
+    date: string,
+    muscleGroup: MuscleGroup
+  ): Promise<{ name: string; isPrimary: boolean }[]> {
+    await this.ensureMovementsLoaded();
+
+    const startDate = new Date(date);
+    const endDate = new Date(date);
+    endDate.setDate(endDate.getDate() + 1);
+
+    const workouts = await this.getWorkoutsInRange(startDate, endDate);
+    const exercises: { name: string; isPrimary: boolean }[] = [];
+    const seenMovements = new Set<string>();
+
+    workouts.forEach(workout => {
+      const movements = this.extractWorkoutMovements(workout);
+      movements.forEach(movement => {
+        if (seenMovements.has(movement.name)) return;
+
+        const isPrimary = movement.primary_muscle_groups.includes(muscleGroup);
+        const isSecondary = movement.secondary_muscle_groups.includes(muscleGroup);
+
+        if (isPrimary || isSecondary) {
+          exercises.push({ name: movement.name, isPrimary });
+          seenMovements.add(movement.name);
+        }
+      });
+    });
+
+    // Sort by primary first, then alphabetically
+    return exercises.sort((a, b) => {
+      if (a.isPrimary !== b.isPrimary) return a.isPrimary ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  /**
+   * Get movement usage count in a date range
+   */
+  async getMovementUsageInRange(movementName: string, days: number): Promise<number> {
+    await this.ensureMovementsLoaded();
+
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - days);
+
+    const workouts = await this.getWorkoutsInRange(startDate, endDate);
+    let count = 0;
+
+    workouts.forEach(workout => {
+      const movements = this.extractWorkoutMovements(workout);
+      movements.forEach(movement => {
+        if (movement.name === movementName) {
+          count++;
+        }
+      });
+    });
+
+    return count;
+  }
+
+  /**
+   * Get exercises for a date and muscle group with 2-week usage
+   */
+  async getExercisesWithUsageForDateAndMuscle(
+    date: string,
+    muscleGroup: MuscleGroup
+  ): Promise<{ name: string; isPrimary: boolean; twoWeekUsage: number }[]> {
+    const exercises = await this.getExercisesForDateAndMuscle(date, muscleGroup);
+
+    // Get 2-week usage for each exercise
+    const exercisesWithUsage = await Promise.all(
+      exercises.map(async exercise => ({
+        ...exercise,
+        twoWeekUsage: await this.getMovementUsageInRange(exercise.name, 14)
+      }))
+    );
+
+    return exercisesWithUsage;
+  }
+
+  /**
+   * Get upcoming WODs with movement analysis
+   */
+  async getUpcomingWODsWithAnalysis(days: number = 2): Promise<UpcomingWODAnalysis[]> {
+    await this.ensureMovementsLoaded();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(today);
+    endDate.setDate(endDate.getDate() + days);
+
+    // Get upcoming workouts
+    const { data: upcomingWorkouts, error } = await supabase
+      .from('workouts')
+      .select('*')
+      .gte('date', today.toISOString().split('T')[0])
+      .lt('date', endDate.toISOString().split('T')[0])
+      .eq('status', 'published')
+      .order('date', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching upcoming workouts:', error);
+      return [];
+    }
+
+    const results: UpcomingWODAnalysis[] = [];
+
+    for (const row of upcomingWorkouts || []) {
+      const workout: WorkoutDB = {
+        id: row.id,
+        date: row.date,
+        title: row.title,
+        description: row.description || '',
+        type: row.workout_type,
+        duration: row.duration,
+        rounds: row.rounds,
+        movements: row.movements || [],
+        warmup: row.warmup || [],
+        strength: row.strength || [],
+        metcon: row.metcon || [],
+        cooldown: row.cooldown || [],
+        coachNotes: row.coach_notes,
+        scalingNotes: row.scaling_notes,
+        createdBy: row.created_by,
+        updatedBy: row.updated_by,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        status: row.status,
+      };
+
+      const movements = this.extractWorkoutMovements(workout);
+      const movementAnalysis: MovementWithAnalysis[] = [];
+
+      for (const movement of movements) {
+        const twoWeekUsage = await this.getMovementUsageInRange(movement.name, 14);
+        const isHighUsage = twoWeekUsage >= 3;
+
+        let suggestions: CrossFitMovement[] = [];
+        if (isHighUsage) {
+          suggestions = await this.getReplacementSuggestions(movement.name, movement.primary_muscle_groups);
+        }
+
+        movementAnalysis.push({
+          name: movement.name,
+          muscleGroups: movement.primary_muscle_groups,
+          twoWeekUsage,
+          isHighUsage,
+          suggestions: suggestions.slice(0, 3) // Limit to 3 suggestions
+        });
+      }
+
+      results.push({
+        workout,
+        movementAnalysis
+      });
+    }
+
+    return results;
+  }
+
+  /**
+   * Get replacement suggestions for a movement - suggests movements from
+   * DIFFERENT/UNDERUSED muscle groups to help balance programming
+   */
+  async getReplacementSuggestions(
+    currentMovementName: string,
+    currentMuscleGroups: MuscleGroup[]
+  ): Promise<CrossFitMovement[]> {
+    await this.ensureMovementsLoaded();
+
+    // Get recent analytics to find underused muscle groups
+    const { start, end } = this.getDateRange('7days');
+    const recentWorkouts = await this.getWorkoutsInRange(start, end);
+    const muscleGroupStats = this.calculateMuscleGroupStats(recentWorkouts);
+
+    // Find underused muscle groups (lowest usage, excluding current movement's muscle groups)
+    const underusedGroups = muscleGroupStats
+      .filter(stat => !currentMuscleGroups.includes(stat.muscleGroup))
+      .sort((a, b) => a.percentage - b.percentage)
+      .slice(0, 3) // Top 3 most underused
+      .map(stat => stat.muscleGroup);
+
+    // If no underused groups found, use muscle groups not in current movement
+    const targetGroups = underusedGroups.length > 0
+      ? underusedGroups
+      : (['legs', 'shoulders', 'core', 'back', 'chest', 'arms'] as MuscleGroup[])
+          .filter(mg => !currentMuscleGroups.includes(mg));
+
+    // Find movements that primarily target the underused muscle groups
+    const candidates = this.movements.filter(m => {
+      if (m.name.toLowerCase() === currentMovementName.toLowerCase()) return false;
+
+      // Check if it primarily targets one of the underused/different muscle groups
+      const targetsDifferentMuscle = m.primary_muscle_groups.some(mg =>
+        targetGroups.includes(mg)
+      );
+      return targetsDifferentMuscle;
+    });
+
+    // Get usage for each candidate and sort by lowest usage
+    const candidatesWithUsage = await Promise.all(
+      candidates.map(async c => ({
+        movement: c,
+        usage: await this.getMovementUsageInRange(c.name, 14),
+        // Prioritize movements targeting the most underused groups
+        underusedScore: c.primary_muscle_groups.reduce((score, mg) => {
+          const idx = targetGroups.indexOf(mg);
+          return idx >= 0 ? score + (targetGroups.length - idx) : score;
+        }, 0)
+      }))
+    );
+
+    // Sort by underused score (highest first), then by usage (lowest first)
+    return candidatesWithUsage
+      .sort((a, b) => {
+        if (b.underusedScore !== a.underusedScore) {
+          return b.underusedScore - a.underusedScore;
+        }
+        return a.usage - b.usage;
+      })
+      .map(c => c.movement);
+  }
+
+  /**
+   * Get programming health metrics
+   */
+  async getProgrammingHealth(): Promise<ProgrammingHealth> {
+    await this.ensureMovementsLoaded();
+
+    // Get last 14 days of workouts
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 14);
+    const workouts = await this.getWorkoutsInRange(start, end);
+
+    // Calculate muscle group distribution
+    const muscleStats = this.calculateMuscleGroupStats(workouts);
+
+    // Calculate balance score (how evenly distributed are muscle groups)
+    const percentages = muscleStats.map(s => s.percentage);
+    const avgPercentage = 100 / 6; // ~16.67% each for 6 muscle groups
+    const deviations = percentages.map(p => Math.abs(p - avgPercentage));
+    const avgDeviation = deviations.reduce((a, b) => a + b, 0) / deviations.length;
+    // Convert deviation to score (0 deviation = 100, 16.67 deviation = 0)
+    const balanceScore = Math.max(0, Math.min(100, 100 - (avgDeviation * 6)));
+
+    let balanceLabel: ProgrammingHealth['balanceLabel'];
+    if (balanceScore >= 80) balanceLabel = 'Excellent';
+    else if (balanceScore >= 60) balanceLabel = 'Good';
+    else if (balanceScore >= 40) balanceLabel = 'Fair';
+    else balanceLabel = 'Needs Work';
+
+    // Calculate variety score
+    const allMovementNames = new Set<string>();
+    let totalSlots = 0;
+    workouts.forEach(w => {
+      const movements = this.extractWorkoutMovements(w);
+      movements.forEach(m => allMovementNames.add(m.name));
+      totalSlots += movements.length;
+    });
+
+    const uniqueMovements = allMovementNames.size;
+    // Variety = unique movements / total slots (capped at 100%)
+    const varietyScore = totalSlots > 0
+      ? Math.min(100, (uniqueMovements / totalSlots) * 100 * 2) // Scale so 50% unique = 100
+      : 0;
+
+    let varietyLabel: string;
+    if (varietyScore >= 80) varietyLabel = 'Excellent variety';
+    else if (varietyScore >= 60) varietyLabel = 'Good variety';
+    else if (varietyScore >= 40) varietyLabel = 'Moderate variety';
+    else varietyLabel = 'Consider more variety';
+
+    // Find neglected movements (common movements not used in 14 days)
+    const commonMovements = this.movements
+      .filter(m => m.difficulty === 'beginner' || m.difficulty === 'intermediate')
+      .slice(0, 30); // Top 30 common movements
+
+    const neglectedMovements = commonMovements
+      .filter(m => !allMovementNames.has(m.name))
+      .slice(0, 5)
+      .map(m => m.name);
+
+    // Find overused movements
+    const movementCounts = new Map<string, number>();
+    workouts.forEach(w => {
+      const movements = this.extractWorkoutMovements(w);
+      movements.forEach(m => {
+        movementCounts.set(m.name, (movementCounts.get(m.name) || 0) + 1);
+      });
+    });
+
+    const overusedMovements = Array.from(movementCounts.entries())
+      .filter(([_, count]) => count >= 3)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, count]) => ({ name, count }));
+
+    return {
+      balanceScore: Math.round(balanceScore),
+      balanceLabel,
+      varietyScore: Math.round(varietyScore),
+      varietyLabel,
+      uniqueMovements,
+      totalMovementSlots: totalSlots,
+      neglectedMovements,
+      overusedMovements
+    };
+  }
+
+  /**
+   * Get week-over-week comparison
+   */
+  async getWeekComparison(): Promise<WeekComparison> {
+    await this.ensureMovementsLoaded();
+
+    const now = new Date();
+
+    // This week (last 7 days)
+    const thisWeekEnd = new Date(now);
+    const thisWeekStart = new Date(now);
+    thisWeekStart.setDate(thisWeekEnd.getDate() - 7);
+
+    // Last week (7-14 days ago)
+    const lastWeekEnd = new Date(thisWeekStart);
+    const lastWeekStart = new Date(thisWeekStart);
+    lastWeekStart.setDate(lastWeekEnd.getDate() - 7);
+
+    const thisWeekWorkouts = await this.getWorkoutsInRange(thisWeekStart, thisWeekEnd);
+    const lastWeekWorkouts = await this.getWorkoutsInRange(lastWeekStart, lastWeekEnd);
+
+    const thisWeekStats = this.calculateMuscleGroupStats(thisWeekWorkouts);
+    const lastWeekStats = this.calculateMuscleGroupStats(lastWeekWorkouts);
+
+    // Count total movements
+    const countMovements = (workouts: WorkoutDB[]) => {
+      let count = 0;
+      workouts.forEach(w => {
+        count += this.extractWorkoutMovements(w).length;
+      });
+      return count;
+    };
+
+    const thisWeekMovements = countMovements(thisWeekWorkouts);
+    const lastWeekMovements = countMovements(lastWeekWorkouts);
+
+    // Calculate muscle group changes
+    const muscleGroups: MuscleGroup[] = ['legs', 'shoulders', 'core', 'back', 'chest', 'arms'];
+    const muscleGroupChanges = muscleGroups.map(mg => {
+      const thisWeekHits = thisWeekStats.find(s => s.muscleGroup === mg)?.hitCount || 0;
+      const lastWeekHits = lastWeekStats.find(s => s.muscleGroup === mg)?.hitCount || 0;
+      return {
+        muscleGroup: mg,
+        change: thisWeekHits - lastWeekHits
+      };
+    });
+
+    return {
+      thisWeek: {
+        workouts: thisWeekWorkouts.length,
+        totalMovements: thisWeekMovements,
+        muscleDistribution: thisWeekStats
+      },
+      lastWeek: {
+        workouts: lastWeekWorkouts.length,
+        totalMovements: lastWeekMovements,
+        muscleDistribution: lastWeekStats
+      },
+      changes: {
+        workouts: thisWeekWorkouts.length - lastWeekWorkouts.length,
+        movements: thisWeekMovements - lastWeekMovements,
+        muscleGroupChanges
+      }
+    };
+  }
+}
+
+// Types for upcoming WOD analysis
+export interface MovementWithAnalysis {
+  name: string;
+  muscleGroups: MuscleGroup[];
+  twoWeekUsage: number;
+  isHighUsage: boolean;
+  suggestions: CrossFitMovement[];
+}
+
+export interface UpcomingWODAnalysis {
+  workout: WorkoutDB;
+  movementAnalysis: MovementWithAnalysis[];
+}
+
+// Types for programming health
+export interface ProgrammingHealth {
+  balanceScore: number; // 0-100
+  balanceLabel: 'Excellent' | 'Good' | 'Fair' | 'Needs Work';
+  varietyScore: number; // 0-100
+  varietyLabel: string;
+  uniqueMovements: number;
+  totalMovementSlots: number;
+  neglectedMovements: string[]; // Movements not used in 14+ days
+  overusedMovements: { name: string; count: number }[];
+}
+
+// Types for week comparison
+export interface WeekComparison {
+  thisWeek: {
+    workouts: number;
+    totalMovements: number;
+    muscleDistribution: MuscleGroupStats[];
+  };
+  lastWeek: {
+    workouts: number;
+    totalMovements: number;
+    muscleDistribution: MuscleGroupStats[];
+  };
+  changes: {
+    workouts: number;
+    movements: number;
+    muscleGroupChanges: { muscleGroup: MuscleGroup; change: number }[];
+  };
 }
 
 // Export singleton instance

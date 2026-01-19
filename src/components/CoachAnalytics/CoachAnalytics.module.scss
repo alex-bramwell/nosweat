@@ -89,6 +89,350 @@
   }
 }
 
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  h3 {
+    margin: 0;
+  }
+}
+
+.periodLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  background: rgba(var(--color-accent-rgb, 139, 92, 246), 0.15);
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sectionHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sectionHeaderCompact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+// Main Analytics Grid - Left column (graph + insights) + Right column (bar chart)
+.mainAnalyticsGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.graphSection {
+  margin-bottom: 0;
+}
+
+.barSection {
+  margin-bottom: 0;
+}
+
+// Insights Row (Programming Health + Week Comparison) - below graph
+.insightsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.insightSection {
+  margin-bottom: 0;
+  padding: 1rem;
+
+  h3 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+// Programming Health Styles
+.healthContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scoreCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.scoreHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.scoreLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.scoreSubtext {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.scoreBadge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.scoreExcellent {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.scoreGood {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.scoreFair {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.scoreNeedsWork {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.scoreBar {
+  height: 8px;
+  background: var(--color-bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.scoreBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e 0%, #3b82f6 50%, #8b5cf6 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.varietyBar {
+  background: linear-gradient(90deg, #f97316 0%, #eab308 100%);
+}
+
+.scoreValue {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-align: right;
+}
+
+.movementList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.movementListLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.movementTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.neglectedTag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 4px;
+  color: #fbbf24;
+}
+
+.overusedTag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 4px;
+  color: #ef4444;
+}
+
+// Week Comparison Styles
+.comparisonContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.comparisonRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-bg);
+  border-radius: 8px;
+}
+
+.comparisonItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 70px;
+}
+
+.comparisonValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.comparisonValueSmall {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.comparisonLabel {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.comparisonChange {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.changeIndicator {
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 20px;
+
+  &.positive {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+  }
+
+  &.negative {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+  }
+
+  &.small {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.375rem;
+  }
+}
+
+.changeLabel {
+  font-size: 0.625rem;
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.muscleChanges {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.muscleChangesLabel {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.muscleChangesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.muscleChangeItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.muscleChangeDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.muscleChangeName {
+  flex: 1;
+  font-size: 0.8125rem;
+  color: var(--color-text);
+}
+
+.muscleChangeValue {
+  font-size: 0.8125rem;
+  font-weight: 600;
+
+  &.positive {
+    color: #22c55e;
+  }
+
+  &.negative {
+    color: #ef4444;
+  }
+}
+
+.noChanges {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
 .chartContainer {
   display: flex;
   flex-direction: column;
@@ -364,6 +708,669 @@
 
   &:hover {
     background: var(--color-accent2);
+  }
+}
+
+// Upcoming WODs styles
+.upcomingWODsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.upcomingWODCard {
+  background: var(--color-bg);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.upcomingWODHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.upcomingWODDate {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-transform: uppercase;
+}
+
+.upcomingWODType {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--color-muted);
+}
+
+.upcomingWODTitle {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.upcomingMovementsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.upcomingMovementsLabel {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+}
+
+.noMovements {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.upcomingMovementItem {
+  margin-bottom: 0.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Static movement (no high usage)
+.movementStatic {
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.movementNameText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+// Accordion styles for high-usage movements
+.movementAccordion {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.accordionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+  background: rgba(251, 191, 36, 0.1);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: left;
+  min-height: 56px; // Good touch target
+
+  &:hover {
+    background: rgba(251, 191, 36, 0.18);
+  }
+
+  &:active {
+    background: rgba(251, 191, 36, 0.25);
+  }
+}
+
+.accordionOpen {
+  background: rgba(251, 191, 36, 0.18);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.accordionTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.usageBadge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.accordionIcon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 300;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.15);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.accordionContent {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.suggestionsLabel {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.suggestionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.suggestionOption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  min-height: 60px; // Good touch target
+
+  &:hover {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: #22c55e;
+  }
+
+  &:active {
+    background: rgba(34, 197, 94, 0.25);
+    transform: scale(0.98);
+  }
+}
+
+.suggestionDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.suggestionName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.suggestionMuscles {
+  font-size: 0.75rem;
+  color: #22c55e;
+  text-transform: capitalize;
+}
+
+.selectIndicator {
+  padding: 0.5rem 1rem;
+  background: #22c55e;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+}
+
+.noSuggestions {
+  margin: 0;
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  font-style: italic;
+  text-align: center;
+}
+
+// Line Graph styles
+.lineGraphContainer {
+  width: 100%;
+}
+
+.graphGrid {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.yAxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-right: 0.5rem;
+  height: 200px;
+
+  span {
+    font-size: 0.625rem;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+}
+
+.chartArea {
+  position: relative;
+  height: 200px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gridLines {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0;
+  pointer-events: none;
+}
+
+.gridLine {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dataColumns {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dataColumn {
+  position: relative;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.columnLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dataPoint {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  transform: translate(-50%, 50%);
+  z-index: 2;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    transform: translate(-50%, 50%) scale(1.4);
+    z-index: 10;
+  }
+}
+
+.dataPointSelected {
+  transform: translate(-50%, 50%) scale(1.3);
+  z-index: 10;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.linesOverlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.xAxis {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 40px;
+  padding: 0.75rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 0.5rem;
+}
+
+.xLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  flex: 1;
+  text-align: center;
+}
+
+.dayName {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.dayNum {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.lineGraphLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: opacity 0.2s, background-color 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.legendItemSelected {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+// Node Modal styles
+.nodeModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.nodeModal {
+  background: var(--color-surface);
+  border-radius: 12px;
+  border: 2px solid;
+  max-width: 360px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  position: relative;
+  animation: modalSlideIn 0.2s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.nodeModalClose {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-muted);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+  }
+}
+
+.nodeModalHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nodeModalIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.nodeModalTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.nodeModalSubtitle {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.nodeModalContent {
+  padding: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 16px;
+
+    @media (max-width: 768px) {
+      width: 18px;
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 12px 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(100, 100, 100, 0.6);
+    border-radius: 10px;
+    border: 3px solid var(--color-surface);
+    transition: background 0.3s ease;
+
+    &:hover {
+      background: rgba(120, 120, 120, 0.8);
+    }
+
+    &:active {
+      background: rgba(80, 80, 80, 0.9);
+    }
+  }
+
+  &::-webkit-scrollbar-button {
+    width: 0px;
+    height: 0px;
+  }
+
+  // Firefox scrollbar styling
+  scrollbar-width: auto;
+  scrollbar-color: rgba(100, 100, 100, 0.6) rgba(0, 0, 0, 0.2);
+}
+
+.nodeModalLoading,
+.nodeModalEmpty {
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  padding: 2rem;
+}
+
+.nodeModalSectionLabel {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+}
+
+.exerciseList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.exerciseItem {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  background: var(--color-bg);
+  border-radius: 8px;
+  gap: 0.5rem;
+}
+
+.exerciseMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.highUsageIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(251, 191, 36, 0.15);
+  border-radius: 4px;
+  border-left: 2px solid #fbbf24;
+}
+
+.highUsageText {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #fbbf24;
+}
+
+.exerciseName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  flex: 1;
+  min-width: 0;
+}
+
+.exerciseType {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+
+  &.primary {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+  }
+
+  &.secondary {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+  }
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legendText {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-muted);
+  text-transform: capitalize;
+}
+
+@media (max-width: 480px) {
+  .graphGrid {
+    grid-template-columns: 30px 1fr;
+  }
+
+  .yAxis {
+    height: 150px;
+  }
+
+  .chartArea {
+    height: 150px;
+  }
+
+  .xAxis {
+    margin-left: 30px;
+  }
+
+  .dataPoint {
+    width: 12px;
+    height: 12px;
+  }
+
+  .lineGraphLegend {
+    gap: 0.75rem;
+  }
+
+  .legendText {
+    font-size: 0.625rem;
+  }
+
+  .legendColor {
+    width: 10px;
+    height: 10px;
   }
 }
 

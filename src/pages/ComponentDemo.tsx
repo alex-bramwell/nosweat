@@ -1,4 +1,4 @@
-import { Button, Card, Container, Section } from '../components/common';
+import { Button, Card, Container, Section, InfoTooltip } from '../components/common';
 import { userManagementService } from '../services/userManagementService';
 import { supabase } from '../lib/supabase';
 
@@ -34,7 +34,21 @@ const ComponentDemo = () => {
             <Button variant="primary" onClick={handleMakeDanAdmin}>Make Dan Admin</Button>
           </div>
 
-          <h2 style={{ marginTop: '2rem', marginBottom: '1rem' }}>Buttons</h2>
+          <h2 style={{ marginTop: '2rem', marginBottom: '1rem' }}>Tooltips</h2>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <span>This is a simple tooltip:</span>
+            <InfoTooltip content="This is a simple informational tooltip." />
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '1rem' }}>
+            <span>Tooltip with colored pills:</span>
+            <InfoTooltip content="This is a green status, but this is a red warning." />
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '1rem' }}>
+            <span>More complex tooltip:</span>
+            <InfoTooltip content="Your summary is balanced (green), but some movements are underused (yellow). Avoid overused (red) exercises. This is actionable (blue) advice." />
+          </div>
+
+          <h2 style={{ marginTop: '3rem', marginBottom: '1rem' }}>Buttons</h2>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <Button variant="primary">Primary Button</Button>
             <Button variant="secondary">Secondary Button</Button>

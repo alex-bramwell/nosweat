@@ -216,6 +216,15 @@ export interface MuscleGroupBias {
   recommendation: string;
 }
 
+export interface DailyMuscleGroupData {
+  date: string;
+  dayLabel: string; // e.g., "Mon", "Tue"
+  muscleGroups: {
+    muscleGroup: MuscleGroup;
+    hitCount: number;
+  }[];
+}
+
 export interface WorkoutAnalytics {
   dateRange: {
     start: string;
@@ -223,6 +232,7 @@ export interface WorkoutAnalytics {
   };
   totalWorkouts: number;
   muscleGroupDistribution: MuscleGroupStats[];
+  dailyMuscleData: DailyMuscleGroupData[];
   workoutTypeBreakdown: WorkoutTypeStats[];
   topMovements: MovementUsageStats[];
   detectedBiases: MuscleGroupBias[];
