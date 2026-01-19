@@ -79,21 +79,43 @@ class AnalyticsService {
   /**
    * Get date range for analysis period
    */
-  getDateRange(period: AnalyticsPeriod): { start: Date; end: Date } {
-    const end = new Date();
-    const start = new Date();
+  getDateRange(period: AnalyticsPeriod, offset = 0): { start: Date; end: Date } {
+    const today = new Date();
+    if (period === '7days') {
+      today.setDate(today.getDate() + (offset * 7));
+    } else if (period === '30days') {
+      today.setMonth(today.getMonth() + offset);
+    } else if (period === '1year') {
+      today.setFullYear(today.getFullYear() + offset);
+    }
+
+    let start: Date;
+    let end: Date;
 
     switch (period) {
-      case '7days':
-        start.setDate(end.getDate() - 7);
+      case '7days': {
+        start = new Date(today);
+        const day = start.getDay(); // Sunday: 0, Monday: 1, ..., Saturday: 6
+        const diffToMonday = day === 0 ? 6 : day - 1;
+        start.setDate(start.getDate() - diffToMonday);
+        end = new Date(start);
+        end.setDate(start.getDate() + 6);
         break;
-      case '30days':
-        start.setDate(end.getDate() - 30);
+      }
+      case '30days': {
+        start = new Date(today.getFullYear(), today.getMonth(), 1);
+        end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
         break;
-      case '1year':
-        start.setFullYear(end.getFullYear() - 1);
+      }
+      case '1year': {
+        start = new Date(today.getFullYear(), 0, 1);
+        end = new Date(today.getFullYear(), 11, 31);
         break;
+      }
     }
+    
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
 
     return { start, end };
   }
@@ -415,11 +437,12 @@ class AnalyticsService {
    */
   async getWorkoutAnalytics(
     period: AnalyticsPeriod,
-    userId?: string
+    userId?: string,
+    offset = 0
   ): Promise<WorkoutAnalytics> {
     await this.ensureMovementsLoaded();
 
-    const { start, end } = this.getDateRange(period);
+    const { start, end } = this.getDateRange(period, offset);
     const workouts = await this.getWorkoutsInRange(start, end, userId);
 
     const muscleGroupDistribution = this.calculateMuscleGroupStats(workouts);
@@ -435,8 +458,8 @@ class AnalyticsService {
 
     return {
       dateRange: {
-        start: start.toISOString().split('T')[0],
-        end: end.toISOString().split('T')[0]
+        start: start.toISOString(),
+        end: end.toISOString()
       },
       totalWorkouts: workouts.length,
       muscleGroupDistribution,

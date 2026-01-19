@@ -163,33 +163,112 @@
 
 .mobileTooltipBar {
   position: fixed;
-  left: 0;
-  right: 0;
+  left: 50%;
   bottom: 0;
-  width: 100vw;
-  background: var(--color-surface);
-  color: var(--color-text);
+  transform: translateX(-50%);
+  min-width: 240px;
+  max-width: 600px;
+  width: 90vw;
+  border-radius: 12px 12px 0 0;
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
   z-index: 9999;
-  border-radius: 12px 12px 0 0;
-  padding: 1.25rem 1rem 1rem 2.5rem;
-  min-height: 64px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 0;
   display: flex;
-  align-items: flex-start;
-  animation: tooltipFadeIn 0.2s ease;
+  flex-direction: column;
+  align-items: stretch;
+
+  @media (min-width: 769px) {
+    display: none !important;
+  }
+
+  @keyframes slideUpTooltip {
+    from {
+      transform: translateX(-50%) translateY(100%);
+      opacity: 0.5;
+    }
+    to {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideDownTooltip {
+    from {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(-50%) translateY(100%);
+      opacity: 0.5;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    animation: slideUpTooltip 0.32s cubic-bezier(0.4, 0.2, 0.2, 1);
+
+    &.closing {
+      animation: slideDownTooltip 0.5s cubic-bezier(0.4, 0.2, 0.2, 1) forwards;
+    }
+  }
+}
+
+.mobileTooltipHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 56px;
+  height: 56px;
+  padding: 0 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+}
+
+.mobileTooltipTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: 0.01em;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 .mobileTooltipClose {
   position: absolute;
-  left: 0.75rem;
   top: 1rem;
-  background: none;
-  border: none;
-  color: var(--color-muted);
-  font-size: 2rem;
-  line-height: 1;
-  cursor: pointer;
+  right: 1rem;
+  left: auto;
+  margin: 0;
   z-index: 10000;
+  background: transparent;
+  border: none;
+  font-size: 2.5rem;
+  color: var(--color-muted);
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  line-height: 1;
+  padding: 0;
+  align-self: center;
+
+  &:hover {
+    background: rgba(255, 79, 31, 0.1);
+    color: var(--color-accent);
+    transform: rotate(90deg);
+  }
+
+  &:active {
+    transform: rotate(90deg) scale(0.95);
+  }
 }
 
 .mobileTooltipContent {
@@ -199,11 +278,10 @@
   word-break: break-word;
   white-space: pre-line;
   padding-right: 1rem;
-}
 
-@media (min-width: 769px) {
-  .mobileTooltipBackdrop,
-  .mobileTooltipBar {
-    display: none !important;
+  @media (max-width: 1024px) {
+    padding: 1rem 1.25rem 1.25rem 1.25rem;
+    overflow-x: auto;
+    text-align: left;
   }
 }
