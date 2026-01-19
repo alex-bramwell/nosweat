@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from './InfoTooltip.module.scss';
 
-interface InfoTooltipProps {
+export interface InfoTooltipProps {
   content: string;
   className?: string;
 }
