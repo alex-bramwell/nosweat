@@ -247,8 +247,8 @@ const Navbar: React.FC = () => {
               </button>
               {isUserDropdownOpen && (
                 <div className={styles.userDropdown}>
-                  {/* Show appropriate dashboard based on role */}
-                  {user?.role === 'coach' || user?.role === 'admin' ? (
+                  {/* Admin View - only for admins */}
+                  {user?.role === 'admin' && (
                     <Link
                       to="/coach-dashboard"
                       className={styles.dropdownItem}
@@ -261,29 +261,14 @@ const Navbar: React.FC = () => {
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                         <line x1="9" y1="3" x2="9" y2="21"></line>
                       </svg>
-                      Coach View
-                    </Link>
-                  ) : (
-                    <Link
-                      to="/dashboard"
-                      className={styles.dropdownItem}
-                      onClick={() => {
-                        closeUserDropdown();
-                        closeMenu();
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="9" y1="3" x2="9" y2="21"></line>
-                      </svg>
-                      Dashboard
+                      Admin View
                     </Link>
                   )}
 
-                  {/* If admin, show both dashboards */}
-                  {user?.role === 'admin' && (
+                  {/* Coach View - for staff, coaches, and admins */}
+                  {(user?.role === 'staff' || user?.role === 'coach' || user?.role === 'admin') && (
                     <Link
-                      to="/dashboard"
+                      to="/coach-view"
                       className={styles.dropdownItem}
                       onClick={() => {
                         closeUserDropdown();
@@ -291,13 +276,29 @@ const Navbar: React.FC = () => {
                       }}
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="M12 16v-4"></path>
-                        <path d="M12 8h.01"></path>
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                       </svg>
-                      Member View
+                      Coach View
                     </Link>
                   )}
+
+                  {/* Member View / Dashboard */}
+                  <Link
+                    to="/dashboard"
+                    className={styles.dropdownItem}
+                    onClick={() => {
+                      closeUserDropdown();
+                      closeMenu();
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M12 16v-4"></path>
+                      <path d="M12 8h.01"></path>
+                    </svg>
+                    {user?.role === 'staff' || user?.role === 'coach' || user?.role === 'admin' ? 'Member View' : 'Dashboard'}
+                  </Link>
 
                   <button
                     className={styles.dropdownItem}

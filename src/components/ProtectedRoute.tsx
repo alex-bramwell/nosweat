@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'member' | 'coach' | 'admin';
+  requiredRole?: 'member' | 'staff' | 'coach' | 'admin';
   redirectTo?: string;
 }
 
@@ -35,13 +35,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Role-based access control
   if (requiredRole) {
-    const roleHierarchy = { member: 0, coach: 1, admin: 2 };
+    const roleHierarchy = { member: 0, staff: 1, coach: 2, admin: 3 };
     const userRoleLevel = roleHierarchy[user?.role || 'member'];
     const requiredRoleLevel = roleHierarchy[requiredRole];
 
     if (userRoleLevel < requiredRoleLevel) {
       // Redirect based on user's role
-      if (user?.role === 'coach') {
+      if (user?.role === 'coach' || user?.role === 'staff') {
         return <Navigate to="/coach-dashboard" replace />;
       }
       return <Navigate to="/dashboard" replace />;

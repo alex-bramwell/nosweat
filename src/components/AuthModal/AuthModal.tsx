@@ -341,6 +341,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
         // Set session using the tokens we got
         if (result.access_token && result.refresh_token) {
+          // If this is a coach login, verify the user is actually a coach
+          if (isCoachLogin) {
+            // Fetch the user's profile to check their role
+            const profileResponse = await fetch(
+              `${supabaseUrl}/rest/v1/profiles?id=eq.${result.user.id}&select=role`,
+              {
+                headers: {
+                  'apikey': supabaseKey,
+                  'Authorization': `Bearer ${result.access_token}`,
+                },
+              }
+            );
+
+            const profileData = await profileResponse.json();
+            const userRole = profileData?.[0]?.role;
+
+            if (userRole !== 'coach' && userRole !== 'admin') {
+              // Not a coach - reject the login
+              throw new Error('This login is for coaches only. Please use the regular login.');
+            }
+          }
+
           // Store in localStorage for Supabase to pick up
           const storageKey = `sb-${supabaseUrl.split('//')[1].split('.')[0]}-auth-token`;
           localStorage.setItem(storageKey, JSON.stringify({
@@ -351,10 +373,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             token_type: result.token_type,
             user: result.user,
           }));
-          
+
           setEmail('');
           setPassword('');
           setFailedAttempts(0);
+
+          // If coach login, redirect to coach view
+          if (isCoachLogin) {
+            onClose();
+            window.location.href = '/coach-view';
+            return;
+          }
 
           // Check if there's a registration intent before closing/reloading
           if (intent) {

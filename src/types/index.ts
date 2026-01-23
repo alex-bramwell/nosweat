@@ -120,6 +120,7 @@ export interface WorkoutDB extends WOD {
   cooldown?: string[];
   coachNotes?: string;
   scalingNotes?: string;
+  loading_focus?: LoadingFocus;
   createdBy?: string;
   updatedBy?: string;
   createdAt?: string;
@@ -152,16 +153,21 @@ export interface UserPermissions {
   canEditWorkouts: boolean;
   canDeleteWorkouts: boolean;
   canManageUsers: boolean;
+  canInviteUsers: boolean;
   isAdmin: boolean;
   isCoach: boolean;
+  isStaff: boolean;
 }
 
 // CrossFit Movement types
-export type MuscleGroup = 'shoulders' | 'back' | 'chest' | 'arms' | 'legs' | 'core';
+export type MuscleGroup = 'shoulders' | 'back' | 'chest' | 'arms' | 'legs' | 'core' | 'full body';
+
 export type MovementCategory = 'gymnastic' | 'weightlifting' | 'metabolic' | 'skill';
-export type MovementSubcategory = 'olympic' | 'powerlifting' | 'bodybuilding' | 'calisthenics' | 'cardio' | 'accessory';
+export type MovementSubcategory = 'Olympic' | 'Powerlifting' | 'Bodybuilding' | 'Gymnastic Strength' | 'Gymnastic Skill' | 'Cardio' | 'Accessory';
 export type WorkoutSection = 'warmup' | 'strength' | 'metcon' | 'cooldown';
 export type MovementDifficulty = 'beginner' | 'intermediate' | 'advanced';
+export type FunctionalPattern = 'squat' | 'hinge' | 'push' | 'pull' | 'lunge' | 'carry' | 'core' | 'monostructural' | 'other';
+export type LoadingFocus = 'light' | 'moderate' | 'heavy';
 
 export interface CrossFitMovement {
   id: string;
@@ -170,6 +176,7 @@ export interface CrossFitMovement {
   subcategory?: MovementSubcategory;
   primary_muscle_groups: MuscleGroup[];
   secondary_muscle_groups: MuscleGroup[];
+  functional_pattern?: FunctionalPattern;
   equipment: string[];
   difficulty: MovementDifficulty;
   description?: string;
@@ -237,6 +244,16 @@ export interface WorkoutAnalytics {
   topMovements: MovementUsageStats[];
   detectedBiases: MuscleGroupBias[];
   recommendations: string[];
+  modalityDistribution: { modality: 'Monostructural' | 'Gymnastics' | 'Weightlifting'; percentage: number; count: number }[];
+  functionalPatternBreakdown: { pattern: FunctionalPattern; count: number; percentage: number }[];
+  heavyDaysCount: number;
+  timeDomainBreakdown: TimeDomainStats[];
+}
+
+export interface TimeDomainStats {
+  domain: 'Sprint' | 'Short' | 'Medium' | 'Long';
+  count: number;
+  percentage: number;
 }
 
 export type AnalyticsPeriod = '7days' | '30days' | '1year';

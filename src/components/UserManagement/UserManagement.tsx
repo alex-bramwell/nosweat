@@ -2,20 +2,34 @@ import { useState, useEffect } from 'react';
 import { Card, Button, Select } from '../common';
 import { DeleteIcon } from '../common/Icons';
 import Modal from '../common/Modal/Modal';
-import { userManagementService, type UserProfile, type InviteUserData } from '../../services/userManagementService';
+import { usePermissions } from '../../hooks/usePermissions';
+import { userManagementService, type UserProfile, type InviteUserData, type UserRole } from '../../services/userManagementService';
+import { coachServicesService, type ServiceType, type CoachService, SERVICE_LABELS } from '../../services/coachServicesService';
 import styles from './UserManagement.module.scss';
 
 interface UserManagementProps {
-  isAdmin: boolean;
+  /** Fixed role filter - when set, only shows users of this role. Use array for multiple roles. */
+  fixedRoleFilter?: 'member' | 'staff' | 'coach' | 'admin' | ('member' | 'staff' | 'coach' | 'admin')[];
+  /** Custom title for the header */
+  title?: string;
+  /** Hide the invite user button */
+  hideInvite?: boolean;
 }
 
-export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
+export const UserManagement: React.FC<UserManagementProps> = ({
+  fixedRoleFilter,
+  title = 'User Management',
+  hideInvite = false
+}) => {
+  const permissions = usePermissions();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showInviteForm, setShowInviteForm] = useState(false);
-  const [roleFilter, setRoleFilter] = useState<'all' | 'member' | 'coach' | 'admin'>('all');
+  const [roleFilter, setRoleFilter] = useState<'all' | 'member' | 'staff' | 'coach' | 'admin'>(
+    Array.isArray(fixedRoleFilter) ? 'all' : (fixedRoleFilter || 'all')
+  );
   const [searchQuery, setSearchQuery] = useState('');
 
   // Invite form state
@@ -35,15 +49,23 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
   const [userToDelete, setUserToDelete] = useState<{ id: string; name: string } | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Coach services state
+  const [coachServices, setCoachServices] = useState<Record<string, CoachService[]>>({});
+  const [servicesModalCoach, setServicesModalCoach] = useState<UserProfile | null>(null);
+  const [servicesLoading, setServicesLoading] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
-    if (isAdmin) {
+    // Only admins can see the full user list
+    if (permissions.canManageUsers) {
       loadUsers();
+    } else {
+      setIsLoading(false);
     }
-  }, [isAdmin]);
+  }, [permissions.canManageUsers]);
 
   useEffect(() => {
     filterUsers();
-  }, [users, roleFilter, searchQuery]);
+  }, [users, roleFilter, searchQuery, fixedRoleFilter]);
 
   const loadUsers = async () => {
     setIsLoading(true);
@@ -51,6 +73,12 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
     try {
       const allUsers = await userManagementService.getAllUsers();
       setUsers(allUsers);
+
+      // Load services for all coaches
+      const coaches = allUsers.filter(u => u.role === 'coach');
+      for (const coach of coaches) {
+        loadCoachServices(coach.id);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load users');
     } finally {
@@ -61,8 +89,17 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
   const filterUsers = () => {
     let filtered = users;
 
-    // Filter by role
-    if (roleFilter !== 'all') {
+    // Filter by fixedRoleFilter first (if set)
+    if (fixedRoleFilter) {
+      if (Array.isArray(fixedRoleFilter)) {
+        // Filter by multiple roles
+        filtered = filtered.filter(user => fixedRoleFilter.includes(user.role));
+      } else {
+        // Filter by single role
+        filtered = filtered.filter(user => user.role === fixedRoleFilter);
+      }
+    } else if (roleFilter !== 'all') {
+      // Only apply roleFilter dropdown if fixedRoleFilter is not set
       filtered = filtered.filter(user => user.role === roleFilter);
     }
 
@@ -117,7 +154,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
     }
   };
 
-  const handleUpdateRole = async (userId: string, newRole: 'member' | 'coach' | 'admin', coachId?: string) => {
+  const handleUpdateRole = async (userId: string, newRole: UserRole, coachId?: string) => {
     try {
       await userManagementService.updateUserRole({
         userId,
@@ -155,7 +192,61 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
     }
   };
 
-  if (!isAdmin) {
+  // Load services for a coach when expanded
+  const loadCoachServices = async (coachId: string) => {
+    if (coachServices[coachId]) return; // Already loaded
+
+    setServicesLoading(prev => ({ ...prev, [coachId]: true }));
+    try {
+      const services = await coachServicesService.getCoachServices(coachId);
+      setCoachServices(prev => ({ ...prev, [coachId]: services }));
+    } catch (err) {
+      console.error('Failed to load coach services:', err);
+    } finally {
+      setServicesLoading(prev => ({ ...prev, [coachId]: false }));
+    }
+  };
+
+  // Toggle a service for a coach
+  const handleToggleService = async (coachId: string, serviceType: ServiceType, currentlyActive: boolean) => {
+    try {
+      await coachServicesService.toggleService(coachId, serviceType, !currentlyActive);
+      // Refresh the services for this coach
+      const services = await coachServicesService.getCoachServices(coachId);
+      setCoachServices(prev => ({ ...prev, [coachId]: services }));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to toggle service');
+    }
+  };
+
+  // Open services modal for a coach
+  const openServicesModal = (coach: UserProfile) => {
+    setServicesModalCoach(coach);
+    loadCoachServices(coach.id);
+  };
+
+  // Close services modal
+  const closeServicesModal = () => {
+    setServicesModalCoach(null);
+  };
+
+  // Get active services for a coach
+  const getActiveServices = (coachId: string): ServiceType[] => {
+    const services = coachServices[coachId] || [];
+    return services.filter(s => s.isActive).map(s => s.serviceType);
+  };
+
+  // Check if a service is active for a coach
+  const isServiceActive = (coachId: string, serviceType: ServiceType): boolean => {
+    const services = coachServices[coachId] || [];
+    const service = services.find(s => s.serviceType === serviceType);
+    return service?.isActive || false;
+  };
+
+  const ALL_SERVICE_TYPES: ServiceType[] = ['pt', 'specialty_class', 'sports_massage', 'nutrition', 'physio'];
+
+  // Only admins can access user management
+  if (!permissions.canManageUsers) {
     return (
       <Card variant="elevated">
         <p>You do not have permission to manage users.</p>
@@ -163,16 +254,25 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
     );
   }
 
+  const availableRoles: { value: UserRole; label: string }[] = [
+    { value: 'member', label: 'Member' },
+    { value: 'staff', label: 'Staff' },
+    { value: 'coach', label: 'Coach' },
+    { value: 'admin', label: 'Admin' },
+  ];
+
   return (
     <div className={styles.userManagement}>
       <div className={styles.header}>
-        <h2>User Management</h2>
-        <Button
-          variant="primary"
-          onClick={() => setShowInviteForm(!showInviteForm)}
-        >
-          {showInviteForm ? 'Cancel' : 'Invite User'}
-        </Button>
+        <h2>{title}</h2>
+        {!hideInvite && (
+          <Button
+            variant="primary"
+            onClick={() => setShowInviteForm(!showInviteForm)}
+          >
+            {showInviteForm ? 'Cancel' : 'Invite User'}
+          </Button>
+        )}
       </div>
 
       {showInviteForm && (
@@ -208,12 +308,12 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
               <select
                 id="role"
                 value={inviteData.role}
-                onChange={(e) => setInviteData({ ...inviteData, role: e.target.value as 'member' | 'coach' | 'admin' })}
+                onChange={(e) => setInviteData({ ...inviteData, role: e.target.value as UserRole })}
                 required
               >
-                <option value="member">Member</option>
-                <option value="coach">Coach</option>
-                <option value="admin">Admin</option>
+                {availableRoles.map(role => (
+                  <option key={role.value} value={role.value}>{role.label}</option>
+                ))}
               </select>
             </div>
 
@@ -232,12 +332,16 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
             )}
 
             <div className={styles.formGroup}>
-              <label className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={inviteData.sendEmail}
-                  onChange={(e) => setInviteData({ ...inviteData, sendEmail: e.target.checked })}
-                />
+              <label className={styles.checkboxRow}>
+                <div className={styles.checkboxWrapper}>
+                  <input
+                    type="checkbox"
+                    className={styles.checkboxInput}
+                    checked={inviteData.sendEmail}
+                    onChange={(e) => setInviteData({ ...inviteData, sendEmail: e.target.checked })}
+                  />
+                  <span className={styles.checkboxVisual} />
+                </div>
                 Send password reset email to user
               </label>
               <small>User will receive an email to set their password</small>
@@ -273,36 +377,42 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
         </Card>
       )}
 
-      <Card variant="elevated" className={styles.filtersCard}>
-        <div className={styles.filters}>
-          <div className={styles.filterGroup}>
-            <label htmlFor="search">Search</label>
-            <input
-              type="text"
-              id="search"
-              placeholder="Search by name, email, or coach ID..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+      {/* User list and filters - admin only */}
+      {permissions.canManageUsers && (
+        <>
+          <Card variant="elevated" className={styles.filtersCard}>
+            <div className={styles.filters}>
+              <div className={styles.filterGroup}>
+                <label htmlFor="search">Search</label>
+                <input
+                  type="text"
+                  id="search"
+                  placeholder="Search by name, email, or coach ID..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
 
-          <div className={styles.filterGroup}>
-            <label htmlFor="roleFilter">Filter by Role</label>
-            <Select
-              options={[
-                { value: 'all', label: 'All Users' },
-                { value: 'admin', label: 'Admins' },
-                { value: 'coach', label: 'Coaches' },
-                { value: 'member', label: 'Members' },
-              ]}
-              value={roleFilter}
-              onChange={(value) => setRoleFilter(value as typeof roleFilter)}
-            />
-          </div>
-        </div>
-      </Card>
+              {!fixedRoleFilter && (
+                <div className={styles.filterGroup}>
+                  <label htmlFor="roleFilter">Filter by Role</label>
+                  <Select
+                    options={[
+                      { value: 'all', label: 'All Users' },
+                      { value: 'admin', label: 'Admins' },
+                      { value: 'coach', label: 'Coaches' },
+                      { value: 'staff', label: 'Staff' },
+                      { value: 'member', label: 'Members' },
+                    ]}
+                    value={roleFilter}
+                    onChange={(value) => setRoleFilter(value as typeof roleFilter)}
+                  />
+                </div>
+              )}
+            </div>
+          </Card>
 
-      {isLoading ? (
+          {isLoading ? (
         <Card variant="elevated">
           <p>Loading users...</p>
         </Card>
@@ -319,36 +429,63 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
 
           {filteredUsers.map(user => (
             <Card key={user.id} variant="elevated" className={styles.userCard}>
-              <div className={styles.userInfo}>
-                <div className={styles.userMain}>
+              <div className={styles.userContent}>
+                <div className={styles.userHeader}>
                   <h3>{user.name}</h3>
-                  <p className={styles.userEmail}>{user.email}</p>
-                  {user.coachId && (
-                    <p className={styles.userCoachId}>Coach ID: {user.coachId}</p>
-                  )}
+                  <div className={styles.badges}>
+                    <span className={`${styles.roleBadge} ${styles[user.role]}`}>
+                      {user.role}
+                    </span>
+                    {user.membershipType && (
+                      <span className={styles.membershipBadge}>{user.membershipType}</span>
+                    )}
+                  </div>
                 </div>
+                <p className={styles.userEmail}>{user.email}</p>
                 <div className={styles.userMeta}>
-                  <span className={`${styles.roleBadge} ${styles[user.role]}`}>
-                    {user.role}
-                  </span>
-                  {user.membershipType && (
-                    <span className={styles.membershipBadge}>{user.membershipType}</span>
+                  {user.coachId && (
+                    <span className={styles.userCoachId}>Coach ID: {user.coachId}</span>
                   )}
-                  <p className={styles.joinDate}>
+                  <span className={styles.joinDate}>
                     Joined: {new Date(user.joinDate).toLocaleDateString()}
-                  </p>
+                  </span>
                 </div>
+
+                {/* Coach Active Services Display */}
+                {user.role === 'coach' && getActiveServices(user.id).length > 0 && (
+                  <div className={styles.activeServices}>
+                    {getActiveServices(user.id).map(serviceType => (
+                      <span key={serviceType} className={styles.serviceBadge}>
+                        {SERVICE_LABELS[serviceType]}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Coach Services Button */}
+                {user.role === 'coach' && (
+                  <div className={styles.servicesButtonWrapper}>
+                    <Button
+                      variant="primary"
+                      size="small"
+                      onClick={() => openServicesModal(user)}
+                    >
+                      Manage Services
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div className={styles.userActions}>
                 <Select
                   options={[
                     { value: 'member', label: 'Member' },
+                    { value: 'staff', label: 'Staff' },
                     { value: 'coach', label: 'Coach' },
                     { value: 'admin', label: 'Admin' },
                   ]}
                   value={user.role}
-                  onChange={(value) => handleUpdateRole(user.id, value as typeof user.role, user.coachId)}
+                  onChange={(value) => handleUpdateRole(user.id, value as UserRole, user.coachId)}
                   className={styles.roleSelect}
                 />
 
@@ -362,6 +499,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
                   <DeleteIcon size={18} />
                 </Button>
               </div>
+
             </Card>
           ))}
 
@@ -372,8 +510,11 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
           )}
         </div>
       )}
+        </>
+      )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal - admin only */}
+      {permissions.canManageUsers && (
       <Modal isOpen={deleteModalOpen} onClose={closeDeleteModal}>
         <div className={styles.deleteModal}>
           <h3>Delete User</h3>
@@ -400,6 +541,56 @@ export const UserManagement: React.FC<UserManagementProps> = ({ isAdmin }) => {
               {deleteLoading ? 'Deleting...' : 'Delete User'}
             </Button>
           </div>
+        </div>
+      </Modal>
+      )}
+
+      {/* Coach Services Modal */}
+      <Modal isOpen={!!servicesModalCoach} onClose={closeServicesModal}>
+        <div className={styles.servicesModal}>
+          <h3>Manage Services</h3>
+          {servicesModalCoach && (
+            <>
+              <p className={styles.servicesModalSubtitle}>
+                Configure services offered by <strong>{servicesModalCoach.name}</strong>
+              </p>
+              {servicesLoading[servicesModalCoach.id] ? (
+                <p className={styles.servicesLoading}>Loading services...</p>
+              ) : (
+                <div className={styles.servicesList}>
+                  {ALL_SERVICE_TYPES.map(serviceType => {
+                    const isActive = isServiceActive(servicesModalCoach.id, serviceType);
+                    return (
+                      <div key={serviceType} className={styles.serviceItem}>
+                        <div className={styles.serviceInfo}>
+                          <span className={styles.serviceLabel}>{SERVICE_LABELS[serviceType]}</span>
+                        </div>
+                        <button
+                          type="button"
+                          className={`${styles.toggle} ${isActive ? styles.toggleActive : ''}`}
+                          onClick={() => handleToggleService(
+                            servicesModalCoach.id,
+                            serviceType,
+                            isActive
+                          )}
+                          aria-pressed={isActive}
+                        >
+                          <span className={styles.toggleTrack}>
+                            <span className={styles.toggleThumb} />
+                          </span>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              <div className={styles.modalActions}>
+                <Button variant="primary" onClick={closeServicesModal}>
+                  Done
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </Modal>
     </div>
