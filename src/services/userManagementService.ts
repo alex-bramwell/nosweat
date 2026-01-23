@@ -1,10 +1,12 @@
 import { supabase } from '../lib/supabase';
 
+export type UserRole = 'member' | 'staff' | 'coach' | 'admin';
+
 export interface UserProfile {
   id: string;
   email: string;
   name: string;
-  role: 'member' | 'coach' | 'admin';
+  role: UserRole;
   membershipType?: string;
   joinDate: string;
   phone?: string;
@@ -16,14 +18,14 @@ export interface UserProfile {
 export interface InviteUserData {
   email: string;
   name: string;
-  role: 'member' | 'coach' | 'admin';
+  role: UserRole;
   coachId?: string;
   sendEmail?: boolean;
 }
 
 export interface UpdateUserRoleData {
   userId: string;
-  role: 'member' | 'coach' | 'admin';
+  role: UserRole;
   coachId?: string;
 }
 

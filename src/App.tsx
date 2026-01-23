@@ -12,6 +12,7 @@ import About from './pages/About';
 import Coaches from './pages/Coaches';
 import Dashboard from './pages/Dashboard';
 import CoachDashboard from './pages/CoachDashboard';
+import CoachView from './pages/CoachView';
 import EmailVerified from './pages/EmailVerified';
 import ResetPassword from './pages/ResetPassword';
 import BookingConfirmation from './pages/BookingConfirmation';
@@ -114,8 +115,16 @@ function AppContent() {
             <Route
               path="/coach-dashboard"
               element={
-                <ProtectedRoute requiredRole="coach">
+                <ProtectedRoute requiredRole="admin">
                   <CoachDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/coach-view"
+              element={
+                <ProtectedRoute requiredRole="coach">
+                  <CoachView />
                 </ProtectedRoute>
               }
             />
