@@ -1,17 +1,30 @@
 import { useState, useEffect } from 'react';
 import { Section, Container, Card, Button } from '../../common';
+import { WeeklyVolume } from '../../WeeklyVolume';
 import { workoutService } from '../../../services/workoutService';
+import { wodBookingService, MAX_WORKOUT_CAPACITY } from '../../../services/wodBookingService';
+import { useAuth } from '../../../contexts/AuthContext';
 import { stats } from '../../../data/stats';
 import type { WorkoutDB } from '../../../types';
 import styles from './WOD.module.scss';
 
 const WOD = () => {
+  const { user } = useAuth();
   const [workout, setWorkout] = useState<WorkoutDB | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [bookingCount, setBookingCount] = useState(0);
+  const [isUserBooked, setIsUserBooked] = useState(false);
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   useEffect(() => {
     loadTodaysWorkout();
   }, []);
+
+  useEffect(() => {
+    if (workout) {
+      loadBookingInfo(workout.id);
+    }
+  }, [workout, user]);
 
   const loadTodaysWorkout = async () => {
     try {
@@ -24,6 +37,55 @@ const WOD = () => {
       setIsLoading(false);
     }
   };
+
+  const loadBookingInfo = async (workoutId: string) => {
+    try {
+      const count = await wodBookingService.getBookingCount(workoutId);
+      setBookingCount(count);
+
+      if (user) {
+        const booked = await wodBookingService.isUserBooked(workoutId, user.id);
+        setIsUserBooked(booked);
+      }
+    } catch (error) {
+      console.error('Error loading booking info:', error);
+    }
+  };
+
+  const handleBook = async () => {
+    if (!workout || !user) return;
+
+    setBookingLoading(true);
+    try {
+      await wodBookingService.bookWorkout(workout.id, user.id);
+      setIsUserBooked(true);
+      setBookingCount(prev => prev + 1);
+    } catch (error) {
+      console.error('Error booking workout:', error);
+      alert(error instanceof Error ? error.message : 'Failed to book workout');
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  const handleCancelBooking = async () => {
+    if (!workout || !user) return;
+
+    setBookingLoading(true);
+    try {
+      await wodBookingService.cancelBooking(workout.id, user.id);
+      setIsUserBooked(false);
+      setBookingCount(prev => prev - 1);
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      alert(error instanceof Error ? error.message : 'Failed to cancel booking');
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  const spotsRemaining = MAX_WORKOUT_CAPACITY - bookingCount;
+  const isFull = spotsRemaining <= 0;
 
   const wodTypeLabels: Record<string, string> = {
     amrap: 'AMRAP',
@@ -120,12 +182,70 @@ const WOD = () => {
                 Ask your coach for scaling options!
               </p>
             </div>
+
+            {/* Booking Section */}
+            <div className={styles.bookingSection}>
+              <div className={styles.bookingInfo}>
+                <div className={styles.spotsInfo}>
+                  <span className={`${styles.spotsCount} ${isFull ? styles.spotsFull : ''}`}>
+                    {spotsRemaining}
+                  </span>
+                  <span className={styles.spotsLabel}>
+                    {spotsRemaining === 1 ? 'spot' : 'spots'} remaining
+                  </span>
+                </div>
+                <div className={styles.capacityBar}>
+                  <div
+                    className={styles.capacityFill}
+                    style={{ width: `${(bookingCount / MAX_WORKOUT_CAPACITY) * 100}%` }}
+                  />
+                </div>
+                <span className={styles.capacityText}>
+                  {bookingCount} / {MAX_WORKOUT_CAPACITY} booked
+                </span>
+              </div>
+
+              {user ? (
+                isUserBooked ? (
+                  <div className={styles.bookedState}>
+                    <span className={styles.bookedBadge}>You&apos;re booked!</span>
+                    <Button
+                      variant="outline"
+                      size="small"
+                      onClick={handleCancelBooking}
+                      disabled={bookingLoading}
+                    >
+                      {bookingLoading ? 'Cancelling...' : 'Cancel Booking'}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="primary"
+                    onClick={handleBook}
+                    disabled={bookingLoading || isFull}
+                    className={styles.bookButton}
+                  >
+                    {bookingLoading ? 'Booking...' : isFull ? 'Class Full' : 'Book This WOD'}
+                  </Button>
+                )
+              ) : (
+                <div className={styles.loginPrompt}>
+                  <p>Log in to book your spot</p>
+                  <Button variant="primary" as="a" href="/login">
+                    Log In
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
           </Card>
           </div>
 
           {/* Stats Sidebar */}
           <div className={styles.sidebar}>
+            {/* Weekly Volume */}
+            <WeeklyVolume />
+
             <div className={styles.statsCard}>
               <h3 className={styles.sidebarTitle}>Why Train With Us</h3>
 

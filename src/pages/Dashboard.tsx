@@ -2,22 +2,83 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Section, Container, Card, Button } from '../components/common';
 import { ProfileSettings } from '../components/ProfileSettings';
+import { WeeklyVolume } from '../components/WeeklyVolume';
+import { ServiceBookingModal } from '../components/ServiceBookingModal';
 import { workoutService } from '../services/workoutService';
+import { coachServicesService, type CoachService, type ServiceBooking, SERVICE_LABELS, SERVICE_DESCRIPTIONS } from '../services/coachServicesService';
 import type { WorkoutDB } from '../types';
 import styles from './Dashboard.module.scss';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'wod' | 'booking' | 'profile'>('wod');
+  const [activeTab, setActiveTab] = useState<'wod' | 'booking' | 'services' | 'profile'>('wod');
   const [classType, setClassType] = useState<'crossfit' | 'opengym'>('crossfit');
   const [bookingClassType, setBookingClassType] = useState<'crossfit' | 'opengym'>('crossfit');
   const [selectedClasses, setSelectedClasses] = useState<Set<string>>(new Set());
   const [todaysWorkout, setTodaysWorkout] = useState<WorkoutDB | null>(null);
   const [isWorkoutLoading, setIsWorkoutLoading] = useState(true);
+  const [availableServices, setAvailableServices] = useState<CoachService[]>([]);
+  const [servicesLoading, setServicesLoading] = useState(false);
+  const [selectedServiceForBooking, setSelectedServiceForBooking] = useState<CoachService | null>(null);
+  const [myBookings, setMyBookings] = useState<ServiceBooking[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
 
   useEffect(() => {
     loadTodaysWorkout();
+    loadAvailableServices();
   }, []);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadMyBookings();
+    }
+  }, [user?.id]);
+
+  const loadAvailableServices = async () => {
+    setServicesLoading(true);
+    try {
+      const services = await coachServicesService.getAllActiveServices();
+      setAvailableServices(services);
+    } catch (error) {
+      console.error('Error loading services:', error);
+    } finally {
+      setServicesLoading(false);
+    }
+  };
+
+  const loadMyBookings = async () => {
+    if (!user?.id) return;
+    setBookingsLoading(true);
+    try {
+      const bookings = await coachServicesService.getMemberBookings(user.id);
+      // Filter to only show upcoming/active bookings
+      const today = new Date().toISOString().split('T')[0];
+      const upcomingBookings = bookings.filter(
+        b => b.bookingDate >= today && b.status !== 'cancelled'
+      );
+      setMyBookings(upcomingBookings);
+    } catch (error) {
+      console.error('Error loading bookings:', error);
+    } finally {
+      setBookingsLoading(false);
+    }
+  };
+
+  const handleBookingSuccess = () => {
+    setSelectedServiceForBooking(null);
+    loadMyBookings();
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
+    try {
+      await coachServicesService.cancelBooking(bookingId);
+      loadMyBookings();
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      alert('Failed to cancel booking. Please try again.');
+    }
+  };
 
   const loadTodaysWorkout = async () => {
     try {
@@ -107,6 +168,12 @@ const Dashboard = () => {
               Book Classes
             </button>
             <button
+              className={`${styles.tab} ${activeTab === 'services' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('services')}
+            >
+              Services
+            </button>
+            <button
               className={`${styles.tab} ${activeTab === 'profile' ? styles.tabActive : ''}`}
               onClick={() => setActiveTab('profile')}
             >
@@ -117,6 +184,11 @@ const Dashboard = () => {
           <div className={styles.content}>
             {activeTab === 'wod' && (
               <div className={styles.tabContent}>
+                {/* Weekly Volume at the top */}
+                <div className={styles.weeklyVolumeContainer}>
+                  <WeeklyVolume />
+                </div>
+
                 <div className={styles.bookingSection}>
                   <div className={styles.bookingHeader}>
                     <h3 className={styles.bookingSectionTitle}>Book Today's Class</h3>
@@ -408,6 +480,148 @@ const Dashboard = () => {
                     <strong>Tip:</strong> Click on classes to select them, then use "Book Selected" to book multiple classes at once. Cancel at least 2 hours before class to avoid charges.
                   </div>
                 </div>
+              </div>
+            )}
+
+            {activeTab === 'services' && (
+              <div className={styles.tabContent}>
+                <div className={styles.servicesHeader}>
+                  <h2 className={styles.sectionTitle}>Available Services</h2>
+                  <p className={styles.servicesSubtitle}>
+                    Book 1-on-1 sessions and specialized services with our coaches
+                  </p>
+                </div>
+
+                {servicesLoading ? (
+                  <Card variant="elevated">
+                    <div style={{ padding: '2rem', textAlign: 'center' }}>
+                      Loading services...
+                    </div>
+                  </Card>
+                ) : availableServices.length === 0 ? (
+                  <Card variant="elevated">
+                    <div className={styles.noServicesMessage}>
+                      <h3>No Services Available</h3>
+                      <p>There are currently no coach services available. Check back soon!</p>
+                    </div>
+                  </Card>
+                ) : (
+                  <div className={styles.servicesList}>
+                    {/* Group services by type */}
+                    {Object.entries(
+                      availableServices.reduce((acc, service) => {
+                        if (!acc[service.serviceType]) {
+                          acc[service.serviceType] = [];
+                        }
+                        acc[service.serviceType].push(service);
+                        return acc;
+                      }, {} as Record<string, CoachService[]>)
+                    ).map(([serviceType, services]) => (
+                      <div key={serviceType} className={styles.serviceTypeGroup}>
+                        <div className={styles.serviceTypeHeader}>
+                          <div>
+                            <h3 className={styles.serviceTypeName}>
+                              {SERVICE_LABELS[serviceType as keyof typeof SERVICE_LABELS]}
+                            </h3>
+                            <p className={styles.serviceTypeDescription}>
+                              {SERVICE_DESCRIPTIONS[serviceType as keyof typeof SERVICE_DESCRIPTIONS]}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className={styles.coachesGrid}>
+                          {services.map(service => (
+                            <Card key={service.id} variant="default">
+                              <div className={styles.coachServiceCard}>
+                                <div className={styles.coachAvatar}>
+                                  {service.coachName?.charAt(0).toUpperCase() || 'C'}
+                                </div>
+                                <div className={styles.coachInfo}>
+                                  <h4 className={styles.coachName}>{service.coachName}</h4>
+                                  {service.description && (
+                                    <p className={styles.coachServiceDescription}>{service.description}</p>
+                                  )}
+                                  {service.hourlyRate && (
+                                    <p className={styles.coachRate}>£{service.hourlyRate}/hour</p>
+                                  )}
+                                </div>
+                                <Button
+                                  variant="primary"
+                                  size="small"
+                                  onClick={() => setSelectedServiceForBooking(service)}
+                                >
+                                  Book
+                                </Button>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* My Bookings Section */}
+                <div className={styles.myBookingsSection}>
+                  <h2 className={styles.sectionTitle}>My Bookings</h2>
+                  {bookingsLoading ? (
+                    <p>Loading your bookings...</p>
+                  ) : myBookings.length === 0 ? (
+                    <Card variant="default">
+                      <div className={styles.noBookingsMessage}>
+                        <p>You don&apos;t have any upcoming service bookings.</p>
+                      </div>
+                    </Card>
+                  ) : (
+                    <div className={styles.bookingsList}>
+                      {myBookings.map(booking => (
+                        <Card key={booking.id} variant="default">
+                          <div className={styles.bookingCard}>
+                            <div className={styles.bookingInfo}>
+                              <div className={styles.bookingServiceType}>
+                                {booking.serviceType && SERVICE_LABELS[booking.serviceType]}
+                              </div>
+                              <div className={styles.bookingCoach}>
+                                with {booking.coachName}
+                              </div>
+                              <div className={styles.bookingDateTime}>
+                                {new Date(booking.bookingDate).toLocaleDateString('en-US', {
+                                  weekday: 'short',
+                                  month: 'short',
+                                  day: 'numeric',
+                                })} at {booking.startTime.slice(0, 5)}
+                              </div>
+                            </div>
+                            <div className={styles.bookingActions}>
+                              <span className={`${styles.bookingStatus} ${styles[booking.status]}`}>
+                                {booking.status}
+                              </span>
+                              {booking.status !== 'completed' && (
+                                <Button
+                                  variant="secondary"
+                                  size="small"
+                                  onClick={() => handleCancelBooking(booking.id)}
+                                >
+                                  Cancel
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Booking Modal */}
+                {selectedServiceForBooking && user && (
+                  <ServiceBookingModal
+                    service={selectedServiceForBooking}
+                    memberId={user.id}
+                    onClose={() => setSelectedServiceForBooking(null)}
+                    onSuccess={handleBookingSuccess}
+                  />
+                )}
               </div>
             )}
 

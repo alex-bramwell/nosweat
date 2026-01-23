@@ -56,7 +56,7 @@ const isSameDay = (date1: Date, date2: Date): boolean => {
 const CoachDashboard = () => {
   const { user, logout } = useAuth();
   const permissions = usePermissions();
-  const [activeTab, setActiveTab] = useState<'overview' | 'create' | 'manage' | 'drafts' | 'analytics' | 'users'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'create' | 'manage' | 'drafts' | 'analytics' | 'users' | 'staff'>('overview');
   const [workouts, setWorkouts] = useState<WorkoutDB[]>([]);
   const [todaysWorkout, setTodaysWorkout] = useState<WorkoutDB | null>(null);
   const [editingWorkout, setEditingWorkout] = useState<WorkoutDB | null>(null);
@@ -216,9 +216,10 @@ const CoachDashboard = () => {
       chest: '#ef4444',     // red
       arms: '#8b5cf6',      // purple
       legs: '#22c55e',      // green
-      core: '#eab308'       // yellow
+      core: '#eab308',      // yellow
+      'full body': '#607d8b'  // blue-grey
     };
-    return colors[mg];
+    return colors[mg] || '#64748b';
   };
 
   const getMuscleGroupAbbr = (mg: MuscleGroup): string => {
@@ -228,9 +229,10 @@ const CoachDashboard = () => {
       chest: 'CH',
       arms: 'AR',
       legs: 'LG',
-      core: 'CO'
+      core: 'CO',
+      'full body': 'FB'
     };
-    return abbrs[mg];
+    return abbrs[mg] || mg.substring(0, 2).toUpperCase();
   };
 
   // Calculate weekly muscle group distribution
@@ -239,14 +241,21 @@ const CoachDashboard = () => {
     weekEnd.setDate(weekStart.getDate() + 6);
 
     const muscleCount: Record<MuscleGroup, number> = {
-      shoulders: 0, back: 0, chest: 0, arms: 0, legs: 0, core: 0
+      shoulders: 0, back: 0, chest: 0, arms: 0, legs: 0, core: 0, 'full body': 0
     };
 
     workouts.forEach(workout => {
       const workoutDate = new Date(workout.date);
       if (workoutDate >= weekStart && workoutDate <= weekEnd) {
         const muscles = workoutMuscleGroups[workout.id] || [];
-        muscles.forEach(mg => muscleCount[mg]++);
+        muscles.forEach(mg => {
+          if (muscleCount[mg] !== undefined) {
+            muscleCount[mg]++;
+          } else {
+            // Handle potentially unknown muscle groups gracefully
+            muscleCount[mg] = 1;
+          }
+        });
       }
     });
 
@@ -280,9 +289,9 @@ const CoachDashboard = () => {
         <div className={styles.dashboard}>
           <div className={styles.header}>
             <div>
-              <h1 className={styles.title}>Coach View</h1>
+              <h1 className={styles.title}>Admin View</h1>
               <p className={styles.subtitle}>
-                Welcome back, {user.name}! {permissions.isAdmin && '(Admin)'}
+                Welcome back, {user.name}!
               </p>
             </div>
             <Button variant="secondary" onClick={handleLogout}>
@@ -319,12 +328,20 @@ const CoachDashboard = () => {
               Analytics
             </button>
             {permissions.canManageUsers && (
-              <button
-                className={`${styles.tab} ${activeTab === 'users' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('users')}
-              >
-                Manage Users
-              </button>
+              <>
+                <button
+                  className={`${styles.tab} ${activeTab === 'users' ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab('users')}
+                >
+                  Manage Members
+                </button>
+                <button
+                  className={`${styles.tab} ${activeTab === 'staff' ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab('staff')}
+                >
+                  Manage Staff
+                </button>
+              </>
             )}
           </div>
 
@@ -768,7 +785,20 @@ const CoachDashboard = () => {
 
             {activeTab === 'users' && (
               <div className={styles.tabContent}>
-                <UserManagement isAdmin={permissions.isAdmin} />
+                <UserManagement
+                  fixedRoleFilter="member"
+                  title="Member Management"
+                />
+              </div>
+            )}
+
+            {activeTab === 'staff' && (
+              <div className={styles.tabContent}>
+                <UserManagement
+                  fixedRoleFilter={['staff', 'coach']}
+                  title="Staff Management"
+                  hideInvite
+                />
               </div>
             )}
           </div>

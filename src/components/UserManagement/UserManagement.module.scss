@@ -94,14 +94,73 @@
   }
 }
 
-.checkboxLabel {
+.checkboxRow {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   cursor: pointer;
+  font-weight: 500;
+}
 
-  input[type="checkbox"] {
-    width: auto;
+.checkboxWrapper {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.checkboxInput {
+  position: absolute;
+  opacity: 0;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  z-index: 2;
+
+  &:checked + .checkboxVisual {
+    background: linear-gradient(135deg, var(--primary) 0%, #ff7043 100%);
+    border-color: var(--primary);
+
+    &::after {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(45deg) scale(1);
+    }
+  }
+
+  &:focus + .checkboxVisual {
+    box-shadow: 0 0 0 3px rgba(255, 82, 82, 0.15);
+  }
+}
+
+.checkboxVisual {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -50%) rotate(45deg) scale(0);
+    opacity: 0;
+    transition: all 0.2s ease;
+  }
+
+  &:hover {
+    border-color: var(--primary);
+    background: rgba(255, 82, 82, 0.1);
   }
 }
 
@@ -222,39 +281,42 @@
 }
 
 .userCard {
-  padding: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: start;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-.userInfo {
-  flex: 1;
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
     gap: 1rem;
   }
 }
 
-.userMain {
-  flex: 1;
+.userContent {
+  min-width: 0; // Allow text truncation
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.userHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 
   h3 {
-    margin: 0 0 0.25rem 0;
+    margin: 0;
     font-size: 1.125rem;
     font-weight: 600;
   }
+}
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .userEmail {
@@ -263,22 +325,17 @@
   color: var(--text-secondary);
 }
 
-.userCoachId {
-  margin: 0.25rem 0 0 0;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
-  font-family: monospace;
-}
-
 .userMeta {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-end;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
 
-  @media (max-width: 768px) {
-    align-items: flex-start;
-  }
+.userCoachId {
+  font-family: monospace;
 }
 
 .roleBadge {
@@ -300,6 +357,11 @@
     color: #3b82f6;
   }
 
+  &.staff {
+    background: rgba(168, 85, 247, 0.1);
+    color: #a855f7;
+  }
+
   &.member {
     background: rgba(107, 114, 128, 0.1);
     color: #6b7280;
@@ -318,9 +380,7 @@
 }
 
 .joinDate {
-  margin: 0;
-  font-size: 0.75rem;
-  color: var(--text-tertiary);
+  // Inherits from .userMeta
 }
 
 .userActions {
@@ -329,22 +389,14 @@
   align-items: center;
   flex-shrink: 0;
 
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     width: 100%;
-    justify-content: space-between;
-    gap: 0.75rem;
-
-    // Make buttons larger for easier tapping
-    button {
-      min-height: 44px;
-      padding: 0.75rem 1.25rem;
-      font-size: 1rem;
-    }
+    justify-content: flex-end;
   }
 }
 
 .roleSelect {
-  min-width: 140px;
+  width: 140px;
   flex-shrink: 0;
 }
 
@@ -390,40 +442,26 @@
 
 // Icon delete button in user cards
 .deleteButton {
-  background: #ef4444 !important;
-  border-color: #ef4444 !important;
-  border: none !important;
-  width: 44px !important;
-  min-width: 44px !important;
-  max-width: 44px !important;
-  height: 44px !important;
-  padding: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;
-  border-radius: 8px !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-  position: relative !important;
-
-  // Hide any pseudo-elements that might cause overflow
-  &::before,
-  &::after {
-    display: none !important;
-  }
+  background: #ef4444;
+  border: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+  cursor: pointer;
 
   svg {
-    width: 18px !important;
-    height: 18px !important;
-    flex-shrink: 0 !important;
+    width: 18px;
+    height: 18px;
+    color: white;
   }
 
   &:hover:not(:disabled) {
-    background: #dc2626 !important;
-    border-color: #dc2626 !important;
-    transform: none !important;
-    box-shadow: none !important;
+    background: #dc2626;
   }
 
   &:disabled {
@@ -445,5 +483,132 @@
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+}
+
+// Coach Active Services Display
+.activeServices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.serviceBadge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+// Coach Services Button Wrapper
+.servicesButtonWrapper {
+  margin-top: 0.75rem;
+}
+
+// Coach Services Modal
+.servicesModal {
+  h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-light);
+  }
+}
+
+.servicesModalSubtitle {
+  margin: 0 0 1.5rem 0;
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+
+  strong {
+    color: var(--color-light);
+    font-weight: 600;
+  }
+}
+
+.servicesLoading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+.servicesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.serviceItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.serviceInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.serviceLabel {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-light);
+}
+
+// Toggle Switch (matches WOD Editor style)
+.toggle {
+  position: relative;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.toggleTrack {
+  display: block;
+  width: 44px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: var(--color-muted);
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.toggleActive {
+  .toggleTrack {
+    background: var(--color-accent);
+  }
+
+  .toggleThumb {
+    left: 22px;
+    background: white;
   }
 }

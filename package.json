@@ -5,9 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:local": "npm run db:start && vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:start": "npx supabase start",
+    "db:stop": "npx supabase stop",
+    "db:reset": "npx supabase db reset",
+    "db:status": "npx supabase status",
+    "db:push": "npx supabase db push",
+    "db:diff": "npx supabase db diff",
+    "db:migrate:new": "npx supabase migration new",
+    "setup:local": "bash scripts/setup-local-env.sh",
+    "seed:coaches": "node scripts/seed-coaches.js",
+    "db:run-sql": "node scripts/run-sql.js"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^5.4.1",
@@ -31,6 +42,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "pg": "^8.17.2",
     "sass-embedded": "^1.93.3",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",

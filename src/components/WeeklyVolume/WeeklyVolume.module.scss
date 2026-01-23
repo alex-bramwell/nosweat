@@ -1,0 +1,163 @@
+@import '../../styles/variables';
+
+.container {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.workoutBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: rgba(0, 200, 200, 0.1);
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+.barsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 110px 1fr 70px;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.barLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.barDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.barName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.barTrack {
+  background: var(--surface-alt);
+  height: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.6s ease-out;
+  min-width: 4px;
+}
+
+.barStats {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.barValue {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 24px;
+  text-align: right;
+}
+
+.barPercentage {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 32px;
+  text-align: right;
+}
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+.footerText {
+  font-size: 0.813rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .barRow {
+    grid-template-columns: 95px 1fr 60px;
+    gap: 0.5rem;
+  }
+
+  .barName {
+    font-size: 0.813rem;
+  }
+
+  .barTrack {
+    height: 18px;
+  }
+
+  .barValue {
+    font-size: 0.85rem;
+  }
+
+  .barPercentage {
+    font-size: 0.7rem;
+  }
+
+  .headerTop {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

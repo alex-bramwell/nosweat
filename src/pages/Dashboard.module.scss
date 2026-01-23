@@ -93,6 +93,10 @@
   }
 }
 
+.weeklyVolumeContainer {
+  margin-bottom: 2rem;
+}
+
 .sectionTitle {
   @include header;
   font-size: 1.75rem;
@@ -667,5 +671,239 @@
 
   strong {
     color: var(--color-secondary);
+  }
+}
+
+// Services Tab Styles
+.servicesHeader {
+  margin-bottom: 2rem;
+}
+
+.servicesSubtitle {
+  @include body;
+  font-size: 1rem;
+  color: var(--color-muted);
+  margin-top: 0.5rem;
+}
+
+.noServicesMessage {
+  padding: 3rem;
+  text-align: center;
+
+  h3 {
+    @include header;
+    font-size: 1.5rem;
+    color: var(--color-text);
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    @include body;
+    font-size: 1rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+}
+
+.servicesList {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.serviceTypeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.serviceTypeHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.serviceTypeIcon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.serviceTypeName {
+  @include header;
+  font-size: 1.5rem;
+  color: var(--color-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.serviceTypeDescription {
+  @include body;
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.coachesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+.coachServiceCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.coachAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.coachInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.coachName {
+  @include header;
+  font-size: 1.125rem;
+  color: var(--color-text);
+  margin: 0 0 0.25rem 0;
+}
+
+.coachServiceDescription {
+  @include body;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  margin: 0 0 0.25rem 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.coachRate {
+  @include header;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+  margin: 0;
+}
+
+// My Bookings Section
+.myBookingsSection {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.noBookingsMessage {
+  padding: 2rem;
+  text-align: center;
+
+  p {
+    @include body;
+    color: var(--color-muted);
+    margin: 0;
+  }
+}
+
+.bookingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bookingCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  gap: 1rem;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.bookingInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bookingServiceType {
+  @include header;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.bookingCoach {
+  @include body;
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+}
+
+.bookingDateTime {
+  @include body;
+  font-size: 0.9375rem;
+  color: var(--color-secondary);
+  font-weight: 500;
+}
+
+.bookingActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+.bookingStatus {
+  @include header;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  text-transform: capitalize;
+
+  &.pending {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+  }
+
+  &.confirmed {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+  }
+
+  &.completed {
+    background: rgba(100, 116, 139, 0.15);
+    color: #64748b;
+  }
+
+  &.cancelled {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
   }
 }

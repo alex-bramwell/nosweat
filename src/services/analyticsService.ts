@@ -15,7 +15,9 @@ import type {
   AnalyticsPeriod,
   MuscleGroup,
   CrossFitMovement,
-  DailyMuscleGroupData
+  DailyMuscleGroupData,
+  FunctionalPattern,
+  TimeDomainStats
 } from '../types';
 
 // Common CrossFit movement abbreviations
@@ -113,7 +115,7 @@ class AnalyticsService {
         break;
       }
     }
-    
+
     start.setHours(0, 0, 0, 0);
     end.setHours(23, 59, 59, 999);
 
@@ -248,7 +250,8 @@ class AnalyticsService {
       chest: 0,
       arms: 0,
       legs: 0,
-      core: 0
+      core: 0,
+      'full body': 0
     };
 
     let totalHits = 0;
@@ -450,6 +453,13 @@ class AnalyticsService {
     const workoutTypeBreakdown = this.calculateWorkoutTypeStats(workouts);
     const topMovements = this.getTopMovements(workouts, 10);
     const detectedBiases = this.detectBiases(muscleGroupDistribution);
+
+    // Calculate new CrossFit metrics
+    const modalityDistribution = this.calculateModalityDistribution(workouts);
+    const functionalPatternBreakdown = this.calculateFunctionalPatternBreakdown(workouts);
+    const heavyDaysCount = this.calculateHeavyDays(workouts);
+    const timeDomainBreakdown = this.calculateTimeDomainBreakdown(workouts);
+
     const recommendations = this.generateRecommendations(
       detectedBiases,
       workoutTypeBreakdown,
@@ -467,8 +477,137 @@ class AnalyticsService {
       workoutTypeBreakdown,
       topMovements,
       detectedBiases,
-      recommendations
+      recommendations,
+      modalityDistribution,
+      functionalPatternBreakdown,
+      heavyDaysCount,
+      timeDomainBreakdown
     };
+  }
+
+  /**
+   * Calculate Modality Distribution (M/G/W)
+   */
+  private calculateModalityDistribution(workouts: WorkoutDB[]) {
+    const counts = {
+      'Monostructural': 0,
+      'Gymnastics': 0,
+      'Weightlifting': 0
+    };
+    let total = 0;
+
+    workouts.forEach(workout => {
+      const movements = this.extractWorkoutMovements(workout);
+      movements.forEach(m => {
+        if (m.category === 'metabolic') counts['Monostructural']++;
+        else if (m.category === 'gymnastic') counts['Gymnastics']++;
+        else if (m.category === 'weightlifting') counts['Weightlifting']++;
+        total++;
+      });
+    });
+
+    return Object.entries(counts).map(([modality, count]) => ({
+      modality: modality as 'Monostructural' | 'Gymnastics' | 'Weightlifting',
+      count,
+      percentage: total > 0 ? (count / total) * 100 : 0
+    }));
+  }
+
+  /**
+   * Calculate Functional Pattern Breakdown
+   */
+  private calculateFunctionalPatternBreakdown(workouts: WorkoutDB[]) {
+    const counts: Record<string, number> = {};
+    let total = 0;
+
+    workouts.forEach(workout => {
+      const movements = this.extractWorkoutMovements(workout);
+      movements.forEach(m => {
+        if (m.functional_pattern) {
+          counts[m.functional_pattern] = (counts[m.functional_pattern] || 0) + 1;
+          total++;
+        }
+      });
+    });
+
+    return Object.entries(counts)
+      .map(([pattern, count]) => ({
+        pattern: pattern as FunctionalPattern,
+        count,
+        percentage: total > 0 ? (count / total) * 100 : 0
+      }))
+      .sort((a, b) => b.count - a.count);
+  }
+
+  /**
+   * Calculate Heavy Days Count
+   */
+  private calculateHeavyDays(workouts: WorkoutDB[]): number {
+    return workouts.filter(w => w.loading_focus === 'heavy').length;
+  }
+
+  /**
+   * Parse duration string to minutes
+   */
+  private parseDurationToMinutes(durationStr?: string): number {
+    if (!durationStr) return 0;
+
+    // enhance cleaning to handle ranges like "10-15 min" -> takes average
+    const cleanStr = durationStr.toLowerCase().trim();
+
+    // Handle "XX:XX" format (e.g., "15:00")
+    if (cleanStr.includes(':')) {
+      const parts = cleanStr.split(':');
+      const minutes = parseInt(parts[0], 10);
+      const seconds = parseInt(parts[1], 10);
+      return minutes + (seconds / 60);
+    }
+
+    // Handle numbers with text (e.g., "15 min", "15 minutes")
+    const match = cleanStr.match(/(\d+)/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+
+    return 0;
+  }
+
+  /**
+   * Calculate Time Domain Breakdown
+   */
+  private calculateTimeDomainBreakdown(workouts: WorkoutDB[]): TimeDomainStats[] {
+    const counts = {
+      'Sprint': 0,
+      'Short': 0,
+      'Medium': 0,
+      'Long': 0
+    };
+    let total = 0;
+
+    workouts.forEach(workout => {
+      // Skip if no duration or workout type implies structure but no specific duration (e.g. strength)
+      // However, for time domains we mostly care about metcons.
+      // If type is 'strength' and no duration, ignore?
+      // Let's rely on duration field being present.
+
+      if (workout.duration) {
+        const minutes = this.parseDurationToMinutes(workout.duration);
+        if (minutes > 0) {
+          if (minutes < 5) counts['Sprint']++;
+          else if (minutes < 10) counts['Short']++;
+          else if (minutes < 20) counts['Medium']++;
+          else counts['Long']++;
+
+          total++;
+        }
+      }
+    });
+
+    return Object.entries(counts).map(([domain, count]) => ({
+      domain: domain as 'Sprint' | 'Short' | 'Medium' | 'Long',
+      count,
+      percentage: total > 0 ? (count / total) * 100 : 0
+    }));
   }
 
   /**
@@ -505,7 +644,8 @@ class AnalyticsService {
         chest: 0,
         arms: 0,
         legs: 0,
-        core: 0
+        core: 0,
+        'full body': 0
       };
 
       dayWorkouts.forEach(workout => {
@@ -546,7 +686,8 @@ class AnalyticsService {
       chest: 0,
       arms: 0,
       legs: 0,
-      core: 0
+      core: 0,
+      'full body': 0
     };
 
     const movements = this.extractWorkoutMovements(workout);
@@ -770,7 +911,7 @@ class AnalyticsService {
     const targetGroups = underusedGroups.length > 0
       ? underusedGroups
       : (['legs', 'shoulders', 'core', 'back', 'chest', 'arms'] as MuscleGroup[])
-          .filter(mg => !currentMuscleGroups.includes(mg));
+        .filter(mg => !currentMuscleGroups.includes(mg));
 
     // Find movements that primarily target the underused muscle groups
     const candidates = this.movements.filter(m => {
@@ -902,15 +1043,16 @@ class AnalyticsService {
 
     const now = new Date();
 
-    // This week (last 7 days)
+    // This week (last 7 days inclusive: Today - 6 days to Today)
     const thisWeekEnd = new Date(now);
     const thisWeekStart = new Date(now);
-    thisWeekStart.setDate(thisWeekEnd.getDate() - 7);
+    thisWeekStart.setDate(thisWeekEnd.getDate() - 6);
 
-    // Last week (7-14 days ago)
+    // Last week (7 days prior: Start - 7 days to Start - 1 day)
     const lastWeekEnd = new Date(thisWeekStart);
-    const lastWeekStart = new Date(thisWeekStart);
-    lastWeekStart.setDate(lastWeekEnd.getDate() - 7);
+    lastWeekEnd.setDate(lastWeekEnd.getDate() - 1);
+    const lastWeekStart = new Date(lastWeekEnd);
+    lastWeekStart.setDate(lastWeekEnd.getDate() - 6);
 
     const thisWeekWorkouts = await this.getWorkoutsInRange(thisWeekStart, thisWeekEnd);
     const lastWeekWorkouts = await this.getWorkoutsInRange(lastWeekStart, lastWeekEnd);

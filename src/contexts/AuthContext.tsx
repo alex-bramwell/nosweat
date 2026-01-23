@@ -5,7 +5,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'member' | 'coach' | 'admin';
+  role: 'member' | 'staff' | 'coach' | 'admin';
   membershipType: 'trial' | 'crossfit' | 'comet-plus' | 'open-gym' | 'specialty';
   joinDate: string;
   avatarUrl?: string;

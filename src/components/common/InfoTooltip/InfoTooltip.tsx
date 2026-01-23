@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './InfoTooltip.module.scss';
 
 export interface InfoTooltipProps {
@@ -74,6 +75,8 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '
   const [isVisible, setIsVisible] = useState(false);
   const [closing, setClosing] = useState(false);
   const [position, setPosition] = useState<'top' | 'bottom'>('top');
+  const [horizontalPosition, setHorizontalPosition] = useState<'center' | 'left' | 'right'>('center');
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
   const [isMobile, setIsMobile] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -91,10 +94,42 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '
   useEffect(() => {
     if (isVisible && triggerRef.current && !isMobile) {
       const rect = triggerRef.current.getBoundingClientRect();
+      const scrollY = window.scrollY;
+      const scrollX = window.scrollX;
+      
       const spaceAbove = rect.top;
+      const spaceRight = window.innerWidth - rect.right;
+      const spaceLeft = rect.left;
 
-      // If not enough space above (less than 100px), show below
-      setPosition(spaceAbove < 100 ? 'bottom' : 'top');
+      let top = 0;
+      let left = 0;
+      let newPos: 'top' | 'bottom' = 'top';
+      let newHPos: 'center' | 'left' | 'right' = 'center';
+
+      // Vertical logic
+      if (spaceAbove < 100) {
+        newPos = 'bottom';
+        top = rect.bottom + scrollY + 8;
+      } else {
+        newPos = 'top';
+        top = rect.top + scrollY - 8;
+      }
+
+      // Horizontal logic
+      if (spaceRight < 150) {
+        newHPos = 'right';
+        left = rect.right + scrollX;
+      } else if (spaceLeft < 150) {
+        newHPos = 'left';
+        left = rect.left + scrollX;
+      } else {
+        newHPos = 'center';
+        left = rect.left + (rect.width / 2) + scrollX;
+      }
+
+      setPosition(newPos);
+      setHorizontalPosition(newHPos);
+      setCoords({ top, left });
     }
   }, [isVisible, isMobile]);
 
@@ -119,11 +154,14 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '
     if (isVisible) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleEscape);
+      // Handle scroll to update position or close
+      window.addEventListener('scroll', () => setIsVisible(false), { passive: true });
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('scroll', () => setIsVisible(false));
     };
   }, [isVisible]);
 
@@ -169,6 +207,23 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '
     );
   }
 
+  const tooltipContent = (
+    <div
+      ref={tooltipRef}
+      className={`${styles.tooltip} ${styles.portal} ${styles[position]} ${styles[`align${horizontalPosition.charAt(0).toUpperCase() + horizontalPosition.slice(1)}`]}`}
+      style={{ 
+        top: coords.top, 
+        left: coords.left,
+      }}
+      role="tooltip"
+    >
+      <div className={styles.tooltipContent}>
+        {parseContent(content)}
+      </div>
+      <div className={styles.tooltipArrow} />
+    </div>
+  );
+
   return (
     <div className={`${styles.tooltipWrapper} ${className}`}>
       <button
@@ -192,18 +247,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '
         </svg>
       </button>
 
-      {isVisible && !isMobile && (
-        <div
-          ref={tooltipRef}
-          className={`${styles.tooltip} ${styles[position]}`}
-          role="tooltip"
-        >
-          <div className={styles.tooltipContent}>
-            {parseContent(content)}
-          </div>
-          <div className={styles.tooltipArrow} />
-        </div>
-      )}
+      {isVisible && !isMobile && createPortal(tooltipContent, document.body)}
     </div>
   );
 };
