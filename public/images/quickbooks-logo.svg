@@ -1,0 +1,11 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- QuickBooks green circle background -->
+  <circle cx="24" cy="24" r="24" fill="#2CA01C"/>
+
+  <!-- QB letters in white -->
+  <path d="M13 16.5C13 15.1193 14.1193 14 15.5 14H21C23.7614 14 26 16.2386 26 19C26 21.2091 24.5225 23.0659 22.5 23.7324V24.2676C24.5225 24.9341 26 26.7909 26 29C26 31.7614 23.7614 34 21 34H15.5C14.1193 34 13 32.8807 13 31.5V16.5Z" fill="white"/>
+  <path d="M28 14H33.5C34.8807 14 36 15.1193 36 16.5V24C36 26.7614 33.7614 29 31 29H28V34" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Inner detail for Q -->
+  <circle cx="31.5" cy="20" r="4" fill="#2CA01C"/>
+</svg>

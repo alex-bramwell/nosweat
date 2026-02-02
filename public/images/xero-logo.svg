@@ -1,0 +1,10 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Xero blue background -->
+  <rect width="48" height="48" rx="8" fill="#13B5EA"/>
+
+  <!-- X letter in white -->
+  <path d="M14 14L24 24M24 24L34 34M24 24L14 34M24 24L34 14" stroke="white" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Small circle (Xero brand element) -->
+  <circle cx="38" cy="10" r="4" fill="white"/>
+</svg>

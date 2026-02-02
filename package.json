@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:vercel": "vercel dev --listen 5173",
     "dev:local": "npm run db:start && vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
