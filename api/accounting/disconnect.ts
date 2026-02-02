@@ -9,7 +9,7 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { decryptToken } from '../../src/utils/encryption';
+import { decryptToken } from '../utils/encryption';
 
 // Initialize Supabase client
 const supabase = createClient(

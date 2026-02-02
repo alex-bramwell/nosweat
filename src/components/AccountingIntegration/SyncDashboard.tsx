@@ -4,7 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import { accountingService, SyncResult } from '../../services/accountingService';
+import { accountingService } from '../../services/accountingService';
+import type { SyncResult } from '../../services/accountingService';
 import styles from './AccountingIntegration.module.scss';
 
 interface SyncDashboardProps {
