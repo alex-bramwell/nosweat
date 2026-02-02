@@ -59,6 +59,12 @@ function getQuickBooksAuthUrl(state: string, redirectUri: string): string {
     throw new Error('QUICKBOOKS_CLIENT_ID not configured');
   }
 
+  console.log('[QB OAuth] Generating auth URL with:', {
+    clientId: clientId ? `${clientId.substring(0, 10)}...` : 'undefined',
+    redirectUri,
+    environment
+  });
+
   // QuickBooks uses the same authorization URL for both sandbox and production
   // The environment is determined by your credentials, not the URL
   const authUrl = 'https://appcenter.intuit.com/connect/oauth2';
@@ -71,7 +77,10 @@ function getQuickBooksAuthUrl(state: string, redirectUri: string): string {
     state: state
   });
 
-  return `${authUrl}?${params.toString()}`;
+  const fullUrl = `${authUrl}?${params.toString()}`;
+  console.log('[QB OAuth] Generated URL:', fullUrl);
+
+  return fullUrl;
 }
 
 /**
@@ -146,6 +155,13 @@ async function handleConnect(req: VercelRequest, userId: string) {
   const callbackUri = process.env.QUICKBOOKS_REDIRECT_URI ||
                      process.env.XERO_REDIRECT_URI ||
                      `${req.headers.host}/api/accounting/callback`;
+
+  console.log('[OAuth] Using callback URI:', callbackUri);
+  console.log('[OAuth] Environment variables check:', {
+    hasQuickBooksRedirectUri: !!process.env.QUICKBOOKS_REDIRECT_URI,
+    hasXeroRedirectUri: !!process.env.XERO_REDIRECT_URI,
+    hostHeader: req.headers.host
+  });
 
   // Generate authorization URL based on provider
   let authorizationUrl: string;
@@ -372,6 +388,17 @@ export default async function handler(
   }
 
   try {
+    console.log('[Connection] Request received:', {
+      action: req.body?.action,
+      provider: req.body?.provider,
+      envVars: {
+        hasQuickBooksClientId: !!process.env.QUICKBOOKS_CLIENT_ID,
+        hasQuickBooksClientSecret: !!process.env.QUICKBOOKS_CLIENT_SECRET,
+        hasQuickBooksRedirectUri: !!process.env.QUICKBOOKS_REDIRECT_URI,
+        quickbooksEnvironment: process.env.QUICKBOOKS_ENVIRONMENT
+      }
+    });
+
     // Verify admin authentication
     const userId = await requireAdmin(req);
 
