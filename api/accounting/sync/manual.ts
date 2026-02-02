@@ -23,6 +23,12 @@ import {
   getIntegration,
   updateIntegrationLastSync,
 } from '../../../src/services/accountingSyncService';
+import {
+  createQBClient,
+  getOrCreateCustomer,
+  createSalesReceipt,
+  createCreditMemo
+} from '../../services/quickbooksService';
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL!,
@@ -60,11 +66,10 @@ async function verifyAdmin(authHeader: string | undefined): Promise<string | nul
 }
 
 /**
- * Mock sync to external provider
- * TODO: Replace with actual QuickBooks/Xero API calls in Phase 3
+ * Sync payments to QuickBooks
  */
-async function syncToProvider(
-  provider: Provider,
+async function syncToQuickBooks(
+  integrationId: string,
   categorizedPayments: any[],
   accountMappings: any[]
 ): Promise<{
@@ -73,6 +78,9 @@ async function syncToProvider(
 }> {
   const succeeded: string[] = [];
   const failed: Array<{ paymentId: string; error: string }> = [];
+
+  // Create QuickBooks client
+  const qbo = await createQBClient(integrationId);
 
   for (const { payment, category, description } of categorizedPayments) {
     try {
@@ -87,32 +95,61 @@ async function syncToProvider(
         continue;
       }
 
-      // TODO Phase 3: Replace with actual API calls
-      // For now, simulate successful sync
-      console.log(`[MOCK] Syncing payment ${payment.id} to ${provider}:`, {
-        amount: payment.amount,
+      console.log(`[QB] Syncing payment ${payment.id}:`, {
+        amount: payment.amount / 100,
         category,
         description,
-        accountId: mapping.external_account_id,
-        accountName: mapping.external_account_name
+        accountId: mapping.external_account_id
       });
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Get user info for customer
+      const { data: userData } = await supabase
+        .from('profiles')
+        .select('email, full_name')
+        .eq('id', payment.user_id)
+        .single();
 
-      // Mock external transaction ID
-      const externalTransactionId = `${provider.toUpperCase()}-${Date.now()}-${payment.id.substring(0, 8)}`;
-      const externalTransactionNumber = `TXN-${Math.floor(Math.random() * 10000)}`;
+      const email = userData?.email || 'unknown@example.com';
+      const displayName = userData?.full_name || 'Unknown Customer';
 
-      // Store result (this is real, not mocked)
+      // Get or create customer in QuickBooks
+      const customer = await getOrCreateCustomer(qbo, email, displayName);
+
+      // Convert amount from cents to dollars
+      const amount = payment.amount / 100;
+      const txnDate = new Date(payment.created_at).toISOString().split('T')[0];
+
+      let externalTxn;
+      if (category === 'refund') {
+        // Create credit memo for refunds
+        externalTxn = await createCreditMemo(qbo, {
+          customerId: customer.Id,
+          amount,
+          description,
+          accountId: mapping.external_account_id,
+          txnDate
+        });
+      } else {
+        // Create sales receipt for payments
+        externalTxn = await createSalesReceipt(qbo, {
+          customerId: customer.Id,
+          amount,
+          description,
+          accountId: mapping.external_account_id,
+          txnDate,
+          paymentRefNum: payment.payment_intent_id || payment.id.substring(0, 8)
+        });
+      }
+
+      // Store result
       succeeded.push(payment.id);
+      payment._externalId = externalTxn.Id;
+      payment._externalNumber = externalTxn.DocNumber;
 
-      // Return mock result
-      payment._mockExternalId = externalTransactionId;
-      payment._mockExternalNumber = externalTransactionNumber;
+      console.log(`[QB] Successfully synced payment ${payment.id} as ${externalTxn.DocNumber}`);
 
     } catch (error: any) {
-      console.error(`Error syncing payment ${payment.id}:`, error);
+      console.error(`[QB] Error syncing payment ${payment.id}:`, error);
       failed.push({
         paymentId: payment.id,
         error: error.message || 'Unknown error'
@@ -121,6 +158,42 @@ async function syncToProvider(
   }
 
   return { succeeded, failed };
+}
+
+/**
+ * Sync payments to Xero (placeholder for Phase 6)
+ */
+async function syncToXero(
+  integrationId: string,
+  categorizedPayments: any[],
+  accountMappings: any[]
+): Promise<{
+  succeeded: string[];
+  failed: Array<{ paymentId: string; error: string }>;
+}> {
+  // TODO: Implement Xero integration in Phase 6
+  throw new Error('Xero integration not yet implemented');
+}
+
+/**
+ * Sync to external provider (routes to appropriate service)
+ */
+async function syncToProvider(
+  provider: Provider,
+  integrationId: string,
+  categorizedPayments: any[],
+  accountMappings: any[]
+): Promise<{
+  succeeded: string[];
+  failed: Array<{ paymentId: string; error: string }>;
+}> {
+  if (provider === 'quickbooks') {
+    return syncToQuickBooks(integrationId, categorizedPayments, accountMappings);
+  } else if (provider === 'xero') {
+    return syncToXero(integrationId, categorizedPayments, accountMappings);
+  } else {
+    throw new Error(`Unsupported provider: ${provider}`);
+  }
 }
 
 /**
@@ -239,9 +312,10 @@ export default async function handler(
       transactions_attempted: unsyncedCategorized.length
     });
 
-    // Sync to external provider (mocked for now)
+    // Sync to external provider
     const { succeeded, failed } = await syncToProvider(
       provider,
+      integration.id,
       unsyncedCategorized,
       accountMappings
     );
@@ -258,8 +332,8 @@ export default async function handler(
         await recordSyncedTransaction(
           paymentId,
           provider,
-          payment._mockExternalId,
-          payment._mockExternalNumber,
+          payment._externalId,
+          payment._externalNumber,
           syncLogId,
           payment.amount
         );
