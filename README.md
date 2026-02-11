@@ -181,36 +181,82 @@ docker-compose down
 docker-compose up --build
 ```
 
-The application will be available at `http://localhost:5173`.
+The application will be available at:
+- **Frontend**: `http://localhost:5173`
+- **API Server**: `http://localhost:3001`
+
+### Docker Architecture
+
+The Docker setup runs two services:
+
+#### 1. Frontend Service (Port 5173)
+- **Vite dev server** for React application
+- Hot module replacement for instant updates
+- Proxies API requests to backend service
+
+#### 2. Backend Service (Port 3001)
+- **Express API server** for payments, accounting, webhooks
+- Handles all `/api/*` routes
+- Supports Stripe, QuickBooks, and Xero integrations
 
 ### Docker Configuration
 
-**Dockerfile:**
+**Dockerfile (Frontend):**
 - Based on `node:20-alpine` for a lightweight image
 - Installs dependencies using `npm ci` for faster, reproducible builds
 - Exposes port 5173
-- Runs the Vite dev server with host binding for container access
+- Runs the Vite dev server with host binding
+
+**Dockerfile.api (Backend):**
+- Based on `node:20-alpine` for a lightweight image
+- Installs dependencies using `npm ci`
+- Exposes port 3001
+- Runs the Express server with `tsx` for TypeScript support
 
 **docker-compose.yml:**
-- Mounts the current directory to `/app` for live code reloading
-- Preserves `node_modules` in a named volume to avoid conflicts
+- Orchestrates both frontend and backend services
+- Mounts the current directory for live code reloading
+- Preserves `node_modules` in named volumes
 - Loads environment variables from `.env.local`
-- Sets `NODE_ENV=development`
+- Automatic service dependency management
 
 **.dockerignore:**
-- Excludes unnecessary files (node_modules, dist, .git, .env) from the Docker build context
-- Reduces image size and build time
+- Excludes unnecessary files (node_modules, dist, .git, .env)
+- Reduces build context and image size
 
 ### Environment Variables
 
-Ensure you have a `.env.local` file with your Supabase credentials before starting:
+Ensure you have a `.env.local` file with the required credentials before starting:
 
 ```env
+# Supabase
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# API Server (automatically set by docker-compose)
+VITE_API_URL=http://localhost:3001
+
+# QuickBooks/Xero (optional, for accounting integration)
+QUICKBOOKS_CLIENT_ID=your_client_id
+QUICKBOOKS_CLIENT_SECRET=your_client_secret
+QUICKBOOKS_REDIRECT_URI=http://localhost:3001/api/accounting/callback
+QUICKBOOKS_ENVIRONMENT=sandbox
 ```
 
 See the [Local Development with Supabase](#local-development-with-supabase) section for more details on environment configuration.
+
+### Why Express Instead of Vercel Functions?
+
+We migrated from Vercel serverless functions to an Express API server for better local development:
+
+**Benefits:**
+- ✅ Full Docker support - everything runs in containers
+- ✅ Easier team onboarding - just run `docker-compose up`
+- ✅ No platform dependencies - works anywhere Node.js runs
+- ✅ Better debugging - standard Express middleware and logging
+- ✅ Faster development - no need to switch between `vercel dev` and Docker
+
+**Note:** The `/api` folder with Vercel functions still exists for production deployment but is replaced by the Express server (`/server`) in local development.
 
 ---
 

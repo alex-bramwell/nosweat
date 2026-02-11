@@ -91,8 +91,11 @@ export async function connectProvider(
     throw new Error('Not authenticated');
   }
 
+  // Get API URL from environment or default to localhost
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
   // Call backend API to get authorization URL
-  const response = await fetch('/api/accounting/connection', {
+  const response = await fetch(`${apiUrl}/api/accounting/connection`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
