@@ -91,14 +91,22 @@ npm install
 # Copy environment variables
 cp .env.example .env
 
-# Start development server
-npm run dev
-
-# Or use Docker (see Docker Setup section)
+# Start development server with Docker (Recommended)
 docker-compose up
+
+# Or use npm directly
+npm run dev
 ```
 
 ### Available Scripts
+
+**Docker commands (Recommended):**
+```bash
+docker-compose up          # Start in Docker container
+docker-compose up -d       # Start in detached mode
+docker-compose down        # Stop container
+docker-compose up --build  # Rebuild and start
+```
 
 **npm scripts:**
 ```bash
@@ -106,14 +114,6 @@ npm run dev      # Start development server (http://localhost:5173)
 npm run build    # Build for production (TypeScript + Vite)
 npm run preview  # Preview production build locally
 npm run lint     # Run ESLint checks
-```
-
-**Docker commands:**
-```bash
-docker-compose up          # Start in Docker container
-docker-compose up -d       # Start in detached mode
-docker-compose down        # Stop container
-docker-compose up --build  # Rebuild and start
 ```
 
 ### Database Scripts
