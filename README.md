@@ -165,20 +165,58 @@ For a containerized development environment, you can use Docker and Docker Compo
 - Docker Desktop installed
 - Docker Compose (included with Docker Desktop)
 
-### Using Docker
+### First Time Setup
+
+**Run this once to set up Docker:**
 
 ```bash
-# Build and start the container
+# Automated setup (recommended)
+./docker-setup.sh
+```
+
+This script will:
+1. Install/update Node dependencies
+2. Regenerate `package-lock.json` with new dependencies
+3. Commit the updated lock file
+4. Build and start Docker containers
+
+**Or do it manually:**
+
+```bash
+# 1. Update dependencies
+npm install
+
+# 2. Commit lock file
+git add package-lock.json
+git commit -m "chore: update package-lock.json for Express dependencies"
+
+# 3. Start Docker
+docker-compose up --build
+```
+
+### Daily Usage
+
+Once initial setup is complete, use these commands:
+
+```bash
+# Start services
 docker-compose up
 
-# Or run in detached mode
+# Start in detached mode (runs in background)
 docker-compose up -d
 
-# Stop the container
+# Stop services
 docker-compose down
 
-# Rebuild after dependency changes
+# Rebuild after code changes
 docker-compose up --build
+
+# View logs
+docker-compose logs -f
+
+# View logs for specific service
+docker-compose logs -f backend
+docker-compose logs -f frontend
 ```
 
 The application will be available at:
