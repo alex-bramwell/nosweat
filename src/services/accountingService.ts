@@ -91,14 +91,18 @@ export async function connectProvider(
     throw new Error('Not authenticated');
   }
 
+  // Get API URL from environment or default to localhost
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
   // Call backend API to get authorization URL
-  const response = await fetch('/api/accounting/connect', {
+  const response = await fetch(`${apiUrl}/api/accounting/connection`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${session.access_token}`,
     },
     body: JSON.stringify({
+      action: 'connect',
       provider,
       redirectUrl: window.location.origin + '/coach-dashboard'
     }),
@@ -127,13 +131,13 @@ export async function disconnectProvider(
   }
 
   // Call backend API to disconnect
-  const response = await fetch('/api/accounting/disconnect', {
+  const response = await fetch('/api/accounting/connection', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${session.access_token}`,
     },
-    body: JSON.stringify({ provider }),
+    body: JSON.stringify({ action: 'disconnect', provider }),
   });
 
   if (!response.ok) {
@@ -193,7 +197,7 @@ export async function triggerManualSync(
   }
 
   // Call backend API to trigger sync
-  const response = await fetch('/api/accounting/sync/manual', {
+  const response = await fetch('/api/accounting/sync', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -224,7 +228,7 @@ export async function getSyncStatus(syncLogId: string): Promise<SyncStatus> {
   }
 
   // Call backend API to get status
-  const response = await fetch(`/api/accounting/sync/status?syncLogId=${syncLogId}`, {
+  const response = await fetch(`/api/accounting/sync?syncLogId=${syncLogId}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${session.access_token}`,

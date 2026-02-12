@@ -1,0 +1,18 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json* ./
+
+# Install production dependencies only
+RUN npm install --production
+
+# Copy application code
+COPY server ./server
+COPY api ./api
+
+EXPOSE 3001
+
+# Run production server
+CMD ["npm", "run", "server:prod"]

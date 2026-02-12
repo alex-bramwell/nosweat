@@ -15,6 +15,8 @@ A modern, full-featured gym management web application built with React, TypeScr
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Quick Start](#quick-start)
+- [Docker Setup](#docker-setup)
+- [Root Directory Files Reference](#root-directory-files-reference)
 - [Local Development with Supabase](#local-development-with-supabase)
 - [Project Structure](#project-structure)
 - [Git Workflow & GitFlow Guidelines](#git-workflow--gitflow-guidelines)
@@ -84,18 +86,35 @@ A modern, full-featured gym management web application built with React, TypeScr
 git clone https://github.com/alex-bramwell/gym.CrossFit.Comet.git
 cd gym.CrossFit.Comet
 
-# Install dependencies
+# Copy environment variables and add your credentials
+cp .env.example .env.local
+
+# Start development with Docker (Recommended - no npm install needed!)
+./scripts/dev.sh
+
+# Or use npm directly (requires Node.js and npm installed locally)
 npm install
-
-# Copy environment variables
-cp .env.example .env
-
-# Start development server
 npm run dev
 ```
 
 ### Available Scripts
 
+**Shell scripts (Easiest):**
+```bash
+./scripts/dev.sh     # Start development environment
+./scripts/prod.sh    # Start production environment
+./scripts/down.sh    # Stop all Docker services
+```
+
+**Docker commands:**
+```bash
+docker-compose up          # Start in Docker container
+docker-compose up -d       # Start in detached mode
+docker-compose down        # Stop container
+docker-compose up --build  # Rebuild and start
+```
+
+**npm scripts:**
 ```bash
 npm run dev      # Start development server (http://localhost:5173)
 npm run build    # Build for production (TypeScript + Vite)
@@ -140,6 +159,221 @@ DATABASE_PASSWORD=your-database-password
 ```
 
 The script connects via Session Pooler (IPv4 compatible) to run SQL statements directly.
+
+---
+
+## Docker Setup
+
+For a containerized development environment, you can use Docker and Docker Compose.
+
+### Prerequisites
+
+- Docker Desktop installed
+- Docker Compose (included with Docker Desktop)
+
+### Development Mode
+
+Docker handles all dependencies automatically with hot reloading:
+
+```bash
+# Start development servers (simplest way)
+./scripts/dev.sh
+
+# Or use docker-compose directly
+docker-compose up --build
+
+# Stop services
+./scripts/down.sh
+# or: docker-compose down
+
+# View logs
+docker-compose logs -f
+docker-compose logs -f backend  # Backend only
+docker-compose logs -f frontend # Frontend only
+```
+
+**Development servers:**
+- Frontend: http://localhost:5173 (Vite with HMR)
+- Backend: http://localhost:3001 (Express with hot reload)
+
+**No local npm needed!** All dependencies run inside Docker containers.
+
+### Production Mode
+
+Optimized production builds with nginx:
+
+```bash
+# Build and start production services
+./scripts/prod.sh
+
+# Stop services
+./scripts/down.sh
+```
+
+**Production servers:**
+- Frontend: http://localhost:8080 (Nginx serving static build)
+- Backend: http://localhost:3001 (Express production mode)
+
+The application will be available at:
+- **Frontend**: `http://localhost:5173`
+- **API Server**: `http://localhost:3001`
+
+### Docker Architecture
+
+The Docker setup runs two services:
+
+#### 1. Frontend Service (Port 5173)
+- **Vite dev server** for React application
+- Hot module replacement for instant updates
+- Proxies API requests to backend service
+
+#### 2. Backend Service (Port 3001)
+- **Express API server** for payments, accounting, webhooks
+- Handles all `/api/*` routes
+- Supports Stripe, QuickBooks, and Xero integrations
+
+### Docker Configuration
+
+**Dockerfile (Frontend):**
+- Based on `node:20-alpine` for a lightweight image
+- Installs dependencies using `npm ci` for faster, reproducible builds
+- Exposes port 5173
+- Runs the Vite dev server with host binding
+
+**Dockerfile.api (Backend):**
+- Based on `node:20-alpine` for a lightweight image
+- Installs dependencies using `npm ci`
+- Exposes port 3001
+- Runs the Express server with `tsx` for TypeScript support
+
+**docker-compose.yml:**
+- Orchestrates both frontend and backend services
+- Mounts the current directory for live code reloading
+- Preserves `node_modules` in named volumes
+- Loads environment variables from `.env.local`
+- Automatic service dependency management
+
+**.dockerignore:**
+- Excludes unnecessary files (node_modules, dist, .git, .env)
+- Reduces build context and image size
+
+### Environment Variables
+
+Ensure you have a `.env.local` file with the required credentials before starting:
+
+```env
+# Supabase
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# API Server (automatically set by docker-compose)
+VITE_API_URL=http://localhost:3001
+
+# QuickBooks/Xero (optional, for accounting integration)
+QUICKBOOKS_CLIENT_ID=your_client_id
+QUICKBOOKS_CLIENT_SECRET=your_client_secret
+QUICKBOOKS_REDIRECT_URI=http://localhost:3001/api/accounting/callback
+QUICKBOOKS_ENVIRONMENT=sandbox
+```
+
+See the [Local Development with Supabase](#local-development-with-supabase) section for more details on environment configuration.
+
+### Why Express Instead of Vercel Functions?
+
+We migrated from Vercel serverless functions to an Express API server for better local development:
+
+**Benefits:**
+- ✅ Full Docker support - everything runs in containers
+- ✅ Easier team onboarding - just run `docker-compose up`
+- ✅ No platform dependencies - works anywhere Node.js runs
+- ✅ Better debugging - standard Express middleware and logging
+- ✅ Faster development - no need to switch between `vercel dev` and Docker
+
+**Note:** The `/api` folder with Vercel functions still exists for production deployment but is replaced by the Express server (`/server`) in local development.
+
+---
+
+## Root Directory Files Reference
+
+This section documents all files in the project root directory and their purpose.
+
+### Configuration Files
+
+| File | Purpose |
+|------|---------|
+| **package.json** | Node.js project manifest - dependencies, scripts, project metadata |
+| **package-lock.json** | Locked dependency versions for reproducible builds |
+| **tsconfig.json** | Root TypeScript configuration |
+| **tsconfig.app.json** | TypeScript config for application code |
+| **tsconfig.node.json** | TypeScript config for Node.js tooling (Vite config, etc.) |
+| **vite.config.ts** | Vite build tool configuration - dev server, build settings, plugins |
+| **eslint.config.js** | ESLint linting rules and configuration |
+| **vercel.json** | Vercel deployment configuration - routes, rewrites, headers |
+
+### Docker Files
+
+| File | Purpose |
+|------|---------|
+| **Dockerfile** | Frontend development container - Node 20 Alpine with Vite dev server |
+| **Dockerfile.prod** | Frontend production container - Multi-stage build with nginx |
+| **Dockerfile.api** | Backend development container - Express API with hot reload (tsx) |
+| **Dockerfile.api.prod** | Backend production container - Express API optimized build |
+| **docker-compose.yml** | Development orchestration - Frontend + Backend with hot reload |
+| **docker-compose.prod.yml** | Production orchestration - Optimized builds with nginx |
+| **nginx.conf** | Nginx configuration for production frontend - SPA routing, gzip, caching |
+| **.dockerignore** | Excludes files from Docker build context (node_modules, .git, etc.) |
+
+### Environment & Secrets
+
+| File | Purpose |
+|------|---------|
+| **.env.example** | Template showing required environment variables |
+| **.env.local** | Local development environment variables (gitignored - not committed) |
+| **.gitignore** | Specifies files Git should ignore (node_modules, .env, build files) |
+| **.vercelignore** | Specifies files Vercel should ignore during deployment |
+
+### Entry Points
+
+| File | Purpose |
+|------|---------|
+| **index.html** | HTML entry point - Loads the React app via `<script src="/src/main.tsx">` |
+| **README.md** | Project documentation (this file) |
+
+### Project Directories
+
+| Directory | Purpose |
+|-----------|---------|
+| **src/** | React application source code - components, pages, styles, utilities |
+| **server/** | Express API server - accounting integrations, payment endpoints |
+| **api/** | Vercel serverless functions - production API endpoints (replaced by /server locally) |
+| **public/** | Static assets served directly - images, fonts, favicon |
+| **scripts/** | Utility shell scripts - dev.sh, prod.sh, down.sh for Docker management |
+| **supabase/** | Database migrations and Supabase configuration |
+| **node_modules/** | Installed npm dependencies (not committed to git) |
+| **.git/** | Git version control metadata |
+| **.github/** | GitHub Actions workflows (CI/CD, automated migrations) |
+| **.claude/** | Claude Code CLI configuration and memory |
+| **.devcontainer/** | VS Code dev container configuration |
+
+### Why Two API Folders?
+
+The project has both `/api` and `/server` directories:
+
+- **`/api`** - Vercel serverless functions for **production deployment**
+  - Used when deployed to Vercel
+  - Each file becomes an endpoint (e.g., `api/payments/create-payment-intent.ts` → `/api/payments/create-payment-intent`)
+
+- **`/server`** - Express API server for **local development**
+  - Used when running with Docker
+  - Full Express server with middleware, better debugging, hot reload
+  - Provides the same endpoints as `/api` but in a traditional server architecture
+
+This dual approach allows:
+- ✅ Easy local development with Docker (no platform dependencies)
+- ✅ Production deployment to Vercel (leveraging serverless infrastructure)
+- ✅ Team onboarding without Vercel CLI (`docker-compose up` just works)
+
+---
 
 ### Local Development with Supabase
 
