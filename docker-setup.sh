@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Docker Setup Script
 # Regenerates package-lock.json and starts Docker services
 
