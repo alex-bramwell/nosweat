@@ -171,13 +171,13 @@ Docker handles all dependencies automatically with hot reloading:
 
 ```bash
 # Start development servers (simplest way)
-./dev.sh
+./scripts/dev.sh
 
 # Or use docker-compose directly
 docker-compose up --build
 
 # Stop services
-./down.sh
+./scripts/down.sh
 # or: docker-compose down
 
 # View logs
@@ -198,10 +198,10 @@ Optimized production builds with nginx:
 
 ```bash
 # Build and start production services
-./prod.sh
+./scripts/prod.sh
 
 # Stop services
-./down.sh
+./scripts/down.sh
 ```
 
 **Production servers:**
