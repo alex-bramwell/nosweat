@@ -9,7 +9,6 @@ import type {
   GymStat,
   GymMembership,
   FeatureKey,
-  TenantData,
 } from '../types/tenant';
 
 // -------------------------------------------------------------------

@@ -1,8 +1,7 @@
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { FEATURES } from '../../config/features';
-import { AVAILABLE_FONTS } from '../../hooks/useTenantTheme';
 import type { FeatureKey } from '../../types/tenant';
 import styles from './Onboarding.module.scss';
 
@@ -305,7 +304,7 @@ const Onboarding = () => {
                     onChange={(e) => setGymName(e.target.value)}
                     required
                     className={styles.input}
-                    placeholder="CrossFit Comet"
+                    placeholder="My Awesome Gym"
                   />
                 </div>
 
@@ -321,7 +320,7 @@ const Onboarding = () => {
                       onChange={(e) => setSlug(e.target.value)}
                       required
                       className={styles.input}
-                      placeholder="crossfit-comet"
+                      placeholder="my-awesome-gym"
                     />
                     <span className={styles.slugSuffix}>.gym-forge.com</span>
                   </div>

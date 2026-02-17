@@ -8,7 +8,7 @@ import styles from './Navbar.module.scss';
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
-  const { gym, branding } = useTenant();
+  const { gym } = useTenant();
   const hasClassBooking = useFeature('class_booking');
   const hasCoachProfiles = useFeature('coach_profiles');
   const location = useLocation();

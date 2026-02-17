@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useTenant } from '../contexts/TenantContext';
 import { usePermissions } from '../hooks/usePermissions';
 import { Section, Container, Card, Button, Modal } from '../components/common';
 import { EditIcon, DeleteIcon } from '../components/common/Icons';
@@ -59,7 +58,6 @@ const isSameDay = (date1: Date, date2: Date): boolean => {
 
 const CoachDashboard = () => {
   const { user, logout } = useAuth();
-  const { features } = useTenant();
   const permissions = usePermissions();
   const [activeTab, setActiveTab] = useState<'overview' | 'create' | 'manage' | 'drafts' | 'analytics' | 'users' | 'staff' | 'accounting'>('overview');
   const [workouts, setWorkouts] = useState<WorkoutDB[]>([]);

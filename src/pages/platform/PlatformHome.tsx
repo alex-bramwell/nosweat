@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { FEATURES, getFeaturesByCategory } from '../../config/features';
+import { FEATURES } from '../../config/features';
 import styles from './PlatformHome.module.scss';
 
 const PlatformHome = () => {
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
-  const featuresByCategory = getFeaturesByCategory();
 
   const toggleFeature = (key: string) => {
     setSelectedFeatures((prev) =>

@@ -1,6 +1,6 @@
-# CrossFit Comet 🏋️‍♂️
+# GymForge 🏋️‍♂️
 
-A modern, full-featured gym management web application built with React, TypeScript, and Vite. Features include class scheduling, day pass purchases, trial memberships, secure authentication, and Stripe payment integration.
+A multi-tenant SaaS platform for gyms and fitness studios, built with React, TypeScript, and Vite. Features include class scheduling, WOD programming, coach profiles, payments — all customisable to each gym's brand.
 
 ![React](https://img.shields.io/badge/React-19.2.0-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)
@@ -83,8 +83,8 @@ A modern, full-featured gym management web application built with React, TypeScr
 
 ```bash
 # Clone the repository
-git clone https://github.com/alex-bramwell/gym.CrossFit.Comet.git
-cd gym.CrossFit.Comet
+git clone https://github.com/alex-bramwell/gym-forge.git
+cd gym-forge
 
 # Copy environment variables and add your credentials
 cp .env.example .env.local
@@ -138,7 +138,7 @@ npm run seed:coaches
 ```
 
 This creates coach accounts with:
-- Email: `{name}@crossfitcomet.com` (dan, lizzie, lewis, sam, george, thea)
+- Email: `{name}@gymforge.com` (dan, lizzie, lewis, sam, george, thea)
 - Default password: `CoachTemp123!`
 - Role: `coach` with corresponding `coach_id`
 
@@ -425,7 +425,7 @@ The app will now use the shared live database. All accounts, bookings, and data 
 ## Project Structure
 
 ```
-gym.CrossFit.Comet/
+gym-forge/
 ├── api/                        # Vercel serverless functions
 │   ├── payments/
 │   │   ├── create-payment-intent.ts  # Day pass payments
@@ -1616,7 +1616,7 @@ For issues or questions:
 ---
 
 <div align="center">
-  <p>Built with ❤️ by the CrossFit Comet Team</p>
+  <p>Built with ❤️ by the GymForge Team</p>
   <p>
     <a href="https://react.dev">React</a> •
     <a href="https://vite.dev">Vite</a> •
