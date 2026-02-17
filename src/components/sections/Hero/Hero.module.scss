@@ -32,8 +32,8 @@
     bottom: 0;
     background: linear-gradient(
       135deg,
-      rgba(18, 18, 18, 0.75) 0%,
-      rgba(30, 30, 30, 0.8) 100%
+      rgba(var(--color-bg-dark-rgb), 0.75) 0%,
+      rgba(var(--color-surface-rgb), 0.8) 100%
     );
     z-index: 1;
     pointer-events: none;
@@ -46,11 +46,11 @@
   left: -100px;
   width: 15px;
   height: 15px;
-  background: radial-gradient(circle, rgba(255, 79, 31, 0.6) 0%, rgba(255, 79, 31, 0.3) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--color-accent-rgb), 0.6) 0%, rgba(var(--color-accent-rgb), 0.3) 50%, transparent 70%);
   border-radius: 50%;
   box-shadow:
-    0 0 10px rgba(255, 79, 31, 0.3),
-    0 0 20px rgba(255, 79, 31, 0.2);
+    0 0 10px rgba(var(--color-accent-rgb), 0.3),
+    0 0 20px rgba(var(--color-accent-rgb), 0.2);
   animation: cometFly 8s ease-in-out infinite;
   pointer-events: none;
   z-index: 2;
@@ -64,14 +64,14 @@
   height: 2px;
   background: linear-gradient(
     to left,
-    rgba(255, 79, 31, 0.4) 0%,
-    rgba(255, 79, 31, 0.2) 30%,
-    rgba(0, 212, 255, 0.2) 60%,
+    rgba(var(--color-accent-rgb), 0.4) 0%,
+    rgba(var(--color-accent-rgb), 0.2) 30%,
+    rgba(var(--color-secondary-rgb), 0.2) 60%,
     transparent 100%
   );
   transform: translateY(-50%);
   filter: blur(2px);
-  box-shadow: 0 0 5px rgba(255, 79, 31, 0.2);
+  box-shadow: 0 0 5px rgba(var(--color-accent-rgb), 0.2);
   animation: cometTrailFade 8s ease-in-out infinite;
 }
 
@@ -176,7 +176,7 @@
   align-items: center;
   text-align: center;
   padding: 2rem 1.5rem;
-  background: linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(40, 40, 40, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(var(--color-surface-rgb), 0.9) 0%, rgba(var(--color-bg-dark-rgb), 0.8) 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
   backdrop-filter: blur(10px);
@@ -184,16 +184,16 @@
 
   &:hover {
     transform: translateY(-4px);
-    border-color: rgba(255, 79, 31, 0.4);
+    border-color: rgba(var(--color-accent-rgb), 0.4);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
 
   &:nth-child(2) {
-    background: linear-gradient(135deg, rgba(255, 79, 31, 0.15) 0%, rgba(255, 79, 31, 0.08) 100%);
-    border-color: rgba(255, 79, 31, 0.3);
+    background: linear-gradient(135deg, rgba(var(--color-accent-rgb), 0.15) 0%, rgba(var(--color-accent-rgb), 0.08) 100%);
+    border-color: rgba(var(--color-accent-rgb), 0.3);
 
     &:hover {
-      border-color: rgba(255, 79, 31, 0.6);
+      border-color: rgba(var(--color-accent-rgb), 0.6);
     }
   }
 }

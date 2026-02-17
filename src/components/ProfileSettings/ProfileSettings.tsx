@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTenant } from '../../contexts/TenantContext';
 import { Button, Card } from '../common';
 import { checkPasswordCompromised } from '../../utils/security';
 import styles from './ProfileSettings.module.scss';
 
 const ProfileSettings: React.FC = () => {
   const { user, updateProfile, changePassword } = useAuth();
+  const { memberships } = useTenant();
   const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [emergencyContact, setEmergencyContact] = useState(user?.emergencyContact || '');
@@ -147,15 +149,12 @@ const ProfileSettings: React.FC = () => {
   };
 
   const getMembershipTypeName = (type: string) => {
-    const names: Record<string, string> = {
-      'trial': 'Free Trial',
-      'crossfit': 'CrossFit',
-      'comet-plus': 'Comet Plus',
-      'open-gym': 'Open Gym',
-      'specialty': 'Specialty Program'
-    };
     if (!type) return 'Unknown';
-    return names[type] || type;
+    // Look up display name from the gym's membership types
+    const membership = memberships.find(m => m.slug === type);
+    if (membership) return membership.display_name;
+    // Fallback: capitalize and clean up the slug
+    return type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
   if (!user) {

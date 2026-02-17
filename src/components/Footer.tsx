@@ -1,8 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTenant } from '../contexts/TenantContext';
 import styles from './Footer.module.scss';
 
-const Footer: React.FC = () => (
+const Footer: React.FC = () => {
+  const { gym, branding } = useTenant();
+
+  return (
   <footer className={styles.footer}>
     <div className={styles.links}>
       <Link to="/">Home</Link>
@@ -12,17 +16,17 @@ const Footer: React.FC = () => (
       <Link to="/schedule">Schedule</Link>
     </div>
     <div className={styles.affiliate}>
-      <div className={styles.affiliateBadge}>
-        CrossFit® Affiliate
-      </div>
       <div className={styles.copyright}>
-        &copy; {new Date().getFullYear()} CrossFit Comet. All rights reserved.
+        &copy; {new Date().getFullYear()} {gym?.name}. All rights reserved.
       </div>
-      <div className={styles.disclaimer}>
-        CrossFit® is a registered trademark of CrossFit, LLC.
-      </div>
+      {branding.footer_text && (
+        <div className={styles.disclaimer}>
+          {branding.footer_text}
+        </div>
+      )}
     </div>
   </footer>
-);
+  );
+};
 
 export default Footer;

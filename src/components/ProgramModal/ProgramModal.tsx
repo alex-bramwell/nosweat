@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button } from '../common';
 import { AuthModal } from '../AuthModal';
 import { useAuth } from '../../contexts/AuthContext';
-import { programDetails } from '../../data/programDetails';
+import { useTenant } from '../../contexts/TenantContext';
 import styles from './ProgramModal.module.scss';
 
 interface ProgramModalProps {
@@ -15,9 +15,37 @@ interface ProgramModalProps {
 const ProgramModal: React.FC<ProgramModalProps> = ({ isOpen, onClose, programId }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { programs } = useTenant();
   const [step, setStep] = useState<1 | 2>(1);
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
-  const program = programDetails[programId];
+
+  const programData = programs.find(p => p.slug === programId);
+
+  const program = useMemo(() => {
+    if (!programData) return null;
+    const priceParts: string[] = [];
+    if (programData.price_pence != null) {
+      const pounds = (programData.price_pence / 100).toFixed(
+        programData.price_pence % 100 === 0 ? 0 : 2
+      );
+      priceParts.push(`\u00A3${pounds}`);
+    }
+    if (programData.price_unit) {
+      priceParts.push(programData.price_unit);
+    }
+    if (programData.price_note) {
+      priceParts.push(`(${programData.price_note})`);
+    }
+    return {
+      title: programData.title,
+      tagline: programData.tagline ?? '',
+      overview: programData.overview ?? '',
+      benefits: programData.benefits ?? [],
+      whoIsItFor: programData.who_is_it_for ?? [],
+      schedule: programData.schedule_info ?? undefined,
+      pricing: priceParts.length > 0 ? priceParts.join(' ') : undefined,
+    };
+  }, [programData]);
 
   const handleGetStarted = () => {
     // If user is logged in, redirect to dashboard to book a session

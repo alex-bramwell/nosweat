@@ -147,7 +147,7 @@
   padding: 0;
 
   &:hover {
-    background: rgba(255, 79, 31, 0.1);
+    background: rgba(var(--color-accent-rgb), 0.1);
     color: var(--color-accent);
     transform: rotate(90deg);
   }
