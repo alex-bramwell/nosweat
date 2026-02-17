@@ -436,6 +436,7 @@ const Navbar: React.FC = () => {
               </svg>
               Schedule
             </Link>
+            )}
             <a
               href="/#wod"
               className={`${styles.mobileNavLink} ${styles.wodLink} ${activeSection === 'wod' ? styles.active : ''}`}
