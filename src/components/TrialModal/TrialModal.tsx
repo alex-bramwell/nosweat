@@ -5,6 +5,7 @@ import { AuthModal } from '../AuthModal';
 import { StripeCardSetupForm } from '../StripeCardSetupForm';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRegistrationIntent } from '../../contexts/RegistrationContext';
+import { useTenant } from '../../contexts/TenantContext';
 import styles from './TrialModal.module.scss';
 
 interface TrialModalProps {
@@ -16,6 +17,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const { updateStep, clearIntent } = useRegistrationIntent();
+  const { gym } = useTenant();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   // Removed unused: authMode
   const [setupError, setSetupError] = useState<string | null>(null);
@@ -85,7 +87,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
 
           <h2 className={styles.title}>Start Your Free Trial</h2>
           <p className={styles.subtitle}>
-            Experience the CrossFit Comet difference with no commitment
+            Experience the {gym?.name} difference with no commitment
           </p>
 
           <div className={styles.benefits}>

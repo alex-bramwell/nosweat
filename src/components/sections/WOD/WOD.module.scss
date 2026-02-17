@@ -102,7 +102,7 @@
 }
 
 .movements {
-  background: linear-gradient(135deg, #181820 0%, #1d1d26 100%);
+  background: linear-gradient(135deg, rgba(var(--color-bg-dark-rgb), 0.9) 0%, rgba(var(--color-surface-rgb), 0.9) 100%);
   border-radius: 0.5rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -134,7 +134,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 1rem;
-  background: linear-gradient(135deg, #181820 0%, #1d1d26 100%);
+  background: linear-gradient(135deg, rgba(var(--color-bg-dark-rgb), 0.9) 0%, rgba(var(--color-surface-rgb), 0.9) 100%);
   border-radius: 0.5rem;
   margin-bottom: 1.5rem;
 }
@@ -182,10 +182,10 @@
 }
 
 .statsCard {
-  background: linear-gradient(135deg, #1d1d26 0%, #23232e 100%);
+  background: linear-gradient(135deg, rgba(var(--color-bg-dark-rgb), 0.9) 0%, rgba(var(--color-surface-rgb), 0.9) 100%);
   border-radius: 12px;
   padding: 2rem;
-  border: 1px solid rgba(255, 79, 31, 0.1);
+  border: 1px solid rgba(var(--color-accent-rgb), 0.1);
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -342,12 +342,12 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%);
-  color: #22c55e;
+  background: linear-gradient(135deg, rgba(var(--color-secondary2-rgb), 0.2) 0%, rgba(var(--color-secondary2-rgb), 0.1) 100%);
+  color: var(--color-secondary2);
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: 20px;
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  border: 1px solid rgba(var(--color-secondary2-rgb), 0.3);
 
   &::before {
     content: '✓';

@@ -1,11 +1,11 @@
 {
-  "name": "CrossFit Comet",
-  "short_name": "CF Comet",
+  "name": "GymForge",
+  "short_name": "GymForge",
   "description": "Transform your fitness journey with expert coaching and world-class programming",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#181820",
-  "theme_color": "#181820",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "orientation": "portrait-primary",
   "icons": [
     {

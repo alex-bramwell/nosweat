@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Button, Section, Container } from '../../common';
 import { TrialModal } from '../../TrialModal';
 import { DayPassModal } from '../../DayPassModal';
+import { useTenant } from '../../../contexts/TenantContext';
 import styles from './Hero.module.scss';
 
 const Hero = () => {
+  const { branding } = useTenant();
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
   const [isDayPassModalOpen, setIsDayPassModalOpen] = useState(false);
 
@@ -24,11 +26,10 @@ const Hero = () => {
       <Container>
         <div className={styles.content}>
           <h1 className={styles.title}>
-            Welcome to CrossFit Comet
+            {branding.hero_headline}
           </h1>
           <p className={styles.subtitle}>
-            Where strength meets community. Transform your fitness journey with expert coaching,
-            world-class programming, and a supportive atmosphere.
+            {branding.hero_subtitle}
           </p>
 
           <div className={styles.actionCards}>
@@ -45,7 +46,7 @@ const Hero = () => {
             <div className={styles.actionCard}>
               <h3 className={styles.cardTitle}>Free Trial</h3>
               <p className={styles.cardDescription}>
-                New to CrossFit? Try your first class on us—no commitment
+                New here? Try your first class on us—no commitment
               </p>
               <Button variant="secondary" size="medium" onClick={handleTrialClick}>
                 Book Trial Pass

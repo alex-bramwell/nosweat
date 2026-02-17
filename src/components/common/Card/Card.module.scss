@@ -15,10 +15,10 @@
     padding: 2px;
     background: linear-gradient(
       135deg,
-      rgba(255, 79, 31, 0.3),
-      rgba(0, 212, 255, 0.3),
-      rgba(255, 79, 31, 0.2),
-      rgba(0, 212, 255, 0.2)
+      rgba(var(--color-accent-rgb), 0.3),
+      rgba(var(--color-secondary-rgb), 0.3),
+      rgba(var(--color-accent-rgb), 0.2),
+      rgba(var(--color-secondary-rgb), 0.2)
     );
     background-size: 200% 200%;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);

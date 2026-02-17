@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTenant } from '../contexts/TenantContext';
 import { Section, Container, Card, Button } from '../components/common';
 import { ProfileSettings } from '../components/ProfileSettings';
 import { WeeklyVolume } from '../components/WeeklyVolume';
@@ -11,6 +12,7 @@ import styles from './Dashboard.module.scss';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const { features } = useTenant();
   const [activeTab, setActiveTab] = useState<'wod' | 'booking' | 'services' | 'profile'>('wod');
   const [classType, setClassType] = useState<'crossfit' | 'opengym'>('crossfit');
   const [bookingClassType, setBookingClassType] = useState<'crossfit' | 'opengym'>('crossfit');

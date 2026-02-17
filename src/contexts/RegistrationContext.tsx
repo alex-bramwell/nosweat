@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { useTenant } from './TenantContext';
 import type { RegistrationIntent } from '../types';
 
 interface RegistrationContextType {
@@ -10,7 +11,6 @@ interface RegistrationContextType {
 
 const RegistrationContext = createContext<RegistrationContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'cf_comet_registration_intent';
 const INTENT_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
 
 interface RegistrationProviderProps {
@@ -18,7 +18,11 @@ interface RegistrationProviderProps {
 }
 
 export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ children }) => {
+  const { gym } = useTenant();
   const [intent, setIntentState] = useState<RegistrationIntent | null>(null);
+
+  // Dynamic storage key based on gym slug
+  const STORAGE_KEY = `${gym?.slug || 'gym'}_registration_intent`;
 
   // Load intent from sessionStorage on mount
   useEffect(() => {
@@ -40,7 +44,7 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       console.error('Error loading registration intent:', error);
       sessionStorage.removeItem(STORAGE_KEY);
     }
-  }, []);
+  }, [STORAGE_KEY]);
 
   // Listen for storage changes (e.g., when logout clears the intent)
   useEffect(() => {
@@ -56,7 +60,7 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
     const intervalId = setInterval(handleStorageChange, 500);
 
     return () => clearInterval(intervalId);
-  }, [intent]);
+  }, [intent, STORAGE_KEY]);
 
   // Save intent to sessionStorage whenever it changes
   useEffect(() => {
@@ -69,7 +73,7 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
     } else {
       sessionStorage.removeItem(STORAGE_KEY);
     }
-  }, [intent]);
+  }, [intent, STORAGE_KEY]);
 
   const setIntent = (newIntent: Partial<RegistrationIntent>) => {
     setIntentState((prev) => ({

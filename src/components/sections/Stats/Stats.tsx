@@ -1,8 +1,9 @@
 import { Section, Container, Button } from '../../common';
-import { stats } from '../../../data/stats';
+import { useTenant } from '../../../contexts/TenantContext';
 import styles from './Stats.module.scss';
 
 const Stats = () => {
+  const { stats } = useTenant();
   return (
     <Section spacing="large" background="surface">
       <Container>

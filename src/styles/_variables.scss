@@ -1,22 +1,47 @@
-// Theme variables for CrossFit Comet
+// Default white-label theme — overridden at runtime by useTenantTheme hook
+// These defaults provide a clean, neutral light theme.
+// Tenant-specific colors are injected into :root via JS when the gym loads.
 :root {
-  --color-bg: #181820;
-  --color-bg-light: #2a2a38;
-  --color-bg-dark: #0f0f14;
-  --color-surface: #23232e;
+  // Colors (overridden per-tenant)
+  --color-bg: #ffffff;
+  --color-bg-light: #f8f9fa;
+  --color-bg-dark: #e9ecef;
+  --color-surface: #ffffff;
+  --color-accent: #2563eb;
+  --color-accent2: #dc2626;
+  --color-secondary: #0891b2;
+  --color-secondary2: #059669;
+  --color-specialty: #7c3aed;
+  --color-text: #1f2937;
+  --color-muted: #6b7280;
+  --color-header: #111827;
+  --color-footer: #111827;
+
+  // RGB channel versions (for use inside rgba())
+  // e.g.: background: rgba(var(--color-accent-rgb), 0.15);
+  --color-bg-rgb: 255, 255, 255;
+  --color-bg-light-rgb: 248, 249, 250;
+  --color-bg-dark-rgb: 233, 236, 239;
+  --color-surface-rgb: 255, 255, 255;
+  --color-accent-rgb: 37, 99, 235;
+  --color-accent2-rgb: 220, 38, 38;
+  --color-secondary-rgb: 8, 145, 178;
+  --color-secondary2-rgb: 5, 150, 105;
+  --color-specialty-rgb: 124, 58, 237;
+  --color-text-rgb: 31, 41, 55;
+  --color-muted-rgb: 107, 114, 128;
+  --color-header-rgb: 17, 24, 39;
+  --color-footer-rgb: 17, 24, 39;
+
+  // Typography (overridden per-tenant)
+  --font-header: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  // Shape (overridden per-tenant)
+  --border-radius: 0.5rem;
+
+  // Legacy — kept for backward compat until all SCSS files are updated
   --background-off-white: #f8f8f8;
-  --color-accent: #ff4f1f;
-  --color-accent2: #ff1f4f;
-  --color-secondary: #00d4ff;
-  --color-secondary2: #00ff88;
-  --color-specialty: #9d4edd;
-  --color-text: #fff;
-  --color-muted: #888;
-  --color-header: #fff;
-  --color-footer: #fff;
-  --font-header: 'Poppins', sans-serif;
-  --font-body: 'Open Sans', 'Arial', sans-serif;
-  --border-radius: 1rem;
 }
 
 // Breakpoints for container queries and layout
