@@ -1,4 +1,4 @@
-// Core data types for CrossFit Comet
+// Core data types for the gym platform
 
 export interface Program {
   id: string;

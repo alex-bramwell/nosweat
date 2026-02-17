@@ -7,7 +7,7 @@ const ComponentDemo = () => {
     try {
       const { data: users, error: userError } = await supabase.auth.admin.listUsers();
       if (userError) throw userError;
-      const danUser = users.users.find(u => u.email === 'dan@crossfitcomet.com');
+      const danUser = users.users.find(u => u.email === 'dan@example.com');
 
       if (!danUser) {
         alert("Dan's user not found.");
@@ -29,7 +29,7 @@ const ComponentDemo = () => {
         <Container>
           <h1 style={{ marginBottom: '2rem' }}>UI Component Library</h1>
 
-          <div style={{ border: '1px solid #ff4f1f', padding: '1rem', borderRadius: '8px', marginBottom: '2rem' }}>
+          <div style={{ border: '1px solid var(--color-accent)', padding: '1rem', borderRadius: '8px', marginBottom: '2rem' }}>
             <h2 style={{ marginTop: 0 }}>Dev Tools</h2>
             <Button variant="primary" onClick={handleMakeDanAdmin}>Make Dan Admin</Button>
           </div>

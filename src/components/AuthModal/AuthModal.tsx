@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRegistrationIntent } from '../../contexts/RegistrationContext';
+import { useTenant } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { Modal, Button } from '../common';
 import { checkPasswordCompromised, sanitizeInput, isValidEmail } from '../../utils/security';
@@ -20,6 +21,7 @@ interface AuthModalProps {
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login', initialError = '', embedded = false, isCoachLogin = false, onCoachLoginClick }) => {
   const { signup, resetPassword, loginWithOAuth, isAuthenticated, user } = useAuth();
   const { intent, updateStep } = useRegistrationIntent();
+  const { gym } = useTenant();
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'signup' | 'reset' | 'changePassword'>(initialMode);
   const [email, setEmail] = useState('');
@@ -479,7 +481,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                 </span>
                 Check your email
               </h4>
-              <p>Look for a password reset email from CrossFit Comet</p>
+              <p>Look for a password reset email from {gym?.name || 'our gym'}</p>
             </div>
           </div>
           <div className={styles.completionStep}>
@@ -747,7 +749,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             <div className={styles.completionStep}>
               <div className={styles.stepText}>
                 <h4><span className={styles.stepNumber}>1</span> Check your email</h4>
-                <p>Look for a password reset email from CrossFit Comet</p>
+                <p>Look for a password reset email from {gym?.name || 'our gym'}</p>
               </div>
             </div>
             <div className={styles.completionStep}>
@@ -826,7 +828,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             <div className={styles.completionStep}>
               <div className={styles.stepText}>
                 <h4><span className={styles.stepNumber}>1</span> Check your email</h4>
-                <p>Look for an email from CrossFit Comet</p>
+                <p>Look for an email from {gym?.name || 'our gym'}</p>
               </div>
             </div>
             <div className={styles.completionStep}>
@@ -892,7 +894,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           </h2>
           <p className={styles.subtitle}>
             {mode === 'login' && 'Sign in to access your member dashboard'}
-            {mode === 'signup' && 'Join CrossFit Comet and start your fitness journey'}
+            {mode === 'signup' && `Join ${gym?.name || 'our gym'} and start your fitness journey`}
             {mode === 'reset' && 'Enter your email to receive a password reset link'}
           </p>
         </div>
@@ -1101,7 +1103,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                 Forgot password?
               </button>
               <div className={styles.signupPrompt}>
-                <p className={styles.switchText}>New to CrossFit Comet?</p>
+                <p className={styles.switchText}>New to {gym?.name || 'our gym'}?</p>
                 <button
                   type="button"
                   onClick={() => switchMode('signup')}

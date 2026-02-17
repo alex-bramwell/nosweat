@@ -3,7 +3,6 @@ import { useLocation, Link } from 'react-router-dom';
 import { Section, Container, Card, Button } from '../components/common';
 import { coachProfileService, type CoachProfile } from '../services/coachProfileService';
 import { SERVICE_LABELS } from '../services/coachServicesService';
-import { coaches as fallbackCoaches } from '../data/coaches';
 import styles from './Coaches.module.scss';
 
 const Coaches = () => {
@@ -11,7 +10,6 @@ const Coaches = () => {
   const coachRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [coaches, setCoaches] = useState<CoachProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [useFallback, setUseFallback] = useState(false);
 
   // Load coaches from database
   useEffect(() => {
@@ -19,18 +17,10 @@ const Coaches = () => {
       setIsLoading(true);
       try {
         const dbCoaches = await coachProfileService.getAllCoachProfiles();
-        // Only use DB coaches if they have profile data
-        const coachesWithProfiles = dbCoaches.filter(c => c.bio || c.certifications.length > 0);
-        if (coachesWithProfiles.length > 0) {
-          setCoaches(coachesWithProfiles);
-          setUseFallback(false);
-        } else {
-          // Fall back to hardcoded data if no coaches have filled out profiles
-          setUseFallback(true);
-        }
+        setCoaches(dbCoaches);
       } catch (error) {
         console.error('Error loading coaches:', error);
-        setUseFallback(true);
+        setCoaches([]);
       } finally {
         setIsLoading(false);
       }
@@ -51,11 +41,11 @@ const Coaches = () => {
   // Generate a consistent color based on name
   const getAvatarColor = (id: string) => {
     const colors = [
-      'linear-gradient(135deg, #FF4F1F 0%, #FF6B3D 100%)',
-      'linear-gradient(135deg, #00E5FF 0%, #00FFAA 100%)',
-      'linear-gradient(135deg, #1d1d26 0%, #23232e 100%)',
-      'linear-gradient(135deg, #FF4F1F 20%, #00E5FF 100%)',
-      'linear-gradient(135deg, #00FFAA 0%, #00E5FF 100%)',
+      'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
+      'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)',
+      'linear-gradient(135deg, #374151 0%, #4b5563 100%)',
+      'linear-gradient(135deg, #dc2626 0%, #f87171 100%)',
+      'linear-gradient(135deg, #059669 0%, #34d399 100%)',
     ];
     const index = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[index % colors.length];
@@ -80,16 +70,15 @@ const Coaches = () => {
     return (coach.services || []).filter(s => s.isActive).map(s => s.serviceType);
   };
 
-  // Render coach card - works with both DB coaches and fallback data
-  const renderCoachCard = (coach: CoachProfile | typeof fallbackCoaches[0], index: number) => {
-    const isDBCoach = 'fullName' in coach;
-    const id = isDBCoach ? (coach as CoachProfile).coachId || (coach as CoachProfile).id : coach.id;
-    const name = isDBCoach ? (coach as CoachProfile).fullName : coach.name;
-    const title = isDBCoach ? (coach as CoachProfile).title : coach.title;
-    const bio = isDBCoach ? (coach as CoachProfile).bio : coach.bio;
-    const certifications = isDBCoach ? (coach as CoachProfile).certifications : coach.certifications;
-    const specialties = isDBCoach ? (coach as CoachProfile).specialties : coach.specialties;
-    const services = isDBCoach ? getActiveServices(coach as CoachProfile) : [];
+  // Render coach card
+  const renderCoachCard = (coach: CoachProfile, index: number) => {
+    const id = coach.coachId || coach.id;
+    const name = coach.fullName;
+    const title = coach.title;
+    const bio = coach.bio;
+    const certifications = coach.certifications;
+    const specialties = coach.specialties;
+    const services = getActiveServices(coach);
 
     return (
       <Card
@@ -184,12 +173,13 @@ const Coaches = () => {
             <div className={styles.loading}>
               <p>Loading coaches...</p>
             </div>
-          ) : (
+          ) : coaches.length > 0 ? (
             <div className={styles.coachesGrid}>
-              {useFallback
-                ? fallbackCoaches.map((coach, index) => renderCoachCard(coach, index))
-                : coaches.map((coach, index) => renderCoachCard(coach, index))
-              }
+              {coaches.map((coach, index) => renderCoachCard(coach, index))}
+            </div>
+          ) : (
+            <div className={styles.loading}>
+              <p>No coaches available at this time.</p>
             </div>
           )}
         </Container>

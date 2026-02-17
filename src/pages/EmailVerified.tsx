@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTenant } from '../contexts/TenantContext';
 import { Section, Container, Button } from '../components/common';
 import styles from './EmailVerified.module.scss';
 
@@ -8,6 +9,7 @@ const EmailVerified = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { resendVerificationEmail } = useAuth();
+  const { gym } = useTenant();
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const [errorMessage, setErrorMessage] = useState('');
   const [email, setEmail] = useState('');
@@ -107,7 +109,7 @@ const EmailVerified = () => {
               </div>
               <h1 className={styles.title}>Email Verified Successfully!</h1>
               <p className={styles.message}>
-                Your email has been verified. You can now sign in to your account and start your CrossFit Comet journey.
+                Your email has been verified. You can now sign in to your account and start your {gym?.name || 'your fitness'} journey.
               </p>
               <div className={styles.features}>
                 <div className={styles.feature}>

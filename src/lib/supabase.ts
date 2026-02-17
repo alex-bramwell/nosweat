@@ -28,7 +28,7 @@ export interface Database {
           id: string;
           email: string;
           full_name: string;
-          membership_type: 'trial' | 'crossfit' | 'comet-plus' | 'open-gym' | 'specialty';
+          membership_type: string;
           join_date: string;
           avatar_url: string | null;
           phone: string | null;
@@ -46,7 +46,7 @@ export interface Database {
           id: string;
           email: string;
           full_name: string;
-          membership_type?: 'trial' | 'crossfit' | 'comet-plus' | 'open-gym' | 'specialty';
+          membership_type?: string;
           join_date?: string;
           avatar_url?: string | null;
           phone?: string | null;
@@ -57,7 +57,7 @@ export interface Database {
         };
         Update: {
           full_name?: string;
-          membership_type?: 'trial' | 'crossfit' | 'comet-plus' | 'open-gym' | 'specialty';
+          membership_type?: string;
           avatar_url?: string | null;
           phone?: string | null;
           emergency_contact?: string | null;

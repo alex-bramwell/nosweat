@@ -6,7 +6,7 @@ export interface User {
   email: string;
   name: string;
   role: 'member' | 'staff' | 'coach' | 'admin';
-  membershipType: 'trial' | 'crossfit' | 'comet-plus' | 'open-gym' | 'specialty';
+  membershipType: string;  // dynamic per-gym (e.g. 'trial', 'crossfit', 'premium', etc.)
   joinDate: string;
   avatarUrl?: string;
   phone?: string;
@@ -283,7 +283,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     setUser(null);
     // Clear registration intent on logout to prevent stale redirects
-    sessionStorage.removeItem('cf_comet_registration_intent');
+    // Find and remove any gym-specific registration intent keys
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const key = sessionStorage.key(i);
+      if (key && key.endsWith('_registration_intent')) {
+        sessionStorage.removeItem(key);
+      }
+    }
   };
 
   const resetPassword = async (email: string) => {

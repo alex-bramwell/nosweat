@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Modal, Button } from '../common';
 import { stripePromise } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import { formatCurrency, handlePaymentError } from '../../utils/payment';
-import { weeklySchedule } from '../../data/schedule';
+import { useTenant } from '../../contexts/TenantContext';
 import type { ClassSchedule } from '../../types';
 import styles from './DayPassModal.module.scss';
 
@@ -121,6 +121,17 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
 const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const { schedule } = useTenant();
+
+  const weeklySchedule: ClassSchedule[] = useMemo(() =>
+    schedule.map(entry => ({
+      id: entry.id,
+      day: entry.day_of_week,
+      time: entry.start_time,
+      className: entry.class_name,
+      coach: undefined,
+      capacity: entry.max_capacity,
+    })), [schedule]);
   const [currentStep, setCurrentStep] = useState<Step>('auth');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<any>(null);

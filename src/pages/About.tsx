@@ -1,7 +1,10 @@
 import { Section, Container, Card, Button } from '../components/common';
+import { useTenant } from '../contexts/TenantContext';
 import styles from './About.module.scss';
 
 const About = () => {
+  const { gym, branding } = useTenant();
+
   return (
     <>
       {/* Hero Section */}
@@ -11,7 +14,7 @@ const About = () => {
             <h1 className={styles.heroTitle}>Our Story</h1>
             <p className={styles.heroSubtitle}>
               More than a gym. We're a community dedicated to helping you achieve your fitness goals
-              through the proven methodology of CrossFit.
+              with expert coaching and a supportive environment.
             </p>
           </div>
         </Container>
@@ -24,15 +27,20 @@ const About = () => {
             <div className={styles.missionText}>
               <h2 className={styles.sectionTitle}>Our Mission</h2>
               <p className={styles.paragraph}>
-                At CrossFit Comet, we believe fitness is more than just a workout—it's a lifestyle.
-                Our mission is to create a welcoming, inclusive community where athletes of all levels
-                can push their limits, achieve their goals, and become the best version of themselves.
+                {branding.about_mission}
               </p>
-              <p className={styles.paragraph}>
-                Founded in Nottingham, we've built our gym on the principles of functional fitness,
-                community support, and expert coaching. Whether you're a complete beginner or a seasoned
-                athlete, we're here to guide you every step of the way.
-              </p>
+              {branding.about_philosophy && (
+                <p className={styles.paragraph}>
+                  {branding.about_philosophy}
+                </p>
+              )}
+              {!branding.about_philosophy && (
+                <p className={styles.paragraph}>
+                  We've built our gym on the principles of functional fitness,
+                  community support, and expert coaching. Whether you're a complete beginner or a seasoned
+                  athlete, we're here to guide you every step of the way.
+                </p>
+              )}
             </div>
 
             <div className={styles.valuesGrid}>
@@ -154,7 +162,7 @@ const About = () => {
               </div>
               <h3 className={styles.featureTitle}>Flexible Schedule</h3>
               <p className={styles.featureText}>
-                40+ classes per week with morning, afternoon, and evening options to fit your lifestyle.
+                Multiple classes per week with morning, afternoon, and evening options to fit your lifestyle.
               </p>
             </div>
 
@@ -183,29 +191,36 @@ const About = () => {
             <div className={styles.locationInfo}>
               <h2 className={styles.sectionTitle}>Visit Us</h2>
               <div className={styles.locationDetails}>
-                <div className={styles.locationItem}>
-                  <h3 className={styles.locationLabel}>Address</h3>
-                  <p className={styles.locationValue}>
-                    Unit 24, Bar Lane Industrial Estate<br />
-                    Basford, Nottingham<br />
-                    NG6 0JA, United Kingdom
-                  </p>
-                </div>
+                {(gym?.address_line1 || gym?.city) && (
+                  <div className={styles.locationItem}>
+                    <h3 className={styles.locationLabel}>Address</h3>
+                    <p className={styles.locationValue}>
+                      {gym.address_line1 && <>{gym.address_line1}<br /></>}
+                      {gym.address_line2 && <>{gym.address_line2}<br /></>}
+                      {gym.city && <>{gym.city}<br /></>}
+                      {gym.postcode && <>{gym.postcode}</>}
+                      {gym.country && <>, {gym.country}</>}
+                    </p>
+                  </div>
+                )}
 
-                <div className={styles.locationItem}>
-                  <h3 className={styles.locationLabel}>Hours</h3>
-                  <p className={styles.locationValue}>
-                    <strong>Monday - Friday:</strong> 9:00 AM - 8:00 PM<br />
-                    <strong>Saturday - Sunday:</strong> 9:00 AM - 3:00 PM
-                  </p>
-                </div>
+                {gym?.contact_phone && (
+                  <div className={styles.locationItem}>
+                    <h3 className={styles.locationLabel}>Contact</h3>
+                    <p className={styles.locationValue}>
+                      Phone: <a href={`tel:${gym.contact_phone}`} className={styles.link}>{gym.contact_phone}</a>
+                    </p>
+                  </div>
+                )}
 
-                <div className={styles.locationItem}>
-                  <h3 className={styles.locationLabel}>Contact</h3>
-                  <p className={styles.locationValue}>
-                    Phone: <a href="tel:07740195130" className={styles.link}>07740 195130</a>
-                  </p>
-                </div>
+                {gym?.contact_email && (
+                  <div className={styles.locationItem}>
+                    <h3 className={styles.locationLabel}>Email</h3>
+                    <p className={styles.locationValue}>
+                      <a href={`mailto:${gym.contact_email}`} className={styles.link}>{gym.contact_email}</a>
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -213,30 +228,34 @@ const About = () => {
               <div className={styles.ctaCard}>
                 <h3 className={styles.ctaTitle}>Ready to Start Your Journey?</h3>
                 <p className={styles.ctaText}>
-                  Join us for a free trial class and experience the CrossFit Comet difference.
+                  Join us for a free trial class and experience the {gym?.name} difference.
                   No experience necessary—just bring your energy and we'll take care of the rest.
                 </p>
                 <div className={styles.ctaButtons}>
                   <Button variant="primary" as="a" href="/schedule">
                     View Schedule
                   </Button>
-                  <Button variant="outline" as="a" href="tel:07740195130">
-                    Call Us Today
-                  </Button>
+                  {gym?.contact_phone && (
+                    <Button variant="outline" as="a" href={`tel:${gym.contact_phone}`}>
+                      Call Us Today
+                    </Button>
+                  )}
                 </div>
 
-                <div className={styles.mapContainer}>
-                  <iframe
-                    src="https://maps.google.com/maps?q=Unit+24,+Bar+Lane+Industrial+Estate,+Basford,+Nottingham+NG6+0JA,+UK&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen={true}
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="CrossFit Comet Location"
-                  ></iframe>
-                </div>
+                {gym?.google_maps_embed_url && (
+                  <div className={styles.mapContainer}>
+                    <iframe
+                      src={gym.google_maps_embed_url}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen={true}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title={`${gym?.name} Location`}
+                    ></iframe>
+                  </div>
+                )}
               </div>
             </Card>
           </div>

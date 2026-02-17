@@ -1,17 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Section, Container, Button } from '../components/common';
 import { AuthModal } from '../components/AuthModal';
 import { TrialModal } from '../components/TrialModal';
 import { DayPassPaymentModal } from '../components/DayPassPaymentModal';
 import { useAuth } from '../contexts/AuthContext';
 import { useRegistrationIntent } from '../contexts/RegistrationContext';
-import { weeklySchedule } from '../data/schedule';
+import { useTenant } from '../contexts/TenantContext';
 import type { ClassSchedule } from '../types';
 import styles from './Schedule.module.scss';
 
 const Schedule = () => {
   const { isAuthenticated, user, isLoading } = useAuth();
   const { intent, updateStep } = useRegistrationIntent();
+  const { schedule } = useTenant();
+
+  const weeklySchedule: ClassSchedule[] = useMemo(() =>
+    schedule.map(entry => ({
+      id: entry.id,
+      day: entry.day_of_week,
+      time: entry.start_time,
+      className: entry.class_name,
+      coach: undefined,
+      capacity: entry.max_capacity,
+    })), [schedule]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<ClassSchedule | null>(null);
