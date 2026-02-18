@@ -1,6 +1,7 @@
+import type { ReactElement } from 'react';
 import type { FeatureKey } from '../../types/tenant';
 
-const icons: Record<FeatureKey, JSX.Element> = {
+const icons: Record<FeatureKey, ReactElement> = {
   class_booking: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="4" width="18" height="18" rx="2" />

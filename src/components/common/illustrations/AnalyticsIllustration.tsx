@@ -33,7 +33,7 @@ const AnalyticsIllustration = ({ className }: AnalyticsIllustrationProps) => {
     [-10, 12],  // lower left
     [-14, 2],   // upper left
   ];
-  const labelAnchors: string[] = ['middle', 'start', 'start', 'end', 'end'];
+  const labelAnchors: ('start' | 'middle' | 'end')[] = ['middle', 'start', 'start', 'end', 'end'];
 
   return (
     <svg

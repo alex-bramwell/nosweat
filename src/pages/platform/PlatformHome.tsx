@@ -8,13 +8,6 @@ import styles from './PlatformHome.module.scss';
 const PlatformHome = () => {
   const price = useMemo(() => getLocalizedPrice(), []);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <div className={styles.platformHome}>
       {/* Hero Section */}
