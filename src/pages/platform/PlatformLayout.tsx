@@ -17,7 +17,7 @@ const PlatformLayout = ({ children }: PlatformLayoutProps) => {
         <div className={styles.navContainer}>
           <Link to="/" className={styles.logo}>
             <span className={styles.logoIcon}>🏋️</span>
-            <span className={styles.logoText}>GymForge</span>
+            <span className={styles.logoText}>No Sweat</span>
           </Link>
 
           <div className={styles.navLinks}>
@@ -53,7 +53,7 @@ const PlatformLayout = ({ children }: PlatformLayoutProps) => {
         <div className={styles.footerContainer}>
           <div className={styles.footerContent}>
             <div className={styles.footerBrand}>
-              <span className={styles.footerLogo}>🏋️ GymForge</span>
+              <span className={styles.footerLogo}>🏋️ No Sweat</span>
               <p className={styles.footerTagline}>
                 The all-in-one platform for gyms & fitness studios
               </p>
@@ -84,7 +84,7 @@ const PlatformLayout = ({ children }: PlatformLayoutProps) => {
 
           <div className={styles.footerBottom}>
             <p className={styles.footerCopyright}>
-              © {new Date().getFullYear()} GymForge. All rights reserved.
+              © {new Date().getFullYear()} No Sweat. All rights reserved.
             </p>
           </div>
         </div>
