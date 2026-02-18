@@ -313,6 +313,7 @@ const Onboarding = () => {
                     Your Website URL
                   </label>
                   <div className={styles.slugInput}>
+                    <span className={styles.slugSuffix}>nosweat.fitness/gym/</span>
                     <input
                       id="slug"
                       type="text"
@@ -322,7 +323,6 @@ const Onboarding = () => {
                       className={styles.input}
                       placeholder="my-awesome-gym"
                     />
-                    <span className={styles.slugSuffix}>.gym-forge.com</span>
                   </div>
                   {checkingSlug && (
                     <p className={styles.slugStatus}>Checking availability...</p>
@@ -515,7 +515,7 @@ const Onboarding = () => {
                 <div className={styles.summaryItem}>
                   <span className={styles.summaryLabel}>Website URL:</span>
                   <span className={styles.summaryValue}>
-                    {slug}.gym-forge.com
+                    nosweat.fitness/gym/{slug}
                   </span>
                 </div>
                 <div className={styles.summaryItem}>
@@ -563,10 +563,10 @@ const Onboarding = () => {
               <div className={styles.successUrl}>
                 <strong>Your website:</strong>
                 <br />
-                {slug}.gym-forge.com
+                nosweat.fitness/gym/{slug}
               </div>
               <a
-                href={`/?tenant=${slug}`}
+                href={`/gym/${slug}`}
                 className={styles.visitButton}
               >
                 Visit Your Site

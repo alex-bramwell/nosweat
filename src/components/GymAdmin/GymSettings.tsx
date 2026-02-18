@@ -127,7 +127,7 @@ const GymSettings: React.FC = () => {
               readOnly
             />
             <span className={styles.fieldHelp}>
-              Your gym's URL: {gym.slug}.gym-forge.com
+              Your gym's URL: nosweat.fitness/gym/{gym.slug}
             </span>
           </div>
         </div>

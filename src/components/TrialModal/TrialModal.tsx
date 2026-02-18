@@ -5,7 +5,7 @@ import { AuthModal } from '../AuthModal';
 import { StripeCardSetupForm } from '../StripeCardSetupForm';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRegistrationIntent } from '../../contexts/RegistrationContext';
-import { useTenant } from '../../contexts/TenantContext';
+import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import styles from './TrialModal.module.scss';
 
 interface TrialModalProps {
@@ -15,6 +15,7 @@ interface TrialModalProps {
 
 const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const gymPath = useGymPath();
   const { user, isAuthenticated } = useAuth();
   const { updateStep, clearIntent } = useRegistrationIntent();
   const { gym } = useTenant();
@@ -53,7 +54,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
 
   const handleSetupSuccess = () => {
     clearIntent();
-    navigate('/schedule');
+    navigate(gymPath('/schedule'));
     setTimeout(() => {
       resetModal();
       onClose();

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import { useGymPath } from '../contexts/TenantContext';
 import { Section, Container, Card, Button } from '../components/common';
 import { coachProfileService, type CoachProfile } from '../services/coachProfileService';
 import { SERVICE_LABELS } from '../services/coachServicesService';
@@ -7,6 +8,7 @@ import styles from './Coaches.module.scss';
 
 const Coaches = () => {
   const location = useLocation();
+  const gymPath = useGymPath();
   const coachRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [coaches, setCoaches] = useState<CoachProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -200,7 +202,7 @@ const Coaches = () => {
                   Login for My Services
                 </Button>
               </Link>
-              <Link to="/schedule">
+              <Link to={gymPath('/schedule')}>
                 <Button variant="outline" size="large">
                   View Class Schedule
                 </Button>

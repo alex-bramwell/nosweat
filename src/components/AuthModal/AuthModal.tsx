@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRegistrationIntent } from '../../contexts/RegistrationContext';
-import { useTenant } from '../../contexts/TenantContext';
+import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { Modal, Button } from '../common';
 import { checkPasswordCompromised, sanitizeInput, isValidEmail } from '../../utils/security';
@@ -23,6 +23,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   const { intent, updateStep } = useRegistrationIntent();
   const { gym } = useTenant();
   const navigate = useNavigate();
+  const gymPath = useGymPath();
   const [mode, setMode] = useState<'login' | 'signup' | 'reset' | 'changePassword'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -267,7 +268,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           setPassword('');
           setConfirmPassword('');
           setChangePasswordStep(1);
-          navigate('/', { replace: true });
+          navigate(gymPath('/'), { replace: true });
         }, 2000);
       } else if (mode === 'signup') {
         // Signup validation

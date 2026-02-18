@@ -29,19 +29,20 @@ import PlatformLogin from './pages/platform/PlatformLogin';
 import PlatformSignup from './pages/platform/PlatformSignup';
 import Onboarding from './pages/platform/Onboarding';
 
-// Component to detect password recovery tokens and redirect to home with modal trigger
+// Component to detect password recovery tokens and redirect
 function PasswordRecoveryRedirect() {
   const navigate = useNavigate();
   const location = useLocation();
   const hasRedirected = useRef(false);
+  const { tenantSlug } = useTenant();
+
+  const basePath = tenantSlug ? `/gym/${tenantSlug}` : '';
 
   useEffect(() => {
-    // Only run once - if we've already redirected, don't do it again
     if (hasRedirected.current) {
       return;
     }
 
-    // Check if there's a password recovery token in the URL hash
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const type = hashParams.get('type');
     const accessToken = hashParams.get('access_token');
@@ -53,39 +54,41 @@ function PasswordRecoveryRedirect() {
     // Handle expired or invalid tokens
     if (error === 'access_denied' && errorCode === 'otp_expired') {
       console.log('Detected expired token, redirecting to reset-expired');
-      // Redirect to home with error flag
       if (!location.search.includes('reset-expired=true')) {
         hasRedirected.current = true;
-        navigate('/?reset-expired=true', { replace: true });
+        navigate(`${basePath}/?reset-expired=true`, { replace: true });
       }
       return;
     }
 
+    const resetPath = `${basePath}/reset-password`;
+
     // If we have a recovery token and we're on the reset-password page, stay there
-    // The ResetPassword page has its own form to handle the password update
-    if (type === 'recovery' && accessToken && location.pathname === '/reset-password') {
+    if (type === 'recovery' && accessToken && location.pathname === resetPath) {
       console.log('On reset-password page with valid token - staying here');
       return;
     }
 
     // If we have a recovery token on any other page, redirect to reset-password with the hash preserved
-    if (type === 'recovery' && accessToken && location.pathname !== '/reset-password') {
+    if (type === 'recovery' && accessToken && location.pathname !== resetPath) {
       console.log('Detected recovery token on wrong page, redirecting to reset-password');
       hasRedirected.current = true;
-      // Preserve the hash when redirecting
-      window.location.href = '/reset-password' + window.location.hash;
+      window.location.href = resetPath + window.location.hash;
     }
-  }, [navigate, location]);
+  }, [navigate, location, basePath]);
 
   return null;
 }
 
 // ------------------------------------------------------------------
-// Gym Routes — rendered when a tenant subdomain is resolved
+// Gym Shell — rendered for /gym/:slug/* routes
 // ------------------------------------------------------------------
-function GymRoutes() {
+function GymShell() {
+  const { isLoading, error, gym, tenantSlug } = useTenant();
   const { logout } = useAuth();
   const [showSessionWarning, setShowSessionWarning] = useState(false);
+
+  useTenantTheme();
 
   const sessionTimeout = useSessionTimeout({
     timeoutMinutes: 30,
@@ -103,107 +106,6 @@ function GymRoutes() {
     setShowSessionWarning(false);
     await logout();
   };
-
-  return (
-    <>
-      <BrowserRouter>
-        <PasswordRecoveryRedirect />
-        <ScrollToHash />
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/schedule"
-              element={
-                <FeatureGate feature="class_booking" fallback={<FeatureNotEnabled feature="class_booking" />}>
-                  <Schedule />
-                </FeatureGate>
-              }
-            />
-            <Route
-              path="/coaches"
-              element={
-                <FeatureGate feature="coach_profiles" fallback={<FeatureNotEnabled feature="coach_profiles" />}>
-                  <Coaches />
-                </FeatureGate>
-              }
-            />
-            <Route path="/about" element={<About />} />
-            <Route path="/email-verified" element={<EmailVerified />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/booking-confirmation" element={<BookingConfirmation />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/coach-dashboard"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <CoachDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/coach-view"
-              element={
-                <ProtectedRoute requiredRole="coach">
-                  <CoachView />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/gym-admin"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <GymAdmin />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
-
-      <SessionWarning
-        isOpen={showSessionWarning}
-        remainingTime={sessionTimeout.remainingTimeFormatted}
-        onExtend={handleExtendSession}
-        onLogout={handleLogout}
-      />
-    </>
-  );
-}
-
-// ------------------------------------------------------------------
-// Platform Routes — rendered when no subdomain (the SaaS company site)
-// ------------------------------------------------------------------
-function PlatformRoutes() {
-  return (
-    <BrowserRouter>
-      <PlatformLayout>
-        <Routes>
-          <Route path="/" element={<PlatformHome />} />
-          <Route path="/login" element={<PlatformLogin />} />
-          <Route path="/signup" element={<PlatformSignup />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-        </Routes>
-      </PlatformLayout>
-    </BrowserRouter>
-  );
-}
-
-// ------------------------------------------------------------------
-// App Shell — resolves tenant and renders appropriate routes
-// ------------------------------------------------------------------
-function AppShell() {
-  const { isPlatformSite, isLoading, error, tenantSlug, gym } = useTenant();
-
-  // Inject tenant theme into CSS variables
-  useTenantTheme();
 
   // Loading state
   if (isLoading) {
@@ -223,30 +125,117 @@ function AppShell() {
     );
   }
 
-  // Platform site (no subdomain)
-  if (isPlatformSite) {
-    return <PlatformRoutes />;
-  }
-
   // Gym not found
   if (error || !gym) {
     return <GymNotFound slug={tenantSlug} error={error} />;
   }
 
-  // Gym site
   return (
-    <AuthProvider>
-      <RegistrationProvider>
-        <GymRoutes />
-      </RegistrationProvider>
-    </AuthProvider>
+    <>
+      <PasswordRecoveryRedirect />
+      <ScrollToHash />
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/schedule"
+            element={
+              <FeatureGate feature="class_booking" fallback={<FeatureNotEnabled feature="class_booking" />}>
+                <Schedule />
+              </FeatureGate>
+            }
+          />
+          <Route
+            path="/coaches"
+            element={
+              <FeatureGate feature="coach_profiles" fallback={<FeatureNotEnabled feature="coach_profiles" />}>
+                <Coaches />
+              </FeatureGate>
+            }
+          />
+          <Route path="/about" element={<About />} />
+          <Route path="/email-verified" element={<EmailVerified />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/coach-dashboard"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <CoachDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/coach-view"
+            element={
+              <ProtectedRoute requiredRole="coach">
+                <CoachView />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/gym-admin"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <GymAdmin />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Layout>
+
+      <SessionWarning
+        isOpen={showSessionWarning}
+        remainingTime={sessionTimeout.remainingTimeFormatted}
+        onExtend={handleExtendSession}
+        onLogout={handleLogout}
+      />
+    </>
+  );
+}
+
+// ------------------------------------------------------------------
+// Platform Shell — rendered for root platform routes
+// ------------------------------------------------------------------
+function PlatformShell() {
+  return (
+    <PlatformLayout>
+      <Routes>
+        <Route path="/" element={<PlatformHome />} />
+        <Route path="/login" element={<PlatformLogin />} />
+        <Route path="/signup" element={<PlatformSignup />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+      </Routes>
+    </PlatformLayout>
   );
 }
 
 function App() {
   return (
     <TenantProvider>
-      <AppShell />
+      <BrowserRouter>
+        <Routes>
+          {/* Gym routes — path-based tenancy */}
+          <Route path="/gym/:slug/*" element={
+            <AuthProvider>
+              <RegistrationProvider>
+                <GymShell />
+              </RegistrationProvider>
+            </AuthProvider>
+          } />
+
+          {/* Platform routes — the SaaS company site */}
+          <Route path="/*" element={<PlatformShell />} />
+        </Routes>
+      </BrowserRouter>
     </TenantProvider>
   );
 }

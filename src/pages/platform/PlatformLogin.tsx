@@ -42,9 +42,8 @@ const PlatformLogin = () => {
 
       if (gyms && gyms.slug) {
         // User owns a gym, redirect to their gym site
-        // In production, this would be: https://{slug}.gym-forge.com
-        // For development, use query parameter
-        window.location.href = `/?tenant=${gyms.slug}`;
+        // Redirect to gym site
+        window.location.href = `/gym/${gyms.slug}`;
       } else {
         // User doesn't own a gym, redirect to onboarding
         navigate('/onboarding');

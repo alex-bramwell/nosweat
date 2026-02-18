@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useTenant } from '../contexts/TenantContext';
+import { useTenant, useGymPath } from '../contexts/TenantContext';
 import { Section, Container, Button } from '../components/common';
 import styles from './EmailVerified.module.scss';
 
 const EmailVerified = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const gymPath = useGymPath();
   const { resendVerificationEmail } = useAuth();
   const { gym } = useTenant();
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
@@ -60,7 +61,7 @@ const EmailVerified = () => {
   }, [searchParams]);
 
   const handleSignIn = () => {
-    navigate('/?signin=true');
+    navigate(gymPath('/?signin=true'));
   };
 
   const handleResendEmail = async () => {
@@ -221,7 +222,7 @@ const EmailVerified = () => {
                 <Button variant="primary" onClick={handleSignIn}>
                   Go to Sign In
                 </Button>
-                <Button variant="secondary" onClick={() => navigate('/')}>
+                <Button variant="secondary" onClick={() => navigate(gymPath('/'))}>
                   Back to Home
                 </Button>
               </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useTenant, useFeature } from '../contexts/TenantContext';
+import { useTenant, useFeature, useGymPath } from '../contexts/TenantContext';
 import { supabase } from '../lib/supabase';
 import { AuthModal } from './AuthModal';
 import styles from './Navbar.module.scss';
@@ -9,6 +9,7 @@ import styles from './Navbar.module.scss';
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { gym } = useTenant();
+  const gymPath = useGymPath();
   const hasClassBooking = useFeature('class_booking');
   const hasCoachProfiles = useFeature('coach_profiles');
   const location = useLocation();
@@ -51,7 +52,7 @@ const Navbar: React.FC = () => {
   // But NOT when we're on the /reset-password page (it handles itself)
   useEffect(() => {
     // Skip setting up the listener if we're on the reset-password page
-    if (location.pathname === '/reset-password') {
+    if (location.pathname === gymPath('/reset-password')) {
       console.log('On reset-password page - skipping PASSWORD_RECOVERY listener in Navbar');
       return;
     }
@@ -149,7 +150,7 @@ const Navbar: React.FC = () => {
   return (
     <div className={styles.navbarContainer}>
       <nav className={`${styles.navbar} ${isScrolled ? styles.scrolled : ''}`}>
-        <Link to="/" className={styles.logo} onClick={closeMenu}>
+        <Link to={gymPath('/')} className={styles.logo} onClick={closeMenu}>
           <div className={styles.logoText}>{gym?.name || 'Gym'}</div>
           <div className={styles.logoAffiliate}>Affiliate</div>
         </Link>
@@ -182,8 +183,8 @@ const Navbar: React.FC = () => {
           {isNavDropdownOpen && (
             <div className={styles.navDropdownContent}>
               <Link
-                to="/"
-                className={location.pathname === '/' ? styles.navDropdownItem_active : styles.navDropdownItem}
+                to={gymPath('/')}
+                className={location.pathname === gymPath('/') ? styles.navDropdownItem_active : styles.navDropdownItem}
                 onClick={() => {
                   closeNavDropdown();
                   closeMenu();
@@ -192,8 +193,8 @@ const Navbar: React.FC = () => {
                 <span>Home</span>
               </Link>
               <Link
-                to="/about"
-                className={location.pathname === '/about' ? styles.navDropdownItem_active : styles.navDropdownItem}
+                to={gymPath('/about')}
+                className={location.pathname === gymPath('/about') ? styles.navDropdownItem_active : styles.navDropdownItem}
                 onClick={() => {
                   closeNavDropdown();
                   closeMenu();
@@ -203,8 +204,8 @@ const Navbar: React.FC = () => {
               </Link>
               {hasCoachProfiles && (
               <Link
-                to="/coaches"
-                className={location.pathname === '/coaches' ? styles.navDropdownItem_active : styles.navDropdownItem}
+                to={gymPath('/coaches')}
+                className={location.pathname === gymPath('/coaches') ? styles.navDropdownItem_active : styles.navDropdownItem}
                 onClick={() => {
                   closeNavDropdown();
                   closeMenu();
@@ -215,8 +216,8 @@ const Navbar: React.FC = () => {
               )}
               {hasClassBooking && (
               <Link
-                to="/schedule"
-                className={location.pathname === '/schedule' ? styles.navDropdownItem_active : styles.navDropdownItem}
+                to={gymPath('/schedule')}
+                className={location.pathname === gymPath('/schedule') ? styles.navDropdownItem_active : styles.navDropdownItem}
                 onClick={() => {
                   closeNavDropdown();
                   closeMenu();
@@ -226,7 +227,7 @@ const Navbar: React.FC = () => {
               </Link>
               )}
               <a
-                href="/#wod"
+                href={`${gymPath('/')}#wod`}
                 className={`${styles.navDropdownItem} ${activeSection === 'wod' ? styles.navDropdownWodActive : ''}`}
                 onClick={() => {
                   closeNavDropdown();
@@ -244,7 +245,7 @@ const Navbar: React.FC = () => {
           {isAuthenticated ? (
             <div className={styles.userMenu}>
               <button
-                className={`${styles.userButton} ${(location.pathname === '/dashboard' || location.pathname === '/coach-dashboard') ? styles.activeLink : ''}`}
+                className={`${styles.userButton} ${(location.pathname === gymPath('/dashboard') || location.pathname === gymPath('/coach-dashboard')) ? styles.activeLink : ''}`}
                 onClick={toggleUserDropdown}
                 aria-label="User menu"
               >
@@ -258,7 +259,7 @@ const Navbar: React.FC = () => {
                   {/* Gym Admin - only for admins */}
                   {user?.role === 'admin' && (
                     <Link
-                      to="/gym-admin"
+                      to={gymPath('/gym-admin')}
                       className={styles.dropdownItem}
                       onClick={() => {
                         closeUserDropdown();
@@ -276,7 +277,7 @@ const Navbar: React.FC = () => {
                   {/* Admin View - only for admins */}
                   {user?.role === 'admin' && (
                     <Link
-                      to="/coach-dashboard"
+                      to={gymPath('/coach-dashboard')}
                       className={styles.dropdownItem}
                       onClick={() => {
                         closeUserDropdown();
@@ -294,7 +295,7 @@ const Navbar: React.FC = () => {
                   {/* Coach View - for staff, coaches, and admins */}
                   {(user?.role === 'staff' || user?.role === 'coach' || user?.role === 'admin') && (
                     <Link
-                      to="/coach-view"
+                      to={gymPath('/coach-view')}
                       className={styles.dropdownItem}
                       onClick={() => {
                         closeUserDropdown();
@@ -311,7 +312,7 @@ const Navbar: React.FC = () => {
 
                   {/* Member View / Dashboard */}
                   <Link
-                    to="/dashboard"
+                    to={gymPath('/dashboard')}
                     className={styles.dropdownItem}
                     onClick={() => {
                       closeUserDropdown();
@@ -333,7 +334,7 @@ const Navbar: React.FC = () => {
                       closeMenu();
                       try {
                         await logout();
-                        window.location.href = '/';
+                        window.location.href = gymPath('/');
                       } catch (error) {
                         console.error('Logout failed:', error);
                       }
@@ -365,7 +366,7 @@ const Navbar: React.FC = () => {
       {/* Full Screen Mobile Menu */}
       <div className={`${styles.mobileMenu} ${isMenuOpen ? styles.mobileMenuOpen : ''}`}>
         <div className={styles.mobileMenuHeader}>
-          <Link to="/" className={styles.mobileMenuLogo} onClick={closeMenu}>
+          <Link to={gymPath('/')} className={styles.mobileMenuLogo} onClick={closeMenu}>
             <div className={styles.logoText}>{gym?.name || 'Gym'}</div>
             <div className={styles.logoAffiliate}>Affiliate</div>
           </Link>
@@ -385,8 +386,8 @@ const Navbar: React.FC = () => {
           {/* Navigation Links */}
           <nav className={styles.mobileNav}>
             <Link
-              to="/"
-              className={`${styles.mobileNavLink} ${location.pathname === '/' ? styles.active : ''}`}
+              to={gymPath('/')}
+              className={`${styles.mobileNavLink} ${location.pathname === gymPath('/') ? styles.active : ''}`}
               onClick={closeMenu}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -396,8 +397,8 @@ const Navbar: React.FC = () => {
               Home
             </Link>
             <Link
-              to="/about"
-              className={`${styles.mobileNavLink} ${location.pathname === '/about' ? styles.active : ''}`}
+              to={gymPath('/about')}
+              className={`${styles.mobileNavLink} ${location.pathname === gymPath('/about') ? styles.active : ''}`}
               onClick={closeMenu}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -409,8 +410,8 @@ const Navbar: React.FC = () => {
             </Link>
             {hasCoachProfiles && (
             <Link
-              to="/coaches"
-              className={`${styles.mobileNavLink} ${location.pathname === '/coaches' ? styles.active : ''}`}
+              to={gymPath('/coaches')}
+              className={`${styles.mobileNavLink} ${location.pathname === gymPath('/coaches') ? styles.active : ''}`}
               onClick={closeMenu}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -424,8 +425,8 @@ const Navbar: React.FC = () => {
             )}
             {hasClassBooking && (
             <Link
-              to="/schedule"
-              className={`${styles.mobileNavLink} ${location.pathname === '/schedule' ? styles.active : ''}`}
+              to={gymPath('/schedule')}
+              className={`${styles.mobileNavLink} ${location.pathname === gymPath('/schedule') ? styles.active : ''}`}
               onClick={closeMenu}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -438,7 +439,7 @@ const Navbar: React.FC = () => {
             </Link>
             )}
             <a
-              href="/#wod"
+              href={`${gymPath('/')}#wod`}
               className={`${styles.mobileNavLink} ${styles.wodLink} ${activeSection === 'wod' ? styles.active : ''}`}
               onClick={closeMenu}
             >
@@ -467,7 +468,7 @@ const Navbar: React.FC = () => {
                 </div>
                 {user?.role === 'admin' && (
                   <Link
-                    to="/gym-admin"
+                    to={gymPath('/gym-admin')}
                     className={styles.mobileUserLink}
                     onClick={closeMenu}
                   >
@@ -479,7 +480,7 @@ const Navbar: React.FC = () => {
                   </Link>
                 )}
                 <Link
-                  to="/dashboard"
+                  to={gymPath('/dashboard')}
                   className={styles.mobileUserLink}
                   onClick={closeMenu}
                 >
@@ -495,7 +496,7 @@ const Navbar: React.FC = () => {
                     closeMenu();
                     try {
                       await logout();
-                      window.location.href = '/';
+                      window.location.href = gymPath('/');
                     } catch (error) {
                       console.error('Logout failed:', error);
                     }

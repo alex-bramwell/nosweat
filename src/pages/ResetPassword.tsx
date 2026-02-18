@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Section, Container, Button } from '../components/common';
 import { supabase } from '../lib/supabase';
+import { useGymPath } from '../contexts/TenantContext';
 import styles from './ResetPassword.module.scss';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const gymPath = useGymPath();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -135,7 +137,7 @@ const ResetPassword = () => {
 
       // Redirect to login after 3 seconds
       setTimeout(() => {
-        navigate('/?signin=true');
+        navigate(gymPath('/?signin=true'));
       }, 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to reset password');
@@ -207,7 +209,7 @@ const ResetPassword = () => {
                 variant="primary"
                 size="large"
                 fullWidth
-                onClick={() => navigate('/?signin=true')}
+                onClick={() => navigate(gymPath('/?signin=true'))}
               >
                 Go to Sign In
               </Button>
@@ -413,7 +415,7 @@ const ResetPassword = () => {
               <p className={styles.backToLogin}>
                 Remember your password?{' '}
                 <button
-                  onClick={() => navigate('/?signin=true')}
+                  onClick={() => navigate(gymPath('/?signin=true'))}
                   className={styles.link}
                   disabled={isLoading}
                 >

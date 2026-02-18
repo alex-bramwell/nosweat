@@ -128,33 +128,28 @@ function resolveSlugFromUrl(): string | null {
     return tenantParam;
   }
 
-  // 2. Check subdomain
-  const hostname = window.location.hostname;
-
-  // Skip localhost without subdomain
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return null; // Platform site
-  }
-
-  // Handle: comet.localhost (for local dev with /etc/hosts)
-  const localhostMatch = hostname.match(/^([^.]+)\.localhost$/);
-  if (localhostMatch) {
-    return localhostMatch[1];
-  }
-
-  // Handle: comet.gym-forge.com (production)
-  const parts = hostname.split('.');
-  if (parts.length >= 3) {
-    // subdomain.domain.tld → subdomain is parts[0]
-    const subdomain = parts[0];
-    // Skip 'www'
-    if (subdomain !== 'www') {
-      return subdomain;
-    }
+  // 2. Check path-based routing: /gym/:slug
+  const pathMatch = window.location.pathname.match(/^\/gym\/([^/]+)/);
+  if (pathMatch) {
+    return pathMatch[1];
   }
 
   return null; // Platform site
 }
+
+// -------------------------------------------------------------------
+// Gym path helper hook
+// -------------------------------------------------------------------
+export const useGymPath = () => {
+  const { tenantSlug } = useTenant();
+  return (path: string) => {
+    if (!tenantSlug) return path;
+    // Normalize: gymPath('/schedule') → '/gym/comet/schedule'
+    // gymPath('/') → '/gym/comet'
+    const cleanPath = path === '/' ? '' : path;
+    return `/gym/${tenantSlug}${cleanPath}`;
+  };
+};
 
 // -------------------------------------------------------------------
 // Provider

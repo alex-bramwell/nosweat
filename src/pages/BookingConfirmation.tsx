@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useGymPath } from '../contexts/TenantContext';
 import { Section, Container, Button } from '../components/common';
 import { supabase } from '../lib/supabase';
 import { formatCurrency } from '../utils/payment';
@@ -9,6 +10,7 @@ import styles from './BookingConfirmation.module.scss';
 const BookingConfirmation: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const gymPath = useGymPath();
   const bookingId = searchParams.get('bookingId');
 
   const [booking, setBooking] = useState<Booking | null>(null);
@@ -85,10 +87,10 @@ const BookingConfirmation: React.FC = () => {
             <h2>Booking Not Found</h2>
             <p>{error || 'We couldn\'t find your booking. Please check your email for confirmation details.'}</p>
             <div className={styles.errorActions}>
-              <Button variant="primary" size="large" onClick={() => navigate('/dashboard')}>
+              <Button variant="primary" size="large" onClick={() => navigate(gymPath('/dashboard'))}>
                 Go to Dashboard
               </Button>
-              <Button variant="outline" size="large" onClick={() => navigate('/schedule')}>
+              <Button variant="outline" size="large" onClick={() => navigate(gymPath('/schedule'))}>
                 View Schedule
               </Button>
             </div>
@@ -191,12 +193,12 @@ const BookingConfirmation: React.FC = () => {
           </div>
 
           <div className={styles.actions}>
-            <Link to="/dashboard">
+            <Link to={gymPath('/dashboard')}>
               <Button variant="primary" size="large">
                 View My Bookings
               </Button>
             </Link>
-            <Link to="/schedule">
+            <Link to={gymPath('/schedule')}>
               <Button variant="outline" size="large">
                 Book Another Class
               </Button>

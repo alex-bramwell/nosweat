@@ -1,4 +1,4 @@
-# GymForge 🏋️‍♂️
+# No Sweat 🏋️‍♂️
 
 A multi-tenant SaaS platform for gyms and fitness studios, built with React, TypeScript, and Vite. Features include class scheduling, WOD programming, coach profiles, payments — all customisable to each gym's brand.
 
@@ -83,8 +83,8 @@ A multi-tenant SaaS platform for gyms and fitness studios, built with React, Typ
 
 ```bash
 # Clone the repository
-git clone https://github.com/alex-bramwell/gym-forge.git
-cd gym-forge
+git clone https://github.com/alex-bramwell/nosweat.git
+cd nosweat
 
 # Copy environment variables and add your credentials
 cp .env.example .env.local
@@ -138,7 +138,7 @@ npm run seed:coaches
 ```
 
 This creates coach accounts with:
-- Email: `{name}@gymforge.com` (dan, lizzie, lewis, sam, george, thea)
+- Email: `{name}@nosweat.fitness` (dan, lizzie, lewis, sam, george, thea)
 - Default password: `CoachTemp123!`
 - Role: `coach` with corresponding `coach_id`
 
@@ -425,7 +425,7 @@ The app will now use the shared live database. All accounts, bookings, and data 
 ## Project Structure
 
 ```
-gym-forge/
+nosweat/
 ├── api/                        # Vercel serverless functions
 │   ├── payments/
 │   │   ├── create-payment-intent.ts  # Day pass payments
@@ -1616,7 +1616,7 @@ For issues or questions:
 ---
 
 <div align="center">
-  <p>Built with ❤️ by the GymForge Team</p>
+  <p>Built with ❤️ by the No Sweat Team</p>
   <p>
     <a href="https://react.dev">React</a> •
     <a href="https://vite.dev">Vite</a> •
