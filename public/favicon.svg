@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="fg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <!-- Droplet shape -->
+  <path
+    d="M24,3 C24,3 9,20 9,31 A15,15 0 0 0 39,31 C39,20 24,3 24,3 Z"
+    fill="url(#fg)"
+    opacity="0.18"
+  />
+  <path
+    d="M24,3 C24,3 9,20 9,31 A15,15 0 0 0 39,31 C39,20 24,3 24,3 Z"
+    fill="none"
+    stroke="url(#fg)"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+  />
+  <!-- Diagonal slash -->
+  <line
+    x1="14" y1="14"
+    x2="34" y2="42"
+    stroke="url(#fg)"
+    stroke-width="3"
+    stroke-linecap="round"
+  />
+</svg>

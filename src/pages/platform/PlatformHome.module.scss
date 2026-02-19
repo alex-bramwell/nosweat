@@ -313,30 +313,59 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid $platform-border;
-  padding: 2rem;
   border-radius: 16px;
   transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   overflow: hidden;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 50%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
-    border-radius: inherit;
-    pointer-events: none;
-  }
+  min-height: 260px;
 
   &:hover {
     transform: translateY(-6px);
     background: $platform-glass-bg-elevated;
     border-color: $platform-border-bright;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 0 20px rgba($platform-accent, 0.08);
+
+    .featureWatermark {
+      opacity: 0.4;
+      transform: scale(1.03);
+    }
   }
+}
+
+.featureWatermark {
+  position: absolute;
+  bottom: -5%;
+  right: -5%;
+  width: 75%;
+  opacity: 0.25;
+  pointer-events: none;
+  transition: opacity 400ms ease, transform 400ms ease;
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  // Fade towards the text area (top-left) so it doesn't compete
+  mask-image: linear-gradient(
+    to bottom right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.3) 25%,
+    black 55%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.3) 25%,
+    black 55%
+  );
+}
+
+.featureCardContent {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
 }
 
 .featureIcon {

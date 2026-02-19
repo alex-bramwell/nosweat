@@ -122,10 +122,20 @@ export const AccountingIntegrationCard = ({
           )}
 
           {!isConnected && !hasError && (
-            <p className={styles.description}>
-              Connect your {providerName} account to automatically sync payment transactions
-              for accounting reconciliation.
-            </p>
+            <div>
+              <p className={styles.description}>
+                Connect your {providerName} account to automatically sync payment transactions
+                for accounting reconciliation.
+              </p>
+              <a
+                href={provider === 'quickbooks' ? 'https://quickbooks.intuit.com' : 'https://www.xero.com'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.learnMoreLink}
+              >
+                Learn more about {providerName} &rarr;
+              </a>
+            </div>
           )}
         </div>
 
