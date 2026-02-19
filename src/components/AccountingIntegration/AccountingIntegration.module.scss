@@ -130,6 +130,21 @@
   color: var(--color-text-secondary, #666);
 }
 
+.learnMoreLink {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-primary, #007bff);
+  text-decoration: none;
+  transition: opacity 200ms ease;
+
+  &:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+}
+
 .errorMessage {
   padding: 0.75rem;
   background: #f8d7da;

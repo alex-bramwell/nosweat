@@ -1,0 +1,368 @@
+@use '../../styles/mixins' as *;
+
+// ── Platform Design Tokens ──
+$platform-bg: #0a0a0f;
+$platform-bg-light: #12121a;
+$platform-surface: #1a1a2e;
+$platform-text: #f0f0f5;
+$platform-text-muted: #8b8b9e;
+$platform-accent: #2563eb;
+$platform-accent-hover: #1e40af;
+$platform-secondary: #7c3aed;
+$platform-border: rgba(255, 255, 255, 0.08);
+$platform-border-bright: rgba(255, 255, 255, 0.15);
+$platform-glass-bg: rgba(255, 255, 255, 0.04);
+$platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
+$platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
+
+// ── Status Colors ──
+$status-dev: #34d399;
+$status-planned: #60a5fa;
+$status-consideration: #a78bfa;
+
+// ── Page ──
+.roadmapPage {
+  background: $platform-bg;
+  color: $platform-text;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ── Header ──
+.header {
+  padding: 4rem 2rem 2.5rem;
+  text-align: center;
+  border-bottom: 1px solid $platform-border;
+
+  @media (max-width: 768px) {
+    padding: 3rem 1.25rem 2rem;
+  }
+}
+
+.title {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, $platform-text 30%, rgba($platform-accent, 0.8) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  color: $platform-text-muted;
+  line-height: 1.6;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+// ── Content Container ──
+.content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem 1.25rem 4rem;
+  }
+}
+
+// ── Status Section ──
+.statusSection {
+  margin-bottom: 3rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid $platform-border;
+}
+
+.statusDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusLabel {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.statusCount {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $platform-text-muted;
+  background: $platform-glass-bg-elevated;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid $platform-border;
+}
+
+// ── Features Grid ──
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Feature Card ──
+.featureCard {
+  background: $platform-glass-bg;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid $platform-border;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 250ms cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  &:hover {
+    background: $platform-glass-bg-elevated;
+    border-color: $platform-border-bright;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.featureTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.featureInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.featureTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.35rem;
+  color: $platform-text;
+}
+
+.featureDescription {
+  font-size: 0.9rem;
+  color: $platform-text-muted;
+  line-height: 1.55;
+}
+
+.featureFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+// ── Category Badge ──
+.categoryBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $platform-text-muted;
+  background: $platform-glass-bg;
+  border: 1px solid $platform-border;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+// ── Vote Button ──
+.voteButton {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 24px;
+  border: 1px solid $platform-border-bright;
+  background: $platform-glass-bg;
+  color: $platform-text-muted;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover {
+    background: $platform-glass-bg-elevated;
+    border-color: rgba(255, 255, 255, 0.25);
+    color: $platform-text;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
+  }
+}
+
+.voteButtonActive {
+  background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 2px 12px rgba($platform-accent, 0.25);
+
+  &:hover {
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba($platform-accent, 0.35);
+    transform: translateY(-1px);
+  }
+}
+
+.voteButtonDisabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.voteIcon {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.voteCount {
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Auth Prompt Banner ──
+.authBanner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: rgba($platform-bg, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid $platform-border-bright;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  transform: translateY(100%);
+  transition: transform 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  @media (max-width: 768px) {
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+  }
+}
+
+.authBannerVisible {
+  transform: translateY(0);
+}
+
+.authBannerText {
+  font-size: 0.95rem;
+  color: $platform-text-muted;
+  font-weight: 500;
+}
+
+.authBannerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.authBannerLink {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  transition: all 200ms ease;
+}
+
+.authBannerSignIn {
+  color: $platform-text;
+  border: 1px solid $platform-border-bright;
+  background: transparent;
+
+  &:visited {
+    color: $platform-text;
+  }
+
+  &:hover {
+    background: $platform-glass-bg-elevated;
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+}
+
+.authBannerSignUp {
+  color: #ffffff;
+  background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
+  border: 1px solid transparent;
+
+  &:visited {
+    color: #ffffff;
+  }
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba($platform-accent, 0.3);
+  }
+}
+
+.authBannerDismiss {
+  appearance: none;
+  background: none;
+  border: none;
+  color: $platform-text-muted;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 200ms ease;
+
+  &:hover {
+    color: $platform-text;
+    background: $platform-glass-bg-elevated;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// ── Loading State ──
+.loading {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: $platform-text-muted;
+  font-size: 0.95rem;
+}

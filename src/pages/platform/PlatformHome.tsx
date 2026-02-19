@@ -1,9 +1,23 @@
 import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
 import { FEATURES } from '../../config/features';
+import type { FeatureKey } from '../../types/tenant';
 import FeatureIcon from '../../components/common/FeatureIcon';
+import { ILLUSTRATIONS } from '../../components/guide/GuideIllustrations';
 import { getLocalizedPrice } from '../../utils/pricing';
 import styles from './PlatformHome.module.scss';
+
+const FEATURE_ILLUSTRATION_MAP: Partial<Record<FeatureKey, string>> = {
+  class_booking: 'schedule',
+  wod_programming: 'wod',
+  coach_profiles: 'coachProfile',
+  day_passes: 'dayPass',
+  trial_memberships: 'dayPass',
+  service_booking: 'serviceBooking',
+  accounting_integration: 'accounting',
+  coach_analytics: 'analytics',
+  member_management: 'memberManagement',
+};
 
 const PlatformHome = () => {
   const price = useMemo(() => getLocalizedPrice(), []);
@@ -27,7 +41,7 @@ const PlatformHome = () => {
           </p>
           <div className={styles.heroCtas}>
             <Link to="/signup" className={styles.ctaPrimary}>
-              Get Started Free
+              Get Started
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
@@ -80,13 +94,25 @@ const PlatformHome = () => {
           </p>
 
           <div className={styles.featuresGrid}>
-            {FEATURES.map((feature) => (
-              <div key={feature.key} className={styles.featureCard}>
-                <div className={styles.featureIcon}><FeatureIcon featureKey={feature.key} /></div>
-                <h3 className={styles.featureName}>{feature.name}</h3>
-                <p className={styles.featureDescription}>{feature.description}</p>
-              </div>
-            ))}
+            {FEATURES.map((feature) => {
+              const illustrationKey = FEATURE_ILLUSTRATION_MAP[feature.key];
+              const Illustration = illustrationKey ? ILLUSTRATIONS[illustrationKey] : null;
+
+              return (
+                <div key={feature.key} className={styles.featureCard}>
+                  {Illustration && (
+                    <div className={styles.featureWatermark}>
+                      <Illustration />
+                    </div>
+                  )}
+                  <div className={styles.featureCardContent}>
+                    <div className={styles.featureIcon}><FeatureIcon featureKey={feature.key} /></div>
+                    <h3 className={styles.featureName}>{feature.name}</h3>
+                    <p className={styles.featureDescription}>{feature.description}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           <div className={styles.featuresCta}>

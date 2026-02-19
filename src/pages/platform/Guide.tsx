@@ -20,6 +20,7 @@ const CTA_IMAGE =
 const Guide = () => {
   const price = useMemo(() => getLocalizedPrice(), []);
   const [activeSection, setActiveSection] = useState<string>(GUIDE_SECTIONS[0].id);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   // IntersectionObserver to highlight the active section in the sticky nav
@@ -54,6 +55,7 @@ const Guide = () => {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
+    setSidebarOpen(false);
   };
 
   return (
@@ -67,7 +69,7 @@ const Guide = () => {
           </p>
           <div className={styles.heroCtas}>
             <Link to="/signup" className={styles.ctaPrimary}>
-              Get Started Free
+              Get Started
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
@@ -82,20 +84,52 @@ const Guide = () => {
         </div>
       </section>
 
-      {/* ── Sticky Guide Nav ── */}
-      <nav className={styles.guideNav}>
-        <div className={styles.guideNavContainer}>
-          {GUIDE_NAV_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => scrollTo(item.id)}
-              className={`${styles.guideNavLink} ${activeSection === item.id ? styles.guideNavLinkActive : ''}`}
-            >
-              {item.label}
-            </button>
-          ))}
+      {/* ── Floating Sidebar Nav ── */}
+      {sidebarOpen && (
+        <div
+          className={styles.sidebarBackdrop}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <nav className={`${styles.guideSidebar} ${sidebarOpen ? styles.guideSidebarOpen : ''}`}>
+        <div className={styles.sidebarHeader}>
+          <span className={styles.sidebarTitle}>Sections</span>
+          <button
+            className={styles.sidebarClose}
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close navigation"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
+        {GUIDE_NAV_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => scrollTo(item.id)}
+            className={`${styles.sidebarLink} ${activeSection === item.id ? styles.sidebarLinkActive : ''}`}
+          >
+            <span className={styles.sidebarDot} />
+            <span className={styles.sidebarLabel}>{item.label}</span>
+          </button>
+        ))}
       </nav>
+
+      {/* Toggle button — always visible */}
+      <button
+        className={`${styles.sidebarToggle} ${sidebarOpen ? styles.sidebarToggleHidden : ''}`}
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Open section navigation"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
 
       {/* ── Section Groups ── */}
       {GUIDE_SECTIONS.map((section, sectionIdx) => {
@@ -201,7 +235,7 @@ const Guide = () => {
 
           <div className={styles.ctaButtons}>
             <Link to="/signup" className={styles.ctaPrimary}>
-              Get Started Free
+              Get Started
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>

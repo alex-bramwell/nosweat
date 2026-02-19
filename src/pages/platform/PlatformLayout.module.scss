@@ -56,6 +56,10 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   color: $platform-text;
   transition: opacity 250ms cubic-bezier(0.25, 0.1, 0.25, 1);
 
+  &:visited {
+    color: $platform-text;
+  }
+
   &:hover {
     opacity: 0.85;
   }
@@ -85,6 +89,10 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   border-radius: 8px;
   transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
+  &:visited {
+    color: $platform-text-muted;
+  }
+
   &:hover {
     color: $platform-text;
     background: rgba(255, 255, 255, 0.06);
@@ -92,6 +100,33 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
 
   &:active {
     transform: scale(0.97);
+  }
+}
+
+.navLinkSecondary {
+  color: $platform-text;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 24px;
+  border: 1px solid $platform-border-bright;
+  background: transparent;
+  transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:visited {
+    color: $platform-text;
+  }
+
+  &:hover {
+    color: $platform-text;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
   }
 }
 
@@ -106,13 +141,154 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 2px 12px rgba($platform-accent, 0.25);
 
+  &:visited {
+    color: #ffffff;
+  }
+
   &:hover {
+    color: #ffffff;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba($platform-accent, 0.35);
   }
 
   &:active {
     transform: translateY(0) scale(0.97);
+  }
+}
+
+// ── Mobile Navigation ──
+$mobile-breakpoint: 768px;
+
+// Hide desktop links on mobile
+.navLinks {
+  @media (max-width: $mobile-breakpoint) {
+    display: none;
+  }
+}
+
+// Droplet toggle button — visible only on mobile
+.mobileToggle {
+  display: none;
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 8px;
+
+  @media (max-width: $mobile-breakpoint) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.mobileToggleLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $platform-text-muted;
+  letter-spacing: 0.03em;
+}
+
+.mobileToggleOpen {
+  .mobileToggleIcon {
+    transform: rotate(180deg);
+
+    path {
+      fill: rgba(255, 255, 255, 0.15);
+      stroke: #ffffff;
+    }
+
+    line {
+      stroke: #ffffff;
+    }
+  }
+}
+
+.mobileToggleIcon {
+  width: 32px;
+  height: 32px;
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  path,
+  line {
+    transition: fill 300ms ease, stroke 300ms ease;
+  }
+}
+
+// Slide-down menu panel
+.mobileMenu {
+  display: none;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 350ms cubic-bezier(0.25, 0.1, 0.25, 1),
+              padding 350ms cubic-bezier(0.25, 0.1, 0.25, 1),
+              opacity 250ms ease;
+  opacity: 0;
+  padding: 0 1rem;
+
+  @media (max-width: $mobile-breakpoint) {
+    display: flex;
+  }
+}
+
+.mobileMenuOpen {
+  max-height: 300px;
+  opacity: 1;
+  padding: 1rem;
+  border-top: 1px solid $platform-border;
+}
+
+.mobileLink {
+  color: $platform-text-muted;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.05rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  transition: all 200ms ease;
+
+  &:hover {
+    color: $platform-text;
+    background: $platform-glass-bg-elevated;
+  }
+}
+
+.mobileLinkPrimary {
+  display: block;
+  text-align: center;
+  margin-top: 0.5rem;
+  background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 12px rgba($platform-accent, 0.25);
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba($platform-accent, 0.35);
+  }
+}
+
+// Backdrop behind mobile menu
+.mobileBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 99;
+
+  @media (min-width: $mobile-breakpoint + 1) {
+    display: none;
   }
 }
 
