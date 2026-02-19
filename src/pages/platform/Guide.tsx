@@ -65,7 +65,7 @@ const Guide = () => {
         <div className={styles.heroContent}>
           <h1 className={styles.heroHeadline}>The Complete Platform Guide</h1>
           <p className={styles.heroSubtitle}>
-            Everything you need to launch, run, and grow your gym — explained step by step.
+            Everything you need to launch, run, and grow your gym. Explained step by step.
           </p>
           <div className={styles.heroCtas}>
             <Link to="/signup" className={styles.ctaPrimary}>
@@ -229,7 +229,7 @@ const Guide = () => {
 
           <p className={styles.ctaSubtitle}>
             No stitching five apps together. No per-member fees.
-            Booking, scheduling, payments, coaching tools, and your public site —
+            Booking, scheduling, payments, coaching tools, and your public site,
             all under one roof.
           </p>
 
