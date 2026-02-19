@@ -5,9 +5,10 @@ import { Container } from '../components/common';
 import BrandingEditor from '../components/GymAdmin/BrandingEditor';
 import FeatureTogglePanel from '../components/GymAdmin/FeatureTogglePanel';
 import GymSettings from '../components/GymAdmin/GymSettings';
+import DataManagement from '../components/GymAdmin/DataManagement';
 import styles from './GymAdmin.module.scss';
 
-type Tab = 'branding' | 'features' | 'settings';
+type Tab = 'branding' | 'features' | 'settings' | 'data';
 
 const GymAdmin: React.FC = () => {
   const { user } = useAuth();
@@ -62,12 +63,20 @@ const GymAdmin: React.FC = () => {
             <span className={styles.tabIcon}>⚙️</span>
             <span>Settings</span>
           </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'data' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('data')}
+          >
+            <span className={styles.tabIcon}>📋</span>
+            <span>Data</span>
+          </button>
         </div>
 
         <div className={styles.tabContent}>
           {activeTab === 'branding' && <BrandingEditor />}
           {activeTab === 'features' && <FeatureTogglePanel />}
           {activeTab === 'settings' && <GymSettings />}
+          {activeTab === 'data' && <DataManagement />}
         </div>
       </Container>
     </div>
