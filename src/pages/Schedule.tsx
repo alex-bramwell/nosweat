@@ -266,7 +266,7 @@ const Schedule = () => {
                           )}
                         </div>
                       ) : (
-                        <span className={styles.emptyCellContent}>—</span>
+                        <span className={styles.emptyCellContent}>-</span>
                       )}
                     </div>
                   );

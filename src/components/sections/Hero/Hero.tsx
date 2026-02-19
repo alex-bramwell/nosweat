@@ -46,7 +46,7 @@ const Hero = () => {
             <div className={styles.actionCard}>
               <h3 className={styles.cardTitle}>Free Trial</h3>
               <p className={styles.cardDescription}>
-                New here? Try your first class on us—no commitment
+                New here? Try your first class on us, no commitment
               </p>
               <Button variant="secondary" size="medium" onClick={handleTrialClick}>
                 Book Trial Pass

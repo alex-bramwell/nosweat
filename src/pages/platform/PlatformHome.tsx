@@ -32,11 +32,11 @@ const PlatformHome = () => {
             Built for gym owners, by athletes
           </div>
           <h1 className={styles.heroHeadline}>
-            Stop juggling five apps<br />to run one gym
+            Stop juggling five apps to run one gym
           </h1>
           <p className={styles.heroSubtitle}>
             Booking, programming, payments, coaching tools, and your
-            public website — finally in a single platform. Branded to you.
+            public website. Finally in a single platform. Branded to you.
             Live in 60 seconds.
           </p>
           <div className={styles.heroCtas}>

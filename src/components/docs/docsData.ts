@@ -65,7 +65,7 @@ export const DOCS_SECTIONS: DocsSection[] = [
         callouts: [
           {
             type: 'tip',
-            text: 'Pick a short, memorable name. Avoid special characters — hyphens are added automatically for spaces.',
+            text: 'Pick a short, memorable name. Avoid special characters. Hyphens are added automatically for spaces.',
           },
           {
             type: 'note',
@@ -78,7 +78,7 @@ export const DOCS_SECTIONS: DocsSection[] = [
         id: 'branding',
         title: 'Brand Customisation',
         summary:
-          'Upload your logo, pick colours, choose fonts, and select a theme so your site looks like you — not a template.',
+          'Upload your logo, pick colours, choose fonts, and select a theme so your site looks like you, not a template.',
         illustrationKey: 'branding',
         steps: [
           { text: 'Open the Admin panel and navigate to "Branding".' },
@@ -230,7 +230,7 @@ export const DOCS_SECTIONS: DocsSection[] = [
         id: 'dashboard',
         title: 'Member Dashboard',
         summary:
-          'Members log in and see today\'s workout, upcoming bookings, and their profile — all in one place.',
+          'Members log in and see today\'s workout, upcoming bookings, and their profile, all in one place.',
         illustrationKey: 'dashboard',
         steps: [
           { text: 'Members log in at your gym URL (e.g. nosweat.fitness/gym/your-name).' },
@@ -279,7 +279,7 @@ export const DOCS_SECTIONS: DocsSection[] = [
         id: 'service-booking',
         title: 'Service Booking',
         summary:
-          'Personal training, sports massage, nutrition consultations — members pick a coach, choose a time, and book online.',
+          'Personal training, sports massage, nutrition consultations. Members pick a coach, choose a time, and book online.',
         illustrationKey: 'serviceBooking',
         steps: [
           { text: 'Enable "Service Booking" from the Feature Toggles panel.' },
