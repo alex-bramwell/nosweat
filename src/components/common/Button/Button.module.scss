@@ -16,6 +16,10 @@
   white-space: nowrap;
   letter-spacing: 0.02em;
 
+  &:visited {
+    color: inherit;
+  }
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;

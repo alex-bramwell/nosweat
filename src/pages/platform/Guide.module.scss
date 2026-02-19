@@ -114,7 +114,10 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 2px 12px rgba($platform-accent, 0.25);
 
+  &:visited { color: #fff; }
+
   &:hover {
+    color: #fff;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba($platform-accent, 0.35);
   }
@@ -136,7 +139,10 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   cursor: pointer;
   transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
+  &:visited { color: $platform-text; }
+
   &:hover {
+    color: $platform-text;
     background: $platform-glass-bg-elevated;
     transform: translateY(-2px);
   }

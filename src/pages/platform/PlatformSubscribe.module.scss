@@ -84,7 +84,10 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
   text-decoration: none;
   transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
+  &:visited { color: #ffffff; }
+
   &:hover {
+    color: #ffffff;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba($platform-accent, 0.35);
   }
