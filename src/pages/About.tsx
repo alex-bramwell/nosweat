@@ -110,7 +110,7 @@ const About = () => {
               </div>
               <h3 className={styles.featureTitle}>Scalable Workouts</h3>
               <p className={styles.featureText}>
-                Every WOD can be scaled to your fitness level—from day one to day one thousand.
+                Every WOD can be scaled to your fitness level, from day one to day one thousand.
               </p>
             </div>
 
@@ -229,7 +229,7 @@ const About = () => {
                 <h3 className={styles.ctaTitle}>Ready to Start Your Journey?</h3>
                 <p className={styles.ctaText}>
                   Join us for a free trial class and experience the {gym?.name} difference.
-                  No experience necessary—just bring your energy and we'll take care of the rest.
+                  No experience necessary. Just bring your energy and we'll take care of the rest.
                 </p>
                 <div className={styles.ctaButtons}>
                   <Button variant="primary" as="a" href="/schedule">

@@ -107,6 +107,7 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   margin-bottom: 1.5rem;
   letter-spacing: -0.025em;
   color: $platform-text;
+  text-wrap: balance;
 }
 
 .heroSubtitle {
@@ -260,6 +261,7 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   letter-spacing: -0.02em;
   margin-bottom: 1.25rem;
   color: $platform-text;
+  text-wrap: balance;
 }
 
 .missionBody {
@@ -293,6 +295,7 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
   color: $platform-text;
+  text-wrap: balance;
 }
 
 .sectionSubtitle {
