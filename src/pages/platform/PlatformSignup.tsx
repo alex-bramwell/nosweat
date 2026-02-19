@@ -36,8 +36,9 @@ const PlatformSignup = () => {
         throw new Error('Signup failed');
       }
 
-      // Redirect to onboarding to create their gym
-      navigate('/onboarding');
+      // Redirect to subscription checkout
+      const params = new URLSearchParams({ email, uid: data.user.id });
+      navigate(`/subscribe?${params.toString()}`);
     } catch (err: any) {
       console.error('Signup error:', err);
       setError(err.message || 'Failed to create account. Please try again.');
