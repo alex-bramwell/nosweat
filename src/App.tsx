@@ -32,6 +32,7 @@ import Guide from './pages/platform/Guide';
 import Docs from './pages/platform/Docs';
 import Roadmap from './pages/platform/Roadmap';
 import PlatformSubscribe, { SubscribeComplete } from './pages/platform/PlatformSubscribe';
+import TestReset from './pages/platform/TestReset';
 
 // Component to detect password recovery tokens and redirect
 function PasswordRecoveryRedirect() {
@@ -222,6 +223,7 @@ function PlatformShell() {
         <Route path="/roadmap" element={<Roadmap />} />
         <Route path="/subscribe" element={<PlatformSubscribe />} />
         <Route path="/subscribe/complete" element={<SubscribeComplete />} />
+        <Route path="/test-reset" element={<TestReset />} />
       </Routes>
     </PlatformLayout>
   );
