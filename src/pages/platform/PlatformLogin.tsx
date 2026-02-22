@@ -41,9 +41,8 @@ const PlatformLogin = () => {
       }
 
       if (gyms && gyms.slug) {
-        // User owns a gym, redirect to their gym site
-        // Redirect to gym site
-        window.location.href = `/gym/${gyms.slug}`;
+        // User owns a gym, redirect to their platform dashboard
+        navigate('/dashboard');
       } else {
         // User doesn't own a gym, redirect to onboarding
         navigate('/onboarding');

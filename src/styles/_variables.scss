@@ -4,34 +4,34 @@
 :root {
   // Colors (overridden per-tenant)
   --color-bg: #ffffff;
-  --color-bg-light: #f8f9fa;
-  --color-bg-dark: #e9ecef;
+  --color-bg-light: #f5f5f5;
+  --color-bg-dark: #e5e5e5;
   --color-surface: #ffffff;
-  --color-accent: #2563eb;
-  --color-accent2: #dc2626;
-  --color-secondary: #0891b2;
-  --color-secondary2: #059669;
-  --color-specialty: #7c3aed;
-  --color-text: #1f2937;
-  --color-muted: #6b7280;
-  --color-header: #111827;
-  --color-footer: #111827;
+  --color-accent: #111111;
+  --color-accent2: #333333;
+  --color-secondary: #555555;
+  --color-secondary2: #444444;
+  --color-specialty: #777777;
+  --color-text: #111111;
+  --color-muted: #888888;
+  --color-header: #000000;
+  --color-footer: #111111;
 
   // RGB channel versions (for use inside rgba())
   // e.g.: background: rgba(var(--color-accent-rgb), 0.15);
   --color-bg-rgb: 255, 255, 255;
-  --color-bg-light-rgb: 248, 249, 250;
-  --color-bg-dark-rgb: 233, 236, 239;
+  --color-bg-light-rgb: 245, 245, 245;
+  --color-bg-dark-rgb: 229, 229, 229;
   --color-surface-rgb: 255, 255, 255;
-  --color-accent-rgb: 37, 99, 235;
-  --color-accent2-rgb: 220, 38, 38;
-  --color-secondary-rgb: 8, 145, 178;
-  --color-secondary2-rgb: 5, 150, 105;
-  --color-specialty-rgb: 124, 58, 237;
-  --color-text-rgb: 31, 41, 55;
-  --color-muted-rgb: 107, 114, 128;
-  --color-header-rgb: 17, 24, 39;
-  --color-footer-rgb: 17, 24, 39;
+  --color-accent-rgb: 17, 17, 17;
+  --color-accent2-rgb: 51, 51, 51;
+  --color-secondary-rgb: 85, 85, 85;
+  --color-secondary2-rgb: 68, 68, 68;
+  --color-specialty-rgb: 119, 119, 119;
+  --color-text-rgb: 17, 17, 17;
+  --color-muted-rgb: 136, 136, 136;
+  --color-header-rgb: 0, 0, 0;
+  --color-footer-rgb: 17, 17, 17;
 
   // Typography (overridden per-tenant)
   --font-header: 'Inter', sans-serif;

@@ -7,6 +7,7 @@ export interface FeatureDefinition {
   monthlyPricePence: number;
   category: 'core' | 'coaching' | 'business';
   icon: string;
+  illustrationKey: string;
   dependencies?: FeatureKey[];
 }
 
@@ -19,6 +20,7 @@ export const FEATURES: FeatureDefinition[] = [
     monthlyPricePence: 1000,
     category: 'core',
     icon: '📅',
+    illustrationKey: 'schedule',
   },
   {
     key: 'wod_programming',
@@ -28,6 +30,7 @@ export const FEATURES: FeatureDefinition[] = [
     monthlyPricePence: 1000,
     category: 'coaching',
     icon: '💪',
+    illustrationKey: 'wod',
   },
   {
     key: 'coach_profiles',
@@ -37,6 +40,7 @@ export const FEATURES: FeatureDefinition[] = [
     monthlyPricePence: 1000,
     category: 'coaching',
     icon: '👤',
+    illustrationKey: 'coachProfile',
   },
   {
     key: 'day_passes',
@@ -46,6 +50,7 @@ export const FEATURES: FeatureDefinition[] = [
     monthlyPricePence: 1000,
     category: 'core',
     icon: '🎫',
+    illustrationKey: 'dayPass',
     dependencies: ['class_booking'],
   },
   {
@@ -56,6 +61,7 @@ export const FEATURES: FeatureDefinition[] = [
     monthlyPricePence: 1000,
     category: 'core',
     icon: '🆓',
+    illustrationKey: 'dayPass',
     dependencies: ['class_booking'],
   },
   {
@@ -66,6 +72,7 @@ export const FEATURES: FeatureDefinition[] = [
     monthlyPricePence: 1000,
     category: 'coaching',
     icon: '🗓️',
+    illustrationKey: 'serviceBooking',
     dependencies: ['coach_profiles'],
   },
   {
@@ -76,6 +83,7 @@ export const FEATURES: FeatureDefinition[] = [
     monthlyPricePence: 1000,
     category: 'business',
     icon: '🧾',
+    illustrationKey: 'accounting',
   },
   {
     key: 'coach_analytics',
@@ -85,6 +93,7 @@ export const FEATURES: FeatureDefinition[] = [
     monthlyPricePence: 1000,
     category: 'coaching',
     icon: '📊',
+    illustrationKey: 'analytics',
     dependencies: ['wod_programming'],
   },
   {
@@ -95,6 +104,7 @@ export const FEATURES: FeatureDefinition[] = [
     monthlyPricePence: 1000,
     category: 'business',
     icon: '👥',
+    illustrationKey: 'memberManagement',
   },
 ];
 

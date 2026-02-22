@@ -22,6 +22,7 @@ import ResetPassword from './pages/ResetPassword';
 import BookingConfirmation from './pages/BookingConfirmation';
 import GymNotFound from './pages/GymNotFound';
 import GymAdmin from './pages/GymAdmin';
+import GymAdminBuilder from './pages/GymAdminBuilder';
 import ProtectedRoute from './components/ProtectedRoute';
 import PlatformLayout from './pages/platform/PlatformLayout';
 import PlatformHome from './pages/platform/PlatformHome';
@@ -33,6 +34,8 @@ import Docs from './pages/platform/Docs';
 import Roadmap from './pages/platform/Roadmap';
 import PlatformSubscribe, { SubscribeComplete } from './pages/platform/PlatformSubscribe';
 import TestReset from './pages/platform/TestReset';
+import PlatformDashboard from './pages/platform/PlatformDashboard';
+import TrialBanner from './components/common/TrialBanner';
 
 // Component to detect password recovery tokens and redirect
 function PasswordRecoveryRedirect() {
@@ -139,63 +142,84 @@ function GymShell() {
     <>
       <PasswordRecoveryRedirect />
       <ScrollToHash />
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/schedule"
-            element={
-              <FeatureGate feature="class_booking" fallback={<FeatureNotEnabled feature="class_booking" />}>
-                <Schedule />
-              </FeatureGate>
-            }
-          />
-          <Route
-            path="/coaches"
-            element={
-              <FeatureGate feature="coach_profiles" fallback={<FeatureNotEnabled feature="coach_profiles" />}>
-                <Coaches />
-              </FeatureGate>
-            }
-          />
-          <Route path="/about" element={<About />} />
-          <Route path="/email-verified" element={<EmailVerified />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/booking-confirmation" element={<BookingConfirmation />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/coach-dashboard"
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <CoachDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/coach-view"
-            element={
-              <ProtectedRoute requiredRole="coach">
-                <CoachView />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/gym-admin"
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <GymAdmin />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </Layout>
+      <Routes>
+        {/* Site Builder — full-screen, no Layout wrapper */}
+        <Route
+          path="/site-builder"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <GymAdminBuilder />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* All other routes — wrapped in Layout with Navbar + Footer */}
+        <Route
+          path="/*"
+          element={
+            <>
+              <TrialBanner />
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route
+                    path="/schedule"
+                    element={
+                      <FeatureGate feature="class_booking" fallback={<FeatureNotEnabled feature="class_booking" />}>
+                        <Schedule />
+                      </FeatureGate>
+                    }
+                  />
+                  <Route
+                    path="/coaches"
+                    element={
+                      <FeatureGate feature="coach_profiles" fallback={<FeatureNotEnabled feature="coach_profiles" />}>
+                        <Coaches />
+                      </FeatureGate>
+                    }
+                  />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/email-verified" element={<EmailVerified />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/gym-admin"
+                    element={
+                      <ProtectedRoute requiredRole="admin">
+                        <GymAdmin />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/coach-dashboard"
+                    element={
+                      <ProtectedRoute requiredRole="admin">
+                        <CoachDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/coach-view"
+                    element={
+                      <ProtectedRoute requiredRole="coach">
+                        <CoachView />
+                      </ProtectedRoute>
+                    }
+                  />
+                </Routes>
+              </Layout>
+            </>
+          }
+        />
+      </Routes>
 
       <SessionWarning
         isOpen={showSessionWarning}
@@ -218,6 +242,7 @@ function PlatformShell() {
         <Route path="/login" element={<PlatformLogin />} />
         <Route path="/signup" element={<PlatformSignup />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/dashboard" element={<PlatformDashboard />} />
         <Route path="/guide" element={<Guide />} />
         <Route path="/docs" element={<Docs />} />
         <Route path="/roadmap" element={<Roadmap />} />

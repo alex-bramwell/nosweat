@@ -18,18 +18,18 @@ const DEFAULT_BRANDING: GymBranding = {
   id: '',
   gym_id: '',
   color_bg: '#ffffff',
-  color_bg_light: '#f8f9fa',
-  color_bg_dark: '#e9ecef',
+  color_bg_light: '#f5f5f5',
+  color_bg_dark: '#e5e5e5',
   color_surface: '#ffffff',
-  color_accent: '#2563eb',
-  color_accent2: '#dc2626',
-  color_secondary: '#0891b2',
-  color_secondary2: '#059669',
-  color_specialty: '#7c3aed',
-  color_text: '#1f2937',
-  color_muted: '#6b7280',
-  color_header: '#111827',
-  color_footer: '#111827',
+  color_accent: '#111111',
+  color_accent2: '#333333',
+  color_secondary: '#555555',
+  color_secondary2: '#444444',
+  color_specialty: '#777777',
+  color_text: '#111111',
+  color_muted: '#888888',
+  color_header: '#000000',
+  color_footer: '#111111',
   font_header: 'Inter',
   font_body: 'Inter',
   border_radius: '0.5rem',
@@ -156,9 +156,10 @@ export const useGymPath = () => {
 // -------------------------------------------------------------------
 interface TenantProviderProps {
   children: ReactNode;
+  initialSlug?: string | null;
 }
 
-export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
+export const TenantProvider: React.FC<TenantProviderProps> = ({ children, initialSlug }) => {
   const [gym, setGym] = useState<Gym | null>(null);
   const [branding, setBranding] = useState<GymBranding>(DEFAULT_BRANDING);
   const [features, setFeatures] = useState<Record<FeatureKey, boolean>>(
@@ -171,7 +172,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const tenantSlug = resolveSlugFromUrl();
+  const tenantSlug = initialSlug !== undefined ? initialSlug : resolveSlugFromUrl();
   const isPlatformSite = tenantSlug === null;
 
   const fetchTenantData = async () => {

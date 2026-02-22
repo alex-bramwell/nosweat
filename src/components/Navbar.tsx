@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTenant, useFeature, useGymPath } from '../contexts/TenantContext';
+import { useViewAs } from '../contexts/ViewAsContext';
 import { supabase } from '../lib/supabase';
 import { AuthModal } from './AuthModal';
 import styles from './Navbar.module.scss';
@@ -9,6 +10,13 @@ import styles from './Navbar.module.scss';
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { gym } = useTenant();
+  const viewAsRole = useViewAs();
+
+  // When view-as is active, simulate a different role for rendering
+  const effectiveUser = viewAsRole
+    ? (viewAsRole === 'public' ? null : (user ? { ...user, role: viewAsRole as typeof user.role } : null))
+    : user;
+  const effectiveIsAuthenticated = viewAsRole ? viewAsRole !== 'public' : isAuthenticated;
   const gymPath = useGymPath();
   const hasClassBooking = useFeature('class_booking');
   const hasCoachProfiles = useFeature('coach_profiles');
@@ -242,7 +250,7 @@ const Navbar: React.FC = () => {
 
         {/* Desktop User Menu / Sign In */}
         <div className={styles.desktopActions}>
-          {isAuthenticated ? (
+          {effectiveIsAuthenticated ? (
             <div className={styles.userMenu}>
               <button
                 className={`${styles.userButton} ${(location.pathname === gymPath('/dashboard') || location.pathname === gymPath('/coach-dashboard')) ? styles.activeLink : ''}`}
@@ -257,7 +265,7 @@ const Navbar: React.FC = () => {
               {isUserDropdownOpen && (
                 <div className={styles.userDropdown}>
                   {/* Gym Admin - only for admins */}
-                  {user?.role === 'admin' && (
+                  {effectiveUser?.role === 'admin' && (
                     <Link
                       to={gymPath('/gym-admin')}
                       className={styles.dropdownItem}
@@ -275,7 +283,7 @@ const Navbar: React.FC = () => {
                   )}
 
                   {/* Admin View - only for admins */}
-                  {user?.role === 'admin' && (
+                  {effectiveUser?.role === 'admin' && (
                     <Link
                       to={gymPath('/coach-dashboard')}
                       className={styles.dropdownItem}
@@ -293,7 +301,7 @@ const Navbar: React.FC = () => {
                   )}
 
                   {/* Coach View - for staff, coaches, and admins */}
-                  {(user?.role === 'staff' || user?.role === 'coach' || user?.role === 'admin') && (
+                  {(effectiveUser?.role === 'staff' || effectiveUser?.role === 'coach' || effectiveUser?.role === 'admin') && (
                     <Link
                       to={gymPath('/coach-view')}
                       className={styles.dropdownItem}
@@ -324,7 +332,7 @@ const Navbar: React.FC = () => {
                       <path d="M12 16v-4"></path>
                       <path d="M12 8h.01"></path>
                     </svg>
-                    {user?.role === 'staff' || user?.role === 'coach' || user?.role === 'admin' ? 'Member View' : 'Dashboard'}
+                    {effectiveUser?.role === 'staff' || effectiveUser?.role === 'coach' || effectiveUser?.role === 'admin' ? 'Member View' : 'Dashboard'}
                   </Link>
 
                   <button
@@ -455,18 +463,18 @@ const Navbar: React.FC = () => {
 
           {/* User Section */}
           <div className={styles.mobileUserSection}>
-            {isAuthenticated ? (
+            {effectiveIsAuthenticated ? (
               <>
                 <div className={styles.mobileUserInfo}>
                   <div className={styles.mobileUserAvatar}>
                     {getFirstName().charAt(0).toUpperCase()}
                   </div>
                   <div className={styles.mobileUserDetails}>
-                    <span className={styles.mobileUserName}>{user?.name || 'User'}</span>
-                    <span className={styles.mobileUserEmail}>{user?.email}</span>
+                    <span className={styles.mobileUserName}>{effectiveUser?.name || user?.name || 'User'}</span>
+                    <span className={styles.mobileUserEmail}>{effectiveUser?.email || user?.email}</span>
                   </div>
                 </div>
-                {user?.role === 'admin' && (
+                {effectiveUser?.role === 'admin' && (
                   <Link
                     to={gymPath('/gym-admin')}
                     className={styles.mobileUserLink}

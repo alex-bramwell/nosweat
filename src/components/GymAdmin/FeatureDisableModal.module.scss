@@ -1,0 +1,118 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+
+.illustration {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+
+  svg {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    max-height: 160px;
+    opacity: 0.85;
+  }
+}
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-header);
+  margin: 0;
+}
+
+.description {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--border-radius, 0.75rem);
+}
+
+.warningIcon {
+  flex-shrink: 0;
+  color: #ef4444;
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+.warningText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.warningTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ef4444;
+}
+
+.warningList {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.cancelButton {
+  padding: 0.625rem 1.25rem;
+  border: 1px solid var(--color-bg-dark, rgba(255, 255, 255, 0.08));
+  border-radius: var(--border-radius, 0.75rem);
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    background: var(--color-bg-light, rgba(255, 255, 255, 0.04));
+  }
+}
+
+.disableButton {
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: var(--border-radius, 0.75rem);
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    background: #dc2626;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

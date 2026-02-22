@@ -170,10 +170,26 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
   gap: 0.5rem;
 }
 
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
 .label {
   font-size: 0.9rem;
   font-weight: 600;
   color: $platform-text;
+}
+
+.labelOptional {
+  font-weight: 400;
+  color: $platform-text-muted;
+  font-size: 0.85rem;
 }
 
 .input {
@@ -195,6 +211,12 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
     border-color: rgba($platform-accent, 0.5);
     box-shadow: 0 0 0 3px rgba($platform-accent, 0.12);
     background: rgba(255, 255, 255, 0.06);
+  }
+
+  // Style select dropdowns
+  option {
+    background: #1a1a2e;
+    color: $platform-text;
   }
 }
 
@@ -232,229 +254,25 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
   font-weight: 500;
 }
 
-// ── Color Picker ──
-.colorPickerWrapper {
+// ── Timezone Display ──
+.timezoneDisplay {
   display: flex;
   align-items: center;
-  gap: 1rem;
-}
-
-.colorPicker {
-  width: 4rem;
-  height: 3rem;
-  border: 1px solid $platform-border;
-  border-radius: 12px;
-  cursor: pointer;
-  background: none;
-}
-
-.colorValue {
-  font-family: 'Courier New', monospace;
-  color: $platform-text-muted;
-  font-weight: 500;
-}
-
-// ── Toggle Group ──
-.toggleGroup {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.toggleButton {
-  flex: 1;
-  padding: 0.75rem;
-  border: 1px solid $platform-border;
-  background: $platform-glass-bg;
-  border-radius: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  color: $platform-text-muted;
-  transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: $platform-border-bright;
-  }
-}
-
-.toggleButtonActive {
-  background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
-  color: #ffffff;
-  border-color: transparent;
-  box-shadow: 0 2px 12px rgba($platform-accent, 0.25);
-
-  &:hover {
-    background: linear-gradient(135deg, darken($platform-accent, 5%) 0%, darken($platform-secondary, 5%) 100%);
-  }
-}
-
-// ── Slider ──
-.slider {
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.08);
-  outline: none;
-  cursor: pointer;
-  -webkit-appearance: none;
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba($platform-accent, 0.3);
-
-    &:hover {
-      box-shadow: 0 4px 12px rgba($platform-accent, 0.5);
-    }
-  }
-
-  &::-moz-range-thumb {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 2px 8px rgba($platform-accent, 0.3);
-
-    &:hover {
-      box-shadow: 0 4px 12px rgba($platform-accent, 0.5);
-    }
-  }
-}
-
-// ── Feature Cards (Onboarding) ──
-.featuresGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.featureCard {
-  position: relative;
-  padding: 1.5rem;
-  border: 1px solid $platform-border;
-  background: $platform-glass-bg;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-
-  &:hover {
-    border-color: rgba($platform-accent, 0.3);
-    background: rgba($platform-accent, 0.04);
-    transform: translateY(-2px);
-  }
-}
-
-.featureCheckbox {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 1.25rem;
-  height: 1.25rem;
-  cursor: pointer;
-  accent-color: $platform-accent;
-}
-
-.featureIcon {
-  width: 2rem;
-  height: 2rem;
-  margin-bottom: 0.75rem;
-  color: $platform-accent;
-
-  svg {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-.featureName {
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: $platform-text;
-}
-
-.featureDescription {
-  font-size: 0.85rem;
-  color: $platform-text-muted;
-  line-height: 1.5;
-  margin-bottom: 0.75rem;
-}
-
-.featurePrice {
-  font-size: 0.875rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-// ── Cost Summary ──
-.costSummary {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 1.5rem;
-  background: rgba($platform-accent, 0.08);
-  border: 1px solid rgba($platform-accent, 0.15);
-  border-radius: 12px;
-  margin-top: 1rem;
-}
-
-.costLabel {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: $platform-text;
-}
-
-.costAmount {
-  font-size: 1.75rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-// ── Summary (Review Step) ──
-.summary {
+  padding: 0.75rem 1rem;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid $platform-border;
-  padding: 2rem;
-  border-radius: 16px;
-  margin-bottom: 2rem;
+  border-radius: 12px;
 }
 
-.summaryItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid $platform-border;
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.summaryLabel {
-  font-weight: 500;
+.timezoneLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
   color: $platform-text-muted;
 }
 
-.summaryValue {
+.timezoneValue {
+  font-size: 0.9rem;
   font-weight: 600;
   color: $platform-text;
 }
@@ -518,51 +336,6 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
 
   &:active {
     transform: scale(0.97);
-  }
-}
-
-.skipButton {
-  background: transparent;
-  color: $platform-text-muted;
-  border: none;
-  padding: 0.875rem 2rem;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: color 250ms;
-
-  &:hover {
-    color: $platform-text;
-  }
-}
-
-.launchButton {
-  background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
-  color: #ffffff;
-  padding: 1rem 3rem;
-  border: none;
-  border-radius: 16px;
-  font-weight: 800;
-  font-size: 1.125rem;
-  cursor: pointer;
-  transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 6px 24px rgba($platform-accent, 0.35);
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba($platform-accent, 0.45);
-  }
-
-  &:active {
-    transform: translateY(0) scale(0.97);
-  }
-
-  &:disabled {
-    background: rgba(255, 255, 255, 0.08);
-    color: $platform-text-muted;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
   }
 }
 

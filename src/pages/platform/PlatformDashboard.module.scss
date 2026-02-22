@@ -1,0 +1,83 @@
+// ── Platform Dashboard ──
+// Overrides gym-branding CSS variables with platform design tokens
+// so admin components render in the NoSweat dark theme.
+
+$platform-bg: #0a0a0f;
+$platform-bg-light: #12121a;
+$platform-surface: #1a1a2e;
+$platform-text: #f0f0f5;
+$platform-text-muted: #8b8b9e;
+$platform-accent: #2563eb;
+$platform-border: rgba(255, 255, 255, 0.08);
+$platform-border-bright: rgba(255, 255, 255, 0.15);
+$platform-glass-bg: rgba(255, 255, 255, 0.04);
+
+.dashboardWrapper {
+  // Map gym CSS variables to platform tokens
+  --color-bg: #{$platform-bg};
+  --color-bg-light: #{$platform-bg-light};
+  --color-bg-dark: #{$platform-border};
+  --color-bg-rgb: 10, 10, 15;
+  --color-bg-light-rgb: 18, 18, 26;
+  --color-bg-dark-rgb: 255, 255, 255;
+  --color-surface: #{$platform-glass-bg};
+  --color-surface-rgb: 255, 255, 255;
+  --color-text: #{$platform-text};
+  --color-text-rgb: 240, 240, 245;
+  --color-muted: #{$platform-text-muted};
+  --color-header: #{$platform-text};
+  --color-footer: #{$platform-text};
+  --color-accent: #{$platform-accent};
+  --color-accent-rgb: 37, 99, 235;
+  --color-accent2: #7c3aed;
+  --color-secondary: #7c3aed;
+  --color-secondary2: #7c3aed;
+  --color-specialty: #{$platform-text-muted};
+  --border-radius: 0.75rem;
+  --font-header: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  padding: 3rem 2rem;
+  min-height: 60vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.loading {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $platform-text-muted;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+}
+
+.loadingSpinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid $platform-border;
+  border-top-color: $platform-accent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboardWrapper {
+    padding: 2rem 1rem;
+  }
+}

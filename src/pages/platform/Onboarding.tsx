@@ -1,44 +1,52 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { FEATURES } from '../../config/features';
-import FeatureIcon from '../../components/common/FeatureIcon';
-import { getLocalizedPrice } from '../../utils/pricing';
-import type { FeatureKey } from '../../types/tenant';
 import styles from './Onboarding.module.scss';
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2;
+
+const ALL_FEATURE_KEYS = [
+  'class_booking',
+  'wod_programming',
+  'coach_profiles',
+  'day_passes',
+  'trial_memberships',
+  'service_booking',
+  'accounting_integration',
+  'coach_analytics',
+  'member_management',
+] as const;
 
 const Onboarding = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [userId, setUserId] = useState<string | null>(null);
-  const [gymId, setGymId] = useState<string | null>(null);
 
-  // Step 1: Gym Name & Slug
+  // Step 1: Your Details
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+
+  // Step 2: Your Gym
   const [gymName, setGymName] = useState('');
   const [slug, setSlug] = useState('');
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
   const [checkingSlug, setCheckingSlug] = useState(false);
+  const [addressLine1, setAddressLine1] = useState('');
+  const [addressLine2, setAddressLine2] = useState('');
+  const [city, setCity] = useState('');
+  const [postcode, setPostcode] = useState('');
+  const [country, setCountry] = useState('GB');
+  const [timezone, setTimezone] = useState(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/London'
+  );
 
-  // Step 2: Branding
-  const [primaryColor, setPrimaryColor] = useState('#2563eb');
-  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
-  const [borderRadius, setBorderRadius] = useState(8);
-
-  // Step 3: Features
-  const [selectedFeatures, setSelectedFeatures] = useState<FeatureKey[]>([]);
-
-  // Step 4: Launch state
-  const [launching, setLaunching] = useState(false);
+  // General state
   const [launched, setLaunched] = useState(false);
-
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const price = getLocalizedPrice();
-
-  // Check if user is authenticated
+  // Check auth and resume progress
   useEffect(() => {
     const checkAuth = async () => {
       const {
@@ -46,8 +54,23 @@ const Onboarding = () => {
       } = await supabase.auth.getUser();
       if (!user) {
         navigate('/login');
-      } else {
-        setUserId(user.id);
+        return;
+      }
+
+      setUserId(user.id);
+
+      // Check if profile already has details filled (resume from Step 2)
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, phone')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.first_name && profile?.last_name) {
+        setFirstName(profile.first_name);
+        setLastName(profile.last_name);
+        setPhone(profile.phone || '');
+        setCurrentStep(2);
       }
     };
     checkAuth();
@@ -58,58 +81,51 @@ const Onboarding = () => {
     if (gymName) {
       const generatedSlug = gymName
         .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/-+/g, '-') // Replace multiple hyphens with single
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
         .trim();
       setSlug(generatedSlug);
-      setSlugAvailable(null); // Reset availability check
+      setSlugAvailable(null);
     }
   }, [gymName]);
 
-  // Check slug availability
-  const checkSlugAvailability = async () => {
+  // Check slug availability (debounced)
+  useEffect(() => {
     if (!slug || slug.length < 2) {
       setSlugAvailable(null);
       return;
     }
 
-    setCheckingSlug(true);
-    try {
-      const { data, error } = await supabase
-        .from('gyms')
-        .select('id')
-        .eq('slug', slug)
-        .single();
+    const timer = setTimeout(async () => {
+      setCheckingSlug(true);
+      try {
+        const { data, error: slugError } = await supabase
+          .from('gyms')
+          .select('id')
+          .eq('slug', slug)
+          .single();
 
-      if (error && error.code === 'PGRST116') {
-        // No rows returned - slug is available
-        setSlugAvailable(true);
-      } else if (data) {
-        // Slug already exists
-        setSlugAvailable(false);
-      }
-    } catch (err) {
-      console.error('Error checking slug:', err);
-    } finally {
-      setCheckingSlug(false);
-    }
-  };
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (slug) {
-        checkSlugAvailability();
+        if (slugError && slugError.code === 'PGRST116') {
+          setSlugAvailable(true);
+        } else if (data) {
+          setSlugAvailable(false);
+        }
+      } catch (err) {
+        console.error('Error checking slug:', err);
+      } finally {
+        setCheckingSlug(false);
       }
     }, 500);
+
     return () => clearTimeout(timer);
   }, [slug]);
 
-  // Step 1: Create Gym
+  // Step 1: Save personal details
   const handleStep1Submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!slugAvailable) {
-      setError('Please choose an available gym URL');
+    if (!firstName.trim() || !lastName.trim()) {
+      setError('Please enter your first and last name.');
       return;
     }
 
@@ -117,14 +133,86 @@ const Onboarding = () => {
     setLoading(true);
 
     try {
-      // Create the gym
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          full_name: `${firstName.trim()} ${lastName.trim()}`,
+          phone: phone.trim() || null,
+        })
+        .eq('id', userId);
+
+      if (profileError) throw profileError;
+
+      setCurrentStep(2);
+    } catch (err: any) {
+      console.error('Error updating profile:', err);
+      setError(err.message || 'Failed to save details. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2: Create gym with trial
+  const handleStep2Submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!gymName.trim()) {
+      setError('Please enter a gym name.');
+      return;
+    }
+    if (!slugAvailable) {
+      setError('Please choose an available gym URL.');
+      return;
+    }
+    if (slug.length < 2) {
+      setError('Your gym URL must be at least 2 characters.');
+      return;
+    }
+    if (!addressLine1.trim() || !city.trim() || !postcode.trim()) {
+      setError('Please fill in your gym address.');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      // Re-check slug to avoid race conditions
+      const { data: existingGym } = await supabase
+        .from('gyms')
+        .select('id')
+        .eq('slug', slug)
+        .single();
+
+      if (existingGym) {
+        setSlugAvailable(false);
+        setError('That URL was just taken. Please choose a different one.');
+        setLoading(false);
+        return;
+      }
+
+      // 1. Create gym with trial
+      const trialEnd = new Date();
+      trialEnd.setDate(trialEnd.getDate() + 14);
+
       const { data: gymData, error: gymError } = await supabase
         .from('gyms')
         .insert({
-          name: gymName,
+          name: gymName.trim(),
           slug,
           owner_id: userId,
-          status: 'onboarding',
+          status: 'active',
+          address_line1: addressLine1.trim(),
+          address_line2: addressLine2.trim() || null,
+          city: city.trim(),
+          postcode: postcode.trim(),
+          country,
+          timezone,
+          trial_start_date: new Date().toISOString(),
+          trial_end_date: trialEnd.toISOString(),
+          trial_member_limit: 5,
+          trial_status: 'active',
         })
         .select()
         .single();
@@ -132,171 +220,163 @@ const Onboarding = () => {
       if (gymError) throw gymError;
 
       const createdGymId = gymData.id;
-      setGymId(createdGymId);
 
-      // Create default branding record
+      // 2. Create default branding record
       const { error: brandingError } = await supabase.from('gym_branding').insert({
         gym_id: createdGymId,
-        color_accent: primaryColor,
-        theme_mode: themeMode,
-        border_radius: `${borderRadius / 16}rem`,
       });
-
       if (brandingError) throw brandingError;
 
-      // Update user profile with gym_id
+      // 3. Enable ALL features for trial
+      const featureInserts = ALL_FEATURE_KEYS.map((key) => ({
+        gym_id: createdGymId,
+        feature_key: key,
+        enabled: true,
+        enabled_at: new Date().toISOString(),
+        monthly_cost_pence: 1000,
+      }));
+
+      const { error: featuresError } = await supabase
+        .from('gym_features')
+        .insert(featureInserts);
+      if (featuresError) throw featuresError;
+
+      // 4. Link profile to gym
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ gym_id: createdGymId })
         .eq('id', userId);
-
       if (profileError) throw profileError;
 
-      // Move to next step
-      setCurrentStep(2);
-    } catch (err: any) {
-      console.error('Error creating gym:', err);
-      setError(err.message || 'Failed to create gym. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Step 2: Update Branding
-  const handleStep2Submit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const { error: brandingError } = await supabase
-        .from('gym_branding')
-        .update({
-          color_accent: primaryColor,
-          theme_mode: themeMode,
-          border_radius: `${borderRadius / 16}rem`,
-        })
-        .eq('gym_id', gymId);
-
-      if (brandingError) throw brandingError;
-
-      setCurrentStep(3);
-    } catch (err: any) {
-      console.error('Error updating branding:', err);
-      setError(err.message || 'Failed to update branding. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Step 3: Save Features
-  const handleStep3Submit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      // Insert selected features
-      if (selectedFeatures.length > 0) {
-        const featureInserts = selectedFeatures.map((key) => ({
-          gym_id: gymId,
-          feature_key: key,
-          enabled: true,
-          enabled_at: new Date().toISOString(),
-          monthly_cost_pence: 1000,
-        }));
-
-        const { error: featuresError } = await supabase
-          .from('gym_features')
-          .insert(featureInserts);
-
-        if (featuresError) throw featuresError;
-      }
-
-      setCurrentStep(4);
-    } catch (err: any) {
-      console.error('Error saving features:', err);
-      setError(err.message || 'Failed to save features. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Step 4: Launch
-  const handleLaunch = async () => {
-    setError('');
-    setLaunching(true);
-
-    try {
-      // Update gym status to active
-      const { error: updateError } = await supabase
-        .from('gyms')
-        .update({ status: 'active' })
-        .eq('id', gymId);
-
-      if (updateError) throw updateError;
-
+      setSlug(gymData.slug);
       setLaunched(true);
     } catch (err: any) {
-      console.error('Error launching gym:', err);
-      setError(err.message || 'Failed to launch gym. Please try again.');
+      console.error('Error creating gym:', err);
+
+      if (err.code === '23505' && err.message?.includes('gyms_slug_key')) {
+        setSlugAvailable(false);
+        setError('That URL was just taken. Please choose a different one.');
+      } else if (err.code === '42501' || err.message?.includes('permission denied')) {
+        setError('Permission denied. Please log out and log back in, then try again.');
+      } else if (err.message?.includes('infinite recursion')) {
+        setError('A database configuration issue was detected. Please contact support.');
+      } else {
+        setError(err.message || 'Failed to create gym. Please try again.');
+      }
     } finally {
-      setLaunching(false);
+      setLoading(false);
     }
   };
-
-  const toggleFeature = (key: FeatureKey) => {
-    setSelectedFeatures((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-  };
-
-  const totalMonthlyCost = price.formatted;
 
   return (
     <div className={styles.onboarding}>
       <div className={styles.container}>
         {/* Progress Bar */}
-        <div className={styles.progress}>
-          <div className={styles.progressSteps}>
-            {[1, 2, 3, 4].map((step) => (
-              <div
-                key={step}
-                className={`${styles.progressStep} ${
-                  step <= currentStep ? styles.progressStepActive : ''
-                }`}
-              >
-                <div className={styles.progressStepNumber}>{step}</div>
-                <div className={styles.progressStepLabel}>
-                  {step === 1 && 'Name'}
-                  {step === 2 && 'Brand'}
-                  {step === 3 && 'Features'}
-                  {step === 4 && 'Launch'}
+        {!launched && (
+          <div className={styles.progress}>
+            <div className={styles.progressSteps}>
+              {[1, 2].map((step) => (
+                <div
+                  key={step}
+                  className={`${styles.progressStep} ${
+                    step <= currentStep ? styles.progressStepActive : ''
+                  }`}
+                >
+                  <div className={styles.progressStepNumber}>{step}</div>
+                  <div className={styles.progressStepLabel}>
+                    {step === 1 && 'Your Details'}
+                    {step === 2 && 'Your Gym'}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className={styles.progressBar}>
+              <div
+                className={styles.progressBarFill}
+                style={{ width: `${(currentStep / 2) * 100}%` }}
+              />
+            </div>
           </div>
-          <div className={styles.progressBar}>
-            <div
-              className={styles.progressBarFill}
-              style={{ width: `${(currentStep / 4) * 100}%` }}
-            />
-          </div>
-        </div>
+        )}
 
         {/* Step Content */}
         <div className={styles.stepContent}>
           {error && <div className={styles.error}>{error}</div>}
 
-          {/* Step 1: Name Your Gym */}
-          {currentStep === 1 && (
+          {/* Step 1: Your Details */}
+          {currentStep === 1 && !launched && (
             <div className={styles.step}>
-              <h1 className={styles.stepTitle}>Name Your Gym</h1>
+              <h1 className={styles.stepTitle}>Your Details</h1>
               <p className={styles.stepDescription}>
-                Choose a name and URL for your gym.
+                Tell us a bit about yourself to get started.
               </p>
 
               <form onSubmit={handleStep1Submit} className={styles.form}>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="firstName" className={styles.label}>
+                      First Name
+                    </label>
+                    <input
+                      id="firstName"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required
+                      className={styles.input}
+                      placeholder="John"
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="lastName" className={styles.label}>
+                      Last Name
+                    </label>
+                    <input
+                      id="lastName"
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                      className={styles.input}
+                      placeholder="Smith"
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="phone" className={styles.label}>
+                    Phone Number <span className={styles.labelOptional}>(optional)</span>
+                  </label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className={styles.input}
+                    placeholder="+44 7123 456789"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={styles.submitButton}
+                >
+                  {loading ? 'Saving...' : 'Continue'}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* Step 2: Your Gym */}
+          {currentStep === 2 && !launched && (
+            <div className={styles.step}>
+              <h1 className={styles.stepTitle}>Your Gym</h1>
+              <p className={styles.stepDescription}>
+                Set up your gym's basic details. You can customise branding and features later.
+              </p>
+
+              <form onSubmit={handleStep2Submit} className={styles.form}>
                 <div className={styles.formGroup}>
                   <label htmlFor="gymName" className={styles.label}>
                     Gym Name
@@ -341,80 +421,91 @@ const Onboarding = () => {
                   )}
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={loading || !slugAvailable}
-                  className={styles.submitButton}
-                >
-                  {loading ? 'Creating...' : 'Continue'}
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* Step 2: Brand Your Gym */}
-          {currentStep === 2 && (
-            <div className={styles.step}>
-              <h1 className={styles.stepTitle}>Brand Your Gym</h1>
-              <p className={styles.stepDescription}>
-                Customize your gym's look and feel. You can always change this later.
-              </p>
-
-              <form onSubmit={handleStep2Submit} className={styles.form}>
                 <div className={styles.formGroup}>
-                  <label htmlFor="primaryColor" className={styles.label}>
-                    Primary Color
-                  </label>
-                  <div className={styles.colorPickerWrapper}>
-                    <input
-                      id="primaryColor"
-                      type="color"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className={styles.colorPicker}
-                    />
-                    <span className={styles.colorValue}>{primaryColor}</span>
-                  </div>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Theme Mode</label>
-                  <div className={styles.toggleGroup}>
-                    <button
-                      type="button"
-                      className={`${styles.toggleButton} ${
-                        themeMode === 'light' ? styles.toggleButtonActive : ''
-                      }`}
-                      onClick={() => setThemeMode('light')}
-                    >
-                      Light
-                    </button>
-                    <button
-                      type="button"
-                      className={`${styles.toggleButton} ${
-                        themeMode === 'dark' ? styles.toggleButtonActive : ''
-                      }`}
-                      onClick={() => setThemeMode('dark')}
-                    >
-                      Dark
-                    </button>
-                  </div>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="borderRadius" className={styles.label}>
-                    Border Radius: {borderRadius}px
+                  <label htmlFor="addressLine1" className={styles.label}>
+                    Address
                   </label>
                   <input
-                    id="borderRadius"
-                    type="range"
-                    min="0"
-                    max="24"
-                    step="2"
-                    value={borderRadius}
-                    onChange={(e) => setBorderRadius(Number(e.target.value))}
-                    className={styles.slider}
+                    id="addressLine1"
+                    type="text"
+                    value={addressLine1}
+                    onChange={(e) => setAddressLine1(e.target.value)}
+                    required
+                    className={styles.input}
+                    placeholder="123 High Street"
                   />
+                  <input
+                    type="text"
+                    value={addressLine2}
+                    onChange={(e) => setAddressLine2(e.target.value)}
+                    className={styles.input}
+                    placeholder="Unit 4 (optional)"
+                    style={{ marginTop: '0.5rem' }}
+                  />
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="city" className={styles.label}>
+                      City
+                    </label>
+                    <input
+                      id="city"
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      required
+                      className={styles.input}
+                      placeholder="London"
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="postcode" className={styles.label}>
+                      Postcode
+                    </label>
+                    <input
+                      id="postcode"
+                      type="text"
+                      value={postcode}
+                      onChange={(e) => setPostcode(e.target.value)}
+                      required
+                      className={styles.input}
+                      placeholder="SW1A 1AA"
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="country" className={styles.label}>
+                    Country
+                  </label>
+                  <select
+                    id="country"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className={styles.input}
+                  >
+                    <option value="GB">United Kingdom</option>
+                    <option value="US">United States</option>
+                    <option value="CA">Canada</option>
+                    <option value="AU">Australia</option>
+                    <option value="NZ">New Zealand</option>
+                    <option value="IE">Ireland</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="ES">Spain</option>
+                    <option value="IT">Italy</option>
+                    <option value="NL">Netherlands</option>
+                    <option value="SE">Sweden</option>
+                    <option value="NO">Norway</option>
+                    <option value="DK">Denmark</option>
+                    <option value="PT">Portugal</option>
+                  </select>
+                </div>
+
+                <div className={styles.timezoneDisplay}>
+                  <span className={styles.timezoneLabel}>Timezone</span>
+                  <span className={styles.timezoneValue}>{timezone.replace(/_/g, ' ')}</span>
                 </div>
 
                 <div className={styles.buttonGroup}>
@@ -427,132 +518,13 @@ const Onboarding = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || !slugAvailable}
                     className={styles.submitButton}
                   >
-                    {loading ? 'Saving...' : 'Continue'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(3)}
-                    className={styles.skipButton}
-                  >
-                    Skip
+                    {loading ? 'Creating...' : 'Create My Gym'}
                   </button>
                 </div>
               </form>
-            </div>
-          )}
-
-          {/* Step 3: Choose Your Features */}
-          {currentStep === 3 && (
-            <div className={styles.step}>
-              <h1 className={styles.stepTitle}>Choose Your Features</h1>
-              <p className={styles.stepDescription}>
-                Toggle on the features you want active. Everything is included in your
-                {' '}{totalMonthlyCost}/month plan.
-              </p>
-
-              <form onSubmit={handleStep3Submit} className={styles.form}>
-                <div className={styles.featuresGrid}>
-                  {FEATURES.map((feature) => (
-                    <label key={feature.key} className={styles.featureCard}>
-                      <input
-                        type="checkbox"
-                        checked={selectedFeatures.includes(feature.key)}
-                        onChange={() => toggleFeature(feature.key)}
-                        className={styles.featureCheckbox}
-                      />
-                      <div className={styles.featureIcon}><FeatureIcon featureKey={feature.key} /></div>
-                      <h3 className={styles.featureName}>{feature.name}</h3>
-                      <p className={styles.featureDescription}>{feature.description}</p>
-                      <p className={styles.featurePrice}>Included</p>
-                    </label>
-                  ))}
-                </div>
-
-                <div className={styles.costSummary}>
-                  <span className={styles.costLabel}>Monthly plan:</span>
-                  <span className={styles.costAmount}>{totalMonthlyCost}/mo</span>
-                </div>
-
-                <div className={styles.buttonGroup}>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(2)}
-                    className={styles.backButton}
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className={styles.submitButton}
-                  >
-                    {loading ? 'Saving...' : 'Continue'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(4)}
-                    className={styles.skipButton}
-                  >
-                    Skip
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* Step 4: Preview & Launch */}
-          {currentStep === 4 && !launched && (
-            <div className={styles.step}>
-              <h1 className={styles.stepTitle}>Preview & Launch</h1>
-              <p className={styles.stepDescription}>
-                You're all set! Review your setup and launch your gym.
-              </p>
-
-              <div className={styles.summary}>
-                <div className={styles.summaryItem}>
-                  <span className={styles.summaryLabel}>Gym Name:</span>
-                  <span className={styles.summaryValue}>{gymName}</span>
-                </div>
-                <div className={styles.summaryItem}>
-                  <span className={styles.summaryLabel}>Website URL:</span>
-                  <span className={styles.summaryValue}>
-                    nosweat.fitness/gym/{slug}
-                  </span>
-                </div>
-                <div className={styles.summaryItem}>
-                  <span className={styles.summaryLabel}>Features:</span>
-                  <span className={styles.summaryValue}>
-                    {selectedFeatures.length} feature
-                    {selectedFeatures.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-                <div className={styles.summaryItem}>
-                  <span className={styles.summaryLabel}>Monthly Cost:</span>
-                  <span className={styles.summaryValue}>{totalMonthlyCost}/mo</span>
-                </div>
-              </div>
-
-              {error && <div className={styles.error}>{error}</div>}
-
-              <div className={styles.buttonGroup}>
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep(3)}
-                  className={styles.backButton}
-                >
-                  Back
-                </button>
-                <button
-                  onClick={handleLaunch}
-                  disabled={launching}
-                  className={styles.launchButton}
-                >
-                  {launching ? 'Launching...' : 'Launch Your Gym'}
-                </button>
-              </div>
             </div>
           )}
 
@@ -565,9 +537,10 @@ const Onboarding = () => {
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
               </div>
-              <h1 className={styles.successTitle}>Your gym is live!</h1>
+              <h1 className={styles.successTitle}>Your gym is ready!</h1>
               <p className={styles.successDescription}>
-                Congratulations! Your gym is now online and ready for members.
+                Your 14-day free trial has started. You have full access to all features
+                and can invite up to 5 members.
               </p>
               <div className={styles.successUrl}>
                 <strong>Your gym URL:</strong>
@@ -575,10 +548,10 @@ const Onboarding = () => {
                 nosweat.fitness/gym/{slug}
               </div>
               <a
-                href={`/gym/${slug}`}
+                href="/dashboard"
                 className={styles.visitButton}
               >
-                Visit Your Site
+                Go to Dashboard
               </a>
             </div>
           )}

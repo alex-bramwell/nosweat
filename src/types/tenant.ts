@@ -13,12 +13,17 @@ export interface Gym {
   city: string | null;
   postcode: string | null;
   country: string | null;
+  timezone: string;
   website_url: string | null;
   google_maps_embed_url: string | null;
   social_facebook: string | null;
   social_instagram: string | null;
   social_twitter: string | null;
   stripe_account_id: string | null;
+  trial_start_date: string | null;
+  trial_end_date: string | null;
+  trial_member_limit: number;
+  trial_status: 'none' | 'active' | 'expired' | 'converted';
   created_at: string;
   updated_at: string;
 }

@@ -384,7 +384,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           // If coach login, redirect to coach view
           if (isCoachLogin) {
             onClose();
-            window.location.href = '/coach-view';
+            window.location.href = gymPath('/coach-view');
             return;
           }
 
@@ -394,7 +394,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
               updateStep('class-selection');
               onClose();
               // Reload to pick up session, then redirect to schedule
-              window.location.href = '/schedule';
+              window.location.href = gymPath('/schedule');
               return;
             } else if (intent.type === 'trial' && !embedded) {
               updateStep('payment');
@@ -405,8 +405,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           }
 
           onClose();
-          // Redirect to dashboard after login
-          window.location.href = '/dashboard';
+
+          // Fetch profile to determine role-based redirect
+          const supabaseUrlForProfile = import.meta.env.VITE_SUPABASE_URL;
+          const profileRes = await fetch(
+            `${supabaseUrlForProfile}/rest/v1/profiles?id=eq.${result.user.id}&select=role`,
+            {
+              headers: {
+                'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${result.access_token}`,
+              },
+            }
+          );
+          const profileInfo = await profileRes.json();
+          const role = profileInfo?.[0]?.role;
+
+          if (role === 'admin') {
+            window.location.href = gymPath('/gym-admin');
+          } else if (role === 'coach') {
+            window.location.href = gymPath('/coach-view');
+          } else {
+            window.location.href = gymPath('/dashboard');
+          }
         }
       }
     } catch (err) {

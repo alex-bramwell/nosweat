@@ -5,7 +5,6 @@ import styles from './PlatformAuth.module.scss';
 
 const PlatformSignup = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,15 +16,12 @@ const PlatformSignup = () => {
     setLoading(true);
 
     try {
-      // Sign up with email and password
       const { data, error: signupError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            name,
-            role: 'admin', // Platform users are gym admins
-            // Note: NOT setting gym_id here - they don't have a gym yet
+            role: 'admin',
           },
         },
       });
@@ -36,9 +32,7 @@ const PlatformSignup = () => {
         throw new Error('Signup failed');
       }
 
-      // Redirect to subscription checkout
-      const params = new URLSearchParams({ email, uid: data.user.id });
-      navigate(`/subscribe?${params.toString()}`);
+      navigate('/onboarding');
     } catch (err: any) {
       console.error('Signup error:', err);
       setError(err.message || 'Failed to create account. Please try again.');
@@ -51,25 +45,10 @@ const PlatformSignup = () => {
     <div className={styles.authPage}>
       <div className={styles.authCard}>
         <h1 className={styles.authTitle}>Create your account</h1>
-        <p className={styles.authSubtitle}>Get your gym online in minutes.</p>
+        <p className={styles.authSubtitle}>Start your 14-day free trial.</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           {error && <div className={styles.error}>{error}</div>}
-
-          <div className={styles.formGroup}>
-            <label htmlFor="name" className={styles.label}>
-              Full Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className={styles.input}
-              placeholder="John Smith"
-            />
-          </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="email" className={styles.label}>
@@ -103,7 +82,7 @@ const PlatformSignup = () => {
           </div>
 
           <button type="submit" disabled={loading} className={styles.submitButton}>
-            {loading ? 'Creating account...' : 'Create Account'}
+            {loading ? 'Creating account...' : 'Start Free Trial'}
           </button>
         </form>
 

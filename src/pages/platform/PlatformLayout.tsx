@@ -1,5 +1,6 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, type ReactNode } from 'react';
+import { supabase } from '../../lib/supabase';
 import Logo from '../../components/common/Logo';
 import styles from './PlatformLayout.module.scss';
 
@@ -39,13 +40,46 @@ const DropletIcon = ({ className }: { className?: string }) => (
 
 const PlatformLayout = ({ children }: PlatformLayoutProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isHomePage = location.pathname === '/';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
 
   // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
+
+  // Check auth session
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setIsLoggedIn(true);
+        setUserName(user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || null);
+      }
+    };
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session?.user);
+      if (session?.user) {
+        setUserName(session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || null);
+      } else {
+        setUserName(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setIsLoggedIn(false);
+    setUserName(null);
+    navigate('/');
+  };
 
   return (
     <div className={styles.platformLayout}>
@@ -67,12 +101,25 @@ const PlatformLayout = ({ children }: PlatformLayoutProps) => {
             <Link to="/roadmap" className={styles.navLink}>
               Roadmap
             </Link>
-            <Link to="/login" className={styles.navLinkSecondary}>
-              Log in
-            </Link>
-            <Link to="/signup" className={styles.navLinkPrimary}>
-              {isHomePage ? 'Get Started' : 'Sign up'}
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link to="/dashboard" className={styles.navLinkPrimary}>
+                  Dashboard
+                </Link>
+                <button onClick={handleLogout} className={styles.navLogout}>
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className={styles.navLinkSecondary}>
+                  Log in
+                </Link>
+                <Link to="/signup" className={styles.navLinkPrimary}>
+                  {isHomePage ? 'Get Started' : 'Sign up'}
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile toggle */}
@@ -98,12 +145,25 @@ const PlatformLayout = ({ children }: PlatformLayoutProps) => {
           <Link to="/roadmap" className={styles.mobileLink}>
             Roadmap
           </Link>
-          <Link to="/login" className={styles.mobileLink}>
-            Log in
-          </Link>
-          <Link to="/signup" className={styles.mobileLinkPrimary}>
-            {isHomePage ? 'Get Started' : 'Sign up'}
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <Link to="/dashboard" className={styles.mobileLinkPrimary}>
+                Dashboard
+              </Link>
+              <button onClick={handleLogout} className={styles.mobileLink}>
+                Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className={styles.mobileLink}>
+                Log in
+              </Link>
+              <Link to="/signup" className={styles.mobileLinkPrimary}>
+                {isHomePage ? 'Get Started' : 'Sign up'}
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 

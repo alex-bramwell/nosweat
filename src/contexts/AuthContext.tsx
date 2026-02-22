@@ -5,6 +5,8 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
   role: 'member' | 'staff' | 'coach' | 'admin';
   membershipType: string;  // dynamic per-gym (e.g. 'trial', 'crossfit', 'premium', etc.)
   joinDate: string;
@@ -93,6 +95,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         id: profile.id,
         email: profile.email,
         name: profile.full_name,
+        firstName: profile.first_name || undefined,
+        lastName: profile.last_name || undefined,
         role: profile.role || 'member',
         membershipType: profile.membership_type,
         joinDate: profile.join_date,
