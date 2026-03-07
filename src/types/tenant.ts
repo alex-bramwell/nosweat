@@ -57,6 +57,9 @@ export interface GymBranding {
   // Theme mode
   theme_mode: 'light' | 'dark';
 
+  // Navbar style
+  nav_style: 'floating' | 'standard';
+
   // Assets
   logo_url: string | null;
   logo_dark_url: string | null;
@@ -74,6 +77,13 @@ export interface GymBranding {
   about_philosophy: string | null;
   about_facility: string | null;
   footer_text: string | null;
+
+  // Custom code
+  custom_css: string;
+  hero_effect: string;
+
+  // Section visibility
+  visible_sections: Record<string, boolean>;
 }
 
 export interface GymFeature {

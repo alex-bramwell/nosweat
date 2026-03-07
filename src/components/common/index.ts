@@ -9,6 +9,7 @@ export { DurationInput } from './DurationInput';
 export * from './InfoTooltip';
 export { FeatureGate } from './FeatureGate/FeatureGate';
 export { FeatureNotEnabled } from './FeatureGate/FeatureNotEnabled';
+export { default as EmptyStatePreview } from './EmptyStatePreview/EmptyStatePreview';
 
 export type { ButtonProps } from './Button';
 export type { CardProps } from './Card';

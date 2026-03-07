@@ -1,11 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTenant, useFeature } from '../contexts/TenantContext';
 import { ViewAsProvider } from '../contexts/ViewAsContext';
+import { BrandingOverrideProvider } from '../contexts/BrandingOverrideContext';
+import { usePreviewTheme } from '../hooks/usePreviewTheme';
+import type { GymBranding } from '../types/tenant';
+import type { FeatureKey } from '../types/tenant';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import BrandingEditor from '../components/GymAdmin/BrandingEditor';
+import BuilderSidebar from '../components/BuilderSidebar/BuilderSidebar';
+import LockedFeatureOverlay from '../components/GymAdmin/LockedFeatureOverlay';
 import Home from './Home';
 import Schedule from './Schedule';
 import About from './About';
@@ -15,22 +20,23 @@ import styles from './GymAdminBuilder.module.scss';
 type PreviewPage = 'home' | 'schedule' | 'coaches' | 'about';
 type ViewRole = 'admin' | 'coach' | 'member' | 'public';
 
+const PAGE_FEATURE_MAP: Partial<Record<PreviewPage, FeatureKey>> = {
+  schedule: 'class_booking',
+  coaches: 'coach_profiles',
+};
+
 const GymAdminBuilder: React.FC = () => {
   const { user } = useAuth();
   const { gym } = useTenant();
   const hasClassBooking = useFeature('class_booking');
   const hasCoachProfiles = useFeature('coach_profiles');
 
-  const [panelOpen, setPanelOpen] = useState(
-    () => localStorage.getItem('builder-panel') !== 'collapsed'
-  );
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [draftBranding, setDraftBranding] = useState<Partial<GymBranding> | null>(null);
   const [previewPage, setPreviewPage] = useState<PreviewPage>('home');
   const [viewAsRole, setViewAsRole] = useState<ViewRole>('admin');
 
-  // Persist panel state
-  useEffect(() => {
-    localStorage.setItem('builder-panel', panelOpen ? 'open' : 'collapsed');
-  }, [panelOpen]);
+  usePreviewTheme(previewRef, draftBranding);
 
   // Authorization check
   const isAuthorized = user && gym && (user.id === gym.owner_id || user.role === 'admin');
@@ -60,14 +66,19 @@ const GymAdminBuilder: React.FC = () => {
     );
   }
 
-  const previewPages: { id: PreviewPage; label: string }[] = [
-    { id: 'home', label: 'Home' },
-    ...(hasClassBooking ? [{ id: 'schedule' as PreviewPage, label: 'Schedule' }] : []),
-    ...(hasCoachProfiles ? [{ id: 'coaches' as PreviewPage, label: 'Coaches' }] : []),
-    { id: 'about', label: 'About' },
+  const previewPages: { id: PreviewPage; label: string; locked: boolean }[] = [
+    { id: 'home', label: 'Home', locked: false },
+    { id: 'schedule', label: 'Schedule', locked: !hasClassBooking },
+    { id: 'coaches', label: 'Coaches', locked: !hasCoachProfiles },
+    { id: 'about', label: 'About', locked: false },
   ];
 
   const renderPreviewPage = () => {
+    const requiredFeature = PAGE_FEATURE_MAP[previewPage];
+    const currentPage = previewPages.find((p) => p.id === previewPage);
+    if (currentPage?.locked && requiredFeature) {
+      return <LockedFeatureOverlay feature={requiredFeature} />;
+    }
     switch (previewPage) {
       case 'schedule': return <Schedule />;
       case 'coaches': return <Coaches />;
@@ -100,7 +111,9 @@ const GymAdminBuilder: React.FC = () => {
               onChange={(e) => setPreviewPage(e.target.value as PreviewPage)}
             >
               {previewPages.map((p) => (
-                <option key={p.id} value={p.id}>{p.label}</option>
+                <option key={p.id} value={p.id}>
+                  {p.label}{p.locked ? ' \ud83d\udd12' : ''}
+                </option>
               ))}
             </select>
           </div>
@@ -119,57 +132,23 @@ const GymAdminBuilder: React.FC = () => {
           </div>
         </div>
 
-        <div className={styles.toolbarRight}>
-          <button
-            className={styles.panelToggle}
-            onClick={() => setPanelOpen(!panelOpen)}
-          >
-            {panelOpen ? (
-              <>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M11 19l-7-7 7-7" />
-                </svg>
-                Hide Panel
-              </>
-            ) : (
-              <>
-                Show Panel
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M13 5l7 7-7 7" />
-                </svg>
-              </>
-            )}
-          </button>
-        </div>
       </div>
 
       {/* ── Workspace ── */}
       <div className={styles.workspace}>
-        {/* Side Panel */}
-        <aside className={`${styles.panel} ${panelOpen ? '' : styles.panelCollapsed}`}>
-          <div className={styles.panelHeader}>
-            <span className={styles.panelHeaderIcon}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-              </svg>
-            </span>
-            <span className={styles.panelHeaderTitle}>Branding</span>
-          </div>
-
-          <div className={styles.panelBody}>
-            <BrandingEditor />
-          </div>
-        </aside>
+        <BuilderSidebar onDraftChange={setDraftBranding} />
 
         {/* Site Preview */}
-        <div className={styles.preview}>
-          <ViewAsProvider role={viewAsRole}>
-            <Navbar />
-            <main style={{ flex: 1 }}>
-              {renderPreviewPage()}
-            </main>
-            <Footer />
-          </ViewAsProvider>
+        <div className={styles.preview} ref={previewRef}>
+          <BrandingOverrideProvider overrides={draftBranding}>
+            <ViewAsProvider role={viewAsRole}>
+              <Navbar />
+              <main style={{ flex: 1 }}>
+                {renderPreviewPage()}
+              </main>
+              <Footer />
+            </ViewAsProvider>
+          </BrandingOverrideProvider>
         </div>
       </div>
     </div>

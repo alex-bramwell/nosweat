@@ -37,4 +37,5 @@ build
 
 # Claude local settings
 .claude/
+CLAUDE.md
 .vercel
