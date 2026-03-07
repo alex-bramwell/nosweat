@@ -68,6 +68,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         break;
       }
 
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        await handleCheckoutSessionCompleted(session);
+        break;
+      }
+
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
@@ -153,6 +159,56 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
     console.log(`Trial setup succeeded for user ${userId}`);
   } catch (error) {
     console.error('Error handling setup_intent.succeeded:', error);
+    throw error;
+  }
+}
+
+async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  try {
+    const userId = session.metadata?.user_id;
+    const subscriptionId = session.subscription as string | null;
+    const customerEmail = session.customer_details?.email;
+
+    if (!userId || !subscriptionId) {
+      console.log('Checkout session completed without user_id or subscription — skipping');
+      return;
+    }
+
+    // Retrieve the subscription to get plan details
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const priceId = subscription.items.data[0]?.price?.id;
+
+    // Update user profile with subscription info
+    await supabase
+      .from('profiles')
+      .update({
+        membership_type: 'platform_subscriber',
+        stripe_subscription_id: subscriptionId,
+        stripe_price_id: priceId || null,
+        subscription_status: 'active',
+      })
+      .eq('id', userId);
+
+    // Ensure stripe customer record exists
+    const customerId = session.customer as string;
+    if (customerId) {
+      const { data: existing } = await supabase
+        .from('stripe_customers')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (!existing) {
+        await supabase.from('stripe_customers').insert({
+          user_id: userId,
+          stripe_customer_id: customerId,
+        });
+      }
+    }
+
+    console.log(`Checkout session completed for user ${userId}, subscription ${subscriptionId}`);
+  } catch (error) {
+    console.error('Error handling checkout.session.completed:', error);
     throw error;
   }
 }
