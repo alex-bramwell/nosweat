@@ -90,6 +90,9 @@ const PlatformLayout = ({ children }: PlatformLayoutProps) => {
             <Link to="/docs" className={styles.navLink}>
               Docs
             </Link>
+            <Link to="/payments" className={styles.navLink}>
+              Payments
+            </Link>
             <Link to="/roadmap" className={styles.navLink}>
               Roadmap
             </Link>
@@ -133,6 +136,9 @@ const PlatformLayout = ({ children }: PlatformLayoutProps) => {
           </Link>
           <Link to="/docs" className={styles.mobileLink}>
             Docs
+          </Link>
+          <Link to="/payments" className={styles.mobileLink}>
+            Payments
           </Link>
           <Link to="/roadmap" className={styles.mobileLink}>
             Roadmap
@@ -189,6 +195,9 @@ const PlatformLayout = ({ children }: PlatformLayoutProps) => {
                 </Link>
                 <Link to="/docs" className={styles.platformFooterLink}>
                   Docs
+                </Link>
+                <Link to="/payments" className={styles.platformFooterLink}>
+                  Payments
                 </Link>
                 <Link to="/roadmap" className={styles.platformFooterLink}>
                   Roadmap
