@@ -88,11 +88,11 @@ const GymAdminBuilder: React.FC = () => {
   };
 
   return (
-    <div className={styles.builder}>
+    <div className={styles.builderLayout}>
       {/* ── Toolbar ── */}
-      <div className={styles.toolbar}>
+      <div className={styles.builderToolbar}>
         <div className={styles.toolbarLeft}>
-          <Link to="/dashboard" className={styles.backLink}>
+          <Link to="/dashboard" className={styles.builderBackLink}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
             </svg>
@@ -135,11 +135,11 @@ const GymAdminBuilder: React.FC = () => {
       </div>
 
       {/* ── Workspace ── */}
-      <div className={styles.workspace}>
+      <div className={styles.builderWorkspace}>
         <BuilderSidebar onDraftChange={setDraftBranding} />
 
         {/* Site Preview */}
-        <div className={styles.preview} ref={previewRef}>
+        <div className={styles.builderPreview} ref={previewRef}>
           <BrandingOverrideProvider overrides={draftBranding}>
             <ViewAsProvider role={viewAsRole}>
               <Navbar />

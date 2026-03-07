@@ -45,7 +45,7 @@
   }
 }
 
-.header {
+.serviceBookingHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -112,7 +112,7 @@
   font-weight: 600;
 }
 
-.section {
+.serviceBookingSection {
   padding: 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
@@ -234,7 +234,7 @@
   }
 }
 
-.actions {
+.serviceBookingActions {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
@@ -298,7 +298,7 @@
   border-left: 3px solid var(--color-secondary);
 }
 
-.error {
+.serviceBookingError {
   color: #ef4444;
   font-size: 0.875rem;
   padding: 0 1.5rem;

@@ -1,11 +1,11 @@
 @use '../../../styles/variables' as *;
 
-.hero {
+.heroSection {
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, var(--color-bg-dark) 0%, var(--color-bg) 100%);
 
-  // Background image is now set via inline style on .heroBackground
+  // Background image is now set via inline style on .heroBackdrop
 
   // Dark overlay on top of background image
   &::before {
@@ -25,7 +25,7 @@
   }
 }
 
-.heroBackground {
+.heroBackdrop {
   position: absolute;
   top: 0;
   left: 0;
@@ -39,7 +39,7 @@
   pointer-events: none;
 }
 
-.gradientEffect {
+.heroGradientEffect {
   position: absolute;
   top: 0;
   left: 0;
@@ -63,7 +63,7 @@
   100% { background-position: 0% 50%; }
 }
 
-.comet {
+.heroCometEffect {
   position: absolute;
   top: 20%;
   left: -100px;
@@ -79,7 +79,7 @@
   z-index: 2;
 }
 
-.cometTrail {
+.heroCometTrail {
   position: absolute;
   top: 50%;
   right: 100%;
@@ -141,7 +141,7 @@
   }
 }
 
-.content {
+.heroBody {
   position: relative;
   z-index: 2;
   text-align: center;
@@ -149,7 +149,7 @@
   margin: 0 auto;
 }
 
-.title {
+.heroHeadline {
   font-family: var(--font-header, 'Inter'), sans-serif;
   font-weight: 700;
   font-size: clamp(2.5rem, 5vw, 4rem);
@@ -165,7 +165,7 @@
   -webkit-text-fill-color: transparent;
 }
 
-.subtitle {
+.heroTagline {
   @include body;
   font-size: clamp(1.125rem, 2vw, 1.5rem);
   color: var(--color-muted);
@@ -176,7 +176,7 @@
   margin-right: auto;
 }
 
-.actionCards {
+.heroActions {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
@@ -193,7 +193,7 @@
   }
 }
 
-.actionCard {
+.heroActionCard {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -221,7 +221,7 @@
   }
 }
 
-.cardTitle {
+.heroCardTitle {
   font-family: var(--font-header, 'Inter'), sans-serif;
   font-size: clamp(1.75rem, 3vw, 2.25rem);
   font-weight: 700;
@@ -236,7 +236,7 @@
   -webkit-text-fill-color: transparent;
 }
 
-.cardDescription {
+.heroCardDescription {
   @include body;
   font-size: 0.9rem;
   color: var(--color-muted);

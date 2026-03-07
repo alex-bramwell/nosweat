@@ -129,7 +129,7 @@ const Schedule = () => {
 
   return (
     <>
-      <Section spacing="xlarge" background="dark" className={styles.scheduleHero}>
+      <Section spacing="generous" background="bold" className={styles.scheduleHero}>
         <Container>
           <div className={styles.heroContent}>
             <h1 className={styles.title}>Weekly Schedule</h1>
@@ -159,7 +159,7 @@ const Schedule = () => {
                     {selectedClass.className} - {selectedClass.day} at {selectedClass.time}
                   </span>
                 </span>
-                <Button variant="primary" size="small" onClick={handleContinueToPayment}>
+                <Button variant="primary" size="compact" onClick={handleContinueToPayment}>
                   Continue to Payment (£10)
                 </Button>
               </div>
@@ -174,7 +174,7 @@ const Schedule = () => {
                   </svg>
                   <span className={styles.infoText}>Please sign in to book a class</span>
                 </span>
-                <Button variant="outline" size="small" onClick={() => setIsAuthModalOpen(true)}>
+                <Button variant="outline" size="compact" onClick={() => setIsAuthModalOpen(true)}>
                   Sign In
                 </Button>
               </div>
@@ -191,7 +191,7 @@ const Schedule = () => {
                   </span>
                   <span className={styles.infoText}>Sign in to continue booking your day pass</span>
                 </span>
-                <Button variant="outline" size="small" onClick={() => setIsAuthModalOpen(true)}>
+                <Button variant="outline" size="compact" onClick={() => setIsAuthModalOpen(true)}>
                   Sign In
                 </Button>
               </div>
@@ -219,8 +219,8 @@ const Schedule = () => {
           title="Class Schedule"
           description="Show your weekly timetable with class types, times, and booking. Add classes to your schedule from the dashboard."
         >
-          <Section spacing="large">
-            <Container size="large">
+          <Section spacing="relaxed">
+            <Container size="contentWide">
               <div className={styles.scheduleGrid}>
                 <div className={styles.scheduleHeader}>
                   <div className={styles.timeHeaderCell}></div>
@@ -264,8 +264,8 @@ const Schedule = () => {
           </Section>
         </EmptyStatePreview>
       ) : (
-      <Section spacing="large">
-        <Container size="large">
+      <Section spacing="relaxed">
+        <Container size="contentWide">
           {/* Desktop/Tablet Grid View */}
           <div className={styles.scheduleGrid}>
             <div className={styles.scheduleHeader}>
@@ -400,10 +400,10 @@ const Schedule = () => {
               <h3>Ready to Join a Class?</h3>
               <p>Book your spot or start with a free trial class today!</p>
               <div className={styles.footerActions}>
-                <Button variant="primary" size="large" onClick={() => setIsAuthModalOpen(true)}>
+                <Button variant="primary" size="prominent" onClick={() => setIsAuthModalOpen(true)}>
                   Book a Class
                 </Button>
-                <Button variant="outline" size="large" onClick={() => setIsTrialModalOpen(true)}>
+                <Button variant="outline" size="prominent" onClick={() => setIsTrialModalOpen(true)}>
                   Free Trial
                 </Button>
               </div>

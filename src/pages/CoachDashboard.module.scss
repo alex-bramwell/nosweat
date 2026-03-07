@@ -4,11 +4,11 @@
   filter: grayscale(0.5);
   cursor: default;
 }
-.dashboard {
+.coachDashboard {
   min-height: 60vh;
 }
 
-.header {
+.dashboardHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -22,19 +22,19 @@
   }
 }
 
-.title {
+.dashboardTitle {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
   color: var(--color-text);
 }
 
-.subtitle {
+.dashboardSubtitle {
   font-size: 1.125rem;
   color: var(--color-muted);
 }
 
-.tabs {
+.navigationTabs {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
@@ -42,7 +42,7 @@
   overflow-x: auto;
 }
 
-.tab {
+.navigationTab {
   background: none;
   border: none;
   padding: 1rem 1.5rem;
@@ -59,17 +59,17 @@
     background: rgba(255, 255, 255, 0.05);
   }
 
-  &.tabActive {
+  &.navigationTabActive {
     color: var(--color-accent);
     border-bottom-color: var(--color-accent);
   }
 }
 
-.content {
+.tabPanelContainer {
   margin-top: 2rem;
 }
 
-.tabContent {
+.tabPanel {
   animation: fadeIn 0.3s ease-in;
 }
 
@@ -84,7 +84,7 @@
   }
 }
 
-.sectionTitle {
+.coachSectionHeading {
   font-size: 1.75rem;
   font-weight: 600;
   margin-bottom: 1.5rem;

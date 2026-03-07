@@ -89,7 +89,7 @@ const ProgramModal: React.FC<ProgramModalProps> = ({ isOpen, onClose, programId 
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
       {step === 1 ? (
-        <div className={styles.content}>
+        <div className={styles.programBody}>
           <div className={styles.stepIndicator}>
             <div className={`${styles.step} ${styles.active}`}>
               <span className={styles.stepNumber}>1</span>
@@ -102,21 +102,21 @@ const ProgramModal: React.FC<ProgramModalProps> = ({ isOpen, onClose, programId 
             </div>
           </div>
 
-          <div className={styles.header}>
-            <h2 className={styles.title}>{program.title}</h2>
+          <div className={styles.programHeader}>
+            <h2 className={styles.programTitle}>{program.title}</h2>
             <p className={styles.tagline}>{program.tagline}</p>
           </div>
 
           <p className={styles.overview}>{program.overview}</p>
 
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>What You'll Get</h3>
+          <div className={styles.programSection}>
+            <h3 className={styles.programSectionTitle}>What You'll Get</h3>
             <div className={styles.benefits}>
               {program.benefits.map((benefit, index) => (
                 <div key={index} className={styles.benefit}>
                   <div className={styles.benefitContent}>
                     <h4 className={styles.benefitTitle}>
-                      <span className={styles.icon}>✓</span>
+                      <span className={styles.programBenefitIcon}>✓</span>
                       {benefit.title}
                     </h4>
                     <p className={styles.benefitText}>{benefit.description}</p>
@@ -126,8 +126,8 @@ const ProgramModal: React.FC<ProgramModalProps> = ({ isOpen, onClose, programId 
             </div>
           </div>
 
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Who Is This For?</h3>
+          <div className={styles.programSection}>
+            <h3 className={styles.programSectionTitle}>Who Is This For?</h3>
             <ul className={styles.whoList}>
               {program.whoIsItFor.map((item, index) => (
                 <li key={index} className={styles.whoItem}>
@@ -155,14 +155,14 @@ const ProgramModal: React.FC<ProgramModalProps> = ({ isOpen, onClose, programId 
             </div>
           )}
 
-          <div className={styles.actions}>
-            <Button variant="primary" size="large" fullWidth onClick={handleGetStarted}>
+          <div className={styles.programActions}>
+            <Button variant="primary" size="prominent" fullWidth onClick={handleGetStarted}>
               {isAuthenticated ? 'Book a Session' : 'Continue to Get Started'}
             </Button>
             {!isAuthenticated && (
-              <p className={styles.note}>
+              <p className={styles.programSigninNote}>
                 Already have an account?{' '}
-                <button onClick={handleSignIn} className={styles.link}>
+                <button onClick={handleSignIn} className={styles.programSigninLink}>
                   Sign in
                 </button>
               </p>
@@ -170,7 +170,7 @@ const ProgramModal: React.FC<ProgramModalProps> = ({ isOpen, onClose, programId 
           </div>
         </div>
       ) : (
-        <div className={styles.content}>
+        <div className={styles.programBody}>
           <div className={styles.stepIndicator}>
             <button className={`${styles.step} ${styles.clickable}`} onClick={handleBack}>
               <span className={styles.stepNumber}>1</span>

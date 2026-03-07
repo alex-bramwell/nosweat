@@ -229,7 +229,7 @@ export const ServiceBookingModal = ({
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.header}>
+        <div className={styles.serviceBookingHeader}>
           <h2>Book {SERVICE_LABELS[service.serviceType]}</h2>
           <button type="button" className={styles.closeButton} onClick={onClose}>
             &times;
@@ -250,7 +250,7 @@ export const ServiceBookingModal = ({
 
         {step === 'select' && (
           <>
-            <div className={styles.section}>
+            <div className={styles.serviceBookingSection}>
               <h3>Select a Date</h3>
               <div className={styles.dateGrid}>
                 {availableDays.map((date) => {
@@ -275,7 +275,7 @@ export const ServiceBookingModal = ({
               </div>
             </div>
 
-            <div className={styles.section}>
+            <div className={styles.serviceBookingSection}>
               <h3>Select a Time</h3>
               <div className={styles.timeGrid}>
                 {TIME_SLOTS.map((time) => {
@@ -294,7 +294,7 @@ export const ServiceBookingModal = ({
               </div>
             </div>
 
-            <div className={styles.section}>
+            <div className={styles.serviceBookingSection}>
               <h3>Notes (Optional)</h3>
               <textarea
                 className={styles.notesInput}
@@ -305,9 +305,9 @@ export const ServiceBookingModal = ({
               />
             </div>
 
-            {error && <p className={styles.error}>{error}</p>}
+            {error && <p className={styles.serviceBookingError}>{error}</p>}
 
-            <div className={styles.actions}>
+            <div className={styles.serviceBookingActions}>
               <Button variant="secondary" onClick={onClose}>
                 Cancel
               </Button>
@@ -328,7 +328,7 @@ export const ServiceBookingModal = ({
 
         {step === 'payment' && paymentData && (
           <>
-            {error && <p className={styles.error}>{error}</p>}
+            {error && <p className={styles.serviceBookingError}>{error}</p>}
             <ServicePaymentForm
               clientSecret={paymentData.clientSecret}
               paymentIntentId={paymentData.paymentIntentId}

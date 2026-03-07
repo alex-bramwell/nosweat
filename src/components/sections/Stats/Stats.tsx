@@ -16,17 +16,17 @@ const Stats = () => {
   }
 
   const content = (
-    <Section spacing="large" background="surface">
+    <Section spacing="relaxed" background="surface">
       <Container>
-        <div className={styles.stats}>
+        <div className={styles.statsGrid}>
           {displayStats.map((stat) => (
-            <div key={stat.id} className={styles.stat}>
-              <div className={styles.value}>
+            <div key={stat.id} className={styles.statItem}>
+              <div className={styles.statValue}>
                 {stat.value}
-                {stat.suffix && <span className={styles.suffix}>{stat.suffix}</span>}
+                {stat.suffix && <span className={styles.statSuffix}>{stat.suffix}</span>}
               </div>
-              <div className={styles.label}>{stat.label}</div>
-              <Button variant="outline" as="a" href="/about" className={styles.statCta}>
+              <div className={styles.statLabel}>{stat.label}</div>
+              <Button variant="outline" as="a" href="/about" className={styles.statAction}>
                 Learn Our Story
               </Button>
             </div>

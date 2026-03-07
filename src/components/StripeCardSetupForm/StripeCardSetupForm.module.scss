@@ -4,8 +4,8 @@
   gap: 1.5rem;
 }
 
-.loading,
-.error {
+.stripeSetupLoading,
+.stripeSetupError {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -14,7 +14,7 @@
   text-align: center;
 }
 
-.spinner {
+.stripeSetupSpinner {
   width: 48px;
   height: 48px;
   border: 4px solid var(--border-color);
@@ -30,11 +30,11 @@
   }
 }
 
-.loading p {
+.stripeSetupLoading p {
   color: var(--text-secondary);
 }
 
-.error {
+.stripeSetupError {
   p {
     color: var(--error);
     margin-bottom: 1.5rem;

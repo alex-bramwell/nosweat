@@ -102,7 +102,7 @@ const WOD = () => {
 
   if (isLoading) {
     return (
-      <Section spacing="large" background="surface" id="wod">
+      <Section spacing="relaxed" background="surface" id="wod">
         <Container>
           <div style={{ textAlign: 'center', padding: '2rem' }}>
             Loading today&apos;s workout...
@@ -118,7 +118,7 @@ const WOD = () => {
 
   if (!displayWorkout) {
     return (
-      <Section spacing="large" background="surface" id="wod">
+      <Section spacing="relaxed" background="surface" id="wod">
         <Container>
           <div style={{ textAlign: 'center', padding: '2rem' }}>
             No workout scheduled for today. Check back later!
@@ -129,22 +129,22 @@ const WOD = () => {
   }
 
   const wodContent = (
-    <Section spacing="large" background="surface" id="wod">
+    <Section spacing="relaxed" background="surface" id="wod">
       <Container>
-        <div className={styles.header}>
-          <h2 className={styles.title}>Today at {gym?.name || 'the gym'}</h2>
-          <p className={styles.subtitle}>
+        <div className={styles.wodSectionHeader}>
+          <h2 className={styles.wodSectionTitle}>Today at {gym?.name || 'the gym'}</h2>
+          <p className={styles.wodSectionSubtitle}>
             {displayStats.length >= 2
               ? `Join one of our ${displayStats[0].value}${displayStats[0].suffix || ''} weekly classes with our team of ${displayStats[1].value} certified coaches`
               : 'Join our expert-led classes and start your fitness journey today'}
           </p>
         </div>
 
-        <div className={styles.contentWrapper}>
+        <div className={styles.wodContentWrapper}>
           {/* WOD Section */}
           <div className={styles.wodWrapper}>
-            <Card variant="elevated" padding="large">
-          <div className={styles.wod}>
+            <Card variant="raised" padding="spacious">
+          <div className={styles.wodCard}>
             <div className={styles.wodHeader}>
               <h3 className={styles.wodTitle}>{displayWorkout.title}</h3>
               <span className={styles.wodType}>{wodTypeLabels[displayWorkout.type]}</span>
@@ -159,20 +159,20 @@ const WOD = () => {
               })}
             </div>
 
-            <p className={styles.description}>{displayWorkout.description}</p>
+            <p className={styles.wodDescription}>{displayWorkout.description}</p>
 
-            <div className={styles.movements}>
+            <div className={styles.wodMovements}>
               {displayWorkout.metcon && displayWorkout.metcon.length > 0 ? (
                 displayWorkout.metcon.map((movement, index) => (
-                  <div key={index} className={styles.movement}>
-                    <span className={styles.bullet}>•</span>
+                  <div key={index} className={styles.wodMovementItem}>
+                    <span className={styles.wodBullet}>•</span>
                     <span>{movement}</span>
                   </div>
                 ))
               ) : (
                 displayWorkout.movements.map((movement, index) => (
-                  <div key={index} className={styles.movement}>
-                    <span className={styles.bullet}>•</span>
+                  <div key={index} className={styles.wodMovementItem}>
+                    <span className={styles.wodBullet}>•</span>
                     <span>{movement}</span>
                   </div>
                 ))
@@ -180,14 +180,14 @@ const WOD = () => {
             </div>
 
             {displayWorkout.duration && (
-              <div className={styles.meta}>
-                <span className={styles.metaLabel}>Time Cap:</span>
-                <span className={styles.metaValue}>{displayWorkout.duration}</span>
+              <div className={styles.wodMeta}>
+                <span className={styles.wodMetaLabel}>Time Cap:</span>
+                <span className={styles.wodMetaValue}>{displayWorkout.duration}</span>
               </div>
             )}
 
-            <div className={styles.footer}>
-              <p className={styles.note}>
+            <div className={styles.wodFooter}>
+              <p className={styles.wodNote}>
                 Scale as needed. All movements can be modified to match your fitness level.
                 Ask your coach for scaling options!
               </p>
@@ -221,7 +221,7 @@ const WOD = () => {
                     <span className={styles.bookedBadge}>You&apos;re booked!</span>
                     <Button
                       variant="outline"
-                      size="small"
+                      size="compact"
                       onClick={handleCancelBooking}
                       disabled={bookingLoading}
                     >
@@ -252,12 +252,12 @@ const WOD = () => {
           </div>
 
           {/* Stats Sidebar */}
-          <div className={styles.sidebar}>
+          <div className={styles.wodSidebar}>
             {/* Weekly Volume */}
             <WeeklyVolume />
 
-            <div className={styles.statsCard}>
-              <h3 className={styles.sidebarTitle}>Why Train With Us</h3>
+            <div className={styles.wodStatsCard}>
+              <h3 className={styles.wodSidebarTitle}>Why Train With Us</h3>
 
               {/* Stats */}
               {displayStats[0] && (
@@ -265,11 +265,11 @@ const WOD = () => {
                   <div className={styles.statItem}>
                     <div className={`${styles.statValue} ${styles.statValueGradient}`}>
                       {displayStats[0].value}
-                      {displayStats[0].suffix && <span className={styles.suffix}>{displayStats[0].suffix}</span>}
+                      {displayStats[0].suffix && <span className={styles.wodSuffix}>{displayStats[0].suffix}</span>}
                     </div>
                     <div className={styles.statLabel}>{displayStats[0].label}</div>
                   </div>
-                  <Button variant="outline" as="a" href="/schedule" className={styles.statCta}>
+                  <Button variant="outline" as="a" href="/schedule" className={styles.wodStatAction}>
                     View Full Schedule
                   </Button>
                 </>
@@ -279,14 +279,14 @@ const WOD = () => {
                 <div className={styles.statItem}>
                   <div className={styles.statValue}>
                     {displayStats[1].value}
-                    {displayStats[1].suffix && <span className={styles.suffix}>{displayStats[1].suffix}</span>}
+                    {displayStats[1].suffix && <span className={styles.wodSuffix}>{displayStats[1].suffix}</span>}
                   </div>
                   <div className={styles.statLabel}>{displayStats[1].label}</div>
                 </div>
               )}
 
               {/* Learn Our Story CTA at bottom */}
-              <Button variant="primary" as="a" href="/about" className={styles.sidebarCta}>
+              <Button variant="primary" as="a" href="/about" className={styles.wodSidebarAction}>
                 Learn Our Story
               </Button>
             </div>

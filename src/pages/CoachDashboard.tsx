@@ -345,13 +345,13 @@ const CoachDashboard = () => {
   if (!user) return null;
 
   return (
-    <Section spacing="large" background="default">
+    <Section spacing="relaxed" background="default">
       <Container>
-        <div className={styles.dashboard}>
-          <div className={styles.header}>
+        <div className={styles.coachDashboard}>
+          <div className={styles.coachDashboardHeader}>
             <div>
-              <h1 className={styles.title}>Admin View</h1>
-              <p className={styles.subtitle}>
+              <h1 className={styles.coachDashboardTitle}>Admin View</h1>
+              <p className={styles.coachDashboardSubtitle}>
                 Welcome back, {user.name}!
               </p>
             </div>
@@ -360,15 +360,15 @@ const CoachDashboard = () => {
             </Button>
           </div>
 
-          <div className={styles.tabs}>
+          <div className={styles.navigationTabs}>
             <button
-              className={`${styles.tab} ${activeTab === 'overview' ? styles.tabActive : ''}`}
+              className={`${styles.navigationTab} ${activeTab === 'overview' ? styles.navigationTabActive : ''}`}
               onClick={() => setActiveTab('overview')}
             >
               Overview
             </button>
             <button
-              className={`${styles.tab} ${activeTab === 'create' ? styles.tabActive : ''}`}
+              className={`${styles.navigationTab} ${activeTab === 'create' ? styles.navigationTabActive : ''}`}
               onClick={() => {
                 setEditingWorkout(null);
                 setActiveTab('create');
@@ -377,13 +377,13 @@ const CoachDashboard = () => {
               Create Workout
             </button>
             <button
-              className={`${styles.tab} ${activeTab === 'manage' ? styles.tabActive : ''}`}
+              className={`${styles.navigationTab} ${activeTab === 'manage' ? styles.navigationTabActive : ''}`}
               onClick={() => setActiveTab('manage')}
             >
               Manage Workouts
             </button>
             <button
-              className={`${styles.tab} ${activeTab === 'analytics' ? styles.tabActive : ''}`}
+              className={`${styles.navigationTab} ${activeTab === 'analytics' ? styles.navigationTabActive : ''}`}
               onClick={() => setActiveTab('analytics')}
             >
               Analytics
@@ -391,19 +391,19 @@ const CoachDashboard = () => {
             {permissions.canManageUsers && (
               <>
                 <button
-                  className={`${styles.tab} ${activeTab === 'users' ? styles.tabActive : ''}`}
+                  className={`${styles.navigationTab} ${activeTab === 'users' ? styles.navigationTabActive : ''}`}
                   onClick={() => setActiveTab('users')}
                 >
                   Manage Members
                 </button>
                 <button
-                  className={`${styles.tab} ${activeTab === 'staff' ? styles.tabActive : ''}`}
+                  className={`${styles.navigationTab} ${activeTab === 'staff' ? styles.navigationTabActive : ''}`}
                   onClick={() => setActiveTab('staff')}
                 >
                   Manage Staff
                 </button>
                 <button
-                  className={`${styles.tab} ${activeTab === 'accounting' ? styles.tabActive : ''}`}
+                  className={`${styles.navigationTab} ${activeTab === 'accounting' ? styles.navigationTabActive : ''}`}
                   onClick={() => setActiveTab('accounting')}
                 >
                   Accounting
@@ -412,12 +412,12 @@ const CoachDashboard = () => {
             )}
           </div>
 
-          <div className={styles.content}>
+          <div className={styles.tabPanelContainer}>
             {activeTab === 'overview' && (
-              <div className={styles.tabContent}>
-                <h2 className={styles.sectionTitle}>Today&apos;s Workout</h2>
+              <div className={styles.tabPanel}>
+                <h2 className={styles.coachSectionHeading}>Today&apos;s Workout</h2>
                 {todaysWorkout ? (
-                  <Card variant="elevated">
+                  <Card variant="raised">
                     <div className={styles.workoutPreview}>
                       <h3>{todaysWorkout.title}</h3>
                       <p className={styles.workoutType}>{todaysWorkout.type.toUpperCase()}</p>
@@ -431,7 +431,7 @@ const CoachDashboard = () => {
                       )}
                       <Button
                         variant="outline"
-                        size="small"
+                        size="compact"
                         onClick={() => {
                           setEditingWorkout(todaysWorkout);
                           setActiveTab('create');
@@ -447,12 +447,12 @@ const CoachDashboard = () => {
                     title="Today's Workout"
                     description="This is what today's workout will look like once you create one. Add warmup, strength, metcon, and cooldown sections."
                     action={
-                      <Button variant="primary" size="small" onClick={() => setActiveTab('create')}>
+                      <Button variant="primary" size="compact" onClick={() => setActiveTab('create')}>
                         Create Workout
                       </Button>
                     }
                   >
-                    <Card variant="elevated">
+                    <Card variant="raised">
                       <div className={styles.workoutPreview}>
                         <h3>{SAMPLE_WORKOUT.title}</h3>
                         <p className={styles.workoutType}>{SAMPLE_WORKOUT.type.toUpperCase()}</p>
@@ -469,9 +469,9 @@ const CoachDashboard = () => {
                   </EmptyStatePreview>
                 )}
 
-                <h2 className={styles.sectionTitle}>Quick Stats</h2>
+                <h2 className={styles.coachSectionHeading}>Quick Stats</h2>
                 <div className={styles.statsGrid}>
-                  <Card variant="elevated" hoverable onClick={() => setActiveTab('manage')}>
+                  <Card variant="raised" hoverable onClick={() => setActiveTab('manage')}>
                     <div className={styles.statCard}>
                       <div className={styles.statValue}>
                         {workouts.filter(w => w.status === 'published').length}
@@ -480,7 +480,7 @@ const CoachDashboard = () => {
                       <div className={styles.statCta}>View Calendar &rarr;</div>
                     </div>
                   </Card>
-                  <Card variant="elevated" hoverable onClick={() => setActiveTab('drafts')}>
+                  <Card variant="raised" hoverable onClick={() => setActiveTab('drafts')}>
                     <div className={styles.statCard}>
                       <div className={styles.statValue}>
                         {workouts.filter(w => w.status === 'draft').length}
@@ -494,7 +494,7 @@ const CoachDashboard = () => {
             )}
 
             {activeTab === 'create' && (
-              <div className={styles.tabContent}>
+              <div className={styles.tabPanel}>
                 <WODEditorEnhanced
                   initialData={editingWorkout || (newWorkoutDate ? { date: newWorkoutDate } : undefined)}
                   onSave={editingWorkout ? handleUpdateWorkout : handleCreateWorkout}
@@ -508,13 +508,13 @@ const CoachDashboard = () => {
             )}
 
             {activeTab === 'analytics' && (
-              <div className={styles.tabContent}>
+              <div className={styles.tabPanel}>
                 <CoachAnalytics />
               </div>
             )}
 
             {activeTab === 'manage' && (
-              <div className={styles.tabContent}>
+              <div className={styles.tabPanel}>
                 {isLoading ? (
                   <p>Loading...</p>
                 ) : (
@@ -522,13 +522,13 @@ const CoachDashboard = () => {
                     {/* Desktop: Monthly Calendar View */}
                     <div className={styles.calendarDesktop}>
                       <div className={styles.calendarHeader}>
-                        <Button variant="ghost" size="small" onClick={() => navigateMonth('prev')}>
+                        <Button variant="ghost" size="compact" onClick={() => navigateMonth('prev')}>
                           &larr; Prev
                         </Button>
                         <h2 className={styles.calendarTitle}>
                           {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                         </h2>
-                        <Button variant="ghost" size="small" onClick={() => navigateMonth('next')}>
+                        <Button variant="ghost" size="compact" onClick={() => navigateMonth('next')}>
                           Next &rarr;
                         </Button>
                       </div>
@@ -670,7 +670,7 @@ const CoachDashboard = () => {
                     {/* Mobile: Week View */}
                     <div className={styles.calendarMobile}>
                       <div className={styles.calendarHeader}>
-                        <Button variant="ghost" size="small" onClick={() => navigateWeek('prev')}>
+                        <Button variant="ghost" size="compact" onClick={() => navigateWeek('prev')}>
                           &larr;
                         </Button>
                         <h2 className={styles.calendarTitle}>
@@ -680,7 +680,7 @@ const CoachDashboard = () => {
                             return endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                           })()}
                         </h2>
-                        <Button variant="ghost" size="small" onClick={() => navigateWeek('next')}>
+                        <Button variant="ghost" size="compact" onClick={() => navigateWeek('next')}>
                           &rarr;
                         </Button>
                       </div>
@@ -798,13 +798,13 @@ const CoachDashboard = () => {
             )}
 
             {activeTab === 'drafts' && (
-              <div className={styles.tabContent}>
-                <h2 className={styles.sectionTitle}>Draft Workouts</h2>
+              <div className={styles.tabPanel}>
+                <h2 className={styles.coachSectionHeading}>Draft Workouts</h2>
                 {(() => {
                   const draftWorkouts = workouts.filter(w => w.status === 'draft');
                   if (draftWorkouts.length === 0) {
                     return (
-                      <Card variant="elevated">
+                      <Card variant="raised">
                         <p>No draft workouts found.</p>
                         <Button variant="primary" onClick={() => setActiveTab('create')}>
                           Create New Workout
@@ -815,7 +815,7 @@ const CoachDashboard = () => {
                   return (
                     <div className={styles.draftsList}>
                       {draftWorkouts.map(workout => (
-                        <Card key={workout.id} variant="elevated" hoverable>
+                        <Card key={workout.id} variant="raised" hoverable>
                           <div className={styles.draftItem}>
                             <div className={styles.draftInfo}>
                               <h3>{workout.title}</h3>
@@ -836,7 +836,7 @@ const CoachDashboard = () => {
                             <div className={styles.draftActions}>
                               <Button
                                 variant="primary"
-                                size="small"
+                                size="compact"
                                 onClick={() => {
                                   setEditingWorkout(workout);
                                   setActiveTab('create');
@@ -848,7 +848,7 @@ const CoachDashboard = () => {
                               {permissions.canDeleteWorkouts && (
                                 <Button
                                   variant="ghost"
-                                  size="small"
+                                  size="compact"
                                   onClick={() => handleDeleteWorkout(workout.id)}
                                 >
                                   <DeleteIcon size={16} />
@@ -866,7 +866,7 @@ const CoachDashboard = () => {
             )}
 
             {activeTab === 'users' && (
-              <div className={styles.tabContent}>
+              <div className={styles.tabPanel}>
                 <UserManagement
                   fixedRoleFilter="member"
                   title="Member Management"
@@ -875,7 +875,7 @@ const CoachDashboard = () => {
             )}
 
             {activeTab === 'staff' && (
-              <div className={styles.tabContent}>
+              <div className={styles.tabPanel}>
                 <UserManagement
                   fixedRoleFilter={['staff', 'coach']}
                   title="Staff Management"
@@ -885,9 +885,9 @@ const CoachDashboard = () => {
             )}
 
             {activeTab === 'accounting' && (
-              <div className={styles.tabContent}>
+              <div className={styles.tabPanel}>
                 <div style={{ marginBottom: '2rem' }}>
-                  <h2 className={styles.sectionTitle}>Accounting Software Integration</h2>
+                  <h2 className={styles.coachSectionHeading}>Accounting Software Integration</h2>
                   <p style={{ color: 'var(--color-text-secondary, #666)', marginTop: '0.5rem' }}>
                     Connect your accounting software to automatically sync payment transactions.
                     Currently supporting QuickBooks and Xero.
@@ -895,7 +895,7 @@ const CoachDashboard = () => {
                 </div>
 
                 {accountingLoading && !accountingIntegrations.length ? (
-                  <Card variant="elevated">
+                  <Card variant="raised">
                     <div style={{ padding: '2rem', textAlign: 'center' }}>
                       Loading integrations...
                     </div>
@@ -919,7 +919,7 @@ const CoachDashboard = () => {
                   </div>
                 )}
 
-                <Card variant="elevated" style={{ marginTop: '2rem' }}>
+                <Card variant="raised" style={{ marginTop: '2rem' }}>
                   <div style={{ padding: '1.5rem' }}>
                     <h3 style={{ marginTop: 0 }}>How It Works</h3>
                     <ol style={{ lineHeight: '1.8', color: 'var(--color-text-secondary, #666)' }}>
@@ -940,7 +940,7 @@ const CoachDashboard = () => {
         </div>
 
         {/* Editor Modal for Manage Workouts page */}
-        <Modal isOpen={isEditorModalOpen} onClose={closeEditorModal} size="large">
+        <Modal isOpen={isEditorModalOpen} onClose={closeEditorModal} size="wide">
           <WODEditorEnhanced
             initialData={modalEditingWorkout || (modalNewDate ? { date: modalNewDate } : undefined)}
             onSave={handleModalSave}

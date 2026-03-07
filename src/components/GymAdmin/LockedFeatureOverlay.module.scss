@@ -1,4 +1,4 @@
-.overlay {
+.lockedOverlay {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11,7 +11,7 @@
   );
 }
 
-.card {
+.lockedCard {
   text-align: center;
   max-width: 480px;
   padding: 3rem 2.5rem;
@@ -38,7 +38,7 @@
   }
 }
 
-.title {
+.lockedTitle {
   font-family: 'Inter', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
@@ -46,7 +46,7 @@
   margin: 0 0 0.75rem;
 }
 
-.description {
+.lockedDescription {
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   line-height: 1.6;

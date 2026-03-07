@@ -120,7 +120,7 @@ const SetupForm: React.FC<SetupFormProps> = ({ userId, onSuccess, onError }) => 
       <Button
         type="submit"
         variant="primary"
-        size="large"
+        size="prominent"
         fullWidth
         disabled={!stripe || isProcessing}
       >
@@ -186,8 +186,8 @@ const StripeCardSetupForm: React.FC<StripeCardSetupFormProps> = ({
 
   if (isLoading) {
     return (
-      <div className={styles.loading}>
-        <div className={styles.spinner}></div>
+      <div className={styles.stripeSetupLoading}>
+        <div className={styles.stripeSetupSpinner}></div>
         <p>Initializing secure setup...</p>
       </div>
     );
@@ -195,9 +195,9 @@ const StripeCardSetupForm: React.FC<StripeCardSetupFormProps> = ({
 
   if (!clientSecret) {
     return (
-      <div className={styles.error}>
+      <div className={styles.stripeSetupError}>
         <p>Failed to initialize payment setup</p>
-        <Button variant="secondary" size="medium" onClick={createSetupIntent}>
+        <Button variant="secondary" size="default" onClick={createSetupIntent}>
           Try Again
         </Button>
       </div>

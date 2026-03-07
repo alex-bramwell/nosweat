@@ -89,12 +89,12 @@ export const SyncDashboard: React.FC<SyncDashboardProps> = ({
 
       <div className={styles.syncInfo}>
         <div className={styles.syncInfoItem}>
-          <span className={styles.label}>Last Sync:</span>
-          <span className={styles.value}>{formatDate(lastSyncAt)}</span>
+          <span className={styles.syncItemLabel}>Last Sync:</span>
+          <span className={styles.syncItemValue}>{formatDate(lastSyncAt)}</span>
         </div>
         {lastSyncStatus && (
           <div className={styles.syncInfoItem}>
-            <span className={styles.label}>Status:</span>
+            <span className={styles.syncItemLabel}>Status:</span>
             {getSyncStatusBadge(lastSyncStatus)}
           </div>
         )}
@@ -151,7 +151,7 @@ export const SyncDashboard: React.FC<SyncDashboardProps> = ({
         >
           {syncing ? (
             <>
-              <span className={styles.spinner}></span>
+              <span className={styles.syncSpinner}></span>
               Syncing...
             </>
           ) : (
@@ -159,7 +159,7 @@ export const SyncDashboard: React.FC<SyncDashboardProps> = ({
           )}
         </button>
         {!isActive && (
-          <p className={styles.helpText}>
+          <p className={styles.syncHelpText}>
             Connect to {providerName} to enable manual sync
           </p>
         )}

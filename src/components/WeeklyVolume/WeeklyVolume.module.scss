@@ -1,13 +1,13 @@
 @import '../../styles/variables';
 
-.container {
+.weeklyVolumePanel {
   background: var(--surface);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.header {
+.weeklyVolumeHeader {
   margin-bottom: 1.5rem;
 }
 
@@ -18,7 +18,7 @@
   margin-bottom: 0.5rem;
 }
 
-.title {
+.weeklyVolumeTitle {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -36,13 +36,13 @@
   letter-spacing: 0.3px;
 }
 
-.subtitle {
+.weeklyVolumeSubtitle {
   font-size: 0.875rem;
   color: var(--text-secondary);
   margin: 0;
 }
 
-.loading {
+.weeklyVolumeLoading {
   text-align: center;
   padding: 2rem;
   color: var(--text-secondary);
@@ -120,7 +120,7 @@
   text-align: right;
 }
 
-.footer {
+.weeklyVolumeFooter {
   border-top: 1px solid var(--border);
   padding-top: 1rem;
 }

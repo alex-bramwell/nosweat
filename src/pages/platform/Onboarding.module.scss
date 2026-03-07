@@ -26,7 +26,7 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
   }
 }
 
-.container {
+.onboardingInner {
   max-width: 800px;
   margin: 0 auto;
 }
@@ -135,7 +135,7 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
   }
 }
 
-.step {
+.onboardingStepBody {
   max-width: 600px;
   margin: 0 auto;
 }
@@ -158,19 +158,19 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
 }
 
 // ── Forms ──
-.form {
+.onboardingForm {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-.formGroup {
+.onboardingFieldGroup {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.formRow {
+.onboardingFieldRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -180,19 +180,19 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
   }
 }
 
-.label {
+.onboardingFieldLabel {
   font-size: 0.9rem;
   font-weight: 600;
   color: $platform-text;
 }
 
-.labelOptional {
+.onboardingFieldLabelOptional {
   font-weight: 400;
   color: $platform-text-muted;
   font-size: 0.85rem;
 }
 
-.input {
+.onboardingTextInput {
   padding: 0.8rem 1rem;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid $platform-border;
@@ -340,7 +340,7 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
 }
 
 // ── Success State ──
-.success {
+.onboardingSuccessState {
   text-align: center;
   padding: 2rem;
 }
@@ -412,7 +412,7 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
   }
 }
 
-.error {
+.onboardingErrorBanner {
   background: rgba(220, 38, 38, 0.12);
   border: 1px solid rgba(220, 38, 38, 0.25);
   color: #fca5a5;

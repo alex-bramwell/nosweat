@@ -154,15 +154,15 @@ const DataManagement: React.FC = () => {
   return (
     <div className={styles.dataManagement}>
       {message && (
-        <div className={`${styles.message} ${styles[message.type]}`}>
+        <div className={`${styles.dataMessage} ${styles[message.type]}`}>
           {message.text}
         </div>
       )}
 
       {/* Data Export */}
-      <Card className={styles.section}>
-        <h2 className={styles.sectionTitle}>Export Data</h2>
-        <p className={styles.sectionDescription}>
+      <Card className={styles.dataSection}>
+        <h2 className={styles.dataSectionTitle}>Export Data</h2>
+        <p className={styles.dataSectionDescription}>
           Download all your gym data as CSV files. Each table (members, bookings,
           payments, etc.) is exported as a separate file.
         </p>
@@ -185,7 +185,7 @@ const DataManagement: React.FC = () => {
 
       {/* Danger Zone - only visible to gym owner */}
       {isOwner && (
-        <Card className={`${styles.section} ${styles.dangerZone}`}>
+        <Card className={`${styles.dataSection} ${styles.dangerZone}`}>
           <h2 className={styles.dangerTitle}>Danger Zone</h2>
           <p className={styles.dangerDescription}>
             Permanently delete your gym and all associated data including members,
@@ -201,7 +201,7 @@ const DataManagement: React.FC = () => {
       )}
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={showDeleteModal} onClose={handleCloseDeleteModal} size="small">
+      <Modal isOpen={showDeleteModal} onClose={handleCloseDeleteModal} size="compact">
         <div className={styles.confirmModal}>
           <h2 className={styles.confirmTitle}>Delete Gym</h2>
           <p className={styles.confirmText}>

@@ -37,7 +37,7 @@
     height: 100px;
 }
 
-.segment {
+.chartDonutSegment {
     transition: all 0.3s ease;
 
     &:hover {
@@ -46,30 +46,30 @@
     }
 }
 
-.legend {
+.chartLegend {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-.legendItem {
+.chartLegendItem {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.75rem;
 }
 
-.dot {
+.chartLegendDot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
 }
 
-.label {
+.chartLegendLabel {
     color: var(--color-muted);
 }
 
-.percent {
+.chartLegendPercent {
     font-weight: 600;
     color: var(--color-text);
     margin-left: auto;
@@ -92,7 +92,7 @@
 }
 
 // Heavy Day Card
-.statCard {
+.chartStatDisplay {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -101,7 +101,7 @@
     text-align: center;
 }
 
-.statValue {
+.chartStatValue {
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--color-text);
@@ -114,12 +114,12 @@
     }
 }
 
-.statTarget {
+.chartStatTarget {
     font-size: 0.75rem;
     color: var(--color-muted);
 }
 
-.barTrack {
+.chartProgressTrack {
     width: 100%;
     height: 4px;
     background: rgba(255, 255, 255, 0.1);
@@ -128,7 +128,7 @@
     overflow: hidden;
 }
 
-.barFill {
+.chartProgressFill {
     height: 100%;
     background: #ef4444;
     border-radius: 2px;

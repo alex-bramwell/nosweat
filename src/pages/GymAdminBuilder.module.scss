@@ -10,7 +10,7 @@ $chrome-text: #f0f0f5;
 $chrome-text-muted: #8b8b9e;
 $chrome-accent: #2563eb;
 
-.builder {
+.builderLayout {
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -21,7 +21,7 @@ $chrome-accent: #2563eb;
 }
 
 // ── Toolbar ──
-.toolbar {
+.builderToolbar {
   height: $toolbar-height;
   min-height: $toolbar-height;
   background: $chrome-bg;
@@ -41,7 +41,7 @@ $chrome-accent: #2563eb;
   flex-shrink: 0;
 }
 
-.backLink {
+.builderBackLink {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -125,14 +125,14 @@ $chrome-accent: #2563eb;
 }
 
 // ── Workspace ──
-.workspace {
+.builderWorkspace {
   flex: 1;
   display: flex;
   overflow: hidden;
 }
 
 // ── Preview Area ──
-.preview {
+.builderPreview {
   flex: 1;
   overflow-y: auto;
   background: var(--color-bg);

@@ -153,13 +153,13 @@ const ResetPassword = () => {
   // Show loading state while waiting for session
   if (hasValidToken && !isSessionReady && !error) {
     return (
-      <Section spacing="large" background="default">
+      <Section spacing="relaxed" background="default">
         <Container>
-          <div className={styles.container}>
-            <div className={styles.content}>
-              <div className={styles.header}>
-                <h1 className={styles.title}>Reset Your Password</h1>
-                <p className={styles.subtitle}>
+          <div className={styles.resetPasswordOuter}>
+            <div className={styles.resetPasswordCard}>
+              <div className={styles.resetPasswordHeader}>
+                <h1 className={styles.resetPasswordTitle}>Reset Your Password</h1>
+                <p className={styles.resetPasswordSubtitle}>
                   Verifying your reset link...
                 </p>
               </div>
@@ -175,13 +175,13 @@ const ResetPassword = () => {
 
   if (!isSessionReady && error) {
     return (
-      <Section spacing="large" background="default">
+      <Section spacing="relaxed" background="default">
         <Container>
-          <div className={styles.container}>
-            <div className={styles.content}>
-              <div className={styles.header}>
-                <h1 className={styles.title}>Password Reset Required</h1>
-                <p className={styles.subtitle}>
+          <div className={styles.resetPasswordOuter}>
+            <div className={styles.resetPasswordCard}>
+              <div className={styles.resetPasswordHeader}>
+                <h1 className={styles.resetPasswordTitle}>Password Reset Required</h1>
+                <p className={styles.resetPasswordSubtitle}>
                   To reset your password, you need to use the reset link sent to your email
                 </p>
               </div>
@@ -207,7 +207,7 @@ const ResetPassword = () => {
 
               <Button
                 variant="primary"
-                size="large"
+                size="prominent"
                 fullWidth
                 onClick={() => navigate(gymPath('/?signin=true'))}
               >
@@ -222,18 +222,18 @@ const ResetPassword = () => {
 
   if (success) {
     return (
-      <Section spacing="large" background="default">
+      <Section spacing="relaxed" background="default">
         <Container>
-          <div className={styles.container}>
-            <div className={styles.content}>
+          <div className={styles.resetPasswordOuter}>
+            <div className={styles.resetPasswordCard}>
               <div className={styles.successIcon}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
               </div>
-              <h1 className={styles.title}>Password Reset Successful!</h1>
-              <p className={styles.message}>
+              <h1 className={styles.resetPasswordTitle}>Password Reset Successful!</h1>
+              <p className={styles.resetPasswordMessage}>
                 Your password has been successfully updated. You can now sign in with your new password.
               </p>
               <p className={styles.redirectMessage}>Redirecting you to sign in...</p>
@@ -245,27 +245,27 @@ const ResetPassword = () => {
   }
 
   return (
-    <Section spacing="large" background="default">
+    <Section spacing="relaxed" background="default">
       <Container>
-        <div className={styles.container}>
-          <div className={styles.content}>
-            <div className={styles.header}>
-              <h1 className={styles.title}>Reset Your Password</h1>
-              <p className={styles.subtitle}>
+        <div className={styles.resetPasswordOuter}>
+          <div className={styles.resetPasswordCard}>
+            <div className={styles.resetPasswordHeader}>
+              <h1 className={styles.resetPasswordTitle}>Reset Your Password</h1>
+              <p className={styles.resetPasswordSubtitle}>
                 Create a new secure password for your account
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <div className={styles.field}>
-                <label htmlFor="password" className={styles.label}>New Password</label>
+            <form onSubmit={handleSubmit} className={styles.resetPasswordForm}>
+              <div className={styles.resetPasswordFieldGroup}>
+                <label htmlFor="password" className={styles.resetPasswordFieldLabel}>New Password</label>
                 <div className={styles.passwordInputWrapper}>
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className={styles.input}
+                    className={styles.resetPasswordTextInput}
                     placeholder="Enter your new password"
                     disabled={isLoading}
                     required
@@ -351,15 +351,15 @@ const ResetPassword = () => {
                 )}
               </div>
 
-              <div className={styles.field}>
-                <label htmlFor="confirmPassword" className={styles.label}>Confirm New Password</label>
+              <div className={styles.resetPasswordFieldGroup}>
+                <label htmlFor="confirmPassword" className={styles.resetPasswordFieldLabel}>Confirm New Password</label>
                 <div className={styles.passwordInputWrapper}>
                   <input
                     id="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={styles.input}
+                    className={styles.resetPasswordTextInput}
                     placeholder="Confirm your new password"
                     disabled={isLoading}
                     required
@@ -398,12 +398,12 @@ const ResetPassword = () => {
                 )}
               </div>
 
-              {error && <div className={styles.error}>{error}</div>}
+              {error && <div className={styles.resetPasswordErrorBanner}>{error}</div>}
 
               <Button
                 type="submit"
                 variant="primary"
-                size="large"
+                size="prominent"
                 fullWidth
                 disabled={isLoading || !isPasswordValid || password !== confirmPassword}
               >
@@ -411,12 +411,12 @@ const ResetPassword = () => {
               </Button>
             </form>
 
-            <div className={styles.footer}>
+            <div className={styles.resetPasswordFooterNav}>
               <p className={styles.backToLogin}>
                 Remember your password?{' '}
                 <button
                   onClick={() => navigate(gymPath('/?signin=true'))}
-                  className={styles.link}
+                  className={styles.resetPasswordInlineLink}
                   disabled={isLoading}
                 >
                   Sign In

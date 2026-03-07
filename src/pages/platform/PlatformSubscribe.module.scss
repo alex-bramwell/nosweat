@@ -8,7 +8,7 @@ $platform-secondary: #7c3aed;
 $platform-border: rgba(255, 255, 255, 0.08);
 $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
 
-.page {
+.platformSubscribePage {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -18,17 +18,17 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.container {
+.subscribeInner {
   max-width: 600px;
   width: 100%;
 }
 
-.header {
+.subscribeHeader {
   text-align: center;
   margin-bottom: 2rem;
 }
 
-.title {
+.subscribeHeadline {
   font-size: 2rem;
   font-weight: 800;
   color: $platform-text;
@@ -36,7 +36,7 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
   margin-bottom: 0.5rem;
 }
 
-.subtitle {
+.subscribeTagline {
   font-size: 1.1rem;
   color: $platform-text-muted;
 }
@@ -54,7 +54,7 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
   overflow: hidden;
 }
 
-.card {
+.subscribeResultCard {
   background: $platform-glass-bg-elevated;
   border: 1px solid $platform-border;
   border-radius: 20px;
@@ -93,7 +93,7 @@ $platform-glass-bg-elevated: rgba(255, 255, 255, 0.07);
   }
 }
 
-.error {
+.subscribeErrorBanner {
   background: rgba(220, 38, 38, 0.12);
   border: 1px solid rgba(220, 38, 38, 0.25);
   color: #fca5a5;

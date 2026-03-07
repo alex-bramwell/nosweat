@@ -68,7 +68,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
       {step === 1 ? (
-        <div className={styles.content}>
+        <div className={styles.trialBody}>
           <div className={styles.stepIndicator}>
             <div className={`${styles.step} ${styles.active}`}>
               <span className={styles.stepNumber}>1</span>
@@ -86,8 +86,8 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          <h2 className={styles.title}>Start Your Free Trial</h2>
-          <p className={styles.subtitle}>
+          <h2 className={styles.trialTitle}>Start Your Free Trial</h2>
+          <p className={styles.trialSubtitle}>
             Experience the {gym?.name} difference with no commitment
           </p>
 
@@ -95,7 +95,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
             <div className={styles.benefit}>
               <div className={styles.benefitContent}>
                 <h3 className={styles.benefitTitle}>
-                  <span className={styles.icon}>✓</span>
+                  <span className={styles.trialBenefitIcon}>✓</span>
                   Personal Consultation
                 </h3>
                 <p className={styles.benefitText}>
@@ -107,7 +107,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
             <div className={styles.benefit}>
               <div className={styles.benefitContent}>
                 <h3 className={styles.benefitTitle}>
-                  <span className={styles.icon}>✓</span>
+                  <span className={styles.trialBenefitIcon}>✓</span>
                   Facility Tour
                 </h3>
                 <p className={styles.benefitText}>
@@ -119,7 +119,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
             <div className={styles.benefit}>
               <div className={styles.benefitContent}>
                 <h3 className={styles.benefitTitle}>
-                  <span className={styles.icon}>✓</span>
+                  <span className={styles.trialBenefitIcon}>✓</span>
                   No Obligations
                 </h3>
                 <p className={styles.benefitText}>
@@ -129,10 +129,10 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          <div className={styles.actions}>
+          <div className={styles.trialActions}>
             <Button
               variant="primary"
-              size="large"
+              size="prominent"
               fullWidth
               onClick={handleCreateAccount}
             >
@@ -141,7 +141,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
       ) : step === 2 ? (
-        <div className={styles.content}>
+        <div className={styles.trialBody}>
           <div className={styles.stepIndicator}>
             <button className={`${styles.step} ${styles.clickable}`} onClick={handleBack}>
               <span className={styles.stepNumber}>1</span>
@@ -169,7 +169,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
       ) : (
-        <div className={styles.content}>
+        <div className={styles.trialBody}>
           <div className={styles.stepIndicator}>
             <div className={`${styles.step} ${styles.completed}`}>
               <span className={styles.stepNumber}>1</span>
@@ -187,8 +187,8 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          <h2 className={styles.title}>Verify Your Payment Method</h2>
-          <p className={styles.subtitle}>
+          <h2 className={styles.trialTitle}>Verify Your Payment Method</h2>
+          <p className={styles.trialSubtitle}>
             Complete your trial setup by adding a payment method. You won't be charged during your trial period.
           </p>
 

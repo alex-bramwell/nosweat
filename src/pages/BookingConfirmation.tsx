@@ -63,10 +63,10 @@ const BookingConfirmation: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Section spacing="large">
+      <Section spacing="relaxed">
         <Container>
-          <div className={styles.loading}>
-            <div className={styles.spinner}></div>
+          <div className={styles.bookingConfirmLoading}>
+            <div className={styles.bookingConfirmSpinner}></div>
             <p>Loading booking details...</p>
           </div>
         </Container>
@@ -76,9 +76,9 @@ const BookingConfirmation: React.FC = () => {
 
   if (error || !booking) {
     return (
-      <Section spacing="large">
+      <Section spacing="relaxed">
         <Container>
-          <div className={styles.error}>
+          <div className={styles.bookingConfirmError}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -87,10 +87,10 @@ const BookingConfirmation: React.FC = () => {
             <h2>Booking Not Found</h2>
             <p>{error || 'We couldn\'t find your booking. Please check your email for confirmation details.'}</p>
             <div className={styles.errorActions}>
-              <Button variant="primary" size="large" onClick={() => navigate(gymPath('/dashboard'))}>
+              <Button variant="primary" size="prominent" onClick={() => navigate(gymPath('/dashboard'))}>
                 Go to Dashboard
               </Button>
-              <Button variant="outline" size="large" onClick={() => navigate(gymPath('/schedule'))}>
+              <Button variant="outline" size="prominent" onClick={() => navigate(gymPath('/schedule'))}>
                 View Schedule
               </Button>
             </div>
@@ -101,7 +101,7 @@ const BookingConfirmation: React.FC = () => {
   }
 
   return (
-    <Section spacing="large">
+    <Section spacing="relaxed">
       <Container>
         <div className={styles.confirmation}>
           <div className={styles.successIcon}>
@@ -111,21 +111,21 @@ const BookingConfirmation: React.FC = () => {
             </svg>
           </div>
 
-          <h1 className={styles.title}>Booking Confirmed!</h1>
-          <p className={styles.subtitle}>
+          <h1 className={styles.bookingConfirmTitle}>Booking Confirmed!</h1>
+          <p className={styles.bookingConfirmSubtitle}>
             Your day pass has been purchased and your class is booked.
             We'll see you at the gym!
           </p>
 
           <div className={styles.bookingCard}>
-            <div className={styles.cardHeader}>
+            <div className={styles.bookingCardHeader}>
               <h2>Class Details</h2>
-              <span className={`${styles.status} ${styles[booking.status]}`}>
+              <span className={`${styles.bookingStatusBadge} ${styles[booking.status]}`}>
                 {booking.status}
               </span>
             </div>
 
-            <div className={styles.cardBody}>
+            <div className={styles.bookingCardBody}>
               <div className={styles.detailRow}>
                 <div className={styles.detailLabel}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -174,7 +174,7 @@ const BookingConfirmation: React.FC = () => {
               )}
             </div>
 
-            <div className={styles.cardFooter}>
+            <div className={styles.bookingCardFooter}>
               <div className={styles.receiptRow}>
                 <span>Day Pass</span>
                 <span className={styles.amount}>{formatCurrency(1000, 'gbp')}</span>
@@ -192,14 +192,14 @@ const BookingConfirmation: React.FC = () => {
             </ul>
           </div>
 
-          <div className={styles.actions}>
+          <div className={styles.bookingConfirmActions}>
             <Link to={gymPath('/dashboard')}>
-              <Button variant="primary" size="large">
+              <Button variant="primary" size="prominent">
                 View My Bookings
               </Button>
             </Link>
             <Link to={gymPath('/schedule')}>
-              <Button variant="outline" size="large">
+              <Button variant="outline" size="prominent">
                 Book Another Class
               </Button>
             </Link>

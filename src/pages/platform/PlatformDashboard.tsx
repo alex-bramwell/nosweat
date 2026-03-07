@@ -39,9 +39,9 @@ const PlatformDashboard = () => {
 
   if (loading || !slug) {
     return (
-      <div className={styles.loading}>
-        <div className={styles.loadingSpinner}>
-          <div className={styles.spinner} />
+      <div className={styles.platformDashLoadingState}>
+        <div className={styles.platformDashLoadingStateSpinner}>
+          <div className={styles.platformDashSpinnerIcon} />
           <span>Loading dashboard...</span>
         </div>
       </div>

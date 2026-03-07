@@ -18,22 +18,22 @@ const CTA = () => {
 
   return (
     <>
-      <Section spacing="xlarge" background="dark" className={styles.cta}>
-        <Container size="small">
-          <div className={styles.content}>
-            <h2 className={styles.title}>{branding.cta_headline}</h2>
-            <p className={styles.subtitle}>
+      <Section spacing="generous" background="bold" className={styles.ctaSection}>
+        <Container size="contentNarrow">
+          <div className={styles.ctaBody}>
+            <h2 className={styles.ctaHeadline}>{branding.cta_headline}</h2>
+            <p className={styles.ctaTagline}>
               {branding.cta_subtitle}
             </p>
-            <div className={styles.actions}>
-              <Button variant="primary" size="large" onClick={openTrialModal}>
+            <div className={styles.ctaActions}>
+              <Button variant="primary" size="prominent" onClick={openTrialModal}>
                 Book Free Trial
               </Button>
-              <Button variant="outline" size="large" as="a" href="/about#visit">
+              <Button variant="outline" size="prominent" as="a" href="/about#visit">
                 Contact Us
               </Button>
             </div>
-            <p className={styles.note}>
+            <p className={styles.ctaNote}>
               No commitment required. Come see what makes our community special.
             </p>
           </div>

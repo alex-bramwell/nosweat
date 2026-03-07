@@ -181,12 +181,12 @@ export const MovementBuilder: React.FC<MovementBuilderProps> = ({ onAddMovement,
   };
 
   if (loading) {
-    return <div className={styles.loading}>Loading movements...</div>;
+    return <div className={styles.movementBuilderLoading}>Loading movements...</div>;
   }
 
   if (error) {
     return (
-      <div className={styles.error}>
+      <div className={styles.movementBuilderError}>
         <p>{error}</p>
         <button onClick={loadMovements} className={styles.retryButton}>
           Retry
@@ -197,12 +197,12 @@ export const MovementBuilder: React.FC<MovementBuilderProps> = ({ onAddMovement,
 
   return (
     <div className={styles.movementBuilder}>
-      <div className={styles.header}>
+      <div className={styles.movementBuilderHeader}>
         <h3>Add Movement to {section.charAt(0).toUpperCase() + section.slice(1)}</h3>
       </div>
 
       {/* Search and Filters */}
-      <div className={styles.filters}>
+      <div className={styles.movementSearchFilters}>
         <input
           type="text"
           placeholder="Search movements..."
@@ -279,8 +279,8 @@ export const MovementBuilder: React.FC<MovementBuilderProps> = ({ onAddMovement,
               )}
             </div>
 
-            <div className={styles.formGrid}>
-              <div className={styles.formGroup}>
+            <div className={styles.movementDetailsGrid}>
+              <div className={styles.movementFieldGroup}>
                 <label htmlFor="reps">Reps</label>
                 <NumberInput
                   id="reps"
@@ -293,7 +293,7 @@ export const MovementBuilder: React.FC<MovementBuilderProps> = ({ onAddMovement,
                 />
               </div>
 
-              <div className={styles.formGroup}>
+              <div className={styles.movementFieldGroup}>
                 <label htmlFor="weight">Weight</label>
                 <NumberInput
                   id="weight"
@@ -306,7 +306,7 @@ export const MovementBuilder: React.FC<MovementBuilderProps> = ({ onAddMovement,
                 />
               </div>
 
-              <div className={styles.formGroup}>
+              <div className={styles.movementFieldGroup}>
                 <label htmlFor="distance">Distance</label>
                 <NumberInput
                   id="distance"
@@ -319,7 +319,7 @@ export const MovementBuilder: React.FC<MovementBuilderProps> = ({ onAddMovement,
                 />
               </div>
 
-              <div className={styles.formGroup}>
+              <div className={styles.movementFieldGroup}>
                 <label htmlFor="duration">Duration</label>
                 <DurationInput
                   id="duration"
@@ -328,7 +328,7 @@ export const MovementBuilder: React.FC<MovementBuilderProps> = ({ onAddMovement,
                 />
               </div>
 
-              <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+              <div className={`${styles.movementFieldGroup} ${styles.fullWidth}`}>
                 <div className={styles.toggleRow}>
                   <span className={styles.toggleText}>Add notes</span>
                   <button
@@ -351,7 +351,7 @@ export const MovementBuilder: React.FC<MovementBuilderProps> = ({ onAddMovement,
                     placeholder="Any additional instructions or notes..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className={styles.textarea}
+                    className={styles.movementTextarea}
                     rows={3}
                   />
                 )}

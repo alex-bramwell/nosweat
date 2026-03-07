@@ -321,12 +321,12 @@ $mobile-breakpoint: 768px;
 }
 
 // ── Main Content ──
-.main {
+.platformContent {
   flex: 1;
 }
 
 // ── Footer ──
-.footer {
+.platformFooter {
   background: $platform-glass-bg-dense;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);

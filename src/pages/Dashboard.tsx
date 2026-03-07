@@ -142,49 +142,49 @@ const Dashboard = () => {
   };
 
   return (
-    <Section spacing="large" background="default">
+    <Section spacing="relaxed" background="default">
       <Container>
         <div className={styles.dashboard}>
-          <div className={styles.header}>
+          <div className={styles.dashboardHeader}>
             <div>
-              <h1 className={styles.title}>Welcome back, {user.name}!</h1>
-              <p className={styles.subtitle}>Manage your membership, view workouts, and book classes</p>
+              <h1 className={styles.dashboardTitle}>Welcome back, {user.name}!</h1>
+              <p className={styles.dashboardSubtitle}>Manage your membership, view workouts, and book classes</p>
             </div>
             <Button variant="secondary" onClick={handleLogout}>
               Sign Out
             </Button>
           </div>
 
-          <div className={styles.tabs}>
+          <div className={styles.navigationTabs}>
             <button
-              className={`${styles.tab} ${activeTab === 'wod' ? styles.tabActive : ''}`}
+              className={`${styles.navigationTab} ${activeTab === 'wod' ? styles.navigationTabActive : ''}`}
               onClick={() => setActiveTab('wod')}
             >
               Daily WOD
             </button>
             <button
-              className={`${styles.tab} ${activeTab === 'booking' ? styles.tabActive : ''}`}
+              className={`${styles.navigationTab} ${activeTab === 'booking' ? styles.navigationTabActive : ''}`}
               onClick={() => setActiveTab('booking')}
             >
               Book Classes
             </button>
             <button
-              className={`${styles.tab} ${activeTab === 'services' ? styles.tabActive : ''}`}
+              className={`${styles.navigationTab} ${activeTab === 'services' ? styles.navigationTabActive : ''}`}
               onClick={() => setActiveTab('services')}
             >
               Services
             </button>
             <button
-              className={`${styles.tab} ${activeTab === 'profile' ? styles.tabActive : ''}`}
+              className={`${styles.navigationTab} ${activeTab === 'profile' ? styles.navigationTabActive : ''}`}
               onClick={() => setActiveTab('profile')}
             >
               Profile Settings
             </button>
           </div>
 
-          <div className={styles.content}>
+          <div className={styles.tabPanelContainer}>
             {activeTab === 'wod' && (
-              <div className={styles.tabContent}>
+              <div className={styles.tabPanel}>
                 {/* Weekly Volume at the top */}
                 <div className={styles.weeklyVolumeContainer}>
                   <WeeklyVolume />
@@ -218,32 +218,32 @@ const Dashboard = () => {
                         <div className={styles.classSlot}>
                           <div className={styles.classTime}>6:00 AM</div>
                           <div className={styles.classSpots}>8 spots left</div>
-                          <Button variant="primary" size="small">Book</Button>
+                          <Button variant="primary" size="compact">Book</Button>
                         </div>
                         <div className={styles.classSlot}>
                           <div className={styles.classTime}>9:00 AM</div>
                           <div className={styles.classSpots}>5 spots left</div>
-                          <Button variant="primary" size="small">Book</Button>
+                          <Button variant="primary" size="compact">Book</Button>
                         </div>
                         <div className={styles.classSlot}>
                           <div className={styles.classTime}>12:00 PM</div>
                           <div className={styles.classSpots}>6 spots left</div>
-                          <Button variant="primary" size="small">Book</Button>
+                          <Button variant="primary" size="compact">Book</Button>
                         </div>
                         <div className={styles.classSlot}>
                           <div className={styles.classTime}>4:30 PM</div>
                           <div className={styles.classSpots}>4 spots left</div>
-                          <Button variant="primary" size="small">Book</Button>
+                          <Button variant="primary" size="compact">Book</Button>
                         </div>
                         <div className={styles.classSlot}>
                           <div className={styles.classTime}>5:30 PM</div>
                           <div className={styles.classSpots}>3 spots left</div>
-                          <Button variant="primary" size="small">Book</Button>
+                          <Button variant="primary" size="compact">Book</Button>
                         </div>
                         <div className={styles.classSlot}>
                           <div className={styles.classTime}>6:30 PM</div>
                           <div className={styles.classSpots}>7 spots left</div>
-                          <Button variant="primary" size="small">Book</Button>
+                          <Button variant="primary" size="compact">Book</Button>
                         </div>
                       </>
                     ) : (
@@ -251,22 +251,22 @@ const Dashboard = () => {
                         <div className={styles.classSlot}>
                           <div className={styles.classTime}>6:00 AM</div>
                           <div className={styles.classSpots}>12 spots left</div>
-                          <Button variant="primary" size="small">Book</Button>
+                          <Button variant="primary" size="compact">Book</Button>
                         </div>
                         <div className={styles.classSlot}>
                           <div className={styles.classTime}>10:00 AM</div>
                           <div className={styles.classSpots}>10 spots left</div>
-                          <Button variant="primary" size="small">Book</Button>
+                          <Button variant="primary" size="compact">Book</Button>
                         </div>
                         <div className={styles.classSlot}>
                           <div className={styles.classTime}>2:00 PM</div>
                           <div className={styles.classSpots}>15 spots left</div>
-                          <Button variant="primary" size="small">Book</Button>
+                          <Button variant="primary" size="compact">Book</Button>
                         </div>
                         <div className={styles.classSlot}>
                           <div className={styles.classTime}>6:00 PM</div>
                           <div className={styles.classSpots}>8 spots left</div>
-                          <Button variant="primary" size="small">Book</Button>
+                          <Button variant="primary" size="compact">Book</Button>
                         </div>
                       </>
                     )}
@@ -276,13 +276,13 @@ const Dashboard = () => {
                 <h2 className={styles.sectionTitle}>Today&apos;s Workout</h2>
 
                 {isWorkoutLoading ? (
-                  <Card variant="elevated">
+                  <Card variant="raised">
                     <div style={{ padding: '2rem', textAlign: 'center' }}>
                       Loading workout...
                     </div>
                   </Card>
                 ) : todaysWorkout ? (
-                  <Card variant="elevated">
+                  <Card variant="raised">
                     <div className={styles.wodCard}>
                       <div className={styles.wodHeader}>
                         <h3 className={styles.wodTitle}>
@@ -359,7 +359,7 @@ const Dashboard = () => {
                     title="Today's Workout"
                     description="Your daily workout will appear here once your coach publishes it. Check back soon!"
                   >
-                    <Card variant="elevated">
+                    <Card variant="raised">
                       <div className={styles.wodCard}>
                         <div className={styles.wodHeader}>
                           <h3 className={styles.wodTitle}>
@@ -403,7 +403,7 @@ const Dashboard = () => {
             )}
 
             {activeTab === 'booking' && (
-              <div className={styles.tabContent}>
+              <div className={styles.tabPanel}>
                 <div className={styles.bookingTopBar}>
                   <div className={styles.bookingHeader}>
                     <h2 className={styles.sectionTitle}>Book Your Classes</h2>
@@ -412,10 +412,10 @@ const Dashboard = () => {
                         <span className={styles.selectedCount}>
                           {selectedClasses.size} class{selectedClasses.size !== 1 ? 'es' : ''} selected
                         </span>
-                        <Button variant="secondary" size="small" onClick={clearSelection}>
+                        <Button variant="secondary" size="compact" onClick={clearSelection}>
                           Clear
                         </Button>
-                        <Button variant="primary" size="small" onClick={handleBlockBook}>
+                        <Button variant="primary" size="compact" onClick={handleBlockBook}>
                           Book Selected ({selectedClasses.size})
                         </Button>
                       </div>
@@ -441,7 +441,7 @@ const Dashboard = () => {
                 </div>
 
                 <div className={styles.bookingSection}>
-                  <div className={styles.classGrid}>
+                  <div className={styles.bookingDaysGrid}>
                     {next7Days.map((date, dayIndex) => {
                       const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
                       const dateString = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -470,15 +470,15 @@ const Dashboard = () => {
                       }
 
                       return (
-                        <Card key={dayIndex} variant="elevated">
-                          <div className={styles.dayCard}>
-                            <div className={styles.dayHeader}>
-                              <h4 className={styles.dayTitle}>{dayName}</h4>
+                        <Card key={dayIndex} variant="raised">
+                          <div className={styles.bookingDayCard}>
+                            <div className={styles.bookingDayHeader}>
+                              <h4 className={styles.bookingDayTitle}>{dayName}</h4>
                               <span className={styles.dateLabel}>
                                 {isToday ? 'Today' : dateString}
                               </span>
                             </div>
-                            <div className={styles.classList}>
+                            <div className={styles.bookingClassList}>
                               {classes.map((classInfo, classIndex) => {
                                 const classId = `${dayIndex}-${classIndex}`;
                                 const isSelected = selectedClasses.has(classId);
@@ -486,10 +486,10 @@ const Dashboard = () => {
                                 return (
                                   <div
                                     key={classIndex}
-                                    className={`${styles.classItem} ${isSelected ? styles.selected : ''} ${styles[classInfo.type]}`}
+                                    className={`${styles.bookingClassItem} ${isSelected ? styles.bookingClassSelected : ''} ${classInfo.type === 'crossfit' ? styles.classCrossFit : styles.classOpenGym}`}
                                     onClick={() => toggleClassSelection(classId)}
                                   >
-                                    <div className={styles.classItemHeader}>
+                                    <div className={styles.bookingClassHeader}>
                                       <div className={styles.classTime}>{classInfo.time}</div>
                                       <div className={styles.checkboxWrapper}>
                                         <input
@@ -503,7 +503,7 @@ const Dashboard = () => {
                                         <label htmlFor={`class-${classId}`} className={styles.checkboxLabel}></label>
                                       </div>
                                     </div>
-                                    <div className={styles.className}>{classInfo.name}</div>
+                                    <div className={styles.bookingClassName}>{classInfo.name}</div>
                                     <div className={styles.classSpots}>{classInfo.spots} spots left</div>
                                   </div>
                                 );
@@ -523,7 +523,7 @@ const Dashboard = () => {
             )}
 
             {activeTab === 'services' && (
-              <div className={styles.tabContent}>
+              <div className={styles.tabPanel}>
                 <div className={styles.servicesHeader}>
                   <h2 className={styles.sectionTitle}>Available Services</h2>
                   <p className={styles.servicesSubtitle}>
@@ -532,13 +532,13 @@ const Dashboard = () => {
                 </div>
 
                 {servicesLoading ? (
-                  <Card variant="elevated">
+                  <Card variant="raised">
                     <div style={{ padding: '2rem', textAlign: 'center' }}>
                       Loading services...
                     </div>
                   </Card>
                 ) : availableServices.length === 0 ? (
-                  <Card variant="elevated">
+                  <Card variant="raised">
                     <div className={styles.noServicesMessage}>
                       <h3>No Services Available</h3>
                       <p>There are currently no coach services available. Check back soon!</p>
@@ -570,7 +570,7 @@ const Dashboard = () => {
 
                         <div className={styles.coachesGrid}>
                           {services.map(service => (
-                            <Card key={service.id} variant="default">
+                            <Card key={service.id} variant="flat">
                               <div className={styles.coachServiceCard}>
                                 <div className={styles.coachAvatar}>
                                   {service.coachName?.charAt(0).toUpperCase() || 'C'}
@@ -586,7 +586,7 @@ const Dashboard = () => {
                                 </div>
                                 <Button
                                   variant="primary"
-                                  size="small"
+                                  size="compact"
                                   onClick={() => setSelectedServiceForBooking(service)}
                                 >
                                   Book
@@ -606,7 +606,7 @@ const Dashboard = () => {
                   {bookingsLoading ? (
                     <p>Loading your bookings...</p>
                   ) : myBookings.length === 0 ? (
-                    <Card variant="default">
+                    <Card variant="flat">
                       <div className={styles.noBookingsMessage}>
                         <p>You don&apos;t have any upcoming service bookings.</p>
                       </div>
@@ -614,7 +614,7 @@ const Dashboard = () => {
                   ) : (
                     <div className={styles.bookingsList}>
                       {myBookings.map(booking => (
-                        <Card key={booking.id} variant="default">
+                        <Card key={booking.id} variant="flat">
                           <div className={styles.bookingCard}>
                             <div className={styles.bookingInfo}>
                               <div className={styles.bookingServiceType}>
@@ -638,7 +638,7 @@ const Dashboard = () => {
                               {booking.status !== 'completed' && (
                                 <Button
                                   variant="secondary"
-                                  size="small"
+                                  size="compact"
                                   onClick={() => handleCancelBooking(booking.id)}
                                 >
                                   Cancel
@@ -665,7 +665,7 @@ const Dashboard = () => {
             )}
 
             {activeTab === 'profile' && (
-              <div className={styles.tabContent}>
+              <div className={styles.tabPanel}>
                 <ProfileSettings />
               </div>
             )}

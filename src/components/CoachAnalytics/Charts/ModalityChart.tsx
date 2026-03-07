@@ -64,7 +64,7 @@ export const ModalityChart: React.FC<ModalityChartProps> = ({ data }) => {
                                     strokeDasharray={dashArray}
                                     strokeDashoffset={offset}
                                     transform="rotate(-90 50 50)"
-                                    className={styles.segment}
+                                    className={styles.chartDonutSegment}
                                 />
                             );
                         })}
@@ -74,12 +74,12 @@ export const ModalityChart: React.FC<ModalityChartProps> = ({ data }) => {
                         </text>
                     </svg>
                 </div>
-                <div className={styles.legend}>
+                <div className={styles.chartLegend}>
                     {sortedData.map(item => (
-                        <div key={item.modality} className={styles.legendItem}>
-                            <span className={styles.dot} style={{ backgroundColor: COLORS[item.modality] }} />
-                            <span className={styles.label}>{item.modality.slice(0, 1)}</span>
-                            <span className={styles.percent}>{item.percentage.toFixed(0)}%</span>
+                        <div key={item.modality} className={styles.chartLegendItem}>
+                            <span className={styles.chartLegendDot} style={{ backgroundColor: COLORS[item.modality] }} />
+                            <span className={styles.chartLegendLabel}>{item.modality.slice(0, 1)}</span>
+                            <span className={styles.chartLegendPercent}>{item.percentage.toFixed(0)}%</span>
                         </div>
                     ))}
                 </div>

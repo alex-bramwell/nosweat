@@ -2,7 +2,7 @@
 
 // View-specific styles that extend the base drawer
 
-.header {
+.workoutViewHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -28,7 +28,7 @@
   flex-shrink: 0;
 }
 
-.title {
+.workoutViewTitle {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--color-text);
@@ -71,7 +71,7 @@
   }
 }
 
-.description {
+.workoutViewDescription {
   font-size: 0.875rem;
   color: var(--color-muted);
   margin: 0 0 1rem 0;

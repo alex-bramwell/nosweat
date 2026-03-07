@@ -25,7 +25,7 @@ const ComponentDemo = () => {
 
   return (
     <div>
-      <Section spacing="large" background="default">
+      <Section spacing="relaxed" background="default">
         <Container>
           <h1 style={{ marginBottom: '2rem' }}>UI Component Library</h1>
 
@@ -57,29 +57,29 @@ const ComponentDemo = () => {
           </div>
 
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
-            <Button variant="primary" size="small">Small</Button>
-            <Button variant="primary" size="medium">Medium</Button>
-            <Button variant="primary" size="large">Large</Button>
+            <Button variant="primary" size="compact">Compact</Button>
+            <Button variant="primary" size="default">Default</Button>
+            <Button variant="primary" size="prominent">Prominent</Button>
           </div>
 
           <h2 style={{ marginTop: '3rem', marginBottom: '1rem' }}>Cards</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-            <Card variant="default">
-              <h3>Default Card</h3>
-              <p>This is a default card with standard styling.</p>
+            <Card variant="flat">
+              <h3>Flat Card</h3>
+              <p>This is a flat card with standard styling.</p>
             </Card>
 
-            <Card variant="elevated">
-              <h3>Elevated Card</h3>
+            <Card variant="raised">
+              <h3>Raised Card</h3>
               <p>This card has a shadow effect.</p>
             </Card>
 
-            <Card variant="bordered">
-              <h3>Bordered Card</h3>
+            <Card variant="outlined">
+              <h3>Outlined Card</h3>
               <p>This card has a border instead of shadow.</p>
             </Card>
 
-            <Card variant="elevated" hoverable>
+            <Card variant="raised" hoverable>
               <h3>Hoverable Card</h3>
               <p>Hover over me to see the effect!</p>
             </Card>
@@ -90,14 +90,14 @@ const ComponentDemo = () => {
         </Container>
       </Section>
 
-      <Section spacing="medium" background="surface">
-        <Container size="small">
+      <Section spacing="normal" background="surface">
+        <Container size="contentNarrow">
           <h3>Small Container</h3>
           <p>This container has a max-width of 768px</p>
         </Container>
       </Section>
 
-      <Section spacing="small" background="dark">
+      <Section spacing="tight" background="bold">
         <Container>
           <h3>Dark Background Section</h3>
           <p>Different background variants help create visual hierarchy.</p>

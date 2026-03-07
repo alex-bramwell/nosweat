@@ -168,50 +168,50 @@ const PlatformLayout = ({ children }: PlatformLayoutProps) => {
       )}
 
       {/* Main Content */}
-      <main className={styles.main}>{children}</main>
+      <main className={styles.platformContent}>{children}</main>
 
       {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContainer}>
-          <div className={styles.footerContent}>
-            <div className={styles.footerBrand}>
-              <Logo className={styles.footerLogoMark} />
-              <p className={styles.footerTagline}>
+      <footer className={styles.platformFooter}>
+        <div className={styles.platformFooterContainer}>
+          <div className={styles.platformFooterContent}>
+            <div className={styles.platformFooterBrand}>
+              <Logo className={styles.platformFooterLogoMark} />
+              <p className={styles.platformFooterTagline}>
                 Everything your gym needs, in one place
               </p>
             </div>
 
-            <div className={styles.footerLinks}>
-              <div className={styles.footerColumn}>
-                <h4 className={styles.footerColumnTitle}>Product</h4>
-                <Link to="/guide" className={styles.footerLink}>
+            <div className={styles.platformFooterLinks}>
+              <div className={styles.platformFooterColumn}>
+                <h4 className={styles.platformFooterColumnTitle}>Product</h4>
+                <Link to="/guide" className={styles.platformFooterLink}>
                   Features
                 </Link>
-                <Link to="/docs" className={styles.footerLink}>
+                <Link to="/docs" className={styles.platformFooterLink}>
                   Docs
                 </Link>
-                <Link to="/roadmap" className={styles.footerLink}>
+                <Link to="/roadmap" className={styles.platformFooterLink}>
                   Roadmap
                 </Link>
-                <Link to="/" className={styles.footerLink}>
+                <Link to="/" className={styles.platformFooterLink}>
                   Pricing
                 </Link>
               </div>
 
-              <div className={styles.footerColumn}>
-                <h4 className={styles.footerColumnTitle}>Account</h4>
-                <Link to="/login" className={styles.footerLink}>
+              <div className={styles.platformFooterColumn}>
+                <h4 className={styles.platformFooterColumnTitle}>Account</h4>
+                <Link to="/login" className={styles.platformFooterLink}>
                   Log in
                 </Link>
-                <Link to="/signup" className={styles.footerLink}>
+                <Link to="/signup" className={styles.platformFooterLink}>
                   Sign up
                 </Link>
               </div>
             </div>
           </div>
 
-          <div className={styles.footerBottom}>
-            <p className={styles.footerCopyright}>
+          <div className={styles.platformFooterBottom}>
+            <p className={styles.platformFooterCopyright}>
               © {new Date().getFullYear()} No Sweat Fitness. All rights reserved.
             </p>
           </div>

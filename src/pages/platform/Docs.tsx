@@ -115,18 +115,18 @@ const Docs = () => {
       {/* ── Sidebar backdrop (mobile) ── */}
       {sidebarOpen && (
         <div
-          className={styles.sidebarBackdrop}
+          className={styles.docsSidebarBackdrop}
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       <div className={styles.docsGrid}>
         {/* ── Sidebar ── */}
-        <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
-          <div className={styles.sidebarMobileHeader}>
-            <span className={styles.sidebarHeading}>Navigation</span>
+        <aside className={`${styles.docsSidebar} ${sidebarOpen ? styles.docsSidebarOpen : ''}`}>
+          <div className={styles.docsSidebarMobileHeader}>
+            <span className={styles.docsSidebarHeading}>Navigation</span>
             <button
-              className={styles.sidebarClose}
+              className={styles.docsSidebarClose}
               onClick={() => setSidebarOpen(false)}
               aria-label="Close navigation"
             >
@@ -137,17 +137,17 @@ const Docs = () => {
             </button>
           </div>
 
-          <nav className={styles.sidebarNav}>
+          <nav className={styles.docsSidebarNav}>
             {DOCS_NAV_ITEMS.map((section) => (
-              <div key={section.sectionId} className={styles.sidebarSection}>
-                <span className={styles.sidebarSectionTitle}>
+              <div key={section.sectionId} className={styles.docsSidebarSection}>
+                <span className={styles.docsSidebarSectionTitle}>
                   {section.sectionTitle}
                 </span>
                 {section.topics.map((topic) => (
                   <button
                     key={topic.id}
                     onClick={() => scrollTo(topic.id)}
-                    className={`${styles.sidebarLink} ${activeTopic === topic.id ? styles.sidebarLinkActive : ''}`}
+                    className={`${styles.docsSidebarLink} ${activeTopic === topic.id ? styles.docsSidebarLinkActive : ''}`}
                   >
                     {topic.title}
                   </button>
@@ -158,7 +158,7 @@ const Docs = () => {
         </aside>
 
         {/* ── Content ── */}
-        <div className={styles.content}>
+        <div className={styles.docsArticleArea}>
           {DOCS_SECTIONS.map((section) =>
             section.topics.map((topic) => {
               const Illustration = ILLUSTRATIONS[topic.illustrationKey];
@@ -183,9 +183,9 @@ const Docs = () => {
                   {/* Steps */}
                   <ol className={styles.stepsList}>
                     {topic.steps.map((step, idx) => (
-                      <li key={idx} className={styles.step}>
+                      <li key={idx} className={styles.docsStepItem}>
                         <span className={styles.stepNumber}>{idx + 1}</span>
-                        <div className={styles.stepContent}>
+                        <div className={styles.docsStepBody}>
                           <span className={styles.stepText}>{step.text}</span>
                           {step.detail && (
                             <span className={styles.stepDetail}>{step.detail}</span>

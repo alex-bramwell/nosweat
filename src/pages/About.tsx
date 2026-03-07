@@ -10,7 +10,7 @@ const About = () => {
   return (
     <>
       {/* Hero Section */}
-      <Section spacing="large" background="dark" className={styles.heroSection}>
+      <Section spacing="relaxed" background="bold" className={styles.heroSection}>
         <Container>
           <div className={styles.hero}>
             <h1 className={styles.heroTitle}>Our Story</h1>
@@ -23,7 +23,7 @@ const About = () => {
       </Section>
 
       {/* Mission & Values */}
-      <Section spacing="large" background="surface">
+      <Section spacing="relaxed" background="surface">
         <Container>
           <div className={styles.missionWrapper}>
             <div className={styles.missionText}>
@@ -46,7 +46,7 @@ const About = () => {
             </div>
 
             <div className={styles.valuesGrid}>
-              <Card variant="elevated" padding="large">
+              <Card variant="raised" padding="spacious">
                 <div className={styles.valueCard}>
                   <h3 className={styles.valueTitle}>Community First</h3>
                   <p className={styles.valueText}>
@@ -56,7 +56,7 @@ const About = () => {
                 </div>
               </Card>
 
-              <Card variant="elevated" padding="large">
+              <Card variant="raised" padding="spacious">
                 <div className={styles.valueCard}>
                   <h3 className={styles.valueTitle}>Expert Coaching</h3>
                   <p className={styles.valueText}>
@@ -66,7 +66,7 @@ const About = () => {
                 </div>
               </Card>
 
-              <Card variant="elevated" padding="large">
+              <Card variant="raised" padding="spacious">
                 <div className={styles.valueCard}>
                   <h3 className={styles.valueTitle}>Results Driven</h3>
                   <p className={styles.valueText}>
@@ -81,7 +81,7 @@ const About = () => {
       </Section>
 
       {/* What We Offer */}
-      <Section spacing="large" background="dark">
+      <Section spacing="relaxed" background="bold">
         <Container>
           <h2 className={styles.sectionTitle}>What Makes Us Different</h2>
           <div className={styles.featuresGrid}>
@@ -187,7 +187,7 @@ const About = () => {
       </Section>
 
       {/* Location */}
-      <Section spacing="large" background="surface" id="visit">
+      <Section spacing="relaxed" background="surface" id="visit">
         <Container>
           <div className={styles.locationWrapper}>
             <div className={styles.locationInfo}>
@@ -226,7 +226,7 @@ const About = () => {
               </div>
             </div>
 
-<Card variant="elevated" padding="large">
+<Card variant="raised" padding="spacious">
               <div className={styles.ctaCard}>
                 <h3 className={styles.ctaTitle}>Ready to Start Your Journey?</h3>
                 <p className={styles.ctaText}>

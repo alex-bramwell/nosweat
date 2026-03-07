@@ -17,26 +17,26 @@ const SessionWarning: React.FC<SessionWarningProps> = ({
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onExtend}>
-      <div className={styles.content}>
-        <div className={styles.iconWrapper}>
-          <svg className={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <div className={styles.sessionWarningBody}>
+        <div className={styles.sessionWarningIconBadge}>
+          <svg className={styles.sessionWarningClockIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
         </div>
 
-        <h2 className={styles.title}>Session Expiring Soon</h2>
-        <p className={styles.subtitle}>
+        <h2 className={styles.sessionWarningTitle}>Session Expiring Soon</h2>
+        <p className={styles.sessionWarningSubtitle}>
           Your session will expire in <span className={styles.time}>{remainingTime}</span> due to inactivity.
         </p>
-        <p className={styles.message}>
+        <p className={styles.sessionWarningPrompt}>
           Would you like to extend your session?
         </p>
 
-        <div className={styles.actions}>
+        <div className={styles.sessionWarningActions}>
           <Button
             variant="primary"
-            size="large"
+            size="prominent"
             fullWidth
             onClick={onExtend}
           >
@@ -44,7 +44,7 @@ const SessionWarning: React.FC<SessionWarningProps> = ({
           </Button>
           <Button
             variant="outline"
-            size="large"
+            size="prominent"
             fullWidth
             onClick={onLogout}
           >

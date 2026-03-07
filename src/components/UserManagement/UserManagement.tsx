@@ -248,7 +248,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
   // Only admins can access user management
   if (!permissions.canManageUsers) {
     return (
-      <Card variant="elevated">
+      <Card variant="raised">
         <p>You do not have permission to manage users.</p>
       </Card>
     );
@@ -263,7 +263,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
 
   return (
     <div className={styles.userManagement}>
-      <div className={styles.header}>
+      <div className={styles.userMgmtHeader}>
         <h2>{title}</h2>
         {!hideInvite && (
           <Button
@@ -276,10 +276,10 @@ export const UserManagement: React.FC<UserManagementProps> = ({
       </div>
 
       {showInviteForm && (
-        <Card variant="elevated" className={styles.inviteForm}>
+        <Card variant="raised" className={styles.inviteForm}>
           <h3>Invite New User</h3>
           <form onSubmit={handleInviteUser}>
-            <div className={styles.formGroup}>
+            <div className={styles.userMgmtFieldGroup}>
               <label htmlFor="email">Email *</label>
               <input
                 type="email"
@@ -291,7 +291,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
               />
             </div>
 
-            <div className={styles.formGroup}>
+            <div className={styles.userMgmtFieldGroup}>
               <label htmlFor="name">Name *</label>
               <input
                 type="text"
@@ -303,7 +303,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
               />
             </div>
 
-            <div className={styles.formGroup}>
+            <div className={styles.userMgmtFieldGroup}>
               <label htmlFor="role">Role *</label>
               <select
                 id="role"
@@ -318,7 +318,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
             </div>
 
             {inviteData.role === 'coach' && (
-              <div className={styles.formGroup}>
+              <div className={styles.userMgmtFieldGroup}>
                 <label htmlFor="coachId">Coach ID</label>
                 <input
                   type="text"
@@ -331,7 +331,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
               </div>
             )}
 
-            <div className={styles.formGroup}>
+            <div className={styles.userMgmtFieldGroup}>
               <label className={styles.checkboxRow}>
                 <div className={styles.checkboxWrapper}>
                   <input
@@ -348,11 +348,11 @@ export const UserManagement: React.FC<UserManagementProps> = ({
             </div>
 
             {inviteError && (
-              <div className={styles.error}>{inviteError}</div>
+              <div className={styles.userMgmtError}>{inviteError}</div>
             )}
 
             {inviteSuccess && (
-              <div className={styles.success}>
+              <div className={styles.userMgmtSuccess}>
                 User invited successfully! {inviteData.sendEmail && 'Password reset email sent.'}
               </div>
             )}
@@ -380,7 +380,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
       {/* User list and filters - admin only */}
       {permissions.canManageUsers && (
         <>
-          <Card variant="elevated" className={styles.filtersCard}>
+          <Card variant="raised" className={styles.filtersCard}>
             <div className={styles.filters}>
               <div className={styles.filterGroup}>
                 <label htmlFor="search">Search</label>
@@ -413,12 +413,12 @@ export const UserManagement: React.FC<UserManagementProps> = ({
           </Card>
 
           {isLoading ? (
-        <Card variant="elevated">
+        <Card variant="raised">
           <p>Loading users...</p>
         </Card>
       ) : error ? (
-        <Card variant="elevated">
-          <p className={styles.error}>{error}</p>
+        <Card variant="raised">
+          <p className={styles.userMgmtError}>{error}</p>
           <Button onClick={loadUsers}>Retry</Button>
         </Card>
       ) : (
@@ -428,7 +428,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
           </div>
 
           {filteredUsers.map(user => (
-            <Card key={user.id} variant="elevated" className={styles.userCard}>
+            <Card key={user.id} variant="raised" className={styles.userCard}>
               <div className={styles.userContent}>
                 <div className={styles.userHeader}>
                   <h3>{user.name}</h3>
@@ -467,7 +467,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                   <div className={styles.servicesButtonWrapper}>
                     <Button
                       variant="primary"
-                      size="small"
+                      size="compact"
                       onClick={() => openServicesModal(user)}
                     >
                       Manage Services
@@ -491,7 +491,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
 
                 <Button
                   variant="secondary"
-                  size="small"
+                  size="compact"
                   onClick={() => openDeleteModal(user.id, user.name)}
                   className={styles.deleteButton}
                   title="Delete user"
@@ -504,7 +504,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
           ))}
 
           {filteredUsers.length === 0 && (
-            <Card variant="elevated">
+            <Card variant="raised">
               <p>No users found matching your filters.</p>
             </Card>
           )}

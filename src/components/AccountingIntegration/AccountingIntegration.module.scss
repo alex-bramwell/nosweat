@@ -123,7 +123,7 @@
   color: var(--color-text-primary, #333);
 }
 
-.description {
+.integrationDescription {
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -225,13 +225,13 @@
   align-items: center;
   gap: 1rem;
 
-  .label {
+  .syncItemLabel {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--color-text-secondary, #666);
   }
 
-  .value {
+  .syncItemValue {
     font-size: 0.875rem;
     color: var(--color-text-primary, #333);
   }
@@ -348,7 +348,7 @@
   }
 }
 
-.spinner {
+.syncSpinner {
   display: inline-block;
   width: 14px;
   height: 14px;
@@ -364,7 +364,7 @@
   }
 }
 
-.helpText {
+.syncHelpText {
   margin: 0;
   font-size: 0.8125rem;
   color: var(--color-text-secondary, #666);

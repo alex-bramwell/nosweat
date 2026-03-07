@@ -254,7 +254,7 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
   return (
     <div className={styles.brandingEditor}>
       {message && (
-        <div className={`${styles.message} ${styles[message.type]}`}>
+        <div className={`${styles.brandingMessage} ${styles[message.type]}`}>
           {message.text}
         </div>
       )}
@@ -286,15 +286,15 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
       {renderAccordion('typography', 'Typography',
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7" /><line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" /></svg>,
         <div className={styles.fontGrid}>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="font_header">Header Font</label>
-            <select id="font_header" value={formData.font_header} onChange={(e) => handleChange('font_header', e.target.value)} className={styles.select}>
+            <select id="font_header" value={formData.font_header} onChange={(e) => handleChange('font_header', e.target.value)} className={styles.brandingSelect}>
               {AVAILABLE_FONTS.map((font) => (<option key={font} value={font}>{font}</option>))}
             </select>
           </div>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="font_body">Body Font</label>
-            <select id="font_body" value={formData.font_body} onChange={(e) => handleChange('font_body', e.target.value)} className={styles.select}>
+            <select id="font_body" value={formData.font_body} onChange={(e) => handleChange('font_body', e.target.value)} className={styles.brandingSelect}>
               {AVAILABLE_FONTS.map((font) => (<option key={font} value={font}>{font}</option>))}
             </select>
           </div>
@@ -305,14 +305,14 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
       {renderAccordion('shape', 'Shape & Theme',
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>,
         <div className={styles.shapeGrid}>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="border_radius">
               Border Radius
-              <span className={styles.sliderValue}>{getBorderRadiusValue()}rem</span>
+              <span className={styles.brandingSliderValue}>{getBorderRadiusValue()}rem</span>
             </label>
-            <input type="range" id="border_radius" min="0" max="2" step="0.125" value={getBorderRadiusValue()} onChange={(e) => handleBorderRadiusChange(parseFloat(e.target.value))} className={styles.slider} />
+            <input type="range" id="border_radius" min="0" max="2" step="0.125" value={getBorderRadiusValue()} onChange={(e) => handleBorderRadiusChange(parseFloat(e.target.value))} className={styles.brandingSlider} />
           </div>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label>Theme Mode</label>
             <div className={styles.radioGroup}>
               <label className={styles.radioLabel}>
@@ -325,7 +325,7 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
               </label>
             </div>
           </div>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label>Navbar Style</label>
             <div className={styles.radioGroup}>
               <label className={styles.radioLabel}>
@@ -375,37 +375,37 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
       {renderAccordion('content', 'Content',
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>,
         <div className={styles.contentGrid}>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="hero_headline">Hero Headline</label>
-            <input type="text" id="hero_headline" value={formData.hero_headline} onChange={(e) => handleChange('hero_headline', e.target.value)} className={styles.input} placeholder="Welcome to Your Gym" />
+            <input type="text" id="hero_headline" value={formData.hero_headline} onChange={(e) => handleChange('hero_headline', e.target.value)} className={styles.brandingInput} placeholder="Welcome to Your Gym" />
           </div>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="hero_subtitle">Hero Subtitle</label>
-            <input type="text" id="hero_subtitle" value={formData.hero_subtitle} onChange={(e) => handleChange('hero_subtitle', e.target.value)} className={styles.input} placeholder="Transform your fitness journey..." />
+            <input type="text" id="hero_subtitle" value={formData.hero_subtitle} onChange={(e) => handleChange('hero_subtitle', e.target.value)} className={styles.brandingInput} placeholder="Transform your fitness journey..." />
           </div>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="cta_headline">CTA Headline</label>
-            <input type="text" id="cta_headline" value={formData.cta_headline} onChange={(e) => handleChange('cta_headline', e.target.value)} className={styles.input} placeholder="Ready to Start Your Journey?" />
+            <input type="text" id="cta_headline" value={formData.cta_headline} onChange={(e) => handleChange('cta_headline', e.target.value)} className={styles.brandingInput} placeholder="Ready to Start Your Journey?" />
           </div>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="cta_subtitle">CTA Subtitle</label>
-            <input type="text" id="cta_subtitle" value={formData.cta_subtitle} onChange={(e) => handleChange('cta_subtitle', e.target.value)} className={styles.input} placeholder="Join us today..." />
+            <input type="text" id="cta_subtitle" value={formData.cta_subtitle} onChange={(e) => handleChange('cta_subtitle', e.target.value)} className={styles.brandingInput} placeholder="Join us today..." />
           </div>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="about_mission">About Mission</label>
-            <textarea id="about_mission" value={formData.about_mission} onChange={(e) => handleChange('about_mission', e.target.value)} className={styles.textarea} placeholder="Our mission is to..." rows={3} />
+            <textarea id="about_mission" value={formData.about_mission} onChange={(e) => handleChange('about_mission', e.target.value)} className={styles.brandingTextarea} placeholder="Our mission is to..." rows={3} />
           </div>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="about_philosophy">About Philosophy</label>
-            <textarea id="about_philosophy" value={formData.about_philosophy} onChange={(e) => handleChange('about_philosophy', e.target.value)} className={styles.textarea} placeholder="Our training philosophy..." rows={3} />
+            <textarea id="about_philosophy" value={formData.about_philosophy} onChange={(e) => handleChange('about_philosophy', e.target.value)} className={styles.brandingTextarea} placeholder="Our training philosophy..." rows={3} />
           </div>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="about_facility">Facility Description</label>
-            <textarea id="about_facility" value={formData.about_facility} onChange={(e) => handleChange('about_facility', e.target.value)} className={styles.textarea} placeholder="Our facility features..." rows={3} />
+            <textarea id="about_facility" value={formData.about_facility} onChange={(e) => handleChange('about_facility', e.target.value)} className={styles.brandingTextarea} placeholder="Our facility features..." rows={3} />
           </div>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="footer_text">Footer Text</label>
-            <input type="text" id="footer_text" value={formData.footer_text} onChange={(e) => handleChange('footer_text', e.target.value)} className={styles.input} placeholder="Additional footer text..." />
+            <input type="text" id="footer_text" value={formData.footer_text} onChange={(e) => handleChange('footer_text', e.target.value)} className={styles.brandingInput} placeholder="Additional footer text..." />
           </div>
         </div>
       )}
@@ -414,22 +414,22 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
       {renderAccordion('custom', 'Custom Code',
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>,
         <div className={styles.contentGrid}>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="hero_effect">Hero Effect</label>
-            <select id="hero_effect" value={formData.hero_effect} onChange={(e) => handleChange('hero_effect', e.target.value)} className={styles.select}>
+            <select id="hero_effect" value={formData.hero_effect} onChange={(e) => handleChange('hero_effect', e.target.value)} className={styles.brandingSelect}>
               {HERO_EFFECTS.map((effect) => (
                 <option key={effect.value} value={effect.value}>{effect.label}</option>
               ))}
             </select>
           </div>
-          <div className={styles.formField}>
+          <div className={styles.brandingFormField}>
             <label htmlFor="custom_css">Custom CSS</label>
             <span className={styles.colorLabel}>Add custom styles to your gym site</span>
             <textarea
               id="custom_css"
               value={formData.custom_css}
               onChange={(e) => handleChange('custom_css', e.target.value)}
-              className={`${styles.textarea} ${styles.codeTextarea}`}
+              className={`${styles.brandingTextarea} ${styles.codeTextarea}`}
               placeholder={`.hero {\n  /* your custom styles */\n}`}
               rows={8}
             />
@@ -437,7 +437,7 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
         </div>
       )}
 
-      <div className={styles.actions}>
+      <div className={styles.brandingActions}>
         <Button variant="ghost" onClick={handleReset} disabled={isLoading}>
           Reset
         </Button>

@@ -1,4 +1,4 @@
-.content {
+.disableModalBody {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -19,14 +19,14 @@
   }
 }
 
-.heading {
+.disableModalHeading {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-header);
   margin: 0;
 }
 
-.description {
+.disableModalDescription {
   font-size: 0.9375rem;
   line-height: 1.6;
   color: var(--color-muted);
@@ -71,7 +71,7 @@
   margin: 0;
 }
 
-.actions {
+.disableModalActions {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;

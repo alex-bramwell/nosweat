@@ -44,7 +44,7 @@ $platform-glass-bg: rgba(255, 255, 255, 0.04);
   width: 100%;
 }
 
-.loading {
+.platformDashLoadingState {
   min-height: 60vh;
   display: flex;
   align-items: center;
@@ -61,7 +61,7 @@ $platform-glass-bg: rgba(255, 255, 255, 0.04);
   gap: 1rem;
 }
 
-.spinner {
+.platformDashSpinnerIcon {
   width: 2rem;
   height: 2rem;
   border: 2px solid $platform-border;
