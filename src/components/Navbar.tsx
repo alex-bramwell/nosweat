@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTenant, useFeature, useGymPath } from '../contexts/TenantContext';
 import { useBrandingWithOverrides } from '../hooks/useBrandingWithOverrides';
 import { useViewAs } from '../contexts/ViewAsContext';
+import { useBuilderNavigate } from '../contexts/BrandingOverrideContext';
 import { supabase } from '../lib/supabase';
 import { AuthModal } from './AuthModal';
 import styles from './Navbar.module.scss';
@@ -13,6 +14,7 @@ const Navbar: React.FC = () => {
   const { gym } = useTenant();
   const branding = useBrandingWithOverrides();
   const viewAsRole = useViewAs();
+  const builderNavigate = useBuilderNavigate();
 
   // When view-as is active, simulate a different role for rendering
   const effectiveUser = viewAsRole
@@ -151,8 +153,16 @@ const Navbar: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isUserDropdownOpen, isNavDropdownOpen]);
 
-  // Get user's first name
-  const getFirstName = () => {
+  // Get display name — show role label when previewing or on admin pages
+  const getDisplayName = () => {
+    if (viewAsRole && viewAsRole !== 'public') {
+      return viewAsRole.charAt(0).toUpperCase() + viewAsRole.slice(1);
+    }
+    // Show role on admin-specific pages
+    const path = location.pathname;
+    if (user?.role === 'admin' && (path.includes('/coach-dashboard') || path.includes('/gym-admin') || path.includes('/site-builder'))) {
+      return 'Admin';
+    }
     if (!user?.name) return 'User';
     return user.name.split(' ')[0];
   };
@@ -165,6 +175,8 @@ const Navbar: React.FC = () => {
         <Link to={gymPath('/')} className={styles.navBrand} onClick={closeMenu}>
           {branding.logo_url ? (
             <img src={branding.logo_url} alt={gym?.name || 'Gym'} className={styles.navBrandImage} />
+          ) : user?.role === 'admin' ? (
+            <div className={styles.navBrandPlaceholder}>Upload your logo</div>
           ) : (
             <>
               <div className={styles.navBrandName}>{gym?.name || 'Gym'}</div>
@@ -200,60 +212,52 @@ const Navbar: React.FC = () => {
           </button>
           {isNavDropdownOpen && (
             <div className={styles.navMenuContent}>
-              <Link
-                to={gymPath('/')}
-                className={location.pathname === gymPath('/') ? styles.navMenuItemActive : styles.navMenuItem}
-                onClick={() => {
-                  closeNavDropdown();
-                  closeMenu();
-                }}
-              >
-                <span>Home</span>
-              </Link>
-              <Link
-                to={gymPath('/about')}
-                className={location.pathname === gymPath('/about') ? styles.navMenuItemActive : styles.navMenuItem}
-                onClick={() => {
-                  closeNavDropdown();
-                  closeMenu();
-                }}
-              >
-                <span>About</span>
-              </Link>
-              {hasCoachProfiles && (
-              <Link
-                to={gymPath('/coaches')}
-                className={location.pathname === gymPath('/coaches') ? styles.navMenuItemActive : styles.navMenuItem}
-                onClick={() => {
-                  closeNavDropdown();
-                  closeMenu();
-                }}
-              >
-                <span>Coaches</span>
-              </Link>
+              {[
+                { label: 'Home', path: '/' },
+                { label: 'About', path: '/about' },
+                ...(hasCoachProfiles ? [{ label: 'Coaches', path: '/coaches' }] : []),
+                ...(hasClassBooking ? [{ label: 'Schedule', path: '/schedule' }] : []),
+              ].map(({ label, path }) => {
+                const fullPath = gymPath(path);
+                const isActive = location.pathname === fullPath;
+                return builderNavigate ? (
+                  <button
+                    key={path}
+                    className={isActive ? styles.navMenuItemActive : styles.navMenuItem}
+                    onClick={() => {
+                      builderNavigate(fullPath);
+                      closeNavDropdown();
+                      closeMenu();
+                    }}
+                  >
+                    <span>{label}</span>
+                  </button>
+                ) : (
+                  <Link
+                    key={path}
+                    to={fullPath}
+                    className={isActive ? styles.navMenuItemActive : styles.navMenuItem}
+                    onClick={() => {
+                      closeNavDropdown();
+                      closeMenu();
+                    }}
+                  >
+                    <span>{label}</span>
+                  </Link>
+                );
+              })}
+              {!builderNavigate && (
+                <a
+                  href={`${gymPath('/')}#wod`}
+                  className={`${styles.navMenuItem} ${activeSection === 'wod' ? styles.navMenuItemHighlighted : ''}`}
+                  onClick={() => {
+                    closeNavDropdown();
+                    closeMenu();
+                  }}
+                >
+                  <span>Today's WOD</span>
+                </a>
               )}
-              {hasClassBooking && (
-              <Link
-                to={gymPath('/schedule')}
-                className={location.pathname === gymPath('/schedule') ? styles.navMenuItemActive : styles.navMenuItem}
-                onClick={() => {
-                  closeNavDropdown();
-                  closeMenu();
-                }}
-              >
-                <span>Schedule</span>
-              </Link>
-              )}
-              <a
-                href={`${gymPath('/')}#wod`}
-                className={`${styles.navMenuItem} ${activeSection === 'wod' ? styles.navMenuItemHighlighted : ''}`}
-                onClick={() => {
-                  closeNavDropdown();
-                  closeMenu();
-                }}
-              >
-                <span>Today's WOD</span>
-              </a>
             </div>
           )}
         </div>
@@ -267,47 +271,46 @@ const Navbar: React.FC = () => {
                 onClick={toggleUserDropdown}
                 aria-label="User menu"
               >
-                <span className={styles.userDisplayName}>{getFirstName()}</span>
+                <span className={styles.userDisplayName}>{getDisplayName()}</span>
                 <svg className={styles.userMenuIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
               </button>
               {isUserDropdownOpen && (
                 <div className={styles.userMenuDropdown}>
-                  {/* Gym Admin - only for admins */}
-                  {effectiveUser?.role === 'admin' && (
-                    <Link
-                      to={gymPath('/gym-admin')}
-                      className={styles.userMenuItem}
-                      onClick={() => {
-                        closeUserDropdown();
-                        closeMenu();
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M12 1v6m0 6v6m6-12h-6m6 6h-6m-6 0H0m6-6H0"></path>
-                      </svg>
-                      Gym Admin
-                    </Link>
-                  )}
-
                   {/* Admin View - only for admins */}
                   {effectiveUser?.role === 'admin' && (
-                    <Link
-                      to={gymPath('/coach-dashboard')}
-                      className={styles.userMenuItem}
-                      onClick={() => {
-                        closeUserDropdown();
-                        closeMenu();
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="9" y1="3" x2="9" y2="21"></line>
-                      </svg>
-                      Admin View
-                    </Link>
+                    builderNavigate ? (
+                      <button
+                        className={styles.userMenuItem}
+                        onClick={() => {
+                          builderNavigate(gymPath('/coach-dashboard'));
+                          closeUserDropdown();
+                          closeMenu();
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                          <line x1="9" y1="3" x2="9" y2="21"></line>
+                        </svg>
+                        Admin View
+                      </button>
+                    ) : (
+                      <Link
+                        to={gymPath('/coach-dashboard')}
+                        className={styles.userMenuItem}
+                        onClick={() => {
+                          closeUserDropdown();
+                          closeMenu();
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                          <line x1="9" y1="3" x2="9" y2="21"></line>
+                        </svg>
+                        Admin View
+                      </Link>
+                    )
                   )}
 
                   {/* Coach View - for staff, coaches, and admins */}
@@ -329,21 +332,39 @@ const Navbar: React.FC = () => {
                   )}
 
                   {/* Member View / Dashboard */}
-                  <Link
-                    to={gymPath('/dashboard')}
-                    className={styles.userMenuItem}
-                    onClick={() => {
-                      closeUserDropdown();
-                      closeMenu();
-                    }}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <path d="M12 16v-4"></path>
-                      <path d="M12 8h.01"></path>
-                    </svg>
-                    {effectiveUser?.role === 'staff' || effectiveUser?.role === 'coach' || effectiveUser?.role === 'admin' ? 'Member View' : 'Dashboard'}
-                  </Link>
+                  {builderNavigate ? (
+                    <button
+                      className={styles.userMenuItem}
+                      onClick={() => {
+                        builderNavigate(gymPath('/dashboard'));
+                        closeUserDropdown();
+                        closeMenu();
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                      </svg>
+                      {effectiveUser?.role === 'staff' || effectiveUser?.role === 'coach' || effectiveUser?.role === 'admin' ? 'Member View' : 'Dashboard'}
+                    </button>
+                  ) : (
+                    <Link
+                      to={gymPath('/dashboard')}
+                      className={styles.userMenuItem}
+                      onClick={() => {
+                        closeUserDropdown();
+                        closeMenu();
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                      </svg>
+                      {effectiveUser?.role === 'staff' || effectiveUser?.role === 'coach' || effectiveUser?.role === 'admin' ? 'Member View' : 'Dashboard'}
+                    </Link>
+                  )}
 
                   <button
                     className={styles.userMenuItem}
@@ -387,6 +408,8 @@ const Navbar: React.FC = () => {
           <Link to={gymPath('/')} className={styles.mobileNavBrand} onClick={closeMenu}>
             {branding.logo_url ? (
               <img src={branding.logo_url} alt={gym?.name || 'Gym'} className={styles.navBrandImage} />
+            ) : user?.role === 'admin' ? (
+              <div className={styles.navBrandPlaceholder}>Upload your logo</div>
             ) : (
               <>
                 <div className={styles.navBrandName}>{gym?.name || 'Gym'}</div>
@@ -483,26 +506,13 @@ const Navbar: React.FC = () => {
               <>
                 <div className={styles.mobileUserInfo}>
                   <div className={styles.mobileUserAvatar}>
-                    {getFirstName().charAt(0).toUpperCase()}
+                    {getDisplayName().charAt(0).toUpperCase()}
                   </div>
                   <div className={styles.mobileUserDetails}>
                     <span className={styles.mobileUserName}>{effectiveUser?.name || user?.name || 'User'}</span>
                     <span className={styles.mobileUserEmail}>{effectiveUser?.email || user?.email}</span>
                   </div>
                 </div>
-                {effectiveUser?.role === 'admin' && (
-                  <Link
-                    to={gymPath('/gym-admin')}
-                    className={styles.mobileUserLink}
-                    onClick={closeMenu}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="3"></circle>
-                      <path d="M12 1v6m0 6v6m6-12h-6m6 6h-6m-6 0H0m6-6H0"></path>
-                    </svg>
-                    Gym Admin
-                  </Link>
-                )}
                 <Link
                   to={gymPath('/dashboard')}
                   className={styles.mobileUserLink}

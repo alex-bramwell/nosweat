@@ -52,7 +52,7 @@ export const DEFAULT_BRANDING: GymBranding = {
   about_facility: null,
   footer_text: null,
   custom_css: '',
-  hero_effect: 'comet',
+  hero_effect: 'none',
   visible_sections: { hero: true, programs: true, wod: true, cta: true, stats: true },
   hero_cards: {
     daypass: { title: 'Day Pass', description: 'Drop in for a single session and experience our community', button: 'Book Day Pass' },

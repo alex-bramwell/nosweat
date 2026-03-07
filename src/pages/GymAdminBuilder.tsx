@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTenant, useFeature } from '../contexts/TenantContext';
@@ -15,9 +15,11 @@ import Home from './Home';
 import Schedule from './Schedule';
 import About from './About';
 import Coaches from './Coaches';
+import Dashboard from './Dashboard';
+import CoachDashboard from './CoachDashboard';
 import styles from './GymAdminBuilder.module.scss';
 
-type PreviewPage = 'home' | 'schedule' | 'coaches' | 'about';
+type PreviewPage = 'home' | 'schedule' | 'coaches' | 'about' | 'dashboard' | 'coach-dashboard';
 type ViewRole = 'admin' | 'coach' | 'member' | 'public';
 
 const PAGE_FEATURE_MAP: Partial<Record<PreviewPage, FeatureKey>> = {
@@ -66,12 +68,40 @@ const GymAdminBuilder: React.FC = () => {
     );
   }
 
-  const previewPages: { id: PreviewPage; label: string; locked: boolean }[] = [
-    { id: 'home', label: 'Home', locked: false },
-    { id: 'schedule', label: 'Schedule', locked: !hasClassBooking },
-    { id: 'coaches', label: 'Coaches', locked: !hasCoachProfiles },
-    { id: 'about', label: 'About', locked: false },
+  const allPreviewPages: { id: PreviewPage; label: string; locked: boolean; visibleTo: ViewRole[] }[] = [
+    { id: 'home', label: 'Home', locked: false, visibleTo: ['admin', 'coach', 'member', 'public'] },
+    { id: 'schedule', label: 'Schedule', locked: !hasClassBooking, visibleTo: ['admin', 'coach', 'member', 'public'] },
+    { id: 'coaches', label: 'Coaches', locked: !hasCoachProfiles, visibleTo: ['admin', 'coach', 'member', 'public'] },
+    { id: 'about', label: 'About', locked: false, visibleTo: ['admin', 'coach', 'member', 'public'] },
+    { id: 'dashboard', label: 'Dashboard', locked: false, visibleTo: ['admin', 'member'] },
+    { id: 'coach-dashboard', label: 'Coach Dashboard', locked: false, visibleTo: ['admin', 'coach'] },
   ];
+
+  const previewPages = allPreviewPages.filter((p) => p.visibleTo.includes(viewAsRole));
+
+  // Reset to home if current page isn't visible for the selected role
+  useEffect(() => {
+    if (!previewPages.some((p) => p.id === previewPage)) {
+      setPreviewPage('home');
+    }
+  }, [viewAsRole]);
+
+  // Map route-style paths to preview page IDs (used by Navbar links)
+  const handleBuilderNavigate = useCallback((page: string) => {
+    const pathMap: Record<string, PreviewPage> = {
+      '/': 'home',
+      '/schedule': 'schedule',
+      '/coaches': 'coaches',
+      '/about': 'about',
+      '/dashboard': 'dashboard',
+      '/coach-dashboard': 'coach-dashboard',
+    };
+    // Strip gym path prefix — match the last segment
+    const segments = page.replace(/\/$/, '').split('/');
+    const lastPart = '/' + (segments.pop() || '');
+    const mapped = pathMap[lastPart] || pathMap[page] || 'home';
+    setPreviewPage(mapped);
+  }, []);
 
   const renderPreviewPage = () => {
     const requiredFeature = PAGE_FEATURE_MAP[previewPage];
@@ -83,6 +113,8 @@ const GymAdminBuilder: React.FC = () => {
       case 'schedule': return <Schedule />;
       case 'coaches': return <Coaches />;
       case 'about': return <About />;
+      case 'dashboard': return <Dashboard />;
+      case 'coach-dashboard': return <CoachDashboard />;
       default: return <Home />;
     }
   };
@@ -136,11 +168,11 @@ const GymAdminBuilder: React.FC = () => {
 
       {/* ── Workspace ── */}
       <div className={styles.builderWorkspace}>
-        <BuilderSidebar onDraftChange={setDraftBranding} />
+        <BuilderSidebar onDraftChange={setDraftBranding} onNavigatePage={handleBuilderNavigate} activePage={previewPage} viewAsRole={viewAsRole} />
 
         {/* Site Preview */}
         <div className={styles.builderPreview} ref={previewRef}>
-          <BrandingOverrideProvider overrides={draftBranding}>
+          <BrandingOverrideProvider overrides={draftBranding} onNavigatePage={handleBuilderNavigate}>
             <ViewAsProvider role={viewAsRole}>
               <Navbar />
               <main style={{ flex: 1 }}>

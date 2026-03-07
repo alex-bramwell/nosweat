@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
+import { useIsBuilder } from '../contexts/BrandingOverrideContext';
 import { Section, Container, Card, Button, Modal, EmptyStatePreview } from '../components/common';
 import { EditIcon, DeleteIcon } from '../components/common/Icons';
-import { SAMPLE_WORKOUT } from '../data/sampleContent';
+import { SAMPLE_WORKOUT, generateSampleMonth } from '../data/sampleContent';
 import { WODEditorEnhanced } from '../components/WODEditor/WODEditorEnhanced';
 import { CoachAnalytics } from '../components/CoachAnalytics/CoachAnalytics';
 import { UserManagement } from '../components/UserManagement';
@@ -60,11 +61,13 @@ const isSameDay = (date1: Date, date2: Date): boolean => {
 const CoachDashboard = () => {
   const { user, logout } = useAuth();
   const permissions = usePermissions();
-  const [activeTab, setActiveTab] = useState<'overview' | 'create' | 'manage' | 'drafts' | 'analytics' | 'users' | 'staff' | 'accounting'>('overview');
-  const [workouts, setWorkouts] = useState<WorkoutDB[]>([]);
-  const [todaysWorkout, setTodaysWorkout] = useState<WorkoutDB | null>(null);
+  const isBuilder = useIsBuilder();
+  const sampleData = useMemo(() => isBuilder ? generateSampleMonth() : null, [isBuilder]);
+  const [activeTab, setActiveTab] = useState<'overview' | 'create' | 'manage' | 'drafts' | 'analytics' | 'users' | 'staff' | 'accounting'>(isBuilder ? 'manage' : 'overview');
+  const [workouts, setWorkouts] = useState<WorkoutDB[]>(sampleData?.workouts ?? []);
+  const [todaysWorkout, setTodaysWorkout] = useState<WorkoutDB | null>(sampleData?.workouts.find(w => w.date === new Date().toISOString().split('T')[0]) ?? null);
   const [editingWorkout, setEditingWorkout] = useState<WorkoutDB | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!isBuilder);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [currentWeekStart, setCurrentWeekStart] = useState(() => {
     const today = new Date();
@@ -75,7 +78,9 @@ const CoachDashboard = () => {
     return monday;
   });
   const [newWorkoutDate, setNewWorkoutDate] = useState<string | null>(null);
-  const [workoutMuscleGroups, setWorkoutMuscleGroups] = useState<Record<string, MuscleGroup[]>>({});
+  const [workoutMuscleGroups, setWorkoutMuscleGroups] = useState<Record<string, MuscleGroup[]>>(
+    (sampleData?.muscleGroups as Record<string, MuscleGroup[]>) ?? {}
+  );
   const [isEditorModalOpen, setIsEditorModalOpen] = useState(false);
   const [modalEditingWorkout, setModalEditingWorkout] = useState<WorkoutDB | null>(null);
   const [modalNewDate, setModalNewDate] = useState<string | null>(null);
@@ -83,10 +88,11 @@ const CoachDashboard = () => {
   const [accountingLoading, setAccountingLoading] = useState(false);
 
   useEffect(() => {
-    loadWorkouts();
-  }, []);
+    if (!isBuilder) loadWorkouts();
+  }, [isBuilder]);
 
   useEffect(() => {
+    if (isBuilder) return;
     // Handle OAuth callback on page load
     const callbackResult = accountingService.handleOAuthCallback();
     if (callbackResult.success && callbackResult.provider) {
@@ -97,7 +103,7 @@ const CoachDashboard = () => {
       alert(`Failed to connect: ${callbackResult.error}`);
       setActiveTab('accounting');
     }
-  }, []);
+  }, [isBuilder]);
 
   useEffect(() => {
     if (activeTab === 'accounting') {

@@ -36,11 +36,6 @@ const Hero = () => {
         className={styles.heroBackdrop}
         style={{ backgroundImage: `url(${branding.hero_image_url || FALLBACK_HERO})` }}
       />
-      {branding.hero_effect === 'comet' && (
-        <div className={styles.heroCometEffect}>
-          <div className={styles.heroCometTrail}></div>
-        </div>
-      )}
       {branding.hero_effect === 'gradient' && (
         <div className={styles.heroGradientEffect} />
       )}

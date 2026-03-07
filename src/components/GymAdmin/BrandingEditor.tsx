@@ -7,13 +7,13 @@ import type { FeatureKey, HeroCards } from '../../types/tenant';
 import { Button } from '../common';
 import ImageUpload from './ImageUpload';
 import FeatureDisableModal from './FeatureDisableModal';
+import { extractPaletteFromImage, type ExtractedPalette } from '../../lib/colorExtractor';
+import { derivePalette } from '../../lib/colorUtils';
 import type { GymBranding } from '../../types/tenant';
 import styles from './BrandingEditor.module.scss';
 
 const HERO_EFFECTS = [
   { value: 'none', label: 'None' },
-  { value: 'comet', label: 'Comet' },
-  { value: 'particles', label: 'Particles' },
   { value: 'gradient', label: 'Gradient Shift' },
 ];
 
@@ -39,6 +39,10 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
     feature: FeatureDefinition;
     dependents: FeatureDefinition[];
   } | null>(null);
+  const [suggestedPalette, setSuggestedPalette] = useState<ExtractedPalette | null>(null);
+  const [smartColourEnabled, setSmartColourEnabled] = useState(true);
+  const [showAdvancedColors, setShowAdvancedColors] = useState(false);
+  const [gradientLocked, setGradientLocked] = useState({ primary: true, secondary: true });
 
   const toggleSection = (id: string) => {
     setOpenSections((prev) => {
@@ -90,7 +94,7 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
     footer_text: source.footer_text || '',
     // Custom code
     custom_css: source.custom_css || '',
-    hero_effect: source.hero_effect || 'comet',
+    hero_effect: source.hero_effect || 'none',
     // Sections
     visible_sections: source.visible_sections ?? { hero: true, programs: true, wod: true, cta: true, stats: true },
     // Hero cards
@@ -110,7 +114,27 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
   }, [formData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value };
+      // Auto-derive when a core color changes
+      if (['color_accent', 'color_secondary', 'color_bg', 'color_text'].includes(field)) {
+        const derived = derivePalette(next.color_accent, next.color_secondary, next.color_bg, next.color_text);
+        // Always derive gradient ends if locked
+        if (gradientLocked.primary) next.color_accent2 = derived.color_accent2;
+        if (gradientLocked.secondary) next.color_secondary2 = derived.color_secondary2;
+        // Derive remaining palette colors unless user is fine-tuning
+        if (!showAdvancedColors) {
+          next.color_specialty = derived.color_specialty;
+          next.color_surface = derived.color_surface;
+          next.color_muted = derived.color_muted;
+          next.color_bg_light = derived.color_bg_light;
+          next.color_bg_dark = derived.color_bg_dark;
+          next.color_header = derived.color_header;
+          next.color_footer = derived.color_footer;
+        }
+      }
+      return next;
+    });
   };
 
   const handleBorderRadiusChange = (value: number) => {
@@ -145,8 +169,19 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
     }));
   };
 
-  const handleImageUpload = (field: string, url: string) => {
+  const handleImageUpload = async (field: string, url: string) => {
     setFormData((prev) => ({ ...prev, [field]: url }));
+    // Extract colors when a logo is uploaded and Smart Colour is enabled
+    if (field === 'logo_url' && smartColourEnabled) {
+      const palette = await extractPaletteFromImage(url);
+      if (palette) setSuggestedPalette(palette);
+    }
+  };
+
+  const applySuggestedPalette = () => {
+    if (!suggestedPalette) return;
+    setFormData((prev) => ({ ...prev, ...suggestedPalette }));
+    setSuggestedPalette(null);
   };
 
   const handleImageRemove = (field: string) => {
@@ -326,16 +361,36 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
 
   const renderColorField = (field: string, label: string, description: string) => (
     <div className={styles.colorField} key={field}>
-      <label htmlFor={field}>{label}</label>
-      <span className={styles.colorLabel}>{description}</span>
+      <div className={styles.colorFieldHeader}>
+        <label htmlFor={field}>{label}</label>
+        <span className={styles.colorLabel}>{description}</span>
+      </div>
       <div className={styles.colorInputWrapper}>
-        <input
-          type="color"
-          id={field}
-          value={getColorValue(field)}
-          onChange={(e) => handleChange(field, e.target.value)}
-        />
-        <span className={styles.colorValue}>{getColorValue(field)}</span>
+        <div className={styles.colorSwatchOuter}>
+          <div className={styles.colorSwatchInner} style={{ background: getColorValue(field) }} />
+          <input
+            type="color"
+            id={field}
+            value={getColorValue(field)}
+            onChange={(e) => handleChange(field, e.target.value)}
+            className={styles.colorNativeInput}
+          />
+        </div>
+        <div className={styles.colorHexField}>
+          <span className={styles.colorHexPrefix}>#</span>
+          <input
+            type="text"
+            value={getColorValue(field).replace('#', '')}
+            onChange={(e) => {
+              const hex = e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
+              if (hex.length === 6) handleChange(field, `#${hex}`);
+              else handleChange(field, `#${hex}`);
+            }}
+            className={styles.colorHexInput}
+            maxLength={6}
+            spellCheck={false}
+          />
+        </div>
       </div>
     </div>
   );
@@ -348,26 +403,197 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
         </div>
       )}
 
+      {suggestedPalette && (
+        <div className={styles.paletteSuggestion}>
+          <div className={styles.paletteSuggestionHeader}>
+            <div className={styles.paletteSuggestionBrand}>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" /></svg>
+              <span className={styles.paletteSuggestionTitle}>Smart Colour</span>
+            </div>
+            <button className={styles.paletteSuggestionDismiss} onClick={() => setSuggestedPalette(null)} aria-label="Dismiss">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+          </div>
+          <p className={styles.paletteSuggestionDesc}>We extracted these colours from your logo. Apply them to your site palette?</p>
+          <div className={styles.paletteSuggestionSwatches}>
+            {Object.entries(suggestedPalette).map(([key, hex]) => (
+              <div key={key} className={styles.paletteSwatch} style={{ background: hex }} title={hex} />
+            ))}
+          </div>
+          <div className={styles.paletteSuggestionActions}>
+            <Button variant="primary" size="small" onClick={applySuggestedPalette}>Apply Colours</Button>
+            <Button variant="ghost" size="small" onClick={() => setSuggestedPalette(null)}>No thanks</Button>
+          </div>
+        </div>
+      )}
+
+      {/* ━━ GLOBAL ━━ */}
+      <div className={styles.sectionGroupHeading}>Global</div>
+
       {/* ── Color Palette ── */}
       {renderAccordion('colors', 'Color Palette',
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="3" /><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" /></svg>,
         <div className={styles.colorGrid}>
-          {renderColorField('color_accent', 'Primary Brand Color', 'Buttons, links, CTAs')}
-          {renderColorField('color_secondary', 'Secondary Color', 'Accents and highlights')}
+          {/* Smart Colour toggle */}
+          <div className={styles.smartColourCard}>
+            <label className={styles.smartColourToggle}>
+              <input
+                type="checkbox"
+                checked={smartColourEnabled}
+                onChange={(e) => setSmartColourEnabled(e.target.checked)}
+              />
+              <span className={styles.smartColourSlider}></span>
+              <span className={styles.smartColourLabel}>Use Smart Colour</span>
+            </label>
+            <div className={styles.smartColourInfo}>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+              <span>Upload your logo in Brand Assets to auto-generate a matching palette.</span>
+            </div>
+          </div>
+
+          {/* Core colors — just 4 picks */}
+          {renderColorField('color_accent', 'Primary', 'Buttons, links, CTAs')}
+          {renderColorField('color_secondary', 'Secondary', 'Menu, badges, accents')}
           {renderColorField('color_bg', 'Background', 'Page background')}
-          {renderColorField('color_surface', 'Surface', 'Cards and panels')}
-          {renderColorField('color_text', 'Text Color', 'Body text')}
-          {renderColorField('color_muted', 'Muted Color', 'Secondary text')}
+          {renderColorField('color_text', 'Text', 'Body text')}
 
-          <div className={styles.advancedDivider}>Advanced Colors</div>
+          {/* Gradient rows */}
+          <div className={styles.gradientSection}>
+            <span className={styles.gradientSectionLabel}>Gradients</span>
 
-          {renderColorField('color_accent2', 'Accent 2', 'Secondary accent highlights')}
-          {renderColorField('color_secondary2', 'Secondary 2', 'Additional secondary tones')}
-          {renderColorField('color_specialty', 'Specialty', 'Specialty program badges')}
-          {renderColorField('color_bg_light', 'Background Light', 'Light background areas')}
-          {renderColorField('color_bg_dark', 'Background Dark', 'Dark background areas')}
-          {renderColorField('color_header', 'Header', 'Navbar & header areas')}
-          {renderColorField('color_footer', 'Footer', 'Footer background')}
+            {/* Primary gradient */}
+            <div className={styles.gradientRow}>
+              <div className={styles.gradientPreviewBar} style={{ background: `linear-gradient(135deg, ${formData.color_accent} 0%, ${formData.color_accent2 || formData.color_accent} 100%)` }} />
+              <div className={styles.gradientControls}>
+                <span className={styles.gradientLabel}>Primary</span>
+                <button
+                  type="button"
+                  className={`${styles.gradientLockBtn} ${gradientLocked.primary ? styles.gradientLocked : ''}`}
+                  onClick={() => {
+                    const next = !gradientLocked.primary;
+                    setGradientLocked((prev) => ({ ...prev, primary: next }));
+                    if (next) {
+                      // Re-lock: derive accent2 from accent
+                      const derived = derivePalette(formData.color_accent, formData.color_secondary, formData.color_bg, formData.color_text);
+                      setFormData((prev) => ({ ...prev, color_accent2: derived.color_accent2 }));
+                    }
+                  }}
+                  title={gradientLocked.primary ? 'Auto-derived from Primary — click to customise' : 'Custom — click to lock to Primary'}
+                >
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {gradientLocked.primary
+                      ? <><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></>
+                      : <><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 9.9-1" /></>}
+                  </svg>
+                </button>
+                {!gradientLocked.primary && (
+                  <div className={styles.gradientPickerInline}>
+                    <div className={styles.colorSwatchOuter} style={{ width: '1.5rem', height: '1.5rem' }}>
+                      <div className={styles.colorSwatchInner} style={{ background: formData.color_accent2 || formData.color_accent }} />
+                      <input
+                        type="color"
+                        value={formData.color_accent2 || formData.color_accent}
+                        onChange={(e) => handleChange('color_accent2', e.target.value)}
+                        className={styles.colorNativeInput}
+                      />
+                    </div>
+                    <div className={styles.colorHexField}>
+                      <span className={styles.colorHexPrefix}>#</span>
+                      <input
+                        type="text"
+                        value={(formData.color_accent2 || formData.color_accent).replace('#', '')}
+                        onChange={(e) => {
+                          const hex = e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
+                          if (hex.length === 6) handleChange('color_accent2', `#${hex}`);
+                        }}
+                        className={styles.colorHexInput}
+                        maxLength={6}
+                        spellCheck={false}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Secondary gradient */}
+            <div className={styles.gradientRow}>
+              <div className={styles.gradientPreviewBar} style={{ background: `linear-gradient(135deg, ${formData.color_secondary} 0%, ${formData.color_secondary2 || formData.color_secondary} 100%)` }} />
+              <div className={styles.gradientControls}>
+                <span className={styles.gradientLabel}>Secondary</span>
+                <button
+                  type="button"
+                  className={`${styles.gradientLockBtn} ${gradientLocked.secondary ? styles.gradientLocked : ''}`}
+                  onClick={() => {
+                    const next = !gradientLocked.secondary;
+                    setGradientLocked((prev) => ({ ...prev, secondary: next }));
+                    if (next) {
+                      const derived = derivePalette(formData.color_accent, formData.color_secondary, formData.color_bg, formData.color_text);
+                      setFormData((prev) => ({ ...prev, color_secondary2: derived.color_secondary2 }));
+                    }
+                  }}
+                  title={gradientLocked.secondary ? 'Auto-derived from Secondary — click to customise' : 'Custom — click to lock to Secondary'}
+                >
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {gradientLocked.secondary
+                      ? <><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></>
+                      : <><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 9.9-1" /></>}
+                  </svg>
+                </button>
+                {!gradientLocked.secondary && (
+                  <div className={styles.gradientPickerInline}>
+                    <div className={styles.colorSwatchOuter} style={{ width: '1.5rem', height: '1.5rem' }}>
+                      <div className={styles.colorSwatchInner} style={{ background: formData.color_secondary2 || formData.color_secondary }} />
+                      <input
+                        type="color"
+                        value={formData.color_secondary2 || formData.color_secondary}
+                        onChange={(e) => handleChange('color_secondary2', e.target.value)}
+                        className={styles.colorNativeInput}
+                      />
+                    </div>
+                    <div className={styles.colorHexField}>
+                      <span className={styles.colorHexPrefix}>#</span>
+                      <input
+                        type="text"
+                        value={(formData.color_secondary2 || formData.color_secondary).replace('#', '')}
+                        onChange={(e) => {
+                          const hex = e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
+                          if (hex.length === 6) handleChange('color_secondary2', `#${hex}`);
+                        }}
+                        className={styles.colorHexInput}
+                        maxLength={6}
+                        spellCheck={false}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Fine-tune toggle */}
+          <button
+            type="button"
+            className={styles.advancedToggle}
+            onClick={() => setShowAdvancedColors(!showAdvancedColors)}
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points={showAdvancedColors ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
+            </svg>
+            {showAdvancedColors ? 'Hide advanced colours' : 'Fine-tune colours'}
+          </button>
+
+          {showAdvancedColors && (
+            <>
+              {renderColorField('color_specialty', 'Specialty', 'Special badges & highlights')}
+              {renderColorField('color_surface', 'Surface', 'Cards and panels')}
+              {renderColorField('color_muted', 'Muted Text', 'Secondary text')}
+              {renderColorField('color_bg_light', 'Background Light', 'Lighter background areas')}
+              {renderColorField('color_bg_dark', 'Background Dark', 'Darker background areas')}
+              {renderColorField('color_header', 'Header', 'Navbar text')}
+              {renderColorField('color_footer', 'Footer', 'Footer text')}
+            </>
+          )}
         </div>
       )}
 
@@ -430,33 +656,14 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
         </div>
       )}
 
-      {/* ── Assets ── */}
-      {renderAccordion('assets', 'Assets & Images',
+      {/* ── Brand Assets ── */}
+      {renderAccordion('assets', 'Brand Assets',
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>,
         <div className={styles.assetsGrid}>
-          <ImageUpload label="Logo" description="Displayed in navbar" value={formData.logo_url} gymId={gym?.id || ''} assetType="logo" onUpload={(url) => handleImageUpload('logo_url', url)} onRemove={() => handleImageRemove('logo_url')} />
+          <ImageUpload label="Logo" description="Smart Colour will suggest a palette from your logo" value={formData.logo_url} gymId={gym?.id || ''} assetType="logo" onUpload={(url) => handleImageUpload('logo_url', url)} onRemove={() => handleImageRemove('logo_url')} />
           <ImageUpload label="Logo (Dark Mode)" description="Used on dark backgrounds" value={formData.logo_dark_url} gymId={gym?.id || ''} assetType="logo_dark" onUpload={(url) => handleImageUpload('logo_dark_url', url)} onRemove={() => handleImageRemove('logo_dark_url')} />
           <ImageUpload label="Favicon" description="Browser tab icon" value={formData.favicon_url} gymId={gym?.id || ''} assetType="favicon" onUpload={(url) => handleImageUpload('favicon_url', url)} onRemove={() => handleImageRemove('favicon_url')} accept="image/png,image/x-icon,image/svg+xml" />
-          <ImageUpload label="Hero Background" description="Hero section background image" value={formData.hero_image_url} gymId={gym?.id || ''} assetType="hero_image" onUpload={(url) => handleImageUpload('hero_image_url', url)} onRemove={() => handleImageRemove('hero_image_url')} />
-          <ImageUpload label="About Page Image" description="Image for the about page" value={formData.about_image_url} gymId={gym?.id || ''} assetType="about_image" onUpload={(url) => handleImageUpload('about_image_url', url)} onRemove={() => handleImageRemove('about_image_url')} />
           <ImageUpload label="Social Share Image" description="Preview when sharing links" value={formData.og_image_url} gymId={gym?.id || ''} assetType="og_image" onUpload={(url) => handleImageUpload('og_image_url', url)} onRemove={() => handleImageRemove('og_image_url')} />
-        </div>
-      )}
-
-      {/* ── Sections ── */}
-      {renderAccordion('sections', 'Homepage Sections',
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>,
-        <div className={styles.sectionsGrid}>
-          {SECTION_OPTIONS.map((section) => (
-            <label key={section.key} className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={formData.visible_sections[section.key] !== false}
-                onChange={() => handleSectionToggle(section.key)}
-              />
-              <span>{section.label}</span>
-            </label>
-          ))}
         </div>
       )}
 
@@ -497,41 +704,46 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
         </div>
       )}
 
-      {/* ── Content ── */}
-      {renderAccordion('content', 'Content',
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>,
+      {/* ━━ HOMEPAGE ━━ */}
+      <div className={styles.sectionGroupHeading}>Homepage</div>
+
+      {/* ── Visible Sections ── */}
+      {renderAccordion('sections', 'Visible Sections',
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>,
+        <div className={styles.sectionsGrid}>
+          {SECTION_OPTIONS.map((section) => (
+            <label key={section.key} className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.visible_sections[section.key] !== false}
+                onChange={() => handleSectionToggle(section.key)}
+              />
+              <span>{section.label}</span>
+            </label>
+          ))}
+        </div>
+      )}
+
+      {/* ── Hero ── */}
+      {renderAccordion('hero', 'Hero',
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /></svg>,
         <div className={styles.contentGrid}>
           <div className={styles.brandingFormField}>
-            <label htmlFor="hero_headline">Hero Headline</label>
+            <label htmlFor="hero_headline">Headline</label>
             <input type="text" id="hero_headline" value={formData.hero_headline} onChange={(e) => handleChange('hero_headline', e.target.value)} className={styles.brandingInput} placeholder="Welcome to Your Gym" />
           </div>
           <div className={styles.brandingFormField}>
-            <label htmlFor="hero_subtitle">Hero Subtitle</label>
+            <label htmlFor="hero_subtitle">Subtitle</label>
             <input type="text" id="hero_subtitle" value={formData.hero_subtitle} onChange={(e) => handleChange('hero_subtitle', e.target.value)} className={styles.brandingInput} placeholder="Transform your fitness journey..." />
           </div>
+          <ImageUpload label="Background Image" description="Background image for the hero section" value={formData.hero_image_url} gymId={gym?.id || ''} assetType="hero_image" onUpload={(url) => handleImageUpload('hero_image_url', url)} onRemove={() => handleImageRemove('hero_image_url')} />
           <div className={styles.brandingFormField}>
-            <label htmlFor="cta_headline">CTA Headline</label>
-            <input type="text" id="cta_headline" value={formData.cta_headline} onChange={(e) => handleChange('cta_headline', e.target.value)} className={styles.brandingInput} placeholder="Ready to Start Your Journey?" />
-          </div>
-          <div className={styles.brandingFormField}>
-            <label htmlFor="cta_subtitle">CTA Subtitle</label>
-            <input type="text" id="cta_subtitle" value={formData.cta_subtitle} onChange={(e) => handleChange('cta_subtitle', e.target.value)} className={styles.brandingInput} placeholder="Join us today..." />
-          </div>
-          <div className={styles.brandingFormField}>
-            <label htmlFor="about_mission">About Mission</label>
-            <textarea id="about_mission" value={formData.about_mission} onChange={(e) => handleChange('about_mission', e.target.value)} className={styles.brandingTextarea} placeholder="Our mission is to..." rows={3} />
-          </div>
-          <div className={styles.brandingFormField}>
-            <label htmlFor="about_philosophy">About Philosophy</label>
-            <textarea id="about_philosophy" value={formData.about_philosophy} onChange={(e) => handleChange('about_philosophy', e.target.value)} className={styles.brandingTextarea} placeholder="Our training philosophy..." rows={3} />
-          </div>
-          <div className={styles.brandingFormField}>
-            <label htmlFor="about_facility">Facility Description</label>
-            <textarea id="about_facility" value={formData.about_facility} onChange={(e) => handleChange('about_facility', e.target.value)} className={styles.brandingTextarea} placeholder="Our facility features..." rows={3} />
-          </div>
-          <div className={styles.brandingFormField}>
-            <label htmlFor="footer_text">Footer Text</label>
-            <input type="text" id="footer_text" value={formData.footer_text} onChange={(e) => handleChange('footer_text', e.target.value)} className={styles.brandingInput} placeholder="Additional footer text..." />
+            <label htmlFor="hero_effect">Background Effect</label>
+            <select id="hero_effect" value={formData.hero_effect} onChange={(e) => handleChange('hero_effect', e.target.value)} className={styles.brandingSelect}>
+              {HERO_EFFECTS.map((effect) => (
+                <option key={effect.value} value={effect.value}>{effect.label}</option>
+              ))}
+            </select>
           </div>
         </div>
       )}
@@ -594,18 +806,62 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
         </div>
       )}
 
-      {/* ── Custom Code ── */}
-      {renderAccordion('custom', 'Custom Code',
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>,
+      {/* ── CTA Section ── */}
+      {renderAccordion('cta', 'Call to Action',
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>,
         <div className={styles.contentGrid}>
           <div className={styles.brandingFormField}>
-            <label htmlFor="hero_effect">Hero Effect</label>
-            <select id="hero_effect" value={formData.hero_effect} onChange={(e) => handleChange('hero_effect', e.target.value)} className={styles.brandingSelect}>
-              {HERO_EFFECTS.map((effect) => (
-                <option key={effect.value} value={effect.value}>{effect.label}</option>
-              ))}
-            </select>
+            <label htmlFor="cta_headline">Headline</label>
+            <input type="text" id="cta_headline" value={formData.cta_headline} onChange={(e) => handleChange('cta_headline', e.target.value)} className={styles.brandingInput} placeholder="Ready to Start Your Journey?" />
           </div>
+          <div className={styles.brandingFormField}>
+            <label htmlFor="cta_subtitle">Subtitle</label>
+            <input type="text" id="cta_subtitle" value={formData.cta_subtitle} onChange={(e) => handleChange('cta_subtitle', e.target.value)} className={styles.brandingInput} placeholder="Join us today..." />
+          </div>
+        </div>
+      )}
+
+      {/* ━━ ABOUT PAGE ━━ */}
+      <div className={styles.sectionGroupHeading}>About Page</div>
+
+      {/* ── About Content ── */}
+      {renderAccordion('about', 'About Content',
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>,
+        <div className={styles.contentGrid}>
+          <div className={styles.brandingFormField}>
+            <label htmlFor="about_mission">Mission</label>
+            <textarea id="about_mission" value={formData.about_mission} onChange={(e) => handleChange('about_mission', e.target.value)} className={styles.brandingTextarea} placeholder="Our mission is to..." rows={3} />
+          </div>
+          <div className={styles.brandingFormField}>
+            <label htmlFor="about_philosophy">Philosophy</label>
+            <textarea id="about_philosophy" value={formData.about_philosophy} onChange={(e) => handleChange('about_philosophy', e.target.value)} className={styles.brandingTextarea} placeholder="Our training philosophy..." rows={3} />
+          </div>
+          <div className={styles.brandingFormField}>
+            <label htmlFor="about_facility">Facility Description</label>
+            <textarea id="about_facility" value={formData.about_facility} onChange={(e) => handleChange('about_facility', e.target.value)} className={styles.brandingTextarea} placeholder="Our facility features..." rows={3} />
+          </div>
+          <ImageUpload label="About Page Image" description="Image for the about page" value={formData.about_image_url} gymId={gym?.id || ''} assetType="about_image" onUpload={(url) => handleImageUpload('about_image_url', url)} onRemove={() => handleImageRemove('about_image_url')} />
+        </div>
+      )}
+
+      {/* ━━ SITE-WIDE ━━ */}
+      <div className={styles.sectionGroupHeading}>Site-wide</div>
+
+      {/* ── Footer ── */}
+      {renderAccordion('footer', 'Footer',
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="15" x2="21" y2="15" /></svg>,
+        <div className={styles.contentGrid}>
+          <div className={styles.brandingFormField}>
+            <label htmlFor="footer_text">Footer Text</label>
+            <input type="text" id="footer_text" value={formData.footer_text} onChange={(e) => handleChange('footer_text', e.target.value)} className={styles.brandingInput} placeholder="Additional footer text..." />
+          </div>
+        </div>
+      )}
+
+      {/* ── Custom Code ── */}
+      {renderAccordion('custom', 'Custom CSS',
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>,
+        <div className={styles.contentGrid}>
           <div className={styles.brandingFormField}>
             <label htmlFor="custom_css">Custom CSS</label>
             <span className={styles.colorLabel}>Add custom styles to your gym site</span>
