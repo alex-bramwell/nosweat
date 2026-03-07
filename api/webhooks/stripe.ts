@@ -74,6 +74,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         break;
       }
 
+      case 'account.updated': {
+        const account = event.data.object as Stripe.Account;
+        await handleAccountUpdated(account);
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+        await handleSubscriptionUpdated(subscription);
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        await handleSubscriptionDeleted(subscription);
+        break;
+      }
+
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
@@ -167,18 +185,41 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   try {
     const userId = session.metadata?.user_id;
     const subscriptionId = session.subscription as string | null;
-    const customerEmail = session.customer_details?.email;
+    const paymentType = session.metadata?.payment_type;
 
     if (!userId || !subscriptionId) {
       console.log('Checkout session completed without user_id or subscription — skipping');
       return;
     }
 
-    // Retrieve the subscription to get plan details
+    // Handle gym membership subscriptions (via Connect)
+    if (paymentType === 'gym-membership') {
+      const gymId = session.metadata?.gym_id;
+      const membershipId = session.metadata?.membership_id;
+
+      await supabase.from('member_subscriptions').insert({
+        gym_id: gymId,
+        user_id: userId,
+        membership_id: membershipId,
+        stripe_subscription_id: subscriptionId,
+        stripe_customer_id: session.customer as string,
+        status: 'active',
+      });
+
+      // Update user profile membership type
+      await supabase
+        .from('profiles')
+        .update({ membership_type: 'member' })
+        .eq('id', userId);
+
+      console.log(`Gym membership subscription created for user ${userId} at gym ${gymId}`);
+      return;
+    }
+
+    // Handle platform subscriptions (gym owners subscribing to noSweat)
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const priceId = subscription.items.data[0]?.price?.id;
 
-    // Update user profile with subscription info
     await supabase
       .from('profiles')
       .update({
@@ -206,7 +247,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       }
     }
 
-    console.log(`Checkout session completed for user ${userId}, subscription ${subscriptionId}`);
+    console.log(`Platform subscription completed for user ${userId}, subscription ${subscriptionId}`);
   } catch (error) {
     console.error('Error handling checkout.session.completed:', error);
     throw error;
@@ -224,6 +265,117 @@ async function handleSetupIntentFailed(setupIntent: Stripe.SetupIntent) {
     console.log(`Trial setup failed for setup intent ${setupIntent.id}`);
   } catch (error) {
     console.error('Error handling setup_intent.setup_failed:', error);
+    throw error;
+  }
+}
+
+async function handleAccountUpdated(account: Stripe.Account) {
+  try {
+    const gymId = account.metadata?.gym_id;
+    if (!gymId) {
+      // Find gym by stripe_account_id
+      const { data: gym } = await supabase
+        .from('gyms')
+        .select('id')
+        .eq('stripe_account_id', account.id)
+        .single();
+
+      if (!gym) {
+        console.log(`No gym found for Connect account ${account.id}`);
+        return;
+      }
+
+      let status = 'onboarding';
+      if (account.charges_enabled && account.payouts_enabled) {
+        status = 'active';
+      } else if (account.details_submitted) {
+        status = 'restricted';
+      }
+
+      await supabase
+        .from('gyms')
+        .update({
+          stripe_account_status: status,
+          stripe_onboarding_complete: status === 'active',
+        })
+        .eq('id', gym.id);
+
+      console.log(`Connect account ${account.id} updated — status: ${status}`);
+      return;
+    }
+
+    let status = 'onboarding';
+    if (account.charges_enabled && account.payouts_enabled) {
+      status = 'active';
+    } else if (account.details_submitted) {
+      status = 'restricted';
+    }
+
+    await supabase
+      .from('gyms')
+      .update({
+        stripe_account_status: status,
+        stripe_onboarding_complete: status === 'active',
+      })
+      .eq('id', gymId);
+
+    console.log(`Connect account for gym ${gymId} updated — status: ${status}`);
+  } catch (error) {
+    console.error('Error handling account.updated:', error);
+    throw error;
+  }
+}
+
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  try {
+    const { data: memberSub } = await supabase
+      .from('member_subscriptions')
+      .select('id')
+      .eq('stripe_subscription_id', subscription.id)
+      .single();
+
+    if (!memberSub) {
+      console.log(`No member subscription found for ${subscription.id}`);
+      return;
+    }
+
+    const statusMap: Record<string, string> = {
+      active: 'active',
+      past_due: 'past_due',
+      canceled: 'cancelled',
+      incomplete: 'incomplete',
+      trialing: 'trialing',
+      incomplete_expired: 'cancelled',
+      unpaid: 'past_due',
+    };
+
+    await supabase
+      .from('member_subscriptions')
+      .update({
+        status: statusMap[subscription.status] || subscription.status,
+        current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        cancel_at_period_end: subscription.cancel_at_period_end,
+      })
+      .eq('stripe_subscription_id', subscription.id);
+
+    console.log(`Member subscription ${subscription.id} updated — status: ${subscription.status}`);
+  } catch (error) {
+    console.error('Error handling customer.subscription.updated:', error);
+    throw error;
+  }
+}
+
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  try {
+    await supabase
+      .from('member_subscriptions')
+      .update({ status: 'cancelled' })
+      .eq('stripe_subscription_id', subscription.id);
+
+    console.log(`Member subscription ${subscription.id} cancelled`);
+  } catch (error) {
+    console.error('Error handling customer.subscription.deleted:', error);
     throw error;
   }
 }

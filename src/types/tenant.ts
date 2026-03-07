@@ -20,6 +20,9 @@ export interface Gym {
   social_instagram: string | null;
   social_twitter: string | null;
   stripe_account_id: string | null;
+  stripe_account_status: 'not_started' | 'onboarding' | 'active' | 'restricted' | 'disabled';
+  stripe_onboarding_complete: boolean;
+  platform_fee_percent: number;
   trial_start_date: string | null;
   trial_end_date: string | null;
   trial_member_limit: number;
@@ -157,6 +160,8 @@ export interface GymMembership {
   price_pence: number | null;
   billing_period: string;
   features: string[];
+  stripe_price_id: string | null;
+  stripe_product_id: string | null;
   sort_order: number;
   is_active: boolean;
 }

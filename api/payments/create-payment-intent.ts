@@ -17,7 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { userId, classId, classDetails } = req.body;
+    const { userId, classId, classDetails, gymId } = req.body;
 
     if (!userId || !classId || !classDetails) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -65,8 +65,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    // Look up gym's Connect account if gymId provided
+    let connectAccountId: string | undefined;
+    let applicationFeeAmount: number | undefined;
+
+    if (gymId) {
+      const { data: gym } = await supabase
+        .from('gyms')
+        .select('stripe_account_id, stripe_onboarding_complete, platform_fee_percent')
+        .eq('id', gymId)
+        .single();
+
+      if (gym?.stripe_account_id && gym.stripe_onboarding_complete) {
+        connectAccountId = gym.stripe_account_id;
+        const feePercent = gym.platform_fee_percent || 10;
+        applicationFeeAmount = Math.round(1000 * (feePercent / 100));
+      }
+    }
+
     // Create payment intent for £10 (1000 pence)
-    const paymentIntent = await stripe.paymentIntents.create({
+    const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
       amount: 1000, // £10 in pence
       currency: 'gbp',
       customer: stripeCustomerId,
@@ -78,11 +96,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         class_name: classDetails.className,
         coach_name: classDetails.coach || '',
         payment_type: 'day-pass',
+        gym_id: gymId || '',
       },
       automatic_payment_methods: {
         enabled: true,
       },
-    });
+    };
+
+    // Route payment through Connect if gym has an account
+    if (connectAccountId && applicationFeeAmount) {
+      paymentIntentParams.transfer_data = { destination: connectAccountId };
+      paymentIntentParams.application_fee_amount = applicationFeeAmount;
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams);
 
     // Save payment record to database
     await supabase.from('payments').insert({
