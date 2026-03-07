@@ -354,12 +354,12 @@ $mobile-breakpoint: 768px;
   }
 }
 
-.footerContainer {
+.platformFooterContainer {
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.footerContent {
+.platformFooterContent {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 3rem;
@@ -371,25 +371,25 @@ $mobile-breakpoint: 768px;
   }
 }
 
-.footerBrand {
+.platformFooterBrand {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.footerLogoMark {
+.platformFooterLogoMark {
   height: 44px;
   width: auto;
   align-self: flex-start;
 }
 
-.footerTagline {
+.platformFooterTagline {
   color: $platform-text-muted;
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
-.footerLinks {
+.platformFooterLinks {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
@@ -399,13 +399,13 @@ $mobile-breakpoint: 768px;
   }
 }
 
-.footerColumn {
+.platformFooterColumn {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.footerColumnTitle {
+.platformFooterColumnTitle {
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -414,7 +414,7 @@ $mobile-breakpoint: 768px;
   margin-bottom: 0.25rem;
 }
 
-.footerLink {
+.platformFooterLink {
   color: $platform-text-muted;
   text-decoration: none;
   font-size: 0.95rem;
@@ -427,12 +427,12 @@ $mobile-breakpoint: 768px;
   }
 }
 
-.footerBottom {
+.platformFooterBottom {
   padding-top: 2rem;
   border-top: 1px solid $platform-border;
 }
 
-.footerCopyright {
+.platformFooterCopyright {
   color: $platform-text-muted;
   font-size: 0.875rem;
   text-align: center;
