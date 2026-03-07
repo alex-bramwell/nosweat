@@ -1,11 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Section, Container, Button } from '../components/common';
+import { Section, Container, Button, EmptyStatePreview } from '../components/common';
 import { AuthModal } from '../components/AuthModal';
 import { TrialModal } from '../components/TrialModal';
 import { DayPassPaymentModal } from '../components/DayPassPaymentModal';
 import { useAuth } from '../contexts/AuthContext';
 import { useRegistrationIntent } from '../contexts/RegistrationContext';
 import { useTenant } from '../contexts/TenantContext';
+import { useIsBuilder } from '../contexts/BrandingOverrideContext';
+import { SAMPLE_SCHEDULE } from '../data/sampleContent';
 import type { ClassSchedule } from '../types';
 import styles from './Schedule.module.scss';
 
@@ -13,16 +15,20 @@ const Schedule = () => {
   const { isAuthenticated, user, isLoading } = useAuth();
   const { intent, updateStep } = useRegistrationIntent();
   const { schedule } = useTenant();
+  const isBuilder = useIsBuilder();
+
+  const displaySchedule = schedule.length > 0 ? schedule : (isBuilder ? SAMPLE_SCHEDULE : []);
+  const isSample = schedule.length === 0 && isBuilder;
 
   const weeklySchedule: ClassSchedule[] = useMemo(() =>
-    schedule.map(entry => ({
+    displaySchedule.map(entry => ({
       id: entry.id,
       day: entry.day_of_week,
       time: entry.start_time,
       className: entry.class_name,
       coach: undefined,
       capacity: entry.max_capacity,
-    })), [schedule]);
+    })), [displaySchedule]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<ClassSchedule | null>(null);
@@ -208,6 +214,56 @@ const Schedule = () => {
         </Container>
       </Section>
 
+      {isSample ? (
+        <EmptyStatePreview
+          title="Class Schedule"
+          description="Show your weekly timetable with class types, times, and booking. Add classes to your schedule from the dashboard."
+        >
+          <Section spacing="large">
+            <Container size="large">
+              <div className={styles.scheduleGrid}>
+                <div className={styles.scheduleHeader}>
+                  <div className={styles.timeHeaderCell}></div>
+                  {daysOfWeek.map(day => (
+                    <div key={day} className={styles.dayHeaderCell}>
+                      {dayLabels[day as keyof typeof dayLabels]}
+                    </div>
+                  ))}
+                </div>
+                {timeSlots.map(time => (
+                  <div key={time} className={styles.scheduleRow}>
+                    <div className={styles.timeCell}>{time}</div>
+                    {daysOfWeek.map(day => {
+                      const classInfo = getClassForTimeAndDay(time, day);
+                      return (
+                        <div
+                          key={`${time}-${day}`}
+                          className={`${styles.classCell} ${classInfo ? getClassTypeStyle(classInfo.className) : styles.cellEmpty}`}
+                        >
+                          {classInfo ? (
+                            <div className={styles.cellContent}>
+                              <div className={styles.cellClassName}>
+                                <div className={styles.desktopSingleClass}>
+                                  <span className={getBadgeForClassType(classInfo.className).badge}>
+                                    {getBadgeForClassType(classInfo.className).label}
+                                  </span>
+                                  <span>{classInfo.className}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className={styles.emptyCellContent}>-</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </Container>
+          </Section>
+        </EmptyStatePreview>
+      ) : (
       <Section spacing="large">
         <Container size="large">
           {/* Desktop/Tablet Grid View */}
@@ -355,6 +411,7 @@ const Schedule = () => {
           </div>
         </Container>
       </Section>
+      )}
 
       <AuthModal
         isOpen={isAuthModalOpen}

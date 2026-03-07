@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { analyticsService, type UpcomingWODAnalysis, type ProgrammingHealth, type WeekComparison } from '../../services/analyticsService';
 import type { WorkoutAnalytics, AnalyticsPeriod, MuscleGroup } from '../../types';
 import { InfoTooltip } from '../common/InfoTooltip';
+import { EmptyStatePreview } from '../common';
+import { SAMPLE_ANALYTICS } from '../../data/sampleContent';
 import styles from './CoachAnalytics.module.scss';
 import { ModalityChart } from './Charts/ModalityChart';
 import { FunctionalRadarChart } from './Charts/FunctionalRadarChart';
@@ -285,10 +287,324 @@ export const CoachAnalytics: React.FC = () => {
       </div>
 
       {analytics.totalWorkouts === 0 ? (
-        <div className={styles.noData}>
-          <p>No workouts found in this time period.</p>
-          <p>Create some workouts to see analytics!</p>
-        </div>
+        <EmptyStatePreview
+          title="Workout Analytics"
+          description="Track muscle group targeting, workout types, programming balance, and more. Create workouts to see your real analytics here."
+        >
+          {(() => {
+            const sampleData = SAMPLE_ANALYTICS;
+            const sampleMuscleGroups: MuscleGroup[] = ['legs', 'shoulders', 'core', 'back', 'chest', 'arms'];
+            const rawMax = Math.max(
+              ...sampleData.dailyMuscleData.flatMap(day =>
+                day.muscleGroups.map(mg => mg.hitCount)
+              ),
+              1
+            );
+            const sampleMaxHits = rawMax * 1.15;
+
+            return (
+              <>
+                {/* Main Analytics Grid */}
+                <div className={styles.mainAnalyticsGrid}>
+                  {/* Left Column: Graph + Insights */}
+                  <div className={styles.leftColumn}>
+                    {/* Muscle Group Line Graph */}
+                    <div className={`${styles.section} ${styles.graphSection}`}>
+                      <div className={styles.sectionHeader}>
+                        <h3>Muscle Group Activity</h3>
+                      </div>
+                      <div className={styles.lineGraphContainer}>
+                        <div className={styles.graphGrid}>
+                          <div className={styles.yAxis}>
+                            <span>{rawMax.toFixed(0)}</span>
+                            <span>{(rawMax * 0.5).toFixed(0)}</span>
+                            <span>0</span>
+                          </div>
+                          <div className={styles.chartArea}>
+                            <div className={styles.gridLines}>
+                              <div className={styles.gridLine} />
+                              <div className={styles.gridLine} />
+                              <div className={styles.gridLine} />
+                            </div>
+                            <div className={styles.dataColumns}>
+                              {sampleData.dailyMuscleData.map((day, dayIdx) => (
+                                <div key={dayIdx} className={styles.dataColumn}>
+                                  <div className={styles.columnLine} />
+                                  {sampleMuscleGroups.map(muscleGroup => {
+                                    const mgData = day.muscleGroups.find(mg => mg.muscleGroup === muscleGroup);
+                                    const hitCount = mgData?.hitCount || 0;
+                                    const heightPercent = (hitCount / sampleMaxHits) * 100;
+                                    return hitCount > 0 ? (
+                                      <div
+                                        key={muscleGroup}
+                                        className={styles.dataPoint}
+                                        style={{
+                                          bottom: `${heightPercent}%`,
+                                          backgroundColor: muscleGroupColors[muscleGroup],
+                                          boxShadow: `0 0 8px ${muscleGroupColors[muscleGroup]}, 0 0 16px ${muscleGroupColors[muscleGroup]}60`,
+                                        }}
+                                      />
+                                    ) : null;
+                                  })}
+                                </div>
+                              ))}
+                            </div>
+                            <svg className={styles.linesOverlay} viewBox="0 0 100 100" preserveAspectRatio="none">
+                              {sampleMuscleGroups.map(muscleGroup => {
+                                const points = sampleData.dailyMuscleData.map((day, idx) => {
+                                  const mgData = day.muscleGroups.find(mg => mg.muscleGroup === muscleGroup);
+                                  const hitCount = mgData?.hitCount || 0;
+                                  const x = sampleData.dailyMuscleData.length > 1
+                                    ? (idx / (sampleData.dailyMuscleData.length - 1)) * 100
+                                    : 50;
+                                  const y = 100 - (hitCount / sampleMaxHits) * 100;
+                                  return `${x},${y}`;
+                                }).join(' ');
+                                return (
+                                  <polyline
+                                    key={muscleGroup}
+                                    points={points}
+                                    fill="none"
+                                    stroke={muscleGroupColors[muscleGroup]}
+                                    strokeWidth="1"
+                                    strokeOpacity="0.4"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    vectorEffect="non-scaling-stroke"
+                                  />
+                                );
+                              })}
+                            </svg>
+                          </div>
+                        </div>
+                        <div className={styles.xAxis}>
+                          {sampleData.dailyMuscleData.map((day, idx) => (
+                            <div key={idx} className={styles.xLabel}>
+                              <span className={styles.dayName}>{day.dayLabel}</span>
+                              <span className={styles.dayNum}>{new Date(day.date).getDate()}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className={styles.lineGraphLegend}>
+                          {sampleMuscleGroups.map(mg => (
+                            <div key={mg} className={styles.legendItem}>
+                              <span className={styles.legendColor} style={{ backgroundColor: muscleGroupColors[mg] }} />
+                              <span className={styles.legendText}>{mg}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Programming Health & Week Comparison */}
+                    <div className={styles.insightsRow}>
+                      <div className={`${styles.section} ${styles.insightSection}`}>
+                        <div className={styles.sectionHeaderCompact}>
+                          <h3>Programming Health</h3>
+                        </div>
+                        <div className={styles.healthContent}>
+                          <div className={styles.scoreCard}>
+                            <div className={styles.scoreHeader}>
+                              <span className={styles.scoreLabel}>Balance</span>
+                            </div>
+                            <div className={styles.scoreBar}>
+                              <div className={`${styles.scoreBarFill} ${styles.balanceBar}`} style={{ width: '78%' }} />
+                            </div>
+                            <span className={styles.scoreValue}>78%</span>
+                          </div>
+                          <div className={styles.scoreCard}>
+                            <div className={styles.scoreHeader}>
+                              <span className={styles.scoreLabel}>Variety</span>
+                              <span className={styles.scoreSubtext}>10 unique</span>
+                            </div>
+                            <div className={styles.scoreBar}>
+                              <div className={`${styles.scoreBarFill} ${styles.varietyBar}`} style={{ width: '65%' }} />
+                            </div>
+                            <span className={styles.scoreValue}>65%</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className={`${styles.section} ${styles.insightSection}`}>
+                        <div className={styles.sectionHeaderCompact}>
+                          <h3>Weekly Volume</h3>
+                        </div>
+                        <div className={styles.weeklyVolumeContent}>
+                          <div className={styles.workoutCountHeader}>
+                            <div className={styles.workoutCountMain}>
+                              <span className={styles.workoutCountTitle}>Workouts</span>
+                              <div className={styles.workoutCountComparison}>
+                                <span className={styles.workoutCountValue}>5</span>
+                                <span className={styles.workoutCountVs}>vs</span>
+                                <span className={styles.workoutCountValueLast}>4</span>
+                                <span className={styles.workoutCountLastLabel}>last week</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className={styles.volumeBarsContainer}>
+                            {sampleData.muscleGroupDistribution.map(({ muscleGroup, hitCount }) => (
+                              <div key={muscleGroup} className={styles.volumeBarRow}>
+                                <div className={styles.volumeBarLabel}>
+                                  <span className={styles.volumeBarDot} style={{ backgroundColor: muscleGroupColors[muscleGroup as MuscleGroup] }} />
+                                  <span className={styles.volumeBarName}>{muscleGroup.charAt(0).toUpperCase() + muscleGroup.slice(1)}</span>
+                                </div>
+                                <div className={styles.volumeBarTrack}>
+                                  <div className={styles.volumeBarThis} style={{ width: `${(hitCount / 8) * 100}%`, backgroundColor: muscleGroupColors[muscleGroup as MuscleGroup] }} />
+                                </div>
+                                <div className={styles.volumeBarValues}>
+                                  <span className={styles.volumeBarCurrent}>{hitCount.toFixed(0)}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Muscle Group Summary */}
+                  <div className={`${styles.section} ${styles.barSection}`}>
+                    <div className={styles.sectionHeader}>
+                      <h3>Muscle Group Totals</h3>
+                    </div>
+                    <div className={styles.chartContainer}>
+                      {sampleData.muscleGroupDistribution.map(stat => {
+                        const bias = sampleData.detectedBiases.find(b => b.muscleGroup === stat.muscleGroup);
+                        const status = bias?.status || 'balanced';
+                        const statusColors = {
+                          balanced: 'rgba(34, 197, 94, 0.8)',
+                          underused: 'rgba(251, 191, 36, 0.8)',
+                          overused: 'rgba(239, 68, 68, 0.8)',
+                        };
+                        return (
+                          <div key={stat.muscleGroup} className={styles.barItem}>
+                            <div className={styles.barLabel}>
+                              <span className={styles.muscleGroupName} style={{
+                                backgroundColor: statusColors[status],
+                                padding: '0.25rem 0.75rem',
+                                borderRadius: '9999px',
+                                color: status === 'underused' ? '#1f2937' : '#ffffff',
+                                fontSize: '0.75rem',
+                                textTransform: 'uppercase',
+                                fontWeight: '700',
+                              }}>
+                                {stat.muscleGroup}
+                              </span>
+                              <span className={styles.percentage}>{stat.percentage.toFixed(1)}%</span>
+                            </div>
+                            <div className={styles.barTrack}>
+                              <div className={`${styles.barFill} ${bias ? getStatusColor(bias.status) : styles.balanced}`} style={{ width: `${Math.min(stat.percentage, 100)}%` }} />
+                            </div>
+                            <div className={styles.barMeta}>
+                              <span className={styles.hitCount}>{stat.hitCount.toFixed(1)} movements</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Programming Insights */}
+                <div className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <h3>Programming Insights</h3>
+                  </div>
+                  <div className={styles.chartsGrid}>
+                    {sampleData.modalityDistribution && (
+                      <ModalityChart data={sampleData.modalityDistribution} />
+                    )}
+                    {sampleData.functionalPatternBreakdown && (
+                      <FunctionalRadarChart data={sampleData.functionalPatternBreakdown} />
+                    )}
+                    {sampleData.heavyDaysCount !== undefined && (
+                      <HeavyDayTracker count={sampleData.heavyDaysCount} periodLabel="this week" />
+                    )}
+                  </div>
+                  {sampleData.timeDomainBreakdown && (
+                    <div style={{ marginTop: '1rem' }}>
+                      <TimeDomainChart data={sampleData.timeDomainBreakdown} />
+                    </div>
+                  )}
+                </div>
+
+                {/* Workout Type Breakdown */}
+                <div className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <h3>Workout Type Breakdown</h3>
+                  </div>
+                  <div className={styles.typeGrid}>
+                    {sampleData.workoutTypeBreakdown.map(stat => (
+                      <div key={stat.type} className={styles.typeCard}>
+                        <div className={styles.typeName}>{stat.type.toUpperCase()}</div>
+                        <div className={styles.typeCount}>{stat.count}</div>
+                        <div className={styles.typePercentage}>{stat.percentage.toFixed(0)}%</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Top Movements */}
+                <div className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <h3>Top 10 Most Used Movements</h3>
+                  </div>
+                  <div className={styles.topMovementsList}>
+                    {sampleData.topMovements.map(stat => (
+                      <div key={stat.movementName} className={styles.topMovementItem}>
+                        <div className={styles.rank}>#{stat.rank}</div>
+                        <div className={styles.movementName}>{stat.movementName}</div>
+                        <div className={styles.count}>{stat.count}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Detected Biases */}
+                {sampleData.detectedBiases.some(b => b.status !== 'balanced') && (
+                  <div className={styles.section}>
+                    <div className={styles.sectionHeader}>
+                      <h3>Detected Biases</h3>
+                    </div>
+                    <div className={styles.biasGrid}>
+                      {sampleData.detectedBiases
+                        .filter(bias => bias.status !== 'balanced')
+                        .map(bias => (
+                          <div key={bias.muscleGroup} className={`${styles.biasCard} ${getStatusColor(bias.status)}`}>
+                            <div className={styles.biasHeader}>
+                              <span className={styles.biasIcon}>{getStatusIcon(bias.status)}</span>
+                              <span className={styles.biasLabel}>{bias.muscleGroup.charAt(0).toUpperCase() + bias.muscleGroup.slice(1)}</span>
+                            </div>
+                            <div className={styles.biasStats}>
+                              <span>{bias.percentage.toFixed(1)}%</span>
+                              <span>({bias.hitCount.toFixed(1)} movements)</span>
+                            </div>
+                            <div className={styles.biasAction}>
+                              {bias.status === 'overused' ? 'Consider reducing' : 'Consider increasing'}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Recommendations */}
+                <div className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <h3>Recommendations</h3>
+                  </div>
+                  <ul className={styles.recommendationsList}>
+                    {sampleData.recommendations.map((rec, idx) => (
+                      <li key={idx} className={styles.recommendationItem}>
+                        <span className={styles.suggestion}>💡 {rec}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            );
+          })()}
+        </EmptyStatePreview>
       ) : (
         <>
           {/* Main Analytics Grid - Graph + Insights on left, Bar chart on right */}

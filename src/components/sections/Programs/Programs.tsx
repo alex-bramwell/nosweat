@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { Section, Container, Card, Button } from '../../common';
+import { Section, Container, Card, Button, EmptyStatePreview } from '../../common';
 import { ProgramModal } from '../../ProgramModal';
 import { useTenant } from '../../../contexts/TenantContext';
+import { useIsBuilder } from '../../../contexts/BrandingOverrideContext';
+import { SAMPLE_PROGRAMS } from '../../../data/sampleContent';
 import styles from './Programs.module.scss';
 
 const Programs = () => {
   const { programs, schedule } = useTenant();
+  const isBuilder = useIsBuilder();
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
 
   // Map program level to a generic style class
@@ -39,11 +42,14 @@ const Programs = () => {
     return 'Check schedule';
   };
 
-  if (programs.length === 0) {
+  const displayPrograms = programs.length > 0 ? programs : (isBuilder ? SAMPLE_PROGRAMS : []);
+  const isSample = programs.length === 0 && isBuilder;
+
+  if (displayPrograms.length === 0) {
     return null;
   }
 
-  return (
+  const content = (
     <Section spacing="large" background="default">
       <Container>
         <div className={styles.header}>
@@ -55,7 +61,7 @@ const Programs = () => {
         </div>
 
         <div className={styles.grid}>
-          {programs.map((program) => (
+          {displayPrograms.map((program) => (
             <Card key={program.id} variant="elevated" hoverable>
               <div className={styles.programCard}>
                 <div className={`${styles.level} ${getLevelStyle(program.level)}`}>
@@ -104,6 +110,19 @@ const Programs = () => {
       )}
     </Section>
   );
+
+  if (isSample) {
+    return (
+      <EmptyStatePreview
+        title="Programs & Memberships"
+        description="Showcase your gym's programs with pricing, features, and class frequency. Add programs from your dashboard to replace this preview."
+      >
+        {content}
+      </EmptyStatePreview>
+    );
+  }
+
+  return content;
 };
 
 export default Programs;

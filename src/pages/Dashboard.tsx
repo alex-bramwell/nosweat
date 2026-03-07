@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Section, Container, Card, Button } from '../components/common';
+import { Section, Container, Card, Button, EmptyStatePreview } from '../components/common';
 import { ProfileSettings } from '../components/ProfileSettings';
 import { WeeklyVolume } from '../components/WeeklyVolume';
 import { ServiceBookingModal } from '../components/ServiceBookingModal';
 import { workoutService } from '../services/workoutService';
 import { coachServicesService, type CoachService, type ServiceBooking, SERVICE_LABELS, SERVICE_DESCRIPTIONS } from '../services/coachServicesService';
+import { SAMPLE_WORKOUT } from '../data/sampleContent';
 import type { WorkoutDB } from '../types';
 import styles from './Dashboard.module.scss';
 
@@ -354,11 +355,49 @@ const Dashboard = () => {
                     </div>
                   </Card>
                 ) : (
-                  <Card variant="elevated">
-                    <div style={{ padding: '2rem', textAlign: 'center' }}>
-                      No workout scheduled for today. Check back later!
-                    </div>
-                  </Card>
+                  <EmptyStatePreview
+                    title="Today's Workout"
+                    description="Your daily workout will appear here once your coach publishes it. Check back soon!"
+                  >
+                    <Card variant="elevated">
+                      <div className={styles.wodCard}>
+                        <div className={styles.wodHeader}>
+                          <h3 className={styles.wodTitle}>
+                            {new Date().toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </h3>
+                          <span className={styles.wodType}>{SAMPLE_WORKOUT.type.toUpperCase()}</span>
+                        </div>
+
+                        {SAMPLE_WORKOUT.warmup && SAMPLE_WORKOUT.warmup.length > 0 && (
+                          <div className={styles.wodSection}>
+                            <h4 className={styles.wodSectionTitle}>Warm-Up</h4>
+                            <ul className={styles.wodList}>
+                              {SAMPLE_WORKOUT.warmup.map((item, idx) => (
+                                <li key={idx}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {SAMPLE_WORKOUT.metcon && SAMPLE_WORKOUT.metcon.length > 0 && (
+                          <div className={styles.wodSection}>
+                            <h4 className={styles.wodSectionTitle}>
+                              MetCon {SAMPLE_WORKOUT.duration && `(${SAMPLE_WORKOUT.duration})`}
+                            </h4>
+                            <ul className={styles.wodList}>
+                              {SAMPLE_WORKOUT.metcon.map((item, idx) => (
+                                <li key={idx}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  </EmptyStatePreview>
                 )}
               </div>
             )}

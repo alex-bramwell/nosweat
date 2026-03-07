@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Section, Container, Button } from '../../common';
 import { TrialModal } from '../../TrialModal';
-import { useTenant } from '../../../contexts/TenantContext';
+import { useBrandingWithOverrides } from '../../../hooks/useBrandingWithOverrides';
 import styles from './CTA.module.scss';
 
 const CTA = () => {
-  const { branding } = useTenant();
+  const branding = useBrandingWithOverrides();
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
 
   const openTrialModal = () => {

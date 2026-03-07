@@ -1,9 +1,11 @@
 import { Section, Container, Card, Button } from '../components/common';
 import { useTenant } from '../contexts/TenantContext';
+import { useBrandingWithOverrides } from '../hooks/useBrandingWithOverrides';
 import styles from './About.module.scss';
 
 const About = () => {
-  const { gym, branding } = useTenant();
+  const { gym } = useTenant();
+  const branding = useBrandingWithOverrides();
 
   return (
     <>

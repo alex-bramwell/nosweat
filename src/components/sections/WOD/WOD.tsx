@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Section, Container, Card, Button } from '../../common';
+import { Section, Container, Card, Button, EmptyStatePreview } from '../../common';
 import { WeeklyVolume } from '../../WeeklyVolume';
 import { workoutService } from '../../../services/workoutService';
 import { wodBookingService, MAX_WORKOUT_CAPACITY } from '../../../services/wodBookingService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTenant } from '../../../contexts/TenantContext';
+import { useIsBuilder } from '../../../contexts/BrandingOverrideContext';
+import { SAMPLE_WORKOUT, SAMPLE_STATS } from '../../../data/sampleContent';
 import type { WorkoutDB } from '../../../types';
 import styles from './WOD.module.scss';
 
 const WOD = () => {
   const { user } = useAuth();
   const { gym, stats } = useTenant();
+  const isBuilder = useIsBuilder();
   const [workout, setWorkout] = useState<WorkoutDB | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [bookingCount, setBookingCount] = useState(0);
@@ -109,7 +112,11 @@ const WOD = () => {
     );
   }
 
-  if (!workout) {
+  const displayWorkout = workout ?? (isBuilder ? SAMPLE_WORKOUT : null);
+  const displayStats = stats.length > 0 ? stats : (isBuilder ? SAMPLE_STATS : []);
+  const isSample = !workout && isBuilder;
+
+  if (!displayWorkout) {
     return (
       <Section spacing="large" background="surface" id="wod">
         <Container>
@@ -121,14 +128,14 @@ const WOD = () => {
     );
   }
 
-  return (
+  const wodContent = (
     <Section spacing="large" background="surface" id="wod">
       <Container>
         <div className={styles.header}>
           <h2 className={styles.title}>Today at {gym?.name || 'the gym'}</h2>
           <p className={styles.subtitle}>
-            {stats.length >= 2
-              ? `Join one of our ${stats[0].value}${stats[0].suffix || ''} weekly classes with our team of ${stats[1].value} certified coaches`
+            {displayStats.length >= 2
+              ? `Join one of our ${displayStats[0].value}${displayStats[0].suffix || ''} weekly classes with our team of ${displayStats[1].value} certified coaches`
               : 'Join our expert-led classes and start your fitness journey today'}
           </p>
         </div>
@@ -139,12 +146,12 @@ const WOD = () => {
             <Card variant="elevated" padding="large">
           <div className={styles.wod}>
             <div className={styles.wodHeader}>
-              <h3 className={styles.wodTitle}>{workout.title}</h3>
-              <span className={styles.wodType}>{wodTypeLabels[workout.type]}</span>
+              <h3 className={styles.wodTitle}>{displayWorkout.title}</h3>
+              <span className={styles.wodType}>{wodTypeLabels[displayWorkout.type]}</span>
             </div>
 
             <div className={styles.wodDate}>
-              {new Date(workout.date).toLocaleDateString('en-US', {
+              {new Date(displayWorkout.date).toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
@@ -152,18 +159,18 @@ const WOD = () => {
               })}
             </div>
 
-            <p className={styles.description}>{workout.description}</p>
+            <p className={styles.description}>{displayWorkout.description}</p>
 
             <div className={styles.movements}>
-              {workout.metcon && workout.metcon.length > 0 ? (
-                workout.metcon.map((movement, index) => (
+              {displayWorkout.metcon && displayWorkout.metcon.length > 0 ? (
+                displayWorkout.metcon.map((movement, index) => (
                   <div key={index} className={styles.movement}>
                     <span className={styles.bullet}>•</span>
                     <span>{movement}</span>
                   </div>
                 ))
               ) : (
-                workout.movements.map((movement, index) => (
+                displayWorkout.movements.map((movement, index) => (
                   <div key={index} className={styles.movement}>
                     <span className={styles.bullet}>•</span>
                     <span>{movement}</span>
@@ -172,10 +179,10 @@ const WOD = () => {
               )}
             </div>
 
-            {workout.duration && (
+            {displayWorkout.duration && (
               <div className={styles.meta}>
                 <span className={styles.metaLabel}>Time Cap:</span>
-                <span className={styles.metaValue}>{workout.duration}</span>
+                <span className={styles.metaValue}>{displayWorkout.duration}</span>
               </div>
             )}
 
@@ -253,14 +260,14 @@ const WOD = () => {
               <h3 className={styles.sidebarTitle}>Why Train With Us</h3>
 
               {/* Stats */}
-              {stats[0] && (
+              {displayStats[0] && (
                 <>
                   <div className={styles.statItem}>
                     <div className={`${styles.statValue} ${styles.statValueGradient}`}>
-                      {stats[0].value}
-                      {stats[0].suffix && <span className={styles.suffix}>{stats[0].suffix}</span>}
+                      {displayStats[0].value}
+                      {displayStats[0].suffix && <span className={styles.suffix}>{displayStats[0].suffix}</span>}
                     </div>
-                    <div className={styles.statLabel}>{stats[0].label}</div>
+                    <div className={styles.statLabel}>{displayStats[0].label}</div>
                   </div>
                   <Button variant="outline" as="a" href="/schedule" className={styles.statCta}>
                     View Full Schedule
@@ -268,13 +275,13 @@ const WOD = () => {
                 </>
               )}
 
-              {stats[1] && (
+              {displayStats[1] && (
                 <div className={styles.statItem}>
                   <div className={styles.statValue}>
-                    {stats[1].value}
-                    {stats[1].suffix && <span className={styles.suffix}>{stats[1].suffix}</span>}
+                    {displayStats[1].value}
+                    {displayStats[1].suffix && <span className={styles.suffix}>{displayStats[1].suffix}</span>}
                   </div>
-                  <div className={styles.statLabel}>{stats[1].label}</div>
+                  <div className={styles.statLabel}>{displayStats[1].label}</div>
                 </div>
               )}
 
@@ -288,6 +295,19 @@ const WOD = () => {
       </Container>
     </Section>
   );
+
+  if (isSample) {
+    return (
+      <EmptyStatePreview
+        title="Workout of the Day"
+        description="Display today's workout with movements, time caps, and member booking. Coaches can create workouts from the Coach Dashboard."
+      >
+        {wodContent}
+      </EmptyStatePreview>
+    );
+  }
+
+  return wodContent;
 };
 
 export default WOD;

@@ -27,7 +27,7 @@
 
 .modal {
   background: var(--color-surface);
-  border-radius: 16px;
+  border-radius: var(--border-radius, 1rem);
   padding: 2.5rem;
   padding-right: 2rem; // Less padding on right to accommodate scrollbar
   max-width: 500px;
