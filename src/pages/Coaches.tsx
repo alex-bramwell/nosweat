@@ -88,8 +88,8 @@ const Coaches = () => {
     return (
       <Card
         key={id || index}
-        variant="elevated"
-        padding="large"
+        variant="raised"
+        padding="spacious"
         id={id}
         className={location.hash === `#${id}` ? styles.highlighted : ''}
       >
@@ -111,7 +111,7 @@ const Coaches = () => {
 
             {/* Services Offered */}
             {services.length > 0 && (
-              <div className={styles.section}>
+              <div className={styles.coachDetailSection}>
                 <h4 className={styles.sectionTitle}>Services Offered</h4>
                 <div className={styles.servicesBadges}>
                   {services.map((serviceType) => (
@@ -124,12 +124,12 @@ const Coaches = () => {
             )}
 
             {certifications && certifications.length > 0 && (
-              <div className={styles.section}>
+              <div className={styles.coachDetailSection}>
                 <h4 className={styles.sectionTitle}>Certifications</h4>
-                <ul className={styles.list}>
+                <ul className={styles.certificationList}>
                   {certifications.map((cert, i) => (
-                    <li key={i} className={styles.listItem}>
-                      <span className={styles.bullet}>"</span>
+                    <li key={i} className={styles.certificationItem}>
+                      <span className={styles.certificationBullet}>"</span>
                       {cert}
                     </li>
                   ))}
@@ -138,7 +138,7 @@ const Coaches = () => {
             )}
 
             {specialties && specialties.length > 0 && (
-              <div className={styles.section}>
+              <div className={styles.coachDetailSection}>
                 <h4 className={styles.sectionTitle}>Specialties</h4>
                 <div className={styles.specialties}>
                   {specialties.map((specialty, i) => (
@@ -158,7 +158,7 @@ const Coaches = () => {
   return (
     <>
       {/* Hero Section */}
-      <Section spacing="large" background="dark" className={styles.heroSection}>
+      <Section spacing="relaxed" background="bold" className={styles.heroSection}>
         <Container>
           <div className={styles.hero}>
             <h1 className={styles.heroTitle}>Meet Our Coaches</h1>
@@ -172,7 +172,7 @@ const Coaches = () => {
       </Section>
 
       {/* Coaches Grid */}
-      <Section spacing="large" background="surface">
+      <Section spacing="relaxed" background="surface">
         <Container>
           {isLoading ? (
             <div className={styles.loading}>
@@ -200,7 +200,7 @@ const Coaches = () => {
       </Section>
 
       {/* CTA Section */}
-      <Section spacing="large" background="dark" className={styles.ctaSection}>
+      <Section spacing="relaxed" background="bold" className={styles.ctaSection}>
         <Container>
           <div className={styles.cta}>
             <h2 className={styles.ctaTitle}>Ready to Train with Our Coaches?</h2>
@@ -210,12 +210,12 @@ const Coaches = () => {
             </p>
             <div className={styles.ctaButtons}>
               <Link to="/login">
-                <Button variant="primary" size="large">
+                <Button variant="primary" size="prominent">
                   Login for My Services
                 </Button>
               </Link>
               <Link to={gymPath('/schedule')}>
-                <Button variant="outline" size="large">
+                <Button variant="outline" size="prominent">
                   View Class Schedule
                 </Button>
               </Link>

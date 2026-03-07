@@ -49,8 +49,8 @@ export const WorkoutSummaryDrawer: React.FC<WorkoutSummaryDrawerProps> = ({
     if (movements.length === 0) return null;
 
     return (
-      <div className={styles.section}>
-        <h4 className={styles.sectionTitle}>{title}</h4>
+      <div className={styles.workoutDrawerSection}>
+        <h4 className={styles.workoutDrawerSectionTitle}>{title}</h4>
         <ul className={styles.movementList}>
           {movements.map((movement, index) => (
             <li key={index} className={styles.movementItem}>
@@ -91,12 +91,12 @@ export const WorkoutSummaryDrawer: React.FC<WorkoutSummaryDrawerProps> = ({
           <span className={styles.handleText}>
             Workout Summary
           </span>
-          <span className={styles.badge}>{totalMovements}</span>
+          <span className={styles.workoutDrawerMovementCount}>{totalMovements}</span>
         </div>
       </button>
 
       {isExpanded && (
-        <div className={styles.content}>
+        <div className={styles.workoutDrawerContent}>
           {renderSection('Warmup', sectionMovements.warmup, 'warmup')}
           {renderSection('Strength', sectionMovements.strength, 'strength')}
           {renderSection('MetCon', sectionMovements.metcon, 'metcon')}

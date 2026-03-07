@@ -1,19 +1,19 @@
 @use '../../../styles/variables' as *;
 
 // Header
-.header {
+.wodSectionHeader {
   text-align: center;
   margin-bottom: 3rem;
 }
 
-.title {
+.wodSectionTitle {
   @include header;
   font-size: clamp(2rem, 4vw, 2.5rem);
   color: var(--color-text);
   margin-bottom: 0.75rem;
 }
 
-.subtitle {
+.wodSectionSubtitle {
   @include body;
   color: var(--color-muted);
   font-size: 1.125rem;
@@ -23,7 +23,7 @@
 }
 
 // Content Wrapper - Side by side on large screens
-.contentWrapper {
+.wodContentWrapper {
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -61,7 +61,7 @@
   text-align: left;
 }
 
-.wod {
+.wodCard {
   // Card content
 }
 
@@ -93,7 +93,7 @@
   border-radius: 0.25rem;
 }
 
-.description {
+.wodDescription {
   @include body;
   font-size: 1.125rem;
   color: var(--color-text);
@@ -101,14 +101,14 @@
   font-weight: 600;
 }
 
-.movements {
+.wodMovements {
   background: linear-gradient(135deg, rgba(var(--color-bg-dark-rgb), 0.9) 0%, rgba(var(--color-surface-rgb), 0.9) 100%);
   border-radius: var(--border-radius, 0.5rem);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
 }
 
-.movement {
+.wodMovementItem {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
@@ -122,14 +122,14 @@
   }
 }
 
-.bullet {
+.wodBullet {
   color: var(--color-accent);
   font-size: 1.5rem;
   line-height: 1;
   flex-shrink: 0;
 }
 
-.meta {
+.wodMeta {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -139,7 +139,7 @@
   margin-bottom: 1.5rem;
 }
 
-.metaLabel {
+.wodMetaLabel {
   @include body;
   color: var(--color-muted);
   font-weight: 600;
@@ -148,19 +148,19 @@
   letter-spacing: 0.05em;
 }
 
-.metaValue {
+.wodMetaValue {
   @include body;
   color: var(--color-accent);
   font-weight: 600;
   font-size: 1rem;
 }
 
-.footer {
+.wodFooter {
   border-top: 1px solid var(--color-bg-light);
   padding-top: 1.5rem;
 }
 
-.note {
+.wodNote {
   @include body;
   color: var(--color-muted);
   font-size: 0.9375rem;
@@ -170,7 +170,7 @@
 }
 
 // Sidebar
-.sidebar {
+.wodSidebar {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
@@ -181,7 +181,7 @@
   }
 }
 
-.statsCard {
+.wodStatsCard {
   background: linear-gradient(135deg, rgba(var(--color-bg-dark-rgb), 0.9) 0%, rgba(var(--color-surface-rgb), 0.9) 100%);
   border-radius: var(--border-radius, 0.75rem);
   padding: 2rem;
@@ -191,7 +191,7 @@
   flex: 1;
 }
 
-.sidebarTitle {
+.wodSidebarTitle {
   @include header;
   font-size: 1.25rem;
   color: var(--color-text);
@@ -230,7 +230,7 @@
   color: transparent;
 }
 
-.suffix {
+.wodSuffix {
   font-size: 0.7em;
   margin-left: 0.1em;
 }
@@ -244,13 +244,13 @@
   font-weight: 600;
 }
 
-.statCta {
+.wodStatAction {
   margin-top: 1rem;
   margin-bottom: 1.5rem;
   width: 100%;
 }
 
-.sidebarCta {
+.wodSidebarAction {
   margin-top: 1.5rem;
   width: 100%;
 }

@@ -40,8 +40,8 @@ export const WorkoutViewDrawer: React.FC<WorkoutViewDrawerProps> = ({
     if (!movements || movements.length === 0) return null;
 
     return (
-      <div className={styles.section}>
-        <h4 className={styles.sectionTitle}>{title}</h4>
+      <div className={styles.workoutDrawerSection}>
+        <h4 className={styles.workoutDrawerSectionTitle}>{title}</h4>
         <ul className={styles.movementList}>
           {movements.map((movement, index) => (
             <li key={index} className={styles.movementItem}>
@@ -71,16 +71,16 @@ export const WorkoutViewDrawer: React.FC<WorkoutViewDrawerProps> = ({
           <span className={styles.handleText}>
             Workout Summary
           </span>
-          <span className={styles.badge}>{totalMovements}</span>
+          <span className={styles.workoutDrawerMovementCount}>{totalMovements}</span>
         </div>
       </button>
 
       {isExpanded && (
-        <div className={styles.content}>
+        <div className={styles.workoutDrawerContent}>
           {/* Workout Header */}
-          <div className={viewStyles.header}>
-            <div className={viewStyles.headerInfo}>
-              <h3 className={viewStyles.title}>{workout.title}</h3>
+          <div className={viewStyles.workoutViewHeader}>
+            <div className={viewStyles.workoutViewHeaderInfo}>
+              <h3 className={viewStyles.workoutViewTitle}>{workout.title}</h3>
               <p className={viewStyles.date}>
                 {new Date(workout.date).toLocaleDateString('en-US', {
                   weekday: 'long',
@@ -91,9 +91,9 @@ export const WorkoutViewDrawer: React.FC<WorkoutViewDrawerProps> = ({
               </p>
               <span className={viewStyles.type}>{workout.type.toUpperCase()}</span>
             </div>
-            <div className={viewStyles.headerActions}>
+            <div className={viewStyles.workoutViewHeaderActions}>
               {canEdit && onEdit && (
-                <Button variant="outline" size="small" onClick={onEdit}>
+                <Button variant="outline" size="compact" onClick={onEdit}>
                   Edit Workout
                 </Button>
               )}
@@ -111,7 +111,7 @@ export const WorkoutViewDrawer: React.FC<WorkoutViewDrawerProps> = ({
           </div>
 
           {workout.description && (
-            <p className={viewStyles.description}>{workout.description}</p>
+            <p className={viewStyles.workoutViewDescription}>{workout.description}</p>
           )}
 
           {/* Workout Sections */}
@@ -122,7 +122,7 @@ export const WorkoutViewDrawer: React.FC<WorkoutViewDrawerProps> = ({
 
           {/* Bookings */}
           <div className={viewStyles.bookings}>
-            <h4 className={styles.sectionTitle}>
+            <h4 className={styles.workoutDrawerSectionTitle}>
               Bookings
               <span className={viewStyles.bookingCount}>
                 {bookings.length} / {maxCapacity}

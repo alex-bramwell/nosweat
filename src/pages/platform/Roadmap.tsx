@@ -125,7 +125,7 @@ const Roadmap = () => {
   if (loading) {
     return (
       <div className={styles.roadmapPage}>
-        <div className={styles.loading}>Loading roadmap...</div>
+        <div className={styles.roadmapLoadingState}>Loading roadmap...</div>
       </div>
     );
   }
@@ -133,15 +133,15 @@ const Roadmap = () => {
   return (
     <div className={styles.roadmapPage}>
       {/* Header */}
-      <header className={styles.header}>
-        <h1 className={styles.title}>Roadmap</h1>
-        <p className={styles.subtitle}>
+      <header className={styles.roadmapHeader}>
+        <h1 className={styles.roadmapTitle}>Roadmap</h1>
+        <p className={styles.roadmapSubtitle}>
           See what we're building next. Vote for the features you want most.
         </p>
       </header>
 
       {/* Content */}
-      <div className={styles.content}>
+      <div className={styles.roadmapContent}>
         {statusGroups.map((group) => (
           <section key={group.status} className={styles.statusSection}>
             <div className={styles.statusHeader}>

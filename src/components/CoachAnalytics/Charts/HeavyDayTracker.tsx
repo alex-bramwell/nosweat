@@ -18,12 +18,12 @@ export const HeavyDayTracker: React.FC<HeavyDayTrackerProps> = ({ count, periodL
                 <h4 className={styles.chartTitle}>Heavy Days</h4>
                 <InfoTooltip content="Number of days focused on heavy lifting (Strength/Power). Aim for at least 1 heavy day per week to maintain strength alongside conditioning." />
             </div>
-            <div className={styles.statCard}>
-                <div className={`${styles.statValue} ${styles.heavy}`}>{count}</div>
-                <div className={styles.statTarget}>Target: {target} / {periodLabel}</div>
+            <div className={styles.chartStatDisplay}>
+                <div className={`${styles.chartStatValue} ${styles.heavy}`}>{count}</div>
+                <div className={styles.chartStatTarget}>Target: {target} / {periodLabel}</div>
 
-                <div className={styles.barTrack}>
-                    <div className={styles.barFill} style={{ width: `${progress}%` }} />
+                <div className={styles.chartProgressTrack}>
+                    <div className={styles.chartProgressFill} style={{ width: `${progress}%` }} />
                 </div>
             </div>
         </div>

@@ -47,11 +47,11 @@ const PlatformSignup = () => {
         <h1 className={styles.authTitle}>Create your account</h1>
         <p className={styles.authSubtitle}>Start your 14-day free trial.</p>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {error && <div className={styles.error}>{error}</div>}
+        <form onSubmit={handleSubmit} className={styles.authForm}>
+          {error && <div className={styles.authErrorBanner}>{error}</div>}
 
-          <div className={styles.formGroup}>
-            <label htmlFor="email" className={styles.label}>
+          <div className={styles.authFieldGroup}>
+            <label htmlFor="email" className={styles.authFieldLabel}>
               Email
             </label>
             <input
@@ -60,13 +60,13 @@ const PlatformSignup = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className={styles.input}
+              className={styles.authTextInput}
               placeholder="you@example.com"
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="password" className={styles.label}>
+          <div className={styles.authFieldGroup}>
+            <label htmlFor="password" className={styles.authFieldLabel}>
               Password
             </label>
             <input
@@ -76,7 +76,7 @@ const PlatformSignup = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className={styles.input}
+              className={styles.authTextInput}
               placeholder="••••••••"
             />
           </div>
@@ -86,9 +86,9 @@ const PlatformSignup = () => {
           </button>
         </form>
 
-        <div className={styles.footer}>
+        <div className={styles.authFooterNav}>
           Already have an account?{' '}
-          <Link to="/login" className={styles.link}>
+          <Link to="/login" className={styles.authInlineLink}>
             Log in
           </Link>
         </div>

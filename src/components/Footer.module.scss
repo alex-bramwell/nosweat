@@ -1,4 +1,4 @@
-.footer {
+.siteFooter {
   background: var(--color-surface);
   color: var(--color-footer);
   padding: 2rem 1rem;
@@ -37,7 +37,7 @@
     background-position: 200% 50%;
   }
 }
-.links {
+.footerNav {
   margin-bottom: 1.5rem;
   a {
     color: var(--color-accent);
@@ -48,14 +48,14 @@
   }
 }
 
-.socialLinks {
+.footerSocials {
   display: flex;
   justify-content: center;
   gap: 1rem;
   margin-bottom: 1.25rem;
 }
 
-.socialIcon {
+.socialLink {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,14 +77,14 @@
   }
 }
 
-.affiliate {
+.footerInfo {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   align-items: center;
 }
 
-.affiliateBadge {
+.footerBadge {
   font-family: var(--font-header);
   font-size: 1.1rem;
   color: var(--color-accent);
@@ -97,32 +97,32 @@
   margin-bottom: 0.5rem;
 }
 
-.copyright {
+.footerCopyright {
   font-size: 1rem;
   color: var(--color-footer);
 }
 
-.disclaimer {
+.footerDisclaimer {
   font-size: 0.85rem;
   color: var(--color-muted);
   opacity: 0.8;
 }
 @container (max-width: 768px) {
-  .footer {
+  .siteFooter {
     font-size: 0.9rem;
     padding: 1rem 0.5rem;
   }
 
-  .affiliateBadge {
+  .footerBadge {
     font-size: 1rem;
     padding: 0.4rem 1rem;
   }
 
-  .copyright {
+  .footerCopyright {
     font-size: 0.9rem;
   }
 
-  .disclaimer {
+  .footerDisclaimer {
     font-size: 0.75rem;
   }
 }

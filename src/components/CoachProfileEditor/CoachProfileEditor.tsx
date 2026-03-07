@@ -116,12 +116,12 @@ export const CoachProfileEditor = ({ onSave }: CoachProfileEditorProps) => {
   };
 
   if (isLoading) {
-    return <div className={styles.loading}>Loading profile...</div>;
+    return <div className={styles.coachProfileLoading}>Loading profile...</div>;
   }
 
   return (
     <div className={styles.profileEditor}>
-      <div className={styles.header}>
+      <div className={styles.coachProfileHeader}>
         <h2>My Profile</h2>
         <p>Update your public profile information that appears on the Coaches page.</p>
       </div>
@@ -129,30 +129,30 @@ export const CoachProfileEditor = ({ onSave }: CoachProfileEditorProps) => {
       {success && <div className={styles.successMessage}>{success}</div>}
       {error && <div className={styles.errorMessage}>{error}</div>}
 
-      <div className={styles.form}>
+      <div className={styles.coachProfileForm}>
         {/* Basic Info */}
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Basic Information</h3>
+        <div className={styles.coachProfileSection}>
+          <h3 className={styles.coachProfileSectionTitle}>Basic Information</h3>
 
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
+          <div className={styles.coachProfileFieldRow}>
+            <div className={styles.coachProfileFieldGroup}>
               <label htmlFor="fullName">Display Name</label>
               <input
                 id="fullName"
                 type="text"
-                className={styles.input}
+                className={styles.coachProfileInput}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Your name"
               />
             </div>
 
-            <div className={styles.formGroup}>
+            <div className={styles.coachProfileFieldGroup}>
               <label htmlFor="title">Title / Role</label>
               <input
                 id="title"
                 type="text"
-                className={styles.input}
+                className={styles.coachProfileInput}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Head Coach, Senior Coach"
@@ -160,11 +160,11 @@ export const CoachProfileEditor = ({ onSave }: CoachProfileEditorProps) => {
             </div>
           </div>
 
-          <div className={styles.formGroup}>
+          <div className={styles.coachProfileFieldGroup}>
             <label htmlFor="bio">Bio</label>
             <textarea
               id="bio"
-              className={styles.textarea}
+              className={styles.coachProfileTextarea}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Write a brief bio about yourself, your coaching experience, and philosophy..."
@@ -175,8 +175,8 @@ export const CoachProfileEditor = ({ onSave }: CoachProfileEditorProps) => {
         </div>
 
         {/* Certifications */}
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Certifications</h3>
+        <div className={styles.coachProfileSection}>
+          <h3 className={styles.coachProfileSectionTitle}>Certifications</h3>
 
           <div className={styles.listInput}>
             {certifications.length > 0 && (
@@ -200,7 +200,7 @@ export const CoachProfileEditor = ({ onSave }: CoachProfileEditorProps) => {
             <div className={styles.addItemRow}>
               <input
                 type="text"
-                className={styles.input}
+                className={styles.coachProfileInput}
                 value={newCertification}
                 onChange={(e) => setNewCertification(e.target.value)}
                 onKeyPress={(e) => handleKeyPress(e, addCertification)}
@@ -219,8 +219,8 @@ export const CoachProfileEditor = ({ onSave }: CoachProfileEditorProps) => {
         </div>
 
         {/* Specialties */}
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Specialties</h3>
+        <div className={styles.coachProfileSection}>
+          <h3 className={styles.coachProfileSectionTitle}>Specialties</h3>
 
           <div className={styles.listInput}>
             {specialties.length > 0 && (
@@ -244,7 +244,7 @@ export const CoachProfileEditor = ({ onSave }: CoachProfileEditorProps) => {
             <div className={styles.addItemRow}>
               <input
                 type="text"
-                className={styles.input}
+                className={styles.coachProfileInput}
                 value={newSpecialty}
                 onChange={(e) => setNewSpecialty(e.target.value)}
                 onKeyPress={(e) => handleKeyPress(e, addSpecialty)}
@@ -263,8 +263,8 @@ export const CoachProfileEditor = ({ onSave }: CoachProfileEditorProps) => {
         </div>
 
         {/* Preview */}
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Preview</h3>
+        <div className={styles.coachProfileSection}>
+          <h3 className={styles.coachProfileSectionTitle}>Preview</h3>
           <div className={styles.preview}>
             <span className={styles.previewTitle}>How you&apos;ll appear on the Coaches page</span>
             <h4 className={styles.previewName}>{fullName || 'Your Name'}</h4>
@@ -276,7 +276,7 @@ export const CoachProfileEditor = ({ onSave }: CoachProfileEditorProps) => {
         </div>
 
         {/* Actions */}
-        <div className={styles.actions}>
+        <div className={styles.coachProfileActions}>
           <button
             type="button"
             className={styles.cancelButton}

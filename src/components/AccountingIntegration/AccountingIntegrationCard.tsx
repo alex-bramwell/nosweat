@@ -82,7 +82,7 @@ export const AccountingIntegrationCard = ({
   };
 
   return (
-    <Card variant="default">
+    <Card variant="flat">
       <div className={styles.integrationCard}>
         <div className={styles.integrationHeader}>
           <div className={styles.providerInfo}>
@@ -123,7 +123,7 @@ export const AccountingIntegrationCard = ({
 
           {!isConnected && !hasError && (
             <div>
-              <p className={styles.description}>
+              <p className={styles.integrationDescription}>
                 Connect your {providerName} account to automatically sync payment transactions
                 for accounting reconciliation.
               </p>

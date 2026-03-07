@@ -1,6 +1,6 @@
 @use '../../../styles/variables' as *;
 
-.overlay {
+.modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -25,7 +25,7 @@
   }
 }
 
-.modal {
+.modalContent {
   background: var(--color-surface);
   border-radius: var(--border-radius, 1rem);
   padding: 2.5rem;
@@ -97,15 +97,15 @@
 }
 
 // Size variants
-.small {
+.sizeCompact {
   max-width: 400px;
 }
 
-.medium {
+.sizeDefault {
   max-width: 500px;
 }
 
-.large {
+.sizeWide {
   max-width: 900px;
 
   @media (max-width: 968px) {
@@ -113,7 +113,7 @@
   }
 }
 
-.fullscreen {
+.sizeFullscreen {
   max-width: 95vw;
   max-height: 95vh;
   width: 95vw;
@@ -128,7 +128,7 @@
   }
 }
 
-.closeButton {
+.modalClose {
   position: absolute;
   top: 1rem;
   right: 1rem;

@@ -162,14 +162,14 @@ const FeatureTogglePanel: React.FC = () => {
   return (
     <div className={styles.featurePanel}>
       {message && (
-        <div className={`${styles.message} ${styles[message.type]}`}>
+        <div className={`${styles.featureMessage} ${styles[message.type]}`}>
           {message.text}
         </div>
       )}
 
       {Object.entries(featuresByCategory).map(([category, categoryFeatures]) => (
-        <div key={category} className={styles.category}>
-          <h2 className={styles.categoryTitle}>{categoryLabels[category]}</h2>
+        <div key={category} className={styles.featureCategory}>
+          <h2 className={styles.featureCategoryTitle}>{categoryLabels[category]}</h2>
           <div className={styles.featureGrid}>
             {categoryFeatures.map((feature) => {
               const isEnabled = features[feature.key];

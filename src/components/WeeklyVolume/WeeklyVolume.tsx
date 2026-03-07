@@ -51,8 +51,8 @@ export const WeeklyVolume: React.FC = () => {
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading...</div>
+      <div className={styles.weeklyVolumePanel}>
+        <div className={styles.weeklyVolumeLoading}>Loading...</div>
       </div>
     );
   }
@@ -64,15 +64,15 @@ export const WeeklyVolume: React.FC = () => {
   const maxHits = Math.max(...weeklyData.muscleGroups.map(mg => mg.hitCount), 1);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <h3 className={styles.title}>This Week's Focus</h3>
+    <div className={styles.weeklyVolumePanel}>
+      <div className={styles.weeklyVolumeHeader}>
+        <div className={styles.weeklyVolumeHeaderTop}>
+          <h3 className={styles.weeklyVolumeTitle}>This Week's Focus</h3>
           <div className={styles.workoutBadge}>
             {weeklyData.totalWorkouts} workout{weeklyData.totalWorkouts !== 1 ? 's' : ''}
           </div>
         </div>
-        <p className={styles.subtitle}>
+        <p className={styles.weeklyVolumeSubtitle}>
           Targeting your whole body with balanced programming
         </p>
       </div>
@@ -106,8 +106,8 @@ export const WeeklyVolume: React.FC = () => {
         ))}
       </div>
 
-      <div className={styles.footer}>
-        <p className={styles.footerText}>
+      <div className={styles.weeklyVolumeFooter}>
+        <p className={styles.weeklyVolumeFooterText}>
           Our coaches design balanced programming to develop all muscle groups and movement patterns for complete fitness.
         </p>
       </div>

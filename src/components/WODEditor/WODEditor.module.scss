@@ -1,16 +1,16 @@
-.editor {
+.wodEditorForm {
   max-width: 900px;
   margin: 0 auto;
 }
 
-.title {
+.wodEditorHeading {
   font-size: 1.75rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
   color: var(--color-text);
 }
 
-.error {
+.wodEditorError {
   background: rgba(255, 68, 68, 0.1);
   color: #ff4444;
   padding: 1rem;
@@ -19,7 +19,7 @@
   border: 1px solid rgba(255, 68, 68, 0.3);
 }
 
-.formRow {
+.wodEditorFieldRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -30,7 +30,7 @@
   }
 }
 
-.formGroup {
+.wodEditorFieldGroup {
   margin-bottom: 1.5rem;
 
   label {
@@ -78,7 +78,7 @@
   }
 }
 
-.actions {
+.wodEditorActions {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;

@@ -162,17 +162,17 @@ const ProfileSettings: React.FC = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Profile Settings</h2>
-        <p className={styles.subtitle}>Manage your membership, personal information and security</p>
+    <div className={styles.profileSettingsPage}>
+      <div className={styles.profileSettingsHeader}>
+        <h2 className={styles.profileSettingsTitle}>Profile Settings</h2>
+        <p className={styles.profileSettingsSubtitle}>Manage your membership, personal information and security</p>
       </div>
 
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Membership Overview</h3>
+      <div className={styles.profileSection}>
+        <h3 className={styles.profileSectionTitle}>Membership Overview</h3>
 
         <div className={styles.membershipActions}>
-          <h4 className={styles.actionsTitle}>Membership Actions</h4>
+          <h4 className={styles.profileFormActionsTitle}>Membership Actions</h4>
           <div className={styles.actionButtons}>
             <Button variant="primary">Upgrade Membership</Button>
             <Button variant="secondary">Update Payment Method</Button>
@@ -181,14 +181,14 @@ const ProfileSettings: React.FC = () => {
         </div>
 
         <div className={styles.membershipGrid}>
-          <Card variant="elevated">
+          <Card variant="raised">
             <div className={styles.infoCard}>
               <div className={styles.infoLabel}>Membership Type</div>
               <div className={styles.infoValue}>{getMembershipTypeName(user.membershipType)}</div>
             </div>
           </Card>
 
-          <Card variant="elevated">
+          <Card variant="raised">
             <div className={styles.infoCard}>
               <div className={styles.infoLabel}>Member Since</div>
               <div className={styles.infoValue}>
@@ -200,14 +200,14 @@ const ProfileSettings: React.FC = () => {
             </div>
           </Card>
 
-          <Card variant="elevated">
+          <Card variant="raised">
             <div className={styles.infoCard}>
               <div className={styles.infoLabel}>Email</div>
               <div className={styles.infoValue}>{user.email}</div>
             </div>
           </Card>
 
-          <Card variant="elevated">
+          <Card variant="raised">
             <div className={styles.infoCard}>
               <div className={styles.infoLabel}>Status</div>
               <div className={styles.infoValueActive}>Active</div>
@@ -218,51 +218,51 @@ const ProfileSettings: React.FC = () => {
 
       {/* Divider removed above personal info section */}
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Personal Information</h3>
+      <form onSubmit={handleSubmit} className={styles.profileForm}>
+        <div className={styles.profileSection}>
+          <h3 className={styles.profileSectionTitle}>Personal Information</h3>
 
-          <div className={styles.field}>
-            <label htmlFor="email" className={styles.label}>Email</label>
+          <div className={styles.profileFieldGroup}>
+            <label htmlFor="email" className={styles.profileFieldLabel}>Email</label>
             <input
               id="email"
               type="email"
               value={user.email}
-              className={styles.input}
+              className={styles.profileInput}
               disabled
             />
             <p className={styles.helpText}>Email cannot be changed</p>
           </div>
 
-          <div className={styles.field}>
-            <label htmlFor="name" className={styles.label}>Full Name *</label>
+          <div className={styles.profileFieldGroup}>
+            <label htmlFor="name" className={styles.profileFieldLabel}>Full Name *</label>
             <input
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={styles.input}
+              className={styles.profileInput}
               placeholder="Enter your full name"
               disabled={isLoading}
               required
             />
           </div>
 
-          <div className={styles.field}>
-            <label htmlFor="phone" className={styles.label}>Phone Number</label>
+          <div className={styles.profileFieldGroup}>
+            <label htmlFor="phone" className={styles.profileFieldLabel}>Phone Number</label>
             <input
               id="phone"
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className={styles.input}
+              className={styles.profileInput}
               placeholder="(555) 123-4567"
               disabled={isLoading}
             />
           </div>
 
-          <div className={styles.field}>
-            <label className={styles.label}>Membership Type</label>
+          <div className={styles.profileFieldGroup}>
+            <label className={styles.profileFieldLabel}>Membership Type</label>
             <div className={styles.badge}>
               {(user.membershipType ? user.membershipType.replace('-', ' ').toUpperCase() : 'Unknown')}
             </div>
@@ -270,40 +270,40 @@ const ProfileSettings: React.FC = () => {
           </div>
         </div>
 
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Emergency Contact</h3>
+        <div className={styles.profileSection}>
+          <h3 className={styles.profileSectionTitle}>Emergency Contact</h3>
 
-          <div className={styles.field}>
-            <label htmlFor="emergencyContact" className={styles.label}>Emergency Contact Name</label>
+          <div className={styles.profileFieldGroup}>
+            <label htmlFor="emergencyContact" className={styles.profileFieldLabel}>Emergency Contact Name</label>
             <input
               id="emergencyContact"
               type="text"
               value={emergencyContact}
               onChange={(e) => setEmergencyContact(e.target.value)}
-              className={styles.input}
+              className={styles.profileInput}
               placeholder="Contact name"
               disabled={isLoading}
             />
           </div>
 
-          <div className={styles.field}>
-            <label htmlFor="emergencyPhone" className={styles.label}>Emergency Contact Phone</label>
+          <div className={styles.profileFieldGroup}>
+            <label htmlFor="emergencyPhone" className={styles.profileFieldLabel}>Emergency Contact Phone</label>
             <input
               id="emergencyPhone"
               type="tel"
               value={emergencyPhone}
               onChange={(e) => setEmergencyPhone(e.target.value)}
-              className={styles.input}
+              className={styles.profileInput}
               placeholder="(555) 123-4567"
               disabled={isLoading}
             />
           </div>
         </div>
 
-        {error && <div className={styles.error}>{error}</div>}
-        {success && <div className={styles.success}>{success}</div>}
+        {error && <div className={styles.profileError}>{error}</div>}
+        {success && <div className={styles.profileSuccess}>{success}</div>}
 
-        <div className={styles.actions}>
+        <div className={styles.profileFormActions}>
           <Button
             type="submit"
             variant="primary"
@@ -314,22 +314,22 @@ const ProfileSettings: React.FC = () => {
         </div>
       </form>
 
-      <div className={styles.divider} />
+      <div className={styles.profileSectionDivider} />
 
-      <form onSubmit={handlePasswordChange} className={styles.form}>
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Change Password</h3>
-          <p className={styles.subtitle}>Update your account password</p>
+      <form onSubmit={handlePasswordChange} className={styles.profileForm}>
+        <div className={styles.profileSection}>
+          <h3 className={styles.profileSectionTitle}>Change Password</h3>
+          <p className={styles.profileSettingsSubtitle}>Update your account password</p>
 
-          <div className={styles.field}>
-            <label htmlFor="newPassword" className={styles.label}>New Password *</label>
+          <div className={styles.profileFieldGroup}>
+            <label htmlFor="newPassword" className={styles.profileFieldLabel}>New Password *</label>
             <div className={styles.passwordInputWrapper}>
               <input
                 id="newPassword"
                 type={showPassword ? 'text' : 'password'}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className={styles.input}
+                className={styles.profileInput}
                 placeholder="Enter your new password"
                 disabled={isPasswordLoading}
                 autoComplete="new-password"
@@ -439,15 +439,15 @@ const ProfileSettings: React.FC = () => {
             )}
           </div>
 
-          <div className={styles.field}>
-            <label htmlFor="confirmPassword" className={styles.label}>Confirm New Password *</label>
+          <div className={styles.profileFieldGroup}>
+            <label htmlFor="confirmPassword" className={styles.profileFieldLabel}>Confirm New Password *</label>
             <div className={styles.passwordInputWrapper}>
               <input
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className={styles.input}
+                className={styles.profileInput}
                 placeholder="Confirm your new password"
                 disabled={isPasswordLoading}
                 autoComplete="new-password"
@@ -480,10 +480,10 @@ const ProfileSettings: React.FC = () => {
           </div>
         </div>
 
-        {passwordError && <div className={styles.error}>{passwordError}</div>}
-        {passwordSuccess && <div className={styles.success}>{passwordSuccess}</div>}
+        {passwordError && <div className={styles.profileError}>{passwordError}</div>}
+        {passwordSuccess && <div className={styles.profileSuccess}>{passwordSuccess}</div>}
 
-        <div className={styles.actions}>
+        <div className={styles.profileFormActions}>
           <Button
             type="submit"
             variant="primary"

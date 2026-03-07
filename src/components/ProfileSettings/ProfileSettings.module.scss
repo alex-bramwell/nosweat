@@ -1,18 +1,18 @@
 @use '../../styles/variables' as *;
 
-.container {
+.profileSettingsPage {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
 }
 
-.header {
+.profileSettingsHeader {
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   /* Divider removed: border-bottom */
 }
 
-.title {
+.profileSettingsTitle {
   @include header;
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   color: var(--color-text);
@@ -23,20 +23,20 @@
   background-clip: text;
 }
 
-.subtitle {
+.profileSettingsSubtitle {
   @include body;
   font-size: 0.95rem;
   color: var(--color-muted);
   line-height: 1.5;
 }
 
-.form {
+.profileForm {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-.section {
+.profileSection {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -51,13 +51,13 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.field {
+.profileFieldGroup {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.label {
+.profileFieldLabel {
   @include header;
   font-size: 0.875rem;
   color: var(--color-secondary);
@@ -67,7 +67,7 @@
   margin-bottom: 0.25rem;
 }
 
-.input {
+.profileInput {
   @include body;
   width: 100%;
   padding: 1rem 1.25rem;
@@ -126,7 +126,7 @@
   width: fit-content;
 }
 
-.error {
+.profileError {
   @include body;
   padding: 0.875rem 1.125rem;
   background: linear-gradient(135deg, rgba(255, 153, 0, 0.08) 0%, rgba(255, 128, 0, 0.12) 100%);
@@ -150,7 +150,7 @@
   }
 }
 
-.success {
+.profileSuccess {
   @include body;
   padding: 1rem 1.25rem;
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%);
@@ -192,7 +192,7 @@
   }
 }
 
-.divider {
+.profileSectionDivider {
   width: 100%;
   height: 1px;
   background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
@@ -204,7 +204,7 @@
   display: flex;
   align-items: center;
 
-  .input {
+  .profileInput {
     padding-right: 3.5rem;
   }
 }
@@ -433,7 +433,7 @@
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-.actions {
+.profileFormActions {
   display: flex;
   justify-content: flex-start;
   padding-top: 1rem;
@@ -504,11 +504,11 @@
 }
 
 @media (max-width: 768px) {
-  .container {
+  .profileSettingsPage {
     padding: 1.5rem 1rem;
   }
 
-  .actions {
+  .profileFormActions {
     button {
       width: 100%;
     }

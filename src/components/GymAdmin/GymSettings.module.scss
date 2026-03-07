@@ -4,7 +4,7 @@
   gap: 2rem;
 }
 
-.message {
+.settingsMessage {
   padding: 1rem 1.5rem;
   border-radius: var(--border-radius);
   font-weight: 500;
@@ -34,26 +34,26 @@
   }
 }
 
-.section {
+.settingsSection {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.sectionTitle {
+.settingsSectionTitle {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-header);
   margin: 0;
 }
 
-.formGrid {
+.settingsFormGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
-.formField {
+.settingsFormField {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -65,7 +65,7 @@
   }
 }
 
-.input {
+.settingsInput {
   padding: 0.75rem 1rem;
   border: 1px solid var(--color-bg-dark);
   border-radius: var(--border-radius);
@@ -94,13 +94,13 @@
   }
 }
 
-.fieldHelp {
+.settingsFieldHelp {
   font-size: 0.875rem;
   color: var(--color-muted);
   font-style: italic;
 }
 
-.actions {
+.settingsActions {
   display: flex;
   justify-content: flex-end;
   padding-top: 1rem;
@@ -109,11 +109,11 @@
 
 // Responsive
 @media (max-width: 768px) {
-  .formGrid {
+  .settingsFormGrid {
     grid-template-columns: 1fr;
   }
 
-  .actions {
+  .settingsActions {
     button {
       width: 100%;
     }

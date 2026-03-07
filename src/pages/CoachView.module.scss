@@ -1,10 +1,10 @@
 @import '../styles/variables';
 
-.dashboard {
+.coachViewDashboard {
   min-height: 80vh;
 }
 
-.header {
+.coachViewHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -16,7 +16,7 @@
   }
 }
 
-.title {
+.coachViewTitle {
   font-size: 2.5rem;
   font-weight: 800;
   margin: 0 0 0.5rem 0;
@@ -26,13 +26,13 @@
   background-clip: text;
 }
 
-.subtitle {
+.coachViewSubtitle {
   font-size: 1rem;
   color: var(--text-secondary);
   margin: 0;
 }
 
-.tabs {
+.coachViewTabs {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
@@ -44,7 +44,7 @@
   }
 }
 
-.tab {
+.coachViewTab {
   padding: 1rem 1.5rem;
   background: none;
   border: none;
@@ -75,7 +75,7 @@
   }
 }
 
-.content {
+.coachViewContent {
   min-height: 400px;
 }
 
@@ -94,7 +94,7 @@
   }
 }
 
-.sectionTitle {
+.coachViewSectionHeading {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -519,7 +519,7 @@
   }
 }
 
-.closeButton {
+.coachViewCloseButton {
   background: none;
   border: none;
   font-size: 1.5rem;

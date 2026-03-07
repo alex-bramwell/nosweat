@@ -4,7 +4,7 @@
   gap: 3rem;
 }
 
-.message {
+.featureMessage {
   padding: 1rem 1.5rem;
   border-radius: var(--border-radius);
   font-weight: 500;
@@ -34,13 +34,13 @@
   }
 }
 
-.category {
+.featureCategory {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.categoryTitle {
+.featureCategoryTitle {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-header);

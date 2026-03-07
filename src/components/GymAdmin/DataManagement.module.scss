@@ -4,7 +4,7 @@
   gap: 2rem;
 }
 
-.message {
+.dataMessage {
   padding: 1rem 1.5rem;
   border-radius: var(--border-radius);
   font-weight: 500;
@@ -34,20 +34,20 @@
   }
 }
 
-.section {
+.dataSection {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.sectionTitle {
+.dataSectionTitle {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-header);
   margin: 0;
 }
 
-.sectionDescription {
+.dataSectionDescription {
   font-size: 1rem;
   color: var(--color-muted);
   margin: 0;

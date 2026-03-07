@@ -112,21 +112,21 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       <div className={styles.classDetails}>
         <h3>Class Details</h3>
         <div className={styles.detailRow}>
-          <span className={styles.label}>Class:</span>
-          <span className={styles.value}>{selectedClass.className}</span>
+          <span className={styles.paymentDetailLabel}>Class:</span>
+          <span className={styles.paymentDetailValue}>{selectedClass.className}</span>
         </div>
         <div className={styles.detailRow}>
-          <span className={styles.label}>Day:</span>
-          <span className={styles.value}>{selectedClass.day}</span>
+          <span className={styles.paymentDetailLabel}>Day:</span>
+          <span className={styles.paymentDetailValue}>{selectedClass.day}</span>
         </div>
         <div className={styles.detailRow}>
-          <span className={styles.label}>Time:</span>
-          <span className={styles.value}>{selectedClass.time}</span>
+          <span className={styles.paymentDetailLabel}>Time:</span>
+          <span className={styles.paymentDetailValue}>{selectedClass.time}</span>
         </div>
         {selectedClass.coach && (
           <div className={styles.detailRow}>
-            <span className={styles.label}>Coach:</span>
-            <span className={styles.value}>{selectedClass.coach}</span>
+            <span className={styles.paymentDetailLabel}>Coach:</span>
+            <span className={styles.paymentDetailValue}>{selectedClass.coach}</span>
           </div>
         )}
       </div>
@@ -145,7 +145,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       <Button
         type="submit"
         variant="primary"
-        size="large"
+        size="prominent"
         fullWidth
         disabled={!stripe || isProcessing}
       >
@@ -232,32 +232,32 @@ const DayPassPaymentModal: React.FC<DayPassPaymentModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
-      <div className={styles.content}>
-        <h2 className={styles.title}>Complete Your Day Pass Purchase</h2>
+      <div className={styles.paymentBody}>
+        <h2 className={styles.paymentTitle}>Complete Your Day Pass Purchase</h2>
 
         {isLoading && (
-          <div className={styles.loading}>
-            <div className={styles.spinner}></div>
+          <div className={styles.paymentLoading}>
+            <div className={styles.paymentSpinner}></div>
             <p>Preparing secure payment...</p>
           </div>
         )}
 
         {error && (
-          <div className={styles.error}>
+          <div className={styles.paymentError}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="8" x2="12" y2="12"></line>
               <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
             <p>{error}</p>
-            <Button variant="secondary" size="medium" onClick={createPaymentIntent}>
+            <Button variant="secondary" size="default" onClick={createPaymentIntent}>
               Try Again
             </Button>
           </div>
         )}
 
         {isSuccess && (
-          <div className={styles.success}>
+          <div className={styles.paymentConfirmation}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
               <polyline points="22 4 12 14.01 9 11.01"></polyline>

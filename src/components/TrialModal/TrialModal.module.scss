@@ -1,6 +1,6 @@
 @import '../../styles/variables';
 
-.content {
+.trialBody {
   padding: 2rem;
 }
 
@@ -97,7 +97,7 @@
   width: 100%;
 }
 
-.title {
+.trialTitle {
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--color-text);
@@ -105,7 +105,7 @@
   text-align: center;
 }
 
-.subtitle {
+.trialSubtitle {
   font-size: 1rem;
   color: var(--color-muted);
   margin: 0 0 2rem 0;
@@ -137,7 +137,7 @@
   width: 100%;
 }
 
-.icon {
+.trialBenefitIcon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -168,7 +168,7 @@
   margin: 0;
 }
 
-.actions {
+.trialActions {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -176,13 +176,13 @@
   width: 100%;
 }
 
-.note {
+.trialSigninNote {
   font-size: 0.9375rem;
   color: var(--color-muted);
   margin: 0;
 }
 
-.link {
+.trialSigninLink {
   background: none;
   border: none;
   color: var(--color-secondary);
@@ -229,7 +229,7 @@
 
 // Responsive
 @media (max-width: 768px) {
-  .content {
+  .trialBody {
     padding: 1.5rem;
   }
 
@@ -253,7 +253,7 @@
     margin-bottom: 1.5rem;
   }
 
-  .title {
+  .trialTitle {
     font-size: 1.5rem;
   }
 }

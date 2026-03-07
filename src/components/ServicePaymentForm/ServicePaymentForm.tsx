@@ -152,11 +152,11 @@ const PaymentFormInner: React.FC<PaymentFormInnerProps> = ({
         </p>
       </div>
 
-      <div className={styles.actions}>
+      <div className={styles.servicePaymentActions}>
         <Button
           type="button"
           variant="secondary"
-          size="medium"
+          size="default"
           onClick={onCancel}
           disabled={isProcessing}
         >
@@ -165,7 +165,7 @@ const PaymentFormInner: React.FC<PaymentFormInnerProps> = ({
         <Button
           type="submit"
           variant="primary"
-          size="medium"
+          size="default"
           disabled={!stripe || isProcessing}
         >
           {isProcessing ? 'Processing...' : `Pay £${(amount / 100).toFixed(2)}`}
@@ -194,7 +194,7 @@ export const ServicePaymentForm: React.FC<ServicePaymentFormProps> = ({
 }) => {
   if (!stripePromise) {
     return (
-      <div className={styles.error}>
+      <div className={styles.servicePaymentError}>
         <p>Payment processing is not available. Please contact support.</p>
       </div>
     );

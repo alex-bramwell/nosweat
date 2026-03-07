@@ -96,194 +96,194 @@ const GymSettings: React.FC = () => {
   return (
     <div className={styles.gymSettings}>
       {message && (
-        <div className={`${styles.message} ${styles[message.type]}`}>
+        <div className={`${styles.settingsMessage} ${styles[message.type]}`}>
           {message.text}
         </div>
       )}
 
-      <Card className={styles.section}>
-        <h2 className={styles.sectionTitle}>Gym Information</h2>
-        <div className={styles.formGrid}>
-          <div className={styles.formField}>
+      <Card className={styles.settingsSection}>
+        <h2 className={styles.settingsSectionTitle}>Gym Information</h2>
+        <div className={styles.settingsFormGrid}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="name">Gym Name *</label>
             <input
               type="text"
               id="name"
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               required
             />
           </div>
 
-          <div className={styles.formField}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="slug">URL Slug (read-only)</label>
             <input
               type="text"
               id="slug"
               value={gym.slug}
-              className={styles.input}
+              className={styles.settingsInput}
               disabled
               readOnly
             />
-            <span className={styles.fieldHelp}>
+            <span className={styles.settingsFieldHelp}>
               Your gym's URL: nosweat.fitness/gym/{gym.slug}
             </span>
           </div>
         </div>
       </Card>
 
-      <Card className={styles.section}>
-        <h2 className={styles.sectionTitle}>Contact Information</h2>
-        <div className={styles.formGrid}>
-          <div className={styles.formField}>
+      <Card className={styles.settingsSection}>
+        <h2 className={styles.settingsSectionTitle}>Contact Information</h2>
+        <div className={styles.settingsFormGrid}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="contact_email">Contact Email</label>
             <input
               type="email"
               id="contact_email"
               value={formData.contact_email}
               onChange={(e) => handleChange('contact_email', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               placeholder="info@yourgym.com"
             />
           </div>
 
-          <div className={styles.formField}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="contact_phone">Contact Phone</label>
             <input
               type="tel"
               id="contact_phone"
               value={formData.contact_phone}
               onChange={(e) => handleChange('contact_phone', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               placeholder="+44 20 1234 5678"
             />
           </div>
         </div>
       </Card>
 
-      <Card className={styles.section}>
-        <h2 className={styles.sectionTitle}>Address</h2>
-        <div className={styles.formGrid}>
-          <div className={styles.formField}>
+      <Card className={styles.settingsSection}>
+        <h2 className={styles.settingsSectionTitle}>Address</h2>
+        <div className={styles.settingsFormGrid}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="address_line1">Address Line 1</label>
             <input
               type="text"
               id="address_line1"
               value={formData.address_line1}
               onChange={(e) => handleChange('address_line1', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               placeholder="123 Main Street"
             />
           </div>
 
-          <div className={styles.formField}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="address_line2">Address Line 2</label>
             <input
               type="text"
               id="address_line2"
               value={formData.address_line2}
               onChange={(e) => handleChange('address_line2', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               placeholder="Suite 100"
             />
           </div>
 
-          <div className={styles.formField}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="city">City</label>
             <input
               type="text"
               id="city"
               value={formData.city}
               onChange={(e) => handleChange('city', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               placeholder="London"
             />
           </div>
 
-          <div className={styles.formField}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="postcode">Postcode</label>
             <input
               type="text"
               id="postcode"
               value={formData.postcode}
               onChange={(e) => handleChange('postcode', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               placeholder="SW1A 1AA"
             />
           </div>
 
-          <div className={styles.formField}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="country">Country</label>
             <input
               type="text"
               id="country"
               value={formData.country}
               onChange={(e) => handleChange('country', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               placeholder="United Kingdom"
             />
           </div>
 
-          <div className={styles.formField}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="google_maps_embed_url">Google Maps Embed URL</label>
             <input
               type="url"
               id="google_maps_embed_url"
               value={formData.google_maps_embed_url}
               onChange={(e) => handleChange('google_maps_embed_url', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               placeholder="https://www.google.com/maps/embed?pb=..."
             />
-            <span className={styles.fieldHelp}>
+            <span className={styles.settingsFieldHelp}>
               Get this from Google Maps: Share → Embed a map → Copy HTML
             </span>
           </div>
         </div>
       </Card>
 
-      <Card className={styles.section}>
-        <h2 className={styles.sectionTitle}>Social Media</h2>
-        <div className={styles.formGrid}>
-          <div className={styles.formField}>
+      <Card className={styles.settingsSection}>
+        <h2 className={styles.settingsSectionTitle}>Social Media</h2>
+        <div className={styles.settingsFormGrid}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="social_facebook">Facebook URL</label>
             <input
               type="url"
               id="social_facebook"
               value={formData.social_facebook}
               onChange={(e) => handleChange('social_facebook', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               placeholder="https://facebook.com/yourgym"
             />
           </div>
 
-          <div className={styles.formField}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="social_instagram">Instagram URL</label>
             <input
               type="url"
               id="social_instagram"
               value={formData.social_instagram}
               onChange={(e) => handleChange('social_instagram', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               placeholder="https://instagram.com/yourgym"
             />
           </div>
 
-          <div className={styles.formField}>
+          <div className={styles.settingsFormField}>
             <label htmlFor="social_twitter">Twitter/X URL</label>
             <input
               type="url"
               id="social_twitter"
               value={formData.social_twitter}
               onChange={(e) => handleChange('social_twitter', e.target.value)}
-              className={styles.input}
+              className={styles.settingsInput}
               placeholder="https://twitter.com/yourgym"
             />
           </div>
         </div>
       </Card>
 
-      <div className={styles.actions}>
+      <div className={styles.settingsActions}>
         <Button onClick={handleSave} disabled={isLoading}>
           {isLoading ? 'Saving...' : 'Save Settings'}
         </Button>

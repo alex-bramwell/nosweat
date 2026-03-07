@@ -61,11 +61,11 @@ const PlatformLogin = () => {
         <h1 className={styles.authTitle}>Log in to your account</h1>
         <p className={styles.authSubtitle}>Welcome back! Manage your gym.</p>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {error && <div className={styles.error}>{error}</div>}
+        <form onSubmit={handleSubmit} className={styles.authForm}>
+          {error && <div className={styles.authErrorBanner}>{error}</div>}
 
-          <div className={styles.formGroup}>
-            <label htmlFor="email" className={styles.label}>
+          <div className={styles.authFieldGroup}>
+            <label htmlFor="email" className={styles.authFieldLabel}>
               Email
             </label>
             <input
@@ -74,13 +74,13 @@ const PlatformLogin = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className={styles.input}
+              className={styles.authTextInput}
               placeholder="you@example.com"
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="password" className={styles.label}>
+          <div className={styles.authFieldGroup}>
+            <label htmlFor="password" className={styles.authFieldLabel}>
               Password
             </label>
             <input
@@ -89,7 +89,7 @@ const PlatformLogin = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className={styles.input}
+              className={styles.authTextInput}
               placeholder="••••••••"
             />
           </div>
@@ -99,9 +99,9 @@ const PlatformLogin = () => {
           </button>
         </form>
 
-        <div className={styles.footer}>
+        <div className={styles.authFooterNav}>
           Don't have an account?{' '}
-          <Link to="/signup" className={styles.link}>
+          <Link to="/signup" className={styles.authInlineLink}>
             Sign up
           </Link>
         </div>

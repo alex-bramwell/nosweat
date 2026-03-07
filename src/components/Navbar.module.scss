@@ -1,6 +1,6 @@
 @use '../styles/variables' as *;
 
-.navbarContainer {
+.navbarWrapper {
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -16,7 +16,7 @@
 .navbarStandard {
   padding: 0;
 
-  .navbar {
+  .navBar {
     border-radius: 0;
     background: rgba(var(--color-surface-rgb, 255, 255, 255), 0.95);
     backdrop-filter: blur(12px);
@@ -29,7 +29,7 @@
       display: none;
     }
 
-    &.scrolled {
+    &.navBarScrolled {
       border: none;
       border-bottom: 1px solid rgba(var(--color-muted-rgb, 113, 113, 122), 0.2);
       background: rgba(var(--color-surface-rgb, 255, 255, 255), 0.97);
@@ -42,7 +42,7 @@
   }
 }
 
-.navbar {
+.navBar {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -82,7 +82,7 @@
     transition: opacity 0.6s ease-in-out;
   }
 
-  &.scrolled {
+  &.navBarScrolled {
     border: 2px solid transparent;
     background: rgba(var(--color-surface-rgb, 255, 255, 255), 0.92);
     backdrop-filter: blur(14px);
@@ -122,7 +122,7 @@
   }
 }
 
-.navDropdown {
+.navMenu {
   position: relative;
   z-index: 1001;
   margin-left: auto;
@@ -135,7 +135,7 @@
   }
 }
 
-.navDropdownButton {
+.navMenuButton {
   @include header;
   display: flex;
   align-items: center;
@@ -166,7 +166,7 @@
   }
 }
 
-.navDropdownContent {
+.navMenuContent {
   position: absolute;
   top: calc(100% + 0.75rem);
   left: 0;
@@ -182,7 +182,7 @@
   animation: dropdownSlide 0.2s ease-out;
 }
 
-.navDropdownItem {
+.navMenuItem {
   @include header;
   display: flex;
   align-items: center;
@@ -209,7 +209,7 @@
   }
 }
 
-.navDropdownItem_active {
+.navMenuItemActive {
   @include header;
   display: flex;
   align-items: center;
@@ -238,7 +238,7 @@
   }
 }
 
-.navDropdownWodActive {
+.navMenuItemHighlighted {
   background: linear-gradient(135deg, rgba(var(--color-secondary-rgb), 0.2) 0%, rgba(var(--color-secondary-rgb), 0.15) 100%);
   color: var(--color-secondary) !important;
   border-left: 3px solid var(--color-secondary);
@@ -257,7 +257,7 @@
   }
 }
 
-.logo {
+.navBrand {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -266,7 +266,7 @@
   text-decoration: none;
 }
 
-.logoImage {
+.navBrandImage {
   max-height: 40px;
   width: auto;
   object-fit: contain;
@@ -276,7 +276,7 @@
   }
 }
 
-.logoText {
+.navBrandName {
   font-size: 1.75rem;
   font-family: var(--font-header);
   color: var(--color-accent);
@@ -290,7 +290,7 @@
   }
 }
 
-.logoAffiliate {
+.navBrandSubtitle {
   font-size: 0.65rem;
   font-family: var(--font-body);
   color: var(--color-secondary);
@@ -305,7 +305,7 @@
   }
 }
 
-.hamburger {
+.navToggle {
   display: none;
   flex-direction: column;
   gap: 5px;
@@ -324,7 +324,7 @@
     transition: all 0.3s ease;
   }
 
-  &.hamburgerOpen {
+  &.navToggleOpen {
     span:nth-child(1) {
       transform: rotate(45deg) translate(8px, 8px);
     }
@@ -345,7 +345,7 @@
 }
 
 // Desktop actions (hidden on mobile)
-.desktopActions {
+.navActions {
   display: flex;
   gap: 1rem;
   align-items: center;
@@ -355,13 +355,13 @@
     display: none;
   }
 
-  .authButtons {
+  .authActions {
     display: flex;
     gap: 0.75rem;
     align-items: center;
   }
 
-  .signInButton {
+  .signInAction {
     @include header;
     padding: 0.625rem 1.5rem;
     border-radius: 12px;
@@ -382,7 +382,7 @@
     }
   }
 
-  .coachLoginButton {
+  .coachSignInAction {
     @include header;
     padding: 0.625rem 1.5rem;
     border-radius: 12px;
@@ -406,7 +406,7 @@
     position: relative;
   }
 
-  .userButton {
+  .userMenuButton {
     @include header;
     display: flex;
     align-items: center;
@@ -428,7 +428,7 @@
       filter: brightness(1.1);
     }
 
-    &.activeLink {
+    &.userMenuButtonActive {
       box-shadow: 0 4px 16px rgba(var(--color-specialty-rgb), 0.6);
       background: var(--color-specialty);
       filter: brightness(1.1);
@@ -436,19 +436,19 @@
     }
   }
 
-  .userName {
+  .userDisplayName {
     font-size: 1rem;
     font-weight: 600;
   }
 
-  .dropdownIcon {
+  .userMenuIcon {
     width: 16px;
     height: 16px;
     stroke: currentColor;
     transition: transform 0.2s ease;
   }
 
-  .userDropdown {
+  .userMenuDropdown {
     position: absolute;
     top: calc(100% + 0.5rem);
     right: 0;
@@ -464,7 +464,7 @@
     animation: dropdownSlide 0.2s ease-out;
   }
 
-  .dropdownItem {
+  .userMenuItem {
     @include header;
     display: flex;
     align-items: center;
@@ -536,7 +536,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.mobileMenuLogo {
+.mobileNavBrand {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -583,7 +583,7 @@
   gap: 0.5rem;
 }
 
-.mobileNavLink {
+.mobileNavItem {
   @include header;
   display: flex;
   align-items: center;
@@ -615,7 +615,7 @@
     }
   }
 
-  &.active {
+  &.mobileNavItemActive {
     background: linear-gradient(135deg, rgba(var(--color-secondary-rgb), 0.15) 0%, rgba(var(--color-secondary-rgb), 0.1) 100%);
     border-color: rgba(var(--color-secondary-rgb), 0.3);
     color: var(--color-secondary);
@@ -625,7 +625,7 @@
     }
   }
 
-  &.wodLink {
+  &.mobileNavItemWod {
     background: linear-gradient(135deg, rgba(var(--color-accent-rgb), 0.1) 0%, rgba(var(--color-accent-rgb), 0.05) 100%);
     border-color: rgba(var(--color-accent-rgb), 0.2);
 
@@ -638,7 +638,7 @@
       border-color: rgba(var(--color-accent-rgb), 0.4);
     }
 
-    &.active {
+    &.mobileNavItemActive {
       background: linear-gradient(135deg, rgba(var(--color-accent-rgb), 0.25) 0%, rgba(var(--color-accent-rgb), 0.15) 100%);
       border-color: var(--color-accent);
       color: var(--color-accent);
@@ -650,7 +650,7 @@
   }
 }
 
-.mobileMenuDivider {
+.mobileDivider {
   height: 1px;
   background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
   margin: 0.5rem 0;

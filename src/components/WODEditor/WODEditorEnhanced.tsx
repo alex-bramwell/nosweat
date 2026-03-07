@@ -190,8 +190,8 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
     const isRequired = section === 'metcon';
 
     return (
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
+      <div className={styles.wodEditorSection}>
+        <div className={styles.wodEditorSectionHeader}>
           <h3>
             {label}
             {isRequired && <span className={styles.required}>*</span>}
@@ -243,7 +243,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
                     {selection.weight && <span>Weight: {selection.weight}</span>}
                     {selection.distance && <span>Distance: {selection.distance}</span>}
                     {selection.duration && <span>Duration: {selection.duration}</span>}
-                    {selection.notes && <span className={styles.notes}>Note: {selection.notes}</span>}
+                    {selection.notes && <span className={styles.wodEditorNotes}>Note: {selection.notes}</span>}
                   </div>
                 </div>
                 <button
@@ -269,8 +269,8 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
     onChange: (value: string) => void
   ) => {
     return (
-      <div className={styles.section}>
-        <label htmlFor={section} className={styles.sectionLabel}>
+      <div className={styles.wodEditorSection}>
+        <label htmlFor={section} className={styles.wodEditorSectionLabel}>
           {label}
           {section === 'metcon' && <span className={styles.required}>*</span>}
         </label>
@@ -278,7 +278,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
           id={section}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={styles.textarea}
+          className={styles.wodEditorTextarea}
           rows={5}
           placeholder="One movement per line..."
         />
@@ -288,7 +288,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className={styles.wodEditor}>
-      <div className={styles.header}>
+      <div className={styles.wodEditorHeader}>
         <h2>{isEditing ? 'Edit Workout' : 'Create Workout'}</h2>
         <div className={styles.modeToggle}>
           <button
@@ -310,8 +310,8 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
 
       {/* Basic Info */}
       <div className={styles.basicInfo}>
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldRow}>
+          <div className={styles.wodEditorFieldGroup}>
             <label htmlFor="date">Date *</label>
             <input
               id="date"
@@ -319,23 +319,23 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
-              className={styles.input}
+              className={styles.wodEditorInput}
             />
           </div>
 
-          <div className={styles.formGroup}>
+          <div className={styles.wodEditorFieldGroup}>
             <label htmlFor="workoutType">Workout Type *</label>
             <Select
               options={workoutTypeOptions}
               value={workoutType}
               onChange={(value) => setWorkoutType(value as WorkoutFormData['workoutType'])}
               placeholder="Select workout type"
-              className={styles.selectWrapper}
+              className={styles.wodEditorSelectWrapper}
             />
           </div>
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <label htmlFor="title">Workout Title *</label>
           <input
             id="title"
@@ -344,11 +344,11 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
             onChange={(e) => setTitle(e.target.value)}
             required
             placeholder="e.g., Monday Madness, Fran, etc."
-            className={styles.input}
+            className={styles.wodEditorInput}
           />
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <div className={styles.toggleRow}>
             <span className={styles.toggleText}>Add workout description</span>
             <button
@@ -371,14 +371,14 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief workout description..."
-              className={styles.textarea}
+              className={styles.wodEditorTextarea}
               rows={3}
             />
           )}
         </div>
 
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldRow}>
+          <div className={styles.wodEditorFieldGroup}>
             <label htmlFor="duration">Duration</label>
             <DurationInput
               id="duration"
@@ -387,7 +387,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
             />
           </div>
 
-          <div className={styles.formGroup}>
+          <div className={styles.wodEditorFieldGroup}>
             <label htmlFor="rounds">Rounds</label>
             <NumberInput
               id="rounds"
@@ -423,8 +423,8 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
       </div>
 
       {/* Notes */}
-      <div className={styles.notes}>
-        <div className={styles.formGroup}>
+      <div className={styles.wodEditorNotes}>
+        <div className={styles.wodEditorFieldGroup}>
           <div className={styles.toggleRow}>
             <span className={styles.toggleText}>Add coach's notes</span>
             <button
@@ -447,13 +447,13 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
               value={coachNotes}
               onChange={(e) => setCoachNotes(e.target.value)}
               placeholder="Additional coaching cues, focus areas, etc..."
-              className={styles.textarea}
+              className={styles.wodEditorTextarea}
               rows={3}
             />
           )}
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <div className={styles.toggleRow}>
             <span className={styles.toggleText}>Add scaling notes</span>
             <button
@@ -476,7 +476,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
               value={scalingNotes}
               onChange={(e) => setScalingNotes(e.target.value)}
               placeholder="Scaling options for different fitness levels..."
-              className={styles.textarea}
+              className={styles.wodEditorTextarea}
               rows={3}
             />
           )}
@@ -484,7 +484,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
       </div>
 
       {/* Status and Actions */}
-      <div className={styles.footer}>
+      <div className={styles.wodEditorFooter}>
         <div className={styles.statusToggle}>
           <div className={styles.statusOption}>
             <input
@@ -526,7 +526,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
           </div>
         </div>
 
-        <div className={styles.actions}>
+        <div className={styles.wodEditorActions}>
           <button type="button" onClick={onCancel} className={styles.cancelButton}>
             Cancel
           </button>

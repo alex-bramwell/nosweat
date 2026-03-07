@@ -270,7 +270,7 @@ const Onboarding = () => {
 
   return (
     <div className={styles.onboarding}>
-      <div className={styles.container}>
+      <div className={styles.onboardingInner}>
         {/* Progress Bar */}
         {!launched && (
           <div className={styles.progress}>
@@ -301,20 +301,20 @@ const Onboarding = () => {
 
         {/* Step Content */}
         <div className={styles.stepContent}>
-          {error && <div className={styles.error}>{error}</div>}
+          {error && <div className={styles.onboardingErrorBanner}>{error}</div>}
 
           {/* Step 1: Your Details */}
           {currentStep === 1 && !launched && (
-            <div className={styles.step}>
+            <div className={styles.onboardingStepBody}>
               <h1 className={styles.stepTitle}>Your Details</h1>
               <p className={styles.stepDescription}>
                 Tell us a bit about yourself to get started.
               </p>
 
-              <form onSubmit={handleStep1Submit} className={styles.form}>
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="firstName" className={styles.label}>
+              <form onSubmit={handleStep1Submit} className={styles.onboardingForm}>
+                <div className={styles.onboardingFieldRow}>
+                  <div className={styles.onboardingFieldGroup}>
+                    <label htmlFor="firstName" className={styles.onboardingFieldLabel}>
                       First Name
                     </label>
                     <input
@@ -323,12 +323,12 @@ const Onboarding = () => {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       required
-                      className={styles.input}
+                      className={styles.onboardingTextInput}
                       placeholder="John"
                     />
                   </div>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="lastName" className={styles.label}>
+                  <div className={styles.onboardingFieldGroup}>
+                    <label htmlFor="lastName" className={styles.onboardingFieldLabel}>
                       Last Name
                     </label>
                     <input
@@ -337,22 +337,22 @@ const Onboarding = () => {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       required
-                      className={styles.input}
+                      className={styles.onboardingTextInput}
                       placeholder="Smith"
                     />
                   </div>
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="phone" className={styles.label}>
-                    Phone Number <span className={styles.labelOptional}>(optional)</span>
+                <div className={styles.onboardingFieldGroup}>
+                  <label htmlFor="phone" className={styles.onboardingFieldLabel}>
+                    Phone Number <span className={styles.onboardingFieldLabelOptional}>(optional)</span>
                   </label>
                   <input
                     id="phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className={styles.input}
+                    className={styles.onboardingTextInput}
                     placeholder="+44 7123 456789"
                   />
                 </div>
@@ -370,15 +370,15 @@ const Onboarding = () => {
 
           {/* Step 2: Your Gym */}
           {currentStep === 2 && !launched && (
-            <div className={styles.step}>
+            <div className={styles.onboardingStepBody}>
               <h1 className={styles.stepTitle}>Your Gym</h1>
               <p className={styles.stepDescription}>
                 Set up your gym's basic details. You can customise branding and features later.
               </p>
 
-              <form onSubmit={handleStep2Submit} className={styles.form}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="gymName" className={styles.label}>
+              <form onSubmit={handleStep2Submit} className={styles.onboardingForm}>
+                <div className={styles.onboardingFieldGroup}>
+                  <label htmlFor="gymName" className={styles.onboardingFieldLabel}>
                     Gym Name
                   </label>
                   <input
@@ -387,13 +387,13 @@ const Onboarding = () => {
                     value={gymName}
                     onChange={(e) => setGymName(e.target.value)}
                     required
-                    className={styles.input}
+                    className={styles.onboardingTextInput}
                     placeholder="My Awesome Gym"
                   />
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="slug" className={styles.label}>
+                <div className={styles.onboardingFieldGroup}>
+                  <label htmlFor="slug" className={styles.onboardingFieldLabel}>
                     Your Website URL
                   </label>
                   <div className={styles.slugInput}>
@@ -404,7 +404,7 @@ const Onboarding = () => {
                       value={slug}
                       onChange={(e) => setSlug(e.target.value)}
                       required
-                      className={styles.input}
+                      className={styles.onboardingTextInput}
                       placeholder="my-awesome-gym"
                     />
                   </div>
@@ -421,8 +421,8 @@ const Onboarding = () => {
                   )}
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="addressLine1" className={styles.label}>
+                <div className={styles.onboardingFieldGroup}>
+                  <label htmlFor="addressLine1" className={styles.onboardingFieldLabel}>
                     Address
                   </label>
                   <input
@@ -431,22 +431,22 @@ const Onboarding = () => {
                     value={addressLine1}
                     onChange={(e) => setAddressLine1(e.target.value)}
                     required
-                    className={styles.input}
+                    className={styles.onboardingTextInput}
                     placeholder="123 High Street"
                   />
                   <input
                     type="text"
                     value={addressLine2}
                     onChange={(e) => setAddressLine2(e.target.value)}
-                    className={styles.input}
+                    className={styles.onboardingTextInput}
                     placeholder="Unit 4 (optional)"
                     style={{ marginTop: '0.5rem' }}
                   />
                 </div>
 
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="city" className={styles.label}>
+                <div className={styles.onboardingFieldRow}>
+                  <div className={styles.onboardingFieldGroup}>
+                    <label htmlFor="city" className={styles.onboardingFieldLabel}>
                       City
                     </label>
                     <input
@@ -455,12 +455,12 @@ const Onboarding = () => {
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       required
-                      className={styles.input}
+                      className={styles.onboardingTextInput}
                       placeholder="London"
                     />
                   </div>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="postcode" className={styles.label}>
+                  <div className={styles.onboardingFieldGroup}>
+                    <label htmlFor="postcode" className={styles.onboardingFieldLabel}>
                       Postcode
                     </label>
                     <input
@@ -469,21 +469,21 @@ const Onboarding = () => {
                       value={postcode}
                       onChange={(e) => setPostcode(e.target.value)}
                       required
-                      className={styles.input}
+                      className={styles.onboardingTextInput}
                       placeholder="SW1A 1AA"
                     />
                   </div>
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="country" className={styles.label}>
+                <div className={styles.onboardingFieldGroup}>
+                  <label htmlFor="country" className={styles.onboardingFieldLabel}>
                     Country
                   </label>
                   <select
                     id="country"
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    className={styles.input}
+                    className={styles.onboardingTextInput}
                   >
                     <option value="GB">United Kingdom</option>
                     <option value="US">United States</option>
@@ -530,19 +530,19 @@ const Onboarding = () => {
 
           {/* Success State */}
           {launched && (
-            <div className={styles.success}>
-              <div className={styles.successAnimation}>
+            <div className={styles.onboardingSuccessState}>
+              <div className={styles.onboardingSuccessStateAnimation}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
               </div>
-              <h1 className={styles.successTitle}>Your gym is ready!</h1>
-              <p className={styles.successDescription}>
+              <h1 className={styles.onboardingSuccessStateTitle}>Your gym is ready!</h1>
+              <p className={styles.onboardingSuccessStateDescription}>
                 Your 14-day free trial has started. You have full access to all features
                 and can invite up to 5 members.
               </p>
-              <div className={styles.successUrl}>
+              <div className={styles.onboardingSuccessStateUrl}>
                 <strong>Your gym URL:</strong>
                 <br />
                 nosweat.fitness/gym/{slug}

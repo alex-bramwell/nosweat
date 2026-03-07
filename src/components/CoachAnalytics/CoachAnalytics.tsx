@@ -220,16 +220,16 @@ export const CoachAnalytics: React.FC = () => {
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading analytics...</div>
+      <div className={styles.coachAnalyticsPanel}>
+        <div className={styles.coachAnalyticsLoading}>Loading analytics...</div>
       </div>
     );
   }
 
   if (error || !analytics) {
     return (
-      <div className={styles.container}>
-        <div className={styles.error}>
+      <div className={styles.coachAnalyticsPanel}>
+        <div className={styles.coachAnalyticsError}>
           <p>{error || 'Failed to load analytics'}</p>
           <button onClick={loadAnalytics} className={styles.retryButton}>
             Retry
@@ -240,9 +240,9 @@ export const CoachAnalytics: React.FC = () => {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.coachAnalyticsPanel}>
       {/* Header */}
-      <div className={styles.header}>
+      <div className={styles.coachAnalyticsHeader}>
         <h2>Workout Analytics</h2>
         <div className={styles.periodSelector}>
           {(['7days', '30days', '1year'] as AnalyticsPeriod[]).map(p => (
@@ -309,8 +309,8 @@ export const CoachAnalytics: React.FC = () => {
                   {/* Left Column: Graph + Insights */}
                   <div className={styles.leftColumn}>
                     {/* Muscle Group Line Graph */}
-                    <div className={`${styles.section} ${styles.graphSection}`}>
-                      <div className={styles.sectionHeader}>
+                    <div className={`${styles.coachAnalyticsSection} ${styles.graphSection}`}>
+                      <div className={styles.coachAnalyticsSectionHeader}>
                         <h3>Muscle Group Activity</h3>
                       </div>
                       <div className={styles.lineGraphContainer}>
@@ -398,8 +398,8 @@ export const CoachAnalytics: React.FC = () => {
 
                     {/* Programming Health & Week Comparison */}
                     <div className={styles.insightsRow}>
-                      <div className={`${styles.section} ${styles.insightSection}`}>
-                        <div className={styles.sectionHeaderCompact}>
+                      <div className={`${styles.coachAnalyticsSection} ${styles.insightSection}`}>
+                        <div className={styles.coachAnalyticsSectionHeaderCompact}>
                           <h3>Programming Health</h3>
                         </div>
                         <div className={styles.healthContent}>
@@ -425,8 +425,8 @@ export const CoachAnalytics: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className={`${styles.section} ${styles.insightSection}`}>
-                        <div className={styles.sectionHeaderCompact}>
+                      <div className={`${styles.coachAnalyticsSection} ${styles.insightSection}`}>
+                        <div className={styles.coachAnalyticsSectionHeaderCompact}>
                           <h3>Weekly Volume</h3>
                         </div>
                         <div className={styles.weeklyVolumeContent}>
@@ -463,8 +463,8 @@ export const CoachAnalytics: React.FC = () => {
                   </div>
 
                   {/* Right Column: Muscle Group Summary */}
-                  <div className={`${styles.section} ${styles.barSection}`}>
-                    <div className={styles.sectionHeader}>
+                  <div className={`${styles.coachAnalyticsSection} ${styles.barSection}`}>
+                    <div className={styles.coachAnalyticsSectionHeader}>
                       <h3>Muscle Group Totals</h3>
                     </div>
                     <div className={styles.chartContainer}>
@@ -506,8 +506,8 @@ export const CoachAnalytics: React.FC = () => {
                 </div>
 
                 {/* Programming Insights */}
-                <div className={styles.section}>
-                  <div className={styles.sectionHeader}>
+                <div className={styles.coachAnalyticsSection}>
+                  <div className={styles.coachAnalyticsSectionHeader}>
                     <h3>Programming Insights</h3>
                   </div>
                   <div className={styles.chartsGrid}>
@@ -529,8 +529,8 @@ export const CoachAnalytics: React.FC = () => {
                 </div>
 
                 {/* Workout Type Breakdown */}
-                <div className={styles.section}>
-                  <div className={styles.sectionHeader}>
+                <div className={styles.coachAnalyticsSection}>
+                  <div className={styles.coachAnalyticsSectionHeader}>
                     <h3>Workout Type Breakdown</h3>
                   </div>
                   <div className={styles.typeGrid}>
@@ -545,8 +545,8 @@ export const CoachAnalytics: React.FC = () => {
                 </div>
 
                 {/* Top Movements */}
-                <div className={styles.section}>
-                  <div className={styles.sectionHeader}>
+                <div className={styles.coachAnalyticsSection}>
+                  <div className={styles.coachAnalyticsSectionHeader}>
                     <h3>Top 10 Most Used Movements</h3>
                   </div>
                   <div className={styles.topMovementsList}>
@@ -562,8 +562,8 @@ export const CoachAnalytics: React.FC = () => {
 
                 {/* Detected Biases */}
                 {sampleData.detectedBiases.some(b => b.status !== 'balanced') && (
-                  <div className={styles.section}>
-                    <div className={styles.sectionHeader}>
+                  <div className={styles.coachAnalyticsSection}>
+                    <div className={styles.coachAnalyticsSectionHeader}>
                       <h3>Detected Biases</h3>
                     </div>
                     <div className={styles.biasGrid}>
@@ -589,8 +589,8 @@ export const CoachAnalytics: React.FC = () => {
                 )}
 
                 {/* Recommendations */}
-                <div className={styles.section}>
-                  <div className={styles.sectionHeader}>
+                <div className={styles.coachAnalyticsSection}>
+                  <div className={styles.coachAnalyticsSectionHeader}>
                     <h3>Recommendations</h3>
                   </div>
                   <ul className={styles.recommendationsList}>
@@ -612,8 +612,8 @@ export const CoachAnalytics: React.FC = () => {
             {/* Left Column: Graph + Insights */}
             <div className={styles.leftColumn}>
               {/* Muscle Group Line Graph */}
-              <div className={`${styles.section} ${styles.graphSection}`}>
-                <div className={styles.sectionHeader}>
+              <div className={`${styles.coachAnalyticsSection} ${styles.graphSection}`}>
+                <div className={styles.coachAnalyticsSectionHeader}>
                   <h3>Muscle Group Activity</h3>
                   <InfoTooltip content="Shows how often each muscle group was targeted over time. Click on any dot to see which movements were programmed that day. Higher dots = more movements targeting that muscle group." />
                 </div>
@@ -843,8 +843,8 @@ export const CoachAnalytics: React.FC = () => {
               {/* Programming Health & Week Comparison - Below Graph */}
               <div className={styles.insightsRow}>
                 {/* Programming Health */}
-                <div className={`${styles.section} ${styles.insightSection}`}>
-                  <div className={styles.sectionHeaderCompact}>
+                <div className={`${styles.coachAnalyticsSection} ${styles.insightSection}`}>
+                  <div className={styles.coachAnalyticsSectionHeaderCompact}>
                     <h3>Programming Health</h3>
                     <InfoTooltip content="Balance measures how evenly you're targeting all muscle groups. Variety shows how many different movements you're using. Aim for 70%+ in both for well-rounded programming." />
                   </div>
@@ -895,13 +895,13 @@ export const CoachAnalytics: React.FC = () => {
                       )}
                     </div>
                   ) : (
-                    <div className={styles.loading}>Loading...</div>
+                    <div className={styles.coachAnalyticsLoading}>Loading...</div>
                   )}
                 </div>
 
                 {/* Week Comparison */}
-                <div className={`${styles.section} ${styles.insightSection}`}>
-                  <div className={styles.sectionHeaderCompact}>
+                <div className={`${styles.coachAnalyticsSection} ${styles.insightSection}`}>
+                  <div className={styles.coachAnalyticsSectionHeaderCompact}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <h3>Weekly Volume</h3>
                       <InfoTooltip content="Compares total movement volume by muscle group between this week and last week. Each bar shows how many times that muscle group was targeted. Consistent volume week-to-week helps with recovery and progress." />
@@ -1050,15 +1050,15 @@ export const CoachAnalytics: React.FC = () => {
                       {/* Legend removed as requested */}
                     </div>
                   ) : (
-                    <div className={styles.loading}>Loading...</div>
+                    <div className={styles.coachAnalyticsLoading}>Loading...</div>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Right Column: Muscle Group Summary */}
-            <div className={`${styles.section} ${styles.barSection}`}>
-              <div className={styles.sectionHeader}>
+            <div className={`${styles.coachAnalyticsSection} ${styles.barSection}`}>
+              <div className={styles.coachAnalyticsSectionHeader}>
                 <h3>Muscle Group Totals</h3>
                 <InfoTooltip content="Shows percentage of total movements targeting each muscle group. Ideal balance is 15-20% per group. Green = balanced, yellow = underused, red = overused." />
               </div>
@@ -1119,8 +1119,8 @@ export const CoachAnalytics: React.FC = () => {
           </div>
 
           {/* CrossFit Programming Insights */}
-          <div className={styles.section}>
-            <div className={styles.sectionHeader}>
+          <div className={styles.coachAnalyticsSection}>
+            <div className={styles.coachAnalyticsSectionHeader}>
               <h3>Programming Insights</h3>
               <InfoTooltip content="Deep dive into your programming balance across modalities (M/G/W), functional patterns (Push/Pull/Squat/Hinge), and intensity loading." />
             </div>
@@ -1146,15 +1146,15 @@ export const CoachAnalytics: React.FC = () => {
           </div>
 
           {/* Upcoming WODs Preview */}
-          <div className={styles.section}>
-            <div className={styles.sectionHeader}>
+          <div className={styles.coachAnalyticsSection}>
+            <div className={styles.coachAnalyticsSectionHeader}>
               <h3>Upcoming WODs</h3>
               <InfoTooltip content="Shows scheduled workouts and analyzes their movements. Yellow highlighted movements have been used 3+ times in the last 2 weeks - tap to see alternative movements from different muscle groups." />
             </div>
             {loadingUpcoming ? (
-              <div className={styles.loading}>Loading upcoming workouts...</div>
+              <div className={styles.coachAnalyticsLoading}>Loading upcoming workouts...</div>
             ) : upcomingWODs.length === 0 ? (
-              <div className={styles.noData}>No upcoming workouts scheduled</div>
+              <div className={styles.coachAnalyticsNoData}>No upcoming workouts scheduled</div>
             ) : (
               <div className={styles.upcomingWODsGrid}>
                 {upcomingWODs.map(({ workout, movementAnalysis }) => (
@@ -1240,10 +1240,10 @@ export const CoachAnalytics: React.FC = () => {
           </div>
 
           {/* Workout Type Breakdown */}
-          <div className={styles.section}>
-            <div className={styles.sectionHeader}>
+          <div className={styles.coachAnalyticsSection}>
+            <div className={styles.coachAnalyticsSectionHeader}>
               <h3>Workout Type Breakdown</h3>
-              <div className={styles.sectionHeaderRight}>
+              <div className={styles.coachAnalyticsSectionHeaderRight}>
                 <InfoTooltip content="Shows the mix of workout types you've programmed. A good variety includes AMRAP, EMOM, For Time, and strength work to develop different energy systems." />
                 <span className={styles.periodLabel}>{getPeriodButtonLabel(period)}</span>
               </div>
@@ -1260,13 +1260,13 @@ export const CoachAnalytics: React.FC = () => {
           </div>
 
           {/* Top 10 Movements */}
-          <div className={styles.section}>
-            <div className={styles.sectionHeader}>
+          <div className={styles.coachAnalyticsSection}>
+            <div className={styles.coachAnalyticsSectionHeader}>
               <h3>Top 10 Most Used Movements</h3>
               <InfoTooltip content="Your most frequently programmed movements. If a movement appears too often, consider substituting with similar movements to prevent overuse and add variety." />
             </div>
             {analytics.topMovements.length === 0 ? (
-              <p className={styles.noData}>No movements tracked yet.</p>
+              <p className={styles.coachAnalyticsNoData}>No movements tracked yet.</p>
             ) : (
               <div className={styles.topMovementsList}>
                 {analytics.topMovements.map(stat => (
@@ -1282,8 +1282,8 @@ export const CoachAnalytics: React.FC = () => {
 
           {/* Detected Biases */}
           {analytics.detectedBiases.some(b => b.status !== 'balanced') && (
-            <div className={styles.section}>
-              <div className={styles.sectionHeader}>
+            <div className={styles.coachAnalyticsSection}>
+              <div className={styles.coachAnalyticsSectionHeader}>
                 <h3>Detected Biases</h3>
                 <InfoTooltip content="Highlights muscle groups that are significantly over or under-represented in your programming. Yellow = not enough focus, Red = too much focus. Aim for balance across all groups." />
               </div>
@@ -1315,13 +1315,13 @@ export const CoachAnalytics: React.FC = () => {
           )}
 
           {/* Recommendations */}
-          <div className={styles.section}>
-            <div className={styles.sectionHeader}>
+          <div className={styles.coachAnalyticsSection}>
+            <div className={styles.coachAnalyticsSectionHeader}>
               <h3>Recommendations</h3>
               <InfoTooltip content="AI-generated suggestions based on your programming patterns. Green = positive feedback, yellow = areas to improve, blue = actionable suggestions." />
             </div>
             {analytics.recommendations.length === 0 ? (
-              <p className={styles.noData}>No recommendations at this time. Keep up the great work!</p>
+              <p className={styles.coachAnalyticsNoData}>No recommendations at this time. Keep up the great work!</p>
             ) : (
               <ul className={styles.recommendationsList}>
                 {analytics.recommendations.map((rec, idx) => (

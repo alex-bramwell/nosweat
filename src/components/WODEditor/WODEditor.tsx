@@ -76,16 +76,16 @@ export const WODEditor: React.FC<WODEditorProps> = ({
   };
 
   return (
-    <Card variant="elevated" padding="large">
-      <form onSubmit={handleSubmit} className={styles.editor}>
-        <h2 className={styles.title}>
+    <Card variant="raised" padding="spacious">
+      <form onSubmit={handleSubmit} className={styles.wodEditorForm}>
+        <h2 className={styles.wodEditorHeading}>
           {isEditing ? 'Edit Workout' : 'Create New Workout'}
         </h2>
 
-        {error && <div className={styles.error}>{error}</div>}
+        {error && <div className={styles.wodEditorError}>{error}</div>}
 
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldRow}>
+          <div className={styles.wodEditorFieldGroup}>
             <label htmlFor="date">Date *</label>
             <input
               id="date"
@@ -96,7 +96,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
             />
           </div>
 
-          <div className={styles.formGroup}>
+          <div className={styles.wodEditorFieldGroup}>
             <label htmlFor="workoutType">Type *</label>
             <Select
               options={workoutTypeOptions}
@@ -110,7 +110,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
           </div>
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <label htmlFor="title">Title *</label>
           <input
             id="title"
@@ -122,7 +122,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
           />
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <label htmlFor="description">Description</label>
           <input
             id="description"
@@ -133,8 +133,8 @@ export const WODEditor: React.FC<WODEditorProps> = ({
           />
         </div>
 
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldRow}>
+          <div className={styles.wodEditorFieldGroup}>
             <label htmlFor="duration">Duration</label>
             <DurationInput
               id="duration"
@@ -143,7 +143,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
             />
           </div>
 
-          <div className={styles.formGroup}>
+          <div className={styles.wodEditorFieldGroup}>
             <label htmlFor="rounds">Rounds</label>
             <NumberInput
               id="rounds"
@@ -156,7 +156,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
           </div>
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <label htmlFor="warmup">Warm-Up (one item per line)</label>
           <textarea
             id="warmup"
@@ -167,7 +167,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
           />
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <label htmlFor="strength">Strength (one item per line)</label>
           <textarea
             id="strength"
@@ -178,7 +178,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
           />
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <label htmlFor="metcon">MetCon / Main Workout (one item per line) *</label>
           <textarea
             id="metcon"
@@ -190,7 +190,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
           />
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <label htmlFor="cooldown">Cool-Down (one item per line)</label>
           <textarea
             id="cooldown"
@@ -201,7 +201,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
           />
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <label htmlFor="coachNotes">Coach&apos;s Notes</label>
           <textarea
             id="coachNotes"
@@ -212,7 +212,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
           />
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <label htmlFor="scalingNotes">Scaling Notes</label>
           <textarea
             id="scalingNotes"
@@ -223,7 +223,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
           />
         </div>
 
-        <div className={styles.formGroup}>
+        <div className={styles.wodEditorFieldGroup}>
           <label htmlFor="status">Status</label>
           <Select
             options={statusOptions}
@@ -237,7 +237,7 @@ export const WODEditor: React.FC<WODEditorProps> = ({
           <small>Draft workouts are only visible to coaches</small>
         </div>
 
-        <div className={styles.actions}>
+        <div className={styles.wodEditorActions}>
           <Button
             type="button"
             variant="secondary"

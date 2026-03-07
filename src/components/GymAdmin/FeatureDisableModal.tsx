@@ -23,16 +23,16 @@ const FeatureDisableModal: React.FC<FeatureDisableModalProps> = ({
   const Illustration = ILLUSTRATIONS[feature.illustrationKey];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="medium">
-      <div className={styles.content}>
+    <Modal isOpen={isOpen} onClose={onClose} size="default">
+      <div className={styles.disableModalBody}>
         {Illustration && (
           <div className={styles.illustration}>
             <Illustration />
           </div>
         )}
 
-        <h2 className={styles.heading}>Disable {feature.name}?</h2>
-        <p className={styles.description}>{feature.description}</p>
+        <h2 className={styles.disableModalHeading}>Disable {feature.name}?</h2>
+        <p className={styles.disableModalDescription}>{feature.description}</p>
 
         {dependentFeatures.length > 0 && (
           <div className={styles.warning}>
@@ -52,7 +52,7 @@ const FeatureDisableModal: React.FC<FeatureDisableModalProps> = ({
           </div>
         )}
 
-        <div className={styles.actions}>
+        <div className={styles.disableModalActions}>
           <button className={styles.cancelButton} onClick={onClose} disabled={isLoading}>
             Cancel
           </button>

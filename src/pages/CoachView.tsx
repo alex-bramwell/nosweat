@@ -330,9 +330,9 @@ const CoachView = () => {
   const today = new Date();
 
   return (
-    <Section spacing="large" background="default">
+    <Section spacing="relaxed" background="default">
       <Container>
-        <div className={styles.dashboard}>
+        <div className={styles.coachDashboard}>
           <div className={styles.header}>
             <div>
               <h1 className={styles.title}>Coach View</h1>
@@ -388,7 +388,7 @@ const CoachView = () => {
                     {todaysWorkout ? (
                       <div className={styles.todayGrid}>
                         {/* Workout Details */}
-                        <Card variant="elevated">
+                        <Card variant="raised">
                           <div className={styles.todayWorkout}>
                             <div className={styles.todayWorkoutHeader}>
                               <span className={styles.todayWorkoutType}>{todaysWorkout.type.toUpperCase()}</span>
@@ -454,7 +454,7 @@ const CoachView = () => {
                         </Card>
 
                         {/* Bookings List */}
-                        <Card variant="elevated">
+                        <Card variant="raised">
                           <div className={styles.todayBookings}>
                             <div className={styles.todayBookingsHeader}>
                               <h3>Class Roster</h3>
@@ -489,7 +489,7 @@ const CoachView = () => {
                         </Card>
                       </div>
                     ) : (
-                      <Card variant="elevated">
+                      <Card variant="raised">
                         <div className={styles.noWorkout}>
                           <h3>No Workout Scheduled</h3>
                           <p>There's no workout published for today.</p>
@@ -504,13 +504,13 @@ const CoachView = () => {
                   <div className={styles.tabContent}>
                     <div className={styles.calendarDesktop}>
                       <div className={styles.calendarHeader}>
-                        <Button variant="ghost" size="small" onClick={() => navigateMonth('prev')}>
+                        <Button variant="ghost" size="compact" onClick={() => navigateMonth('prev')}>
                           &larr; Prev
                         </Button>
                         <h2 className={styles.calendarTitle}>
                           {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                         </h2>
-                        <Button variant="ghost" size="small" onClick={() => navigateMonth('next')}>
+                        <Button variant="ghost" size="compact" onClick={() => navigateMonth('next')}>
                           Next &rarr;
                         </Button>
                       </div>
@@ -739,7 +739,7 @@ const CoachView = () => {
                               <>
                                 <Button
                                   variant="primary"
-                                  size="medium"
+                                  size="default"
                                   onClick={() => {
                                     handleConfirmBooking(selectedServiceBooking.id);
                                     setSelectedServiceBooking(null);
@@ -749,7 +749,7 @@ const CoachView = () => {
                                 </Button>
                                 <Button
                                   variant="secondary"
-                                  size="medium"
+                                  size="default"
                                   onClick={() => {
                                     handleDeclineBooking(selectedServiceBooking.id);
                                     setSelectedServiceBooking(null);
@@ -762,7 +762,7 @@ const CoachView = () => {
                             {selectedServiceBooking.status === 'confirmed' && (
                               <Button
                                 variant="primary"
-                                size="medium"
+                                size="default"
                                 onClick={() => {
                                   handleCompleteBooking(selectedServiceBooking.id);
                                   setSelectedServiceBooking(null);
@@ -791,7 +791,7 @@ const CoachView = () => {
                     {servicesLoading ? (
                       <p>Loading services...</p>
                     ) : myServices.length === 0 ? (
-                      <Card variant="elevated">
+                      <Card variant="raised">
                         <div className={styles.noServices}>
                           <h3>No Services Enabled</h3>
                           <p>You don't have any services enabled yet. Contact an admin to enable services for your profile.</p>
@@ -800,7 +800,7 @@ const CoachView = () => {
                     ) : (
                       <div className={styles.servicesGrid}>
                         {myServices.map(service => (
-                          <Card key={service.id} variant="elevated">
+                          <Card key={service.id} variant="raised">
                             <div className={styles.serviceCard}>
                               <h3 className={styles.serviceName}>{SERVICE_LABELS[service.serviceType]}</h3>
                               <p className={styles.serviceDescription}>
@@ -826,7 +826,7 @@ const CoachView = () => {
                                     <div className={styles.rateEditActions}>
                                       <Button
                                         variant="primary"
-                                        size="small"
+                                        size="compact"
                                         onClick={() => handleSaveRate(service.id)}
                                         disabled={savingRate}
                                       >
@@ -834,7 +834,7 @@ const CoachView = () => {
                                       </Button>
                                       <Button
                                         variant="secondary"
-                                        size="small"
+                                        size="compact"
                                         onClick={handleCancelEditRate}
                                         disabled={savingRate}
                                       >
@@ -870,7 +870,7 @@ const CoachView = () => {
                       {bookingsLoading ? (
                         <p>Loading bookings...</p>
                       ) : serviceBookings.length === 0 ? (
-                        <Card variant="default">
+                        <Card variant="flat">
                           <div className={styles.noCoachBookings}>
                             <p>You don&apos;t have any upcoming service bookings.</p>
                           </div>
@@ -878,7 +878,7 @@ const CoachView = () => {
                       ) : (
                         <div className={styles.coachBookingsList}>
                           {serviceBookings.map(booking => (
-                            <Card key={booking.id} variant="elevated">
+                            <Card key={booking.id} variant="raised">
                               <div className={styles.coachBookingCard}>
                                 <div className={styles.coachBookingMain}>
                                   <div className={styles.coachBookingDetails}>
@@ -911,14 +911,14 @@ const CoachView = () => {
                                       <>
                                         <Button
                                           variant="primary"
-                                          size="small"
+                                          size="compact"
                                           onClick={() => handleConfirmBooking(booking.id)}
                                         >
                                           Confirm
                                         </Button>
                                         <Button
                                           variant="secondary"
-                                          size="small"
+                                          size="compact"
                                           onClick={() => handleDeclineBooking(booking.id)}
                                         >
                                           Decline
@@ -928,7 +928,7 @@ const CoachView = () => {
                                     {booking.status === 'confirmed' && (
                                       <Button
                                         variant="primary"
-                                        size="small"
+                                        size="compact"
                                         onClick={() => handleCompleteBooking(booking.id)}
                                       >
                                         Mark Complete

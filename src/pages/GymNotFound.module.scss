@@ -1,4 +1,4 @@
-.container {
+.gymNotFoundOuter {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -7,17 +7,17 @@
   padding: 2rem;
 }
 
-.content {
+.gymNotFoundInner {
   text-align: center;
   max-width: 480px;
 }
 
-.icon {
+.gymNotFoundIcon {
   font-size: 4rem;
   margin-bottom: 1.5rem;
 }
 
-.title {
+.gymNotFoundTitle {
   font-family: 'Inter', sans-serif;
   font-size: 2rem;
   font-weight: 700;
@@ -25,7 +25,7 @@
   margin-bottom: 1rem;
 }
 
-.message {
+.gymNotFoundMessage {
   font-family: 'Inter', sans-serif;
   font-size: 1.1rem;
   color: #6b7280;
@@ -33,13 +33,13 @@
   margin-bottom: 2rem;
 }
 
-.actions {
+.gymNotFoundActions {
   display: flex;
   justify-content: center;
   gap: 1rem;
 }
 
-.link {
+.gymNotFoundLink {
   display: inline-block;
   padding: 0.75rem 1.5rem;
   background: #2563eb;

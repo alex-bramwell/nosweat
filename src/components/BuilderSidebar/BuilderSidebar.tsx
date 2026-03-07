@@ -17,10 +17,10 @@ const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ onDraftChange }) => {
   }, [panelOpen]);
 
   return (
-    <aside className={`${styles.panel} ${panelOpen ? '' : styles.panelCollapsed}`}>
+    <aside className={`${styles.builderPanel} ${panelOpen ? '' : styles.builderPanelCollapsed}`}>
       {/* Edge toggle handle */}
       <button
-        className={styles.panelEdgeToggle}
+        className={styles.builderPanelEdgeToggle}
         onClick={() => setPanelOpen(!panelOpen)}
         aria-label={panelOpen ? 'Collapse panel' : 'Expand panel'}
       >
@@ -32,17 +32,17 @@ const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ onDraftChange }) => {
         </svg>
       </button>
 
-      <div className={styles.panelContent}>
-        <div className={styles.panelHeader}>
-          <span className={styles.panelHeaderIcon}>
+      <div className={styles.builderPanelContent}>
+        <div className={styles.builderPanelHeader}>
+          <span className={styles.builderPanelHeaderIcon}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
             </svg>
           </span>
-          <span className={styles.panelHeaderTitle}>Branding</span>
+          <span className={styles.builderPanelHeaderTitle}>Branding</span>
         </div>
 
-        <div className={styles.panelBody}>
+        <div className={styles.builderPanelBody}>
           <BrandingEditor onDraftChange={onDraftChange} />
         </div>
       </div>

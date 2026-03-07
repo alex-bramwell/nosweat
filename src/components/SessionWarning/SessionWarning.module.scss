@@ -1,6 +1,6 @@
 @use '../../styles/variables' as *;
 
-.content {
+.sessionWarningBody {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -9,7 +9,7 @@
   padding: 1rem 0;
 }
 
-.iconWrapper {
+.sessionWarningIconBadge {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,7 +21,7 @@
   animation: pulse 2s ease-in-out infinite;
 }
 
-.icon {
+.sessionWarningClockIcon {
   width: 40px;
   height: 40px;
   color: #ffaa00;
@@ -38,14 +38,14 @@
   }
 }
 
-.title {
+.sessionWarningTitle {
   @include header;
   font-size: clamp(1.5rem, 4vw, 1.75rem);
   color: var(--color-text);
   margin: 0;
 }
 
-.subtitle {
+.sessionWarningSubtitle {
   @include body;
   font-size: 1rem;
   color: var(--color-muted);
@@ -63,14 +63,14 @@
   border-radius: 4px;
 }
 
-.message {
+.sessionWarningPrompt {
   @include body;
   font-size: 0.95rem;
   color: var(--color-text);
   margin: 0;
 }
 
-.actions {
+.sessionWarningActions {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;

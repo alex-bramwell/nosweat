@@ -59,15 +59,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   return (
     <div className={styles.imageUpload}>
-      <div className={styles.labelRow}>
-        <span className={styles.label}>{label}</span>
-        <span className={styles.description}>{description}</span>
+      <div className={styles.uploadLabelRow}>
+        <span className={styles.uploadLabel}>{label}</span>
+        <span className={styles.uploadDescription}>{description}</span>
       </div>
 
       {value ? (
-        <div className={styles.preview}>
-          <img src={value} alt={label} className={styles.previewImage} />
-          <div className={styles.previewActions}>
+        <div className={styles.uploadPreview}>
+          <img src={value} alt={label} className={styles.uploadPreviewImage} />
+          <div className={styles.uploadPreviewActions}>
             <button type="button" className={styles.changeButton} onClick={handleClick} disabled={isUploading}>
               {isUploading ? 'Uploading...' : 'Change'}
             </button>
@@ -96,7 +96,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         </button>
       )}
 
-      {error && <span className={styles.error}>{error}</span>}
+      {error && <span className={styles.uploadError}>{error}</span>}
 
       <input
         ref={fileInputRef}

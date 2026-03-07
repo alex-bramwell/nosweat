@@ -10,7 +10,7 @@ interface EmptyStatePreviewProps {
 
 const EmptyStatePreview: React.FC<EmptyStatePreviewProps> = ({ title, description, action, children }) => {
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.emptyStateRoot}>
       <div className={styles.banner}>
         <div className={styles.bannerIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -29,7 +29,7 @@ const EmptyStatePreview: React.FC<EmptyStatePreviewProps> = ({ title, descriptio
           <span className={styles.bannerLabel}>Preview</span>
         )}
       </div>
-      <div className={styles.content}>
+      <div className={styles.emptyStateContent}>
         {children}
       </div>
     </div>

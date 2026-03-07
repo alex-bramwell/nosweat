@@ -1,6 +1,6 @@
 @use '../../../styles/variables' as *;
 
-.cta {
+.ctaSection {
   position: relative;
   background: linear-gradient(135deg, var(--color-bg-dark) 0%, var(--color-bg) 50%, var(--color-bg-dark) 100%);
   overflow: hidden;
@@ -19,13 +19,13 @@
   }
 }
 
-.content {
+.ctaBody {
   position: relative;
   z-index: 1;
   text-align: center;
 }
 
-.title {
+.ctaHeadline {
   @include header;
   font-size: clamp(2rem, 5vw, 3.5rem);
   color: var(--color-text);
@@ -33,7 +33,7 @@
   line-height: 1.2;
 }
 
-.subtitle {
+.ctaTagline {
   @include body;
   font-size: clamp(1.125rem, 2vw, 1.5rem);
   color: var(--color-muted);
@@ -41,7 +41,7 @@
   line-height: 1.6;
 }
 
-.actions {
+.ctaActions {
   display: flex;
   gap: 1rem;
   justify-content: center;
@@ -49,7 +49,7 @@
   margin-bottom: 1.5rem;
 }
 
-.note {
+.ctaNote {
   @include body;
   color: var(--color-muted);
   font-size: 0.9375rem;
@@ -58,7 +58,7 @@
 
 // Responsive
 @container (max-width: 640px) {
-  .actions {
+  .ctaActions {
     flex-direction: column;
 
     button {

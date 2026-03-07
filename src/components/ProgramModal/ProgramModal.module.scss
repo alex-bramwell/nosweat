@@ -1,6 +1,6 @@
 @use '../../styles/variables' as *;
 
-.content {
+.programBody {
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -95,13 +95,13 @@
   width: 100%;
 }
 
-.note {
+.programSigninNote {
   @include body;
   font-size: 0.9375rem;
   color: var(--color-muted);
 }
 
-.link {
+.programSigninLink {
   @include header;
   background: none;
   border: none;
@@ -119,13 +119,13 @@
   }
 }
 
-.header {
+.programHeader {
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 1.5rem;
 }
 
-.title {
+.programTitle {
   @include header;
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   color: var(--color-text);
@@ -150,7 +150,7 @@
   line-height: 1.7;
 }
 
-.section {
+.programSection {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -187,7 +187,7 @@
   width: 100%;
 }
 
-.icon {
+.programBenefitIcon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -283,7 +283,7 @@
   line-height: 1.4;
 }
 
-.actions {
+.programActions {
   display: flex;
   flex-direction: column;
   gap: 1rem;

@@ -21,55 +21,55 @@ const Hero = () => {
   };
 
   return (
-    <Section spacing="xlarge" background="dark" className={styles.hero}>
+    <Section spacing="generous" background="bold" className={styles.heroSection}>
       <div
-        className={styles.heroBackground}
+        className={styles.heroBackdrop}
         style={{ backgroundImage: `url(${branding.hero_image_url || FALLBACK_HERO})` }}
       />
       {branding.hero_effect === 'comet' && (
-        <div className={styles.comet}>
-          <div className={styles.cometTrail}></div>
+        <div className={styles.heroCometEffect}>
+          <div className={styles.heroCometTrail}></div>
         </div>
       )}
       {branding.hero_effect === 'gradient' && (
-        <div className={styles.gradientEffect} />
+        <div className={styles.heroGradientEffect} />
       )}
       <Container>
-        <div className={styles.content}>
-          <h1 className={styles.title}>
+        <div className={styles.heroBody}>
+          <h1 className={styles.heroHeadline}>
             {branding.hero_headline}
           </h1>
-          <p className={styles.subtitle}>
+          <p className={styles.heroTagline}>
             {branding.hero_subtitle}
           </p>
 
-          <div className={styles.actionCards}>
-            <div className={styles.actionCard}>
-              <h3 className={styles.cardTitle}>Day Pass</h3>
-              <p className={styles.cardDescription}>
+          <div className={styles.heroActions}>
+            <div className={styles.heroActionCard}>
+              <h3 className={styles.heroCardTitle}>Day Pass</h3>
+              <p className={styles.heroCardDescription}>
                 Drop in for a single session and experience our community
               </p>
-              <Button variant="primary" size="medium" onClick={handleDayPassClick}>
+              <Button variant="primary" size="default" onClick={handleDayPassClick}>
                 Book Day Pass
               </Button>
             </div>
 
-            <div className={styles.actionCard}>
-              <h3 className={styles.cardTitle}>Free Trial</h3>
-              <p className={styles.cardDescription}>
+            <div className={styles.heroActionCard}>
+              <h3 className={styles.heroCardTitle}>Free Trial</h3>
+              <p className={styles.heroCardDescription}>
                 New here? Try your first class on us, no commitment
               </p>
-              <Button variant="secondary" size="medium" onClick={handleTrialClick}>
+              <Button variant="secondary" size="default" onClick={handleTrialClick}>
                 Book Trial Pass
               </Button>
             </div>
 
-            <div className={styles.actionCard}>
-              <h3 className={styles.cardTitle}>Class Schedule</h3>
-              <p className={styles.cardDescription}>
+            <div className={styles.heroActionCard}>
+              <h3 className={styles.heroCardTitle}>Class Schedule</h3>
+              <p className={styles.heroCardDescription}>
                 View our full timetable and find a class that fits your day
               </p>
-              <Button variant="outline" size="medium" as="a" href="/schedule">
+              <Button variant="outline" size="default" as="a" href="/schedule">
                 View Schedule
               </Button>
             </div>

@@ -87,7 +87,7 @@ $callout-warning-color: #facc15;
 }
 
 // ── Sidebar ──
-.sidebar {
+.docsSidebar {
   position: sticky;
   top: $sidebar-top;
   max-height: calc(100vh - #{$sidebar-top});
@@ -125,13 +125,13 @@ $callout-warning-color: #facc15;
   }
 }
 
-.sidebarOpen {
+.docsSidebarOpen {
   @media (max-width: $docs-breakpoint - 1) {
     transform: translateX(0);
   }
 }
 
-.sidebarMobileHeader {
+.docsSidebarMobileHeader {
   display: none;
 
   @media (max-width: $docs-breakpoint - 1) {
@@ -144,7 +144,7 @@ $callout-warning-color: #facc15;
   }
 }
 
-.sidebarHeading {
+.docsSidebarHeading {
   font-size: 0.8rem;
   font-weight: 600;
   color: $platform-text-muted;
@@ -152,7 +152,7 @@ $callout-warning-color: #facc15;
   letter-spacing: 0.1em;
 }
 
-.sidebarClose {
+.docsSidebarClose {
   appearance: none;
   background: none;
   border: none;
@@ -172,16 +172,16 @@ $callout-warning-color: #facc15;
 }
 
 // ── Sidebar Nav ──
-.sidebarNav {
+.docsSidebarNav {
   display: flex;
   flex-direction: column;
 }
 
-.sidebarSection {
+.docsSidebarSection {
   margin-bottom: 1.75rem;
 }
 
-.sidebarSectionTitle {
+.docsSidebarSectionTitle {
   display: block;
   font-size: 0.72rem;
   font-weight: 600;
@@ -192,7 +192,7 @@ $callout-warning-color: #facc15;
   margin-bottom: 0.35rem;
 }
 
-.sidebarLink {
+.docsSidebarLink {
   appearance: none;
   background: none;
   border: none;
@@ -215,7 +215,7 @@ $callout-warning-color: #facc15;
   }
 }
 
-.sidebarLinkActive {
+.docsSidebarLinkActive {
   color: $platform-text;
   background: $platform-glass-bg-elevated;
   border-left-color: $platform-accent;
@@ -260,7 +260,7 @@ $callout-warning-color: #facc15;
 }
 
 // ── Sidebar Backdrop ──
-.sidebarBackdrop {
+.docsSidebarBackdrop {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
@@ -272,7 +272,7 @@ $callout-warning-color: #facc15;
 }
 
 // ── Content Area ──
-.content {
+.docsArticleArea {
   max-width: $content-max-width;
   padding: 1rem 0 4rem;
 
@@ -335,7 +335,7 @@ $callout-warning-color: #facc15;
   margin: 0 0 1.75rem;
 }
 
-.step {
+.docsStepItem {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
@@ -362,7 +362,7 @@ $callout-warning-color: #facc15;
   justify-content: center;
 }
 
-.stepContent {
+.docsStepBody {
   flex: 1;
   padding-top: 0.2rem;
 }

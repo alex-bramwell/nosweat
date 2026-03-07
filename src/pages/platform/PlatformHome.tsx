@@ -71,7 +71,7 @@ const PlatformHome = () => {
 
       {/* Mission Statement */}
       <section className={styles.mission}>
-        <div className={styles.container}>
+        <div className={styles.platformHomeInner}>
           <h2 className={styles.missionHeadline}>
             Your Gym, online in one place
           </h2>
@@ -87,7 +87,7 @@ const PlatformHome = () => {
 
       {/* Features Grid */}
       <section id="features" className={styles.features}>
-        <div className={styles.container}>
+        <div className={styles.platformHomeInner}>
           <h2 className={styles.sectionTitle}>Everything you need to run your gym</h2>
           <p className={styles.sectionSubtitle}>
             All features included for {price.formatted}/month
@@ -128,7 +128,7 @@ const PlatformHome = () => {
 
       {/* How It Works */}
       <section className={styles.howItWorks}>
-        <div className={styles.container}>
+        <div className={styles.platformHomeInner}>
           <h2 className={styles.sectionTitle}>How It Works</h2>
           <div className={styles.stepsGrid}>
             <div className={styles.step}>
@@ -165,7 +165,7 @@ const PlatformHome = () => {
 
       {/* Pricing */}
       <section className={styles.pricing}>
-        <div className={styles.container}>
+        <div className={styles.platformHomeInner}>
           <h2 className={styles.sectionTitle}>Simple, transparent pricing</h2>
           <p className={styles.pricingTagline}>
             One plan. Everything included. No surprises.

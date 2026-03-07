@@ -109,7 +109,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       <Button
         type="submit"
         variant="primary"
-        size="large"
+        size="prominent"
         fullWidth
         disabled={!stripe || isProcessing}
       >
@@ -351,7 +351,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className={`${styles.modalContent} ${styles.dayPassModal}`}>
+      <div className={`${styles.dayPassBody} ${styles.dayPassModal}`}>
         {/* Progress Indicator */}
         <div className={styles.progressBar}>
           <div className={`${styles.progressStep} ${currentStep === 'auth' || currentStep === 'class-selection' || currentStep === 'payment' || currentStep === 'success' ? styles.active : ''}`}>
@@ -372,9 +372,9 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
 
         {/* Step: Authentication */}
         {currentStep === 'auth' && (
-          <div className={styles.stepContent}>
-            <h2 className={styles.title}>Sign In to Book Day Pass</h2>
-            <p className={styles.subtitle}>Create an account or sign in to continue</p>
+          <div className={styles.dayPassStepBody}>
+            <h2 className={styles.dayPassTitle}>Sign In to Book Day Pass</h2>
+            <p className={styles.dayPassSubtitle}>Create an account or sign in to continue</p>
 
             <div className={styles.authToggle}>
               <button
@@ -394,7 +394,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
             </div>
 
             <form onSubmit={handleAuth} className={styles.authForm}>
-              <div className={styles.formGroup}>
+              <div className={styles.dayPassFieldGroup}>
                 <label htmlFor="email">Email</label>
                 <input
                   type="email"
@@ -405,7 +405,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
                   placeholder="your@email.com"
                 />
               </div>
-              <div className={styles.formGroup}>
+              <div className={styles.dayPassFieldGroup}>
                 <label htmlFor="password">Password</label>
                 <input
                   type="password"
@@ -419,7 +419,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
               </div>
 
               {authError && (
-                <div className={styles.error}>
+                <div className={styles.dayPassError}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -432,7 +432,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
               <Button
                 type="submit"
                 variant="primary"
-                size="large"
+                size="prominent"
                 fullWidth
                 disabled={isLoading}
               >
@@ -444,9 +444,9 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
 
         {/* Step: Class Selection */}
         {currentStep === 'class-selection' && (
-          <div className={styles.stepContent}>
-            <h2 className={styles.title}>Select Your Class</h2>
-            <p className={styles.subtitle}>Choose from the next 7 days (£10 per class)</p>
+          <div className={styles.dayPassStepBody}>
+            <h2 className={styles.dayPassTitle}>Select Your Class</h2>
+            <p className={styles.dayPassSubtitle}>Choose from the next 7 days (£10 per class)</p>
 
             {/* Class Type Toggle */}
             <div className={styles.classTypeToggle}>
@@ -575,55 +575,55 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
 
         {/* Step: Payment */}
         {currentStep === 'payment' && selectedClass && (
-          <div className={styles.stepContent}>
-            <h2 className={styles.title}>Complete Payment</h2>
+          <div className={styles.dayPassStepBody}>
+            <h2 className={styles.dayPassTitle}>Complete Payment</h2>
 
             <div className={styles.classDetails}>
               <h3>Class Details</h3>
               {(selectedClass as any).selectedDate && (
                 <div className={styles.detailRow}>
-                  <span className={styles.label}>Date:</span>
-                  <span className={styles.value}>{(selectedClass as any).selectedDate}</span>
+                  <span className={styles.dayPassDetailLabel}>Date:</span>
+                  <span className={styles.dayPassDetailValue}>{(selectedClass as any).selectedDate}</span>
                 </div>
               )}
               <div className={styles.detailRow}>
-                <span className={styles.label}>Time:</span>
-                <span className={styles.value}>{selectedClass.time}</span>
+                <span className={styles.dayPassDetailLabel}>Time:</span>
+                <span className={styles.dayPassDetailValue}>{selectedClass.time}</span>
               </div>
               <div className={styles.detailRow}>
-                <span className={styles.label}>Class Type:</span>
-                <span className={styles.value}>
+                <span className={styles.dayPassDetailLabel}>Class Type:</span>
+                <span className={styles.dayPassDetailValue}>
                   {(selectedClass as any).selectedType || selectedClass.className}
                 </span>
               </div>
               {selectedClass.coach && (
                 <div className={styles.detailRow}>
-                  <span className={styles.label}>Coach:</span>
-                  <span className={styles.value}>{selectedClass.coach}</span>
+                  <span className={styles.dayPassDetailLabel}>Coach:</span>
+                  <span className={styles.dayPassDetailValue}>{selectedClass.coach}</span>
                 </div>
               )}
               <div className={styles.detailRow}>
-                <span className={styles.label}>Price:</span>
+                <span className={styles.dayPassDetailLabel}>Price:</span>
                 <span className={styles.priceValue}>{formatCurrency(1000, 'gbp')}</span>
               </div>
             </div>
 
             {isLoading && (
-              <div className={styles.loading}>
-                <div className={styles.spinner}></div>
+              <div className={styles.dayPassLoading}>
+                <div className={styles.dayPassSpinner}></div>
                 <p>Preparing secure payment...</p>
               </div>
             )}
 
             {error && (
-              <div className={styles.error}>
+              <div className={styles.dayPassError}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="12" y1="8" x2="12" y2="12"></line>
                   <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
                 <p>{error}</p>
-                <Button variant="secondary" size="medium" onClick={() => createPaymentIntent(selectedClass)}>
+                <Button variant="secondary" size="default" onClick={() => createPaymentIntent(selectedClass)}>
                   Try Again
                 </Button>
               </div>
@@ -650,7 +650,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
 
             <Button
               variant="outline"
-              size="medium"
+              size="default"
               onClick={handleBack}
               disabled={isLoading}
             >
@@ -661,8 +661,8 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
 
         {/* Step: Success */}
         {currentStep === 'success' && (
-          <div className={styles.stepContent}>
-            <div className={styles.success}>
+          <div className={styles.dayPassStepBody}>
+            <div className={styles.dayPassConfirmation}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>

@@ -37,9 +37,9 @@ const PlatformSubscribe = () => {
 
   if (!stripePromise) {
     return (
-      <div className={styles.page}>
-        <div className={styles.card}>
-          <div className={styles.error}>
+      <div className={styles.platformSubscribePage}>
+        <div className={styles.subscribeResultCard}>
+          <div className={styles.subscribeErrorBanner}>
             Payment system is not configured. Please try again later.
           </div>
         </div>
@@ -48,17 +48,17 @@ const PlatformSubscribe = () => {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Start your subscription</h1>
-          <p className={styles.subtitle}>
+    <div className={styles.platformSubscribePage}>
+      <div className={styles.subscribeInner}>
+        <div className={styles.subscribeHeader}>
+          <h1 className={styles.subscribeHeadline}>Start your subscription</h1>
+          <p className={styles.subscribeTagline}>
             {price.formatted}<span className={styles.period}>{price.period}</span>
             {' '}&mdash; cancel any time
           </p>
         </div>
 
-        {error && <div className={styles.error}>{error}</div>}
+        {error && <div className={styles.subscribeErrorBanner}>{error}</div>}
 
         <div className={styles.checkoutWrapper}>
           <EmbeddedCheckoutProvider
@@ -102,10 +102,10 @@ const SubscribeComplete = () => {
   });
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
+    <div className={styles.platformSubscribePage}>
+      <div className={styles.subscribeResultCard}>
         {status === 'loading' && (
-          <p className={styles.subtitle}>Confirming your subscription...</p>
+          <p className={styles.subscribeTagline}>Confirming your subscription...</p>
         )}
 
         {status === 'success' && (
@@ -116,8 +116,8 @@ const SubscribeComplete = () => {
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
-            <h1 className={styles.title}>You&apos;re in!</h1>
-            <p className={styles.subtitle}>
+            <h1 className={styles.subscribeHeadline}>You&apos;re in!</h1>
+            <p className={styles.subscribeTagline}>
               Confirmation sent to <strong>{customerEmail}</strong>
             </p>
             <Link to="/onboarding" className={styles.ctaButton}>
@@ -128,8 +128,8 @@ const SubscribeComplete = () => {
 
         {status === 'error' && (
           <>
-            <h1 className={styles.title}>Something went wrong</h1>
-            <p className={styles.subtitle}>
+            <h1 className={styles.subscribeHeadline}>Something went wrong</h1>
+            <p className={styles.subscribeTagline}>
               We couldn&apos;t confirm your subscription. Please contact support.
             </p>
             <Link to="/signup" className={styles.ctaButton}>

@@ -15,15 +15,15 @@ const Programs = () => {
   const getLevelStyle = (level: string | null): string => {
     switch (level) {
       case 'all':
-        return styles.levelCrossFit;
+        return styles.programLevelCrossFit;
       case 'beginner':
-        return styles.levelOpenGym;
+        return styles.programLevelOpenGym;
       case 'intermediate':
-        return styles.levelSpecialty;
+        return styles.programLevelSpecialty;
       case 'advanced':
-        return styles.levelAdvanced;
+        return styles.programLevelAdvanced;
       default:
-        return styles.level;
+        return styles.programLevel;
     }
   };
 
@@ -50,44 +50,44 @@ const Programs = () => {
   }
 
   const content = (
-    <Section spacing="large" background="default">
+    <Section spacing="relaxed" background="default">
       <Container>
-        <div className={styles.header}>
-          <h2 className={styles.title}>Our Programs</h2>
-          <p className={styles.subtitle}>
+        <div className={styles.programsHeader}>
+          <h2 className={styles.programsTitle}>Our Programs</h2>
+          <p className={styles.programsSubtitle}>
             Choose the program that fits your goals. All programs include expert coaching
             and a supportive community.
           </p>
         </div>
 
-        <div className={styles.grid}>
+        <div className={styles.programsGrid}>
           {displayPrograms.map((program) => (
-            <Card key={program.id} variant="elevated" hoverable>
+            <Card key={program.id} variant="raised" hoverable>
               <div className={styles.programCard}>
-                <div className={`${styles.level} ${getLevelStyle(program.level)}`}>
+                <div className={`${styles.programLevel} ${getLevelStyle(program.level)}`}>
                   {getScheduleInfo(program)}
                 </div>
                 <h3 className={styles.programTitle}>{program.title}</h3>
                 {program.price_pence != null && (
-                  <div className={styles.pricing}>
-                    <span className={styles.price}>
+                  <div className={styles.programPricing}>
+                    <span className={styles.programPrice}>
                       £{(program.price_pence / 100).toFixed(program.price_pence % 100 === 0 ? 0 : 2)}
                     </span>
                     {program.price_unit && (
-                      <span className={styles.priceUnit}>{program.price_unit}</span>
+                      <span className={styles.programPriceUnit}>{program.price_unit}</span>
                     )}
                     {program.price_note && (
-                      <span className={styles.priceNote}>{program.price_note}</span>
+                      <span className={styles.programPriceNote}>{program.price_note}</span>
                     )}
                   </div>
                 )}
                 {program.description && (
-                  <p className={styles.description} dangerouslySetInnerHTML={{ __html: program.description }} />
+                  <p className={styles.programDescription} dangerouslySetInnerHTML={{ __html: program.description }} />
                 )}
-                <ul className={styles.features}>
+                <ul className={styles.programFeatures}>
                   {program.features.map((feature, index) => (
-                    <li key={index} className={styles.feature}>
-                      <span className={styles.checkmark}>✓</span>
+                    <li key={index} className={styles.programFeature}>
+                      <span className={styles.programCheckmark}>✓</span>
                       {feature}
                     </li>
                   ))}
