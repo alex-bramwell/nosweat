@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { useTenant, DEFAULT_BRANDING } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { AVAILABLE_FONTS } from '../../hooks/useTenantTheme';
+import { FEATURES, type FeatureDefinition } from '../../config/features';
+import type { FeatureKey, HeroCards } from '../../types/tenant';
 import { Button } from '../common';
 import ImageUpload from './ImageUpload';
+import FeatureDisableModal from './FeatureDisableModal';
 import type { GymBranding } from '../../types/tenant';
 import styles from './BrandingEditor.module.scss';
 
@@ -27,10 +30,15 @@ interface BrandingEditorProps {
 }
 
 const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
-  const { gym, branding, refreshTenant } = useTenant();
+  const { gym, branding, features, refreshTenant } = useTenant();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [openSections, setOpenSections] = useState<Set<string>>(() => new Set());
+  const [featureLoading, setFeatureLoading] = useState(false);
+  const [disableModalData, setDisableModalData] = useState<{
+    feature: FeatureDefinition;
+    dependents: FeatureDefinition[];
+  } | null>(null);
 
   const toggleSection = (id: string) => {
     setOpenSections((prev) => {
@@ -85,6 +93,8 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
     hero_effect: source.hero_effect || 'comet',
     // Sections
     visible_sections: source.visible_sections ?? { hero: true, programs: true, wod: true, cta: true, stats: true },
+    // Hero cards
+    hero_cards: source.hero_cards ?? DEFAULT_BRANDING.hero_cards,
   });
 
   const [formData, setFormData] = useState(buildFormData);
@@ -118,6 +128,19 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
       visible_sections: {
         ...prev.visible_sections,
         [key]: !prev.visible_sections[key],
+      },
+    }));
+  };
+
+  const handleHeroCardChange = (card: keyof HeroCards, field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      hero_cards: {
+        ...prev.hero_cards,
+        [card]: {
+          ...prev.hero_cards[card],
+          [field]: value,
+        },
       },
     }));
   };
@@ -190,6 +213,8 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
           hero_effect: formData.hero_effect,
           // Sections
           visible_sections: formData.visible_sections,
+          // Hero cards
+          hero_cards: formData.hero_cards,
         })
         .eq('gym_id', gym.id);
 
@@ -204,6 +229,70 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // ── Feature toggle logic ──
+  const isDependencyMet = (feature: FeatureDefinition): boolean => {
+    if (!feature.dependencies || feature.dependencies.length === 0) return true;
+    return feature.dependencies.every((dep) => features[dep]);
+  };
+
+  const getDependents = (featureKey: FeatureKey): FeatureKey[] => {
+    return FEATURES.filter((f) => f.dependencies?.includes(featureKey)).map((f) => f.key);
+  };
+
+  const toggleFeature = async (featureKey: FeatureKey, enabled: boolean) => {
+    if (!gym) return;
+    setFeatureLoading(true);
+    try {
+      const feature = FEATURES.find((f) => f.key === featureKey);
+      if (!feature) throw new Error('Feature not found');
+      const { error } = await supabase.from('gym_features').upsert(
+        {
+          gym_id: gym.id,
+          feature_key: featureKey,
+          enabled,
+          enabled_at: enabled ? new Date().toISOString() : null,
+          monthly_cost_pence: feature.monthlyPricePence,
+        },
+        { onConflict: 'gym_id,feature_key' }
+      );
+      if (error) throw error;
+      await refreshTenant();
+      setMessage({ type: 'success', text: `${feature.name} ${enabled ? 'enabled' : 'disabled'}` });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      console.error('Error toggling feature:', error);
+      setMessage({ type: 'error', text: 'Failed to update feature.' });
+    } finally {
+      setFeatureLoading(false);
+    }
+  };
+
+  const handleFeatureToggle = (featureKey: FeatureKey, currentValue: boolean) => {
+    const feature = FEATURES.find((f) => f.key === featureKey);
+    if (!feature) return;
+
+    if (currentValue) {
+      const dependents = getDependents(featureKey);
+      const enabledDependents = dependents.filter((dep) => features[dep]);
+      const dependentFeatures = enabledDependents
+        .map((dep) => FEATURES.find((f) => f.key === dep))
+        .filter((f): f is FeatureDefinition => f !== undefined);
+      setDisableModalData({ feature, dependents: dependentFeatures });
+      return;
+    }
+
+    toggleFeature(featureKey, true);
+  };
+
+  const handleDisableConfirm = async () => {
+    if (!disableModalData) return;
+    for (const dep of disableModalData.dependents) {
+      await toggleFeature(dep.key, false);
+    }
+    await toggleFeature(disableModalData.feature.key, false);
+    setDisableModalData(null);
   };
 
   // Accordion helper
@@ -371,6 +460,43 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
         </div>
       )}
 
+      {/* ── Features ── */}
+      {renderAccordion('features', 'Features',
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>,
+        <div className={styles.featuresGrid}>
+          <p className={styles.featuresHint}>
+            Toggle features for your gym site. You can also manage these from the Features tab in your Dashboard.
+          </p>
+          {FEATURES.map((feature) => {
+            const isEnabled = features[feature.key];
+            const canToggle = isDependencyMet(feature);
+            const isDisabled = featureLoading || (!canToggle && !isEnabled);
+
+            return (
+              <div key={feature.key} className={`${styles.featureToggleRow} ${isDisabled ? styles.featureToggleDisabled : ''}`}>
+                <div className={styles.featureToggleInfo}>
+                  <span className={styles.featureToggleName}>{feature.name}</span>
+                  {feature.dependencies && !canToggle && (
+                    <span className={styles.featureToggleDep}>
+                      Requires {feature.dependencies.map((dep) => FEATURES.find((f) => f.key === dep)?.name || dep).join(', ')}
+                    </span>
+                  )}
+                </div>
+                <label className={styles.featureSwitch}>
+                  <input
+                    type="checkbox"
+                    checked={isEnabled}
+                    disabled={isDisabled}
+                    onChange={() => handleFeatureToggle(feature.key, isEnabled)}
+                  />
+                  <span className={styles.featureSwitchSlider}></span>
+                </label>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* ── Content ── */}
       {renderAccordion('content', 'Content',
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>,
@@ -410,6 +536,64 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
         </div>
       )}
 
+      {/* ── Hero Action Cards ── */}
+      {renderAccordion('heroCards', 'Hero Action Cards',
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>,
+        <div className={styles.contentGrid}>
+          <p className={styles.featuresHint}>
+            Customise the title, description, and button text for each action card on your homepage hero. Cards only appear when their feature is enabled.
+          </p>
+
+          <div className={styles.heroCardGroup}>
+            <span className={styles.heroCardGroupLabel}>Day Pass Card</span>
+            <div className={styles.brandingFormField}>
+              <label htmlFor="daypass_title">Title</label>
+              <input type="text" id="daypass_title" value={formData.hero_cards.daypass.title} onChange={(e) => handleHeroCardChange('daypass', 'title', e.target.value)} className={styles.brandingInput} placeholder="Day Pass" />
+            </div>
+            <div className={styles.brandingFormField}>
+              <label htmlFor="daypass_desc">Description</label>
+              <input type="text" id="daypass_desc" value={formData.hero_cards.daypass.description} onChange={(e) => handleHeroCardChange('daypass', 'description', e.target.value)} className={styles.brandingInput} placeholder="Drop in for a single session..." />
+            </div>
+            <div className={styles.brandingFormField}>
+              <label htmlFor="daypass_btn">Button Text</label>
+              <input type="text" id="daypass_btn" value={formData.hero_cards.daypass.button} onChange={(e) => handleHeroCardChange('daypass', 'button', e.target.value)} className={styles.brandingInput} placeholder="Book Day Pass" />
+            </div>
+          </div>
+
+          <div className={styles.heroCardGroup}>
+            <span className={styles.heroCardGroupLabel}>Free Trial Card</span>
+            <div className={styles.brandingFormField}>
+              <label htmlFor="trial_title">Title</label>
+              <input type="text" id="trial_title" value={formData.hero_cards.trial.title} onChange={(e) => handleHeroCardChange('trial', 'title', e.target.value)} className={styles.brandingInput} placeholder="Free Trial" />
+            </div>
+            <div className={styles.brandingFormField}>
+              <label htmlFor="trial_desc">Description</label>
+              <input type="text" id="trial_desc" value={formData.hero_cards.trial.description} onChange={(e) => handleHeroCardChange('trial', 'description', e.target.value)} className={styles.brandingInput} placeholder="Try your first class on us..." />
+            </div>
+            <div className={styles.brandingFormField}>
+              <label htmlFor="trial_btn">Button Text</label>
+              <input type="text" id="trial_btn" value={formData.hero_cards.trial.button} onChange={(e) => handleHeroCardChange('trial', 'button', e.target.value)} className={styles.brandingInput} placeholder="Book Trial Pass" />
+            </div>
+          </div>
+
+          <div className={styles.heroCardGroup}>
+            <span className={styles.heroCardGroupLabel}>Schedule Card</span>
+            <div className={styles.brandingFormField}>
+              <label htmlFor="schedule_title">Title</label>
+              <input type="text" id="schedule_title" value={formData.hero_cards.schedule.title} onChange={(e) => handleHeroCardChange('schedule', 'title', e.target.value)} className={styles.brandingInput} placeholder="Class Schedule" />
+            </div>
+            <div className={styles.brandingFormField}>
+              <label htmlFor="schedule_desc">Description</label>
+              <input type="text" id="schedule_desc" value={formData.hero_cards.schedule.description} onChange={(e) => handleHeroCardChange('schedule', 'description', e.target.value)} className={styles.brandingInput} placeholder="View our full timetable..." />
+            </div>
+            <div className={styles.brandingFormField}>
+              <label htmlFor="schedule_btn">Button Text</label>
+              <input type="text" id="schedule_btn" value={formData.hero_cards.schedule.button} onChange={(e) => handleHeroCardChange('schedule', 'button', e.target.value)} className={styles.brandingInput} placeholder="View Schedule" />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Custom Code ── */}
       {renderAccordion('custom', 'Custom Code',
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>,
@@ -445,6 +629,17 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
           {isLoading ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
+
+      {disableModalData && (
+        <FeatureDisableModal
+          isOpen={true}
+          onClose={() => setDisableModalData(null)}
+          onConfirm={handleDisableConfirm}
+          feature={disableModalData.feature}
+          dependentFeatures={disableModalData.dependents}
+          isLoading={featureLoading}
+        />
+      )}
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import { useTenant } from '../../contexts/TenantContext';
+import { Link } from 'react-router-dom';
+import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { FEATURES, getFeaturesByCategory, type FeatureDefinition } from '../../config/features';
 import type { FeatureKey } from '../../types/tenant';
@@ -41,6 +42,7 @@ const FEATURE_ICONS: Record<FeatureKey, ReactNode> = {
 
 const FeatureTogglePanel: React.FC = () => {
   const { gym, features, refreshTenant } = useTenant();
+  const gymPath = useGymPath();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [disableModalData, setDisableModalData] = useState<{
@@ -166,6 +168,11 @@ const FeatureTogglePanel: React.FC = () => {
           {message.text}
         </div>
       )}
+
+      <p className={styles.featureHint}>
+        You can also toggle features from the{' '}
+        <Link to={gymPath('/site-builder')} className={styles.featureHintLink}>Site Builder</Link>.
+      </p>
 
       {Object.entries(featuresByCategory).map(([category, categoryFeatures]) => (
         <div key={category} className={styles.featureCategory}>

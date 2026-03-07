@@ -54,6 +54,11 @@ export const DEFAULT_BRANDING: GymBranding = {
   custom_css: '',
   hero_effect: 'comet',
   visible_sections: { hero: true, programs: true, wod: true, cta: true, stats: true },
+  hero_cards: {
+    daypass: { title: 'Day Pass', description: 'Drop in for a single session and experience our community', button: 'Book Day Pass' },
+    trial: { title: 'Free Trial', description: 'New here? Try your first class on us, no commitment', button: 'Book Trial Pass' },
+    schedule: { title: 'Class Schedule', description: 'View our full timetable and find a class that fits your day', button: 'View Schedule' },
+  },
 };
 
 // -------------------------------------------------------------------

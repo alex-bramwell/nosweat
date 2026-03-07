@@ -87,6 +87,21 @@ export interface GymBranding {
 
   // Section visibility
   visible_sections: Record<string, boolean>;
+
+  // Hero action cards
+  hero_cards: HeroCards;
+}
+
+export interface HeroCardContent {
+  title: string;
+  description: string;
+  button: string;
+}
+
+export interface HeroCards {
+  daypass: HeroCardContent;
+  trial: HeroCardContent;
+  schedule: HeroCardContent;
 }
 
 export interface GymFeature {
