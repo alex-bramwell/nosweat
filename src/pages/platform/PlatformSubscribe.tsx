@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import {
   EmbeddedCheckoutProvider,
@@ -82,7 +82,7 @@ const SubscribeComplete = () => {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [customerEmail, setCustomerEmail] = useState('');
 
-  useState(() => {
+  useEffect(() => {
     if (!sessionId) {
       setStatus('error');
       return;
@@ -99,7 +99,7 @@ const SubscribeComplete = () => {
         }
       })
       .catch(() => setStatus('error'));
-  });
+  }, [sessionId]);
 
   return (
     <div className={styles.platformSubscribePage}>
