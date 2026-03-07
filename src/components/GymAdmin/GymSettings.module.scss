@@ -107,6 +107,92 @@
   border-top: 1px solid var(--color-bg-dark);
 }
 
+// ── Stripe Connect ──────────────────────────────
+.connectHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.connectStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.connectStatusDefault {
+  background: var(--color-bg-dark);
+  color: var(--color-muted);
+}
+
+.connectStatusOnboarding {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.connectStatusActive {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+.connectStatusRestricted {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.connectStatusDisabled {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.connectDescription {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.connectDetails {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem;
+  background: var(--color-bg-light);
+  border-radius: var(--border-radius);
+}
+
+.connectDetailItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.connectDetailLabel {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.connectEnabled {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #059669;
+}
+
+.connectDisabledText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.connectActions {
+  display: flex;
+  gap: 1rem;
+}
+
 // Responsive
 @media (max-width: 768px) {
   .settingsFormGrid {

@@ -1,9 +1,221 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTenant } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { Button, Card } from '../common';
 import styles from './GymSettings.module.scss';
 
+async function getAccessToken(): Promise<string> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) throw new Error('Not authenticated');
+  return session.access_token;
+}
+
+// ── Stripe Connect Panel ──────────────────────────────────────────
+const StripeConnectPanel: React.FC = () => {
+  const { gym, refreshTenant } = useTenant();
+  const [connectLoading, setConnectLoading] = useState(false);
+  const [connectError, setConnectError] = useState<string | null>(null);
+  const [accountStatus, setAccountStatus] = useState<{
+    chargesEnabled?: boolean;
+    payoutsEnabled?: boolean;
+    detailsSubmitted?: boolean;
+  } | null>(null);
+
+  const status = gym?.stripe_account_status || 'not_started';
+
+  // Fetch live account status from Stripe when gym has an account
+  useEffect(() => {
+    if (!gym?.stripe_account_id) return;
+
+    const fetchStatus = async () => {
+      try {
+        const token = await getAccessToken();
+        const res = await fetch('/api/connect/account-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ gymId: gym.id }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAccountStatus(data);
+        }
+      } catch {
+        // Silently fail — DB status is still shown
+      }
+    };
+    fetchStatus();
+  }, [gym?.stripe_account_id, gym?.id]);
+
+  const handleStartOnboarding = useCallback(async () => {
+    if (!gym) return;
+    setConnectLoading(true);
+    setConnectError(null);
+
+    try {
+      const token = await getAccessToken();
+
+      // Step 1: Create Connect account if none exists
+      if (!gym.stripe_account_id) {
+        const createRes = await fetch('/api/connect/create-account', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ gymId: gym.id }),
+        });
+
+        if (!createRes.ok) {
+          const err = await createRes.json();
+          throw new Error(err.error || 'Failed to create Connect account');
+        }
+
+        await refreshTenant();
+      }
+
+      // Step 2: Get onboarding link
+      const linkRes = await fetch('/api/connect/onboarding-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ gymId: gym.id }),
+      });
+
+      if (!linkRes.ok) {
+        const err = await linkRes.json();
+        throw new Error(err.error || 'Failed to create onboarding link');
+      }
+
+      const { url } = await linkRes.json();
+      window.location.href = url;
+    } catch (err) {
+      setConnectError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setConnectLoading(false);
+    }
+  }, [gym, refreshTenant]);
+
+  const handleOpenDashboard = useCallback(async () => {
+    if (!gym) return;
+    setConnectLoading(true);
+    setConnectError(null);
+
+    try {
+      const token = await getAccessToken();
+      const res = await fetch('/api/connect/dashboard-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ gymId: gym.id }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to get dashboard link');
+      }
+
+      const { url } = await res.json();
+      window.open(url, '_blank');
+    } catch (err) {
+      setConnectError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setConnectLoading(false);
+    }
+  }, [gym]);
+
+  const statusConfig: Record<string, { label: string; className: string; description: string }> = {
+    not_started: {
+      label: 'Not Connected',
+      className: styles.connectStatusDefault,
+      description: 'Connect your Stripe account to receive payments from members.',
+    },
+    onboarding: {
+      label: 'Onboarding',
+      className: styles.connectStatusOnboarding,
+      description: 'Your Stripe account setup is in progress. Continue onboarding to start accepting payments.',
+    },
+    active: {
+      label: 'Active',
+      className: styles.connectStatusActive,
+      description: 'Your Stripe account is connected and ready to accept payments.',
+    },
+    restricted: {
+      label: 'Restricted',
+      className: styles.connectStatusRestricted,
+      description: 'Your Stripe account has restrictions. Please complete any pending requirements.',
+    },
+    disabled: {
+      label: 'Disabled',
+      className: styles.connectStatusDisabled,
+      description: 'Your Stripe account has been disabled. Please contact support.',
+    },
+  };
+
+  const config = statusConfig[status] || statusConfig.not_started;
+
+  return (
+    <Card className={styles.settingsSection}>
+      <div className={styles.connectHeader}>
+        <h2 className={styles.settingsSectionTitle}>Payments</h2>
+        <span className={`${styles.connectStatusBadge} ${config.className}`}>
+          {config.label}
+        </span>
+      </div>
+
+      <p className={styles.connectDescription}>{config.description}</p>
+
+      {accountStatus && status === 'active' && (
+        <div className={styles.connectDetails}>
+          <div className={styles.connectDetailItem}>
+            <span className={styles.connectDetailLabel}>Charges</span>
+            <span className={accountStatus.chargesEnabled ? styles.connectEnabled : styles.connectDisabledText}>
+              {accountStatus.chargesEnabled ? 'Enabled' : 'Disabled'}
+            </span>
+          </div>
+          <div className={styles.connectDetailItem}>
+            <span className={styles.connectDetailLabel}>Payouts</span>
+            <span className={accountStatus.payoutsEnabled ? styles.connectEnabled : styles.connectDisabledText}>
+              {accountStatus.payoutsEnabled ? 'Enabled' : 'Disabled'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {connectError && (
+        <div className={`${styles.settingsMessage} ${styles.error}`}>
+          {connectError}
+        </div>
+      )}
+
+      <div className={styles.connectActions}>
+        {(status === 'not_started' || status === 'onboarding' || status === 'restricted') && (
+          <Button onClick={handleStartOnboarding} disabled={connectLoading}>
+            {connectLoading
+              ? 'Loading...'
+              : status === 'not_started'
+                ? 'Connect Stripe Account'
+                : 'Continue Setup'}
+          </Button>
+        )}
+
+        {status === 'active' && (
+          <Button onClick={handleOpenDashboard} disabled={connectLoading} variant="secondary">
+            {connectLoading ? 'Loading...' : 'Open Stripe Dashboard'}
+          </Button>
+        )}
+      </div>
+    </Card>
+  );
+};
+
+// ── Main Settings Component ───────────────────────────────────────
 const GymSettings: React.FC = () => {
   const { gym, refreshTenant } = useTenant();
   const [isLoading, setIsLoading] = useState(false);
@@ -282,6 +494,8 @@ const GymSettings: React.FC = () => {
           </div>
         </div>
       </Card>
+
+      <StripeConnectPanel />
 
       <div className={styles.settingsActions}>
         <Button onClick={handleSave} disabled={isLoading}>

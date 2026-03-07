@@ -102,8 +102,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const bookingDateTime = new Date(`${bookingDate}T${startTime}`);
     const refundEligibleUntil = new Date(bookingDateTime.getTime() - 24 * 60 * 60 * 1000);
 
+    // Look up gym's Connect account via the coach's gym_id
+    let connectAccountId: string | undefined;
+    let applicationFeeAmount: number | undefined;
+
+    if (service.gym_id) {
+      const { data: gym } = await supabase
+        .from('gyms')
+        .select('stripe_account_id, stripe_onboarding_complete, platform_fee_percent')
+        .eq('id', service.gym_id)
+        .single();
+
+      if (gym?.stripe_account_id && gym.stripe_onboarding_complete) {
+        connectAccountId = gym.stripe_account_id;
+        const feePercent = gym.platform_fee_percent || 10;
+        applicationFeeAmount = Math.round(amountInPence * (feePercent / 100));
+      }
+    }
+
     // Create payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
+    const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
       amount: amountInPence,
       currency: 'gbp',
       customer: stripeCustomerId,
@@ -121,7 +139,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       automatic_payment_methods: {
         enabled: true,
       },
-    });
+    };
+
+    // Route payment through Connect if gym has an account
+    if (connectAccountId && applicationFeeAmount) {
+      paymentIntentParams.transfer_data = { destination: connectAccountId };
+      paymentIntentParams.application_fee_amount = applicationFeeAmount;
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams);
 
     // Return the client secret and booking details
     return res.status(200).json({
