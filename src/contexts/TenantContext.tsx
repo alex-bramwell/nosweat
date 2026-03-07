@@ -13,28 +13,30 @@ import type {
 } from '../types/tenant';
 
 // -------------------------------------------------------------------
-// Default branding (clean white-label light theme)
+// Default branding (clean white-label light theme with blue accent)
+// Uses Tailwind Zinc neutrals + Blue-600 accent for WCAG AA compliance
 // -------------------------------------------------------------------
-const DEFAULT_BRANDING: GymBranding = {
+export const DEFAULT_BRANDING: GymBranding = {
   id: '',
   gym_id: '',
   color_bg: '#ffffff',
-  color_bg_light: '#f5f5f5',
-  color_bg_dark: '#e5e5e5',
+  color_bg_light: '#fafafa',
+  color_bg_dark: '#f4f4f5',
   color_surface: '#ffffff',
-  color_accent: '#111111',
-  color_accent2: '#333333',
-  color_secondary: '#555555',
-  color_secondary2: '#444444',
-  color_specialty: '#777777',
-  color_text: '#111111',
-  color_muted: '#888888',
-  color_header: '#000000',
-  color_footer: '#111111',
+  color_accent: '#2563eb',
+  color_accent2: '#1d4ed8',
+  color_secondary: '#3f3f46',
+  color_secondary2: '#52525b',
+  color_specialty: '#6366f1',
+  color_text: '#18181b',
+  color_muted: '#71717a',
+  color_header: '#09090b',
+  color_footer: '#18181b',
   font_header: 'Inter',
   font_body: 'Inter',
   border_radius: '0.5rem',
   theme_mode: 'light',
+  nav_style: 'floating',
   logo_url: null,
   logo_dark_url: null,
   favicon_url: null,
@@ -49,6 +51,9 @@ const DEFAULT_BRANDING: GymBranding = {
   about_philosophy: null,
   about_facility: null,
   footer_text: null,
+  custom_css: '',
+  hero_effect: 'comet',
+  visible_sections: { hero: true, programs: true, wod: true, cta: true, stats: true },
 };
 
 // -------------------------------------------------------------------

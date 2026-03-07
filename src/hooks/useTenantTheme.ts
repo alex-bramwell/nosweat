@@ -6,7 +6,7 @@ import type { GymBranding } from '../types/tenant';
  * Converts a hex color to its RGB components string (e.g. "255, 79, 31")
  * This allows using CSS variables inside rgba(): rgba(var(--color-accent-rgb), 0.5)
  */
-function hexToRgb(hex: string): string {
+export function hexToRgb(hex: string): string {
   const clean = hex.replace('#', '');
   const bigint = parseInt(clean, 16);
   if (clean.length === 3) {
@@ -25,7 +25,7 @@ function hexToRgb(hex: string): string {
  * Map of branding fields to CSS variable names.
  * Each entry maps a GymBranding color field to its CSS custom property.
  */
-const COLOR_MAP: { field: keyof GymBranding; cssVar: string }[] = [
+export const COLOR_MAP: { field: keyof GymBranding; cssVar: string }[] = [
   { field: 'color_bg', cssVar: '--color-bg' },
   { field: 'color_bg_light', cssVar: '--color-bg-light' },
   { field: 'color_bg_dark', cssVar: '--color-bg-dark' },
@@ -60,7 +60,7 @@ const AVAILABLE_FONTS = [
 /** Fonts that are system fonts and don't need loading */
 const SYSTEM_FONTS = ['Arial', 'Helvetica', 'sans-serif', 'serif'];
 
-function loadGoogleFont(fontName: string) {
+export function loadGoogleFont(fontName: string) {
   if (SYSTEM_FONTS.includes(fontName)) return;
   if (!AVAILABLE_FONTS.includes(fontName)) return;
 
@@ -144,6 +144,20 @@ export function useTenantTheme() {
     }
     themeMeta.content = branding.color_bg || '#ffffff';
 
+    // 8. Inject custom CSS
+    const customStyleId = 'tenant-custom-css';
+    let customStyle = document.getElementById(customStyleId) as HTMLStyleElement | null;
+    if (branding.custom_css) {
+      if (!customStyle) {
+        customStyle = document.createElement('style');
+        customStyle.id = customStyleId;
+        document.head.appendChild(customStyle);
+      }
+      customStyle.textContent = branding.custom_css;
+    } else if (customStyle) {
+      customStyle.remove();
+    }
+
     // Cleanup: remove injected styles when tenant changes
     return () => {
       for (const { cssVar } of COLOR_MAP) {
@@ -154,6 +168,8 @@ export function useTenantTheme() {
       root.style.removeProperty('--font-body');
       root.style.removeProperty('--border-radius');
       root.removeAttribute('data-theme');
+      const existingCustomStyle = document.getElementById(customStyleId);
+      if (existingCustomStyle) existingCustomStyle.remove();
     };
   }, [gym, branding, isPlatformSite]);
 }

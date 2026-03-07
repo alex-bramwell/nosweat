@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { useGymPath } from '../contexts/TenantContext';
-import { Section, Container, Card, Button } from '../components/common';
+import { Section, Container, Card, Button, EmptyStatePreview } from '../components/common';
 import { coachProfileService, type CoachProfile } from '../services/coachProfileService';
 import { SERVICE_LABELS } from '../services/coachServicesService';
+import { useIsBuilder } from '../contexts/BrandingOverrideContext';
+import { SAMPLE_COACHES } from '../data/sampleContent';
 import styles from './Coaches.module.scss';
 
 const Coaches = () => {
   const location = useLocation();
   const gymPath = useGymPath();
+  const isBuilder = useIsBuilder();
   const coachRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [coaches, setCoaches] = useState<CoachProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -179,6 +182,15 @@ const Coaches = () => {
             <div className={styles.coachesGrid}>
               {coaches.map((coach, index) => renderCoachCard(coach, index))}
             </div>
+          ) : isBuilder ? (
+            <EmptyStatePreview
+              title="Coach Profiles"
+              description="Introduce your coaching team with bios, certifications, specialties, and services. Coaches can set up their profiles from their dashboard."
+            >
+              <div className={styles.coachesGrid}>
+                {SAMPLE_COACHES.map((coach, index) => renderCoachCard(coach, index))}
+              </div>
+            </EmptyStatePreview>
           ) : (
             <div className={styles.loading}>
               <p>No coaches available at this time.</p>

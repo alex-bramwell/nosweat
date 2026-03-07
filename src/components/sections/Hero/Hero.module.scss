@@ -5,22 +5,7 @@
   overflow: hidden;
   background: linear-gradient(135deg, var(--color-bg-dark) 0%, var(--color-bg) 100%);
 
-  // Background image
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070&auto=format&fit=crop');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.25;
-    z-index: 0;
-    pointer-events: none;
-  }
+  // Background image is now set via inline style on .heroBackground
 
   // Dark overlay on top of background image
   &::before {
@@ -38,6 +23,44 @@
     z-index: 1;
     pointer-events: none;
   }
+}
+
+.heroBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.25;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.gradientEffect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    270deg,
+    rgba(var(--color-accent-rgb), 0.15),
+    rgba(var(--color-secondary-rgb), 0.15),
+    rgba(var(--color-accent-rgb), 0.15)
+  );
+  background-size: 600% 600%;
+  animation: gradientShift 8s ease infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .comet {
@@ -178,7 +201,7 @@
   padding: 2rem 1.5rem;
   background: linear-gradient(135deg, rgba(var(--color-surface-rgb), 0.9) 0%, rgba(var(--color-bg-dark-rgb), 0.8) 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
+  border-radius: var(--border-radius, 1rem);
   backdrop-filter: blur(10px);
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 

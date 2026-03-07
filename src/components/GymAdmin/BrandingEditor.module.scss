@@ -1,7 +1,7 @@
 .brandingEditor {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 0.5rem;
 }
 
 .message {
@@ -34,48 +34,111 @@
   }
 }
 
-.section {
+// ── Accordion ──
+.accordion {
+  border: 1px solid var(--color-bg-dark, rgba(255, 255, 255, 0.08));
+  border-radius: var(--border-radius, 0.75rem);
+  overflow: hidden;
+}
+
+.accordionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: var(--color-surface, #1a1a2e);
+  border: none;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 150ms ease;
+
+  &:hover {
+    background: var(--color-bg-light, rgba(255, 255, 255, 0.03));
+  }
+}
+
+.accordionIcon {
+  display: flex;
+  align-items: center;
+  color: var(--color-accent);
+
+  svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}
+
+.accordionTitle {
+  flex: 1;
+  text-align: left;
+}
+
+.accordionChevron {
+  display: flex;
+  align-items: center;
+  color: var(--color-muted);
+  transition: transform 200ms ease;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.accordionOpen .accordionChevron {
+  transform: rotate(180deg);
+}
+
+.accordionBody {
+  padding: 1.25rem;
+  border-top: 1px solid var(--color-bg-dark, rgba(255, 255, 255, 0.08));
+  animation: accordionSlide 200ms ease;
+}
+
+@keyframes accordionSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Color Palette Section ──
+.colorGrid {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-}
-
-.sectionTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-header);
-  margin: 0;
-}
-
-// Color Palette Section
-.colorGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .colorField {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.375rem;
 
   label {
     font-weight: 600;
     color: var(--color-text);
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
   }
 }
 
 .colorLabel {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--color-muted);
 }
 
 .colorInputWrapper {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.75rem;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-bg-dark);
   border-radius: var(--border-radius);
   background: var(--color-bg-light);
@@ -86,35 +149,46 @@
   }
 
   input[type='color'] {
-    width: 60px;
-    height: 40px;
-    border: none;
-    border-radius: calc(var(--border-radius) / 2);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 48px;
+    height: 32px;
+    padding: 0;
+    border: 2px solid var(--color-bg-dark);
+    border-radius: var(--border-radius, 0.75rem);
     cursor: pointer;
+    overflow: hidden;
+    background: transparent;
 
     &::-webkit-color-swatch-wrapper {
       padding: 0;
     }
 
     &::-webkit-color-swatch {
-      border: 2px solid var(--color-bg-dark);
-      border-radius: calc(var(--border-radius) / 2);
+      border: none;
+      border-radius: 0;
+    }
+
+    &::-moz-color-swatch {
+      border: none;
+      border-radius: 0;
     }
   }
 }
 
 .colorValue {
   font-family: monospace;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   color: var(--color-muted);
   text-transform: uppercase;
 }
 
-// Typography Section
+// ── Typography Section ──
 .fontGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .formField {
@@ -125,7 +199,7 @@
   label {
     font-weight: 600;
     color: var(--color-text);
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -133,12 +207,12 @@
 }
 
 .select {
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.75rem;
   border: 1px solid var(--color-bg-dark);
   border-radius: var(--border-radius);
   background: var(--color-surface);
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -151,12 +225,12 @@
 }
 
 .input {
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.75rem;
   border: 1px solid var(--color-bg-dark);
   border-radius: var(--border-radius);
   background: var(--color-surface);
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-family: inherit;
   transition: all 0.2s ease;
 
@@ -173,12 +247,12 @@
 }
 
 .textarea {
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.75rem;
   border: 1px solid var(--color-bg-dark);
   border-radius: var(--border-radius);
   background: var(--color-surface);
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-family: inherit;
   resize: vertical;
   transition: all 0.2s ease;
@@ -195,11 +269,11 @@
   }
 }
 
-// Shape & Theme Section
+// ── Shape & Theme Section ──
 .shapeGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .slider {
@@ -257,7 +331,7 @@
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   color: var(--color-text);
 
   input[type='radio'] {
@@ -272,14 +346,68 @@
   }
 }
 
-// Content Section
+// ── Content Section ──
 .contentGrid {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
-// Actions
+// ── Assets Section ──
+.assetsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+// ── Sections Visibility ──
+.sectionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+
+  input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--color-accent);
+  }
+
+  span {
+    user-select: none;
+  }
+}
+
+// ── Advanced Colors Divider ──
+.advancedDivider {
+  padding: 0.5rem 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+  border-top: 1px solid var(--color-bg-dark, rgba(255, 255, 255, 0.08));
+  margin-top: 0.25rem;
+}
+
+// ── Code Textarea ──
+.codeTextarea {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  tab-size: 2;
+}
+
+// ── Actions ──
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -288,14 +416,8 @@
   border-top: 1px solid var(--color-bg-dark);
 }
 
-// Responsive
+// ── Responsive ──
 @media (max-width: 768px) {
-  .colorGrid,
-  .fontGrid,
-  .shapeGrid {
-    grid-template-columns: 1fr;
-  }
-
   .actions {
     flex-direction: column-reverse;
 

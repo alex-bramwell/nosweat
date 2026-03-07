@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTenant, useFeature, useGymPath } from '../contexts/TenantContext';
+import { useBrandingWithOverrides } from '../hooks/useBrandingWithOverrides';
 import { useViewAs } from '../contexts/ViewAsContext';
 import { supabase } from '../lib/supabase';
 import { AuthModal } from './AuthModal';
@@ -10,6 +11,7 @@ import styles from './Navbar.module.scss';
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { gym } = useTenant();
+  const branding = useBrandingWithOverrides();
   const viewAsRole = useViewAs();
 
   // When view-as is active, simulate a different role for rendering
@@ -155,12 +157,20 @@ const Navbar: React.FC = () => {
     return user.name.split(' ')[0];
   };
 
+  const navStyle = branding.nav_style || 'floating';
+
   return (
-    <div className={styles.navbarContainer}>
+    <div className={`${styles.navbarContainer} ${navStyle === 'standard' ? styles.navbarStandard : ''}`}>
       <nav className={`${styles.navbar} ${isScrolled ? styles.scrolled : ''}`}>
         <Link to={gymPath('/')} className={styles.logo} onClick={closeMenu}>
-          <div className={styles.logoText}>{gym?.name || 'Gym'}</div>
-          <div className={styles.logoAffiliate}>Affiliate</div>
+          {branding.logo_url ? (
+            <img src={branding.logo_url} alt={gym?.name || 'Gym'} className={styles.logoImage} />
+          ) : (
+            <>
+              <div className={styles.logoText}>{gym?.name || 'Gym'}</div>
+              <div className={styles.logoAffiliate}>Affiliate</div>
+            </>
+          )}
         </Link>
 
         {/* Hamburger Button - Mobile Only */}
@@ -375,8 +385,14 @@ const Navbar: React.FC = () => {
       <div className={`${styles.mobileMenu} ${isMenuOpen ? styles.mobileMenuOpen : ''}`}>
         <div className={styles.mobileMenuHeader}>
           <Link to={gymPath('/')} className={styles.mobileMenuLogo} onClick={closeMenu}>
-            <div className={styles.logoText}>{gym?.name || 'Gym'}</div>
-            <div className={styles.logoAffiliate}>Affiliate</div>
+            {branding.logo_url ? (
+              <img src={branding.logo_url} alt={gym?.name || 'Gym'} className={styles.logoImage} />
+            ) : (
+              <>
+                <div className={styles.logoText}>{gym?.name || 'Gym'}</div>
+                <div className={styles.logoAffiliate}>Affiliate</div>
+              </>
+            )}
           </Link>
           <button
             className={styles.mobileMenuClose}

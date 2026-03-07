@@ -4,6 +4,19 @@
   flex-direction: column;
   background: var(--color-bg);
 }
+
+.withSidebar {
+  flex-direction: row;
+}
+
+.pageArea {
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
 .main {
   flex: 1;
   width: 100%;

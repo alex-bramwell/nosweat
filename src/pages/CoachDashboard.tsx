@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
-import { Section, Container, Card, Button, Modal } from '../components/common';
+import { Section, Container, Card, Button, Modal, EmptyStatePreview } from '../components/common';
 import { EditIcon, DeleteIcon } from '../components/common/Icons';
+import { SAMPLE_WORKOUT } from '../data/sampleContent';
 import { WODEditorEnhanced } from '../components/WODEditor/WODEditorEnhanced';
 import { CoachAnalytics } from '../components/CoachAnalytics/CoachAnalytics';
 import { UserManagement } from '../components/UserManagement';
@@ -442,15 +443,30 @@ const CoachDashboard = () => {
                     </div>
                   </Card>
                 ) : (
-                  <Card variant="elevated">
-                    <p>No workout scheduled for today.</p>
-                    <Button
-                      variant="primary"
-                      onClick={() => setActiveTab('create')}
-                    >
-                      Create Today&apos;s Workout
-                    </Button>
-                  </Card>
+                  <EmptyStatePreview
+                    title="Today's Workout"
+                    description="This is what today's workout will look like once you create one. Add warmup, strength, metcon, and cooldown sections."
+                    action={
+                      <Button variant="primary" size="small" onClick={() => setActiveTab('create')}>
+                        Create Workout
+                      </Button>
+                    }
+                  >
+                    <Card variant="elevated">
+                      <div className={styles.workoutPreview}>
+                        <h3>{SAMPLE_WORKOUT.title}</h3>
+                        <p className={styles.workoutType}>{SAMPLE_WORKOUT.type.toUpperCase()}</p>
+                        <p>{SAMPLE_WORKOUT.description}</p>
+                        {SAMPLE_WORKOUT.metcon && SAMPLE_WORKOUT.metcon.length > 0 && (
+                          <div className={styles.movements}>
+                            {SAMPLE_WORKOUT.metcon.map((m, i) => (
+                              <div key={i}>• {m}</div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  </EmptyStatePreview>
                 )}
 
                 <h2 className={styles.sectionTitle}>Quick Stats</h2>

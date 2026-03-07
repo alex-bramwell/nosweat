@@ -1,0 +1,188 @@
+// ── Builder Sidebar ──
+// Shared retractable branding panel used in Layout + Site Builder
+
+$panel-width: 400px;
+$chrome-bg: #12121a;
+$chrome-bg-light: #1a1a24;
+$chrome-border: rgba(255, 255, 255, 0.08);
+$chrome-border-bright: rgba(255, 255, 255, 0.15);
+$chrome-text: #f0f0f5;
+$chrome-text-muted: #8b8b9e;
+$chrome-accent: #2563eb;
+
+.panel {
+  width: $panel-width;
+  min-width: $panel-width;
+  background: $chrome-bg-light;
+  border-right: 1px solid $chrome-border;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: width 250ms cubic-bezier(0.4, 0, 0.2, 1),
+              min-width 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  flex-shrink: 0;
+
+  // Override ALL CSS custom properties for dark admin panel
+  // so gym branding never bleeds into the builder chrome
+  --color-bg: #{$chrome-bg-light};
+  --color-bg-light: #{$chrome-bg};
+  --color-bg-dark: rgba(255, 255, 255, 0.06);
+  --color-surface: #{$chrome-bg};
+  --color-text: #{$chrome-text};
+  --color-muted: #{$chrome-text-muted};
+  --color-header: #{$chrome-text};
+  --color-footer: #{$chrome-text-muted};
+  --color-accent: #{$chrome-accent};
+  --color-accent2: #3b82f6;
+  --color-secondary: #{$chrome-text-muted};
+  --color-secondary2: #6b7280;
+  --color-specialty: #a78bfa;
+  --color-accent-rgb: 37, 99, 235;
+  --color-secondary-rgb: 139, 139, 158;
+  --color-bg-rgb: 26, 26, 36;
+  --color-bg-light-rgb: 18, 18, 26;
+  --color-bg-dark-rgb: 255, 255, 255;
+  --color-surface-rgb: 18, 18, 26;
+  --color-text-rgb: 240, 240, 245;
+}
+
+.panelCollapsed {
+  width: 0;
+  min-width: 0;
+  border-right: none;
+}
+
+// Edge toggle handle — circular button on the panel edge
+.panelEdgeToggle {
+  position: absolute;
+  right: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 11;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: $chrome-bg-light;
+  border: 1px solid $chrome-border-bright;
+  color: $chrome-text-muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 150ms ease;
+  padding: 0;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $chrome-text;
+    background: lighten($chrome-bg-light, 8%);
+    border-color: $chrome-accent;
+    box-shadow: 0 0 8px rgba($chrome-accent, 0.3);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .panelCollapsed & {
+    right: -28px;
+  }
+}
+
+// Wrapper for panel header + body — hides when collapsed
+.panelContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+
+  .panelCollapsed & {
+    display: none;
+  }
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid $chrome-border;
+  flex-shrink: 0;
+}
+
+.panelHeaderIcon {
+  display: flex;
+  align-items: center;
+  color: $chrome-text-muted;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.panelHeaderTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: $chrome-text;
+  letter-spacing: 0.02em;
+}
+
+.panelBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+
+  // Custom scrollbar for dark theme
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
+}
+
+// ── Responsive ──
+@media (max-width: 1024px) {
+  .panel {
+    width: 340px;
+    min-width: 340px;
+  }
+}
+
+@media (max-width: 768px) {
+  .panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 9998;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .panelCollapsed {
+    width: 0;
+    min-width: 0;
+  }
+
+  .panelEdgeToggle {
+    right: -36px;
+    width: 32px;
+    height: 32px;
+
+    .panelCollapsed & {
+      right: -36px;
+    }
+  }
+}
