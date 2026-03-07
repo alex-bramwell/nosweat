@@ -10,3 +10,4 @@ export { default as ServiceBookingIllustration } from './ServiceBookingIllustrat
 export { default as MemberManagementIllustration } from './MemberManagementIllustration';
 export { default as AnalyticsIllustration } from './AnalyticsIllustration';
 export { default as AccountingIllustration } from './AccountingIllustration';
+export { default as PaymentFlowIllustration } from './PaymentFlowIllustration';
