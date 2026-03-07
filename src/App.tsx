@@ -32,6 +32,7 @@ import Onboarding from './pages/platform/Onboarding';
 import Guide from './pages/platform/Guide';
 import Docs from './pages/platform/Docs';
 import Roadmap from './pages/platform/Roadmap';
+import Payments from './pages/platform/Payments';
 import PlatformSubscribe, { SubscribeComplete } from './pages/platform/PlatformSubscribe';
 import TestReset from './pages/platform/TestReset';
 import PlatformDashboard from './pages/platform/PlatformDashboard';
@@ -246,6 +247,7 @@ function PlatformShell() {
         <Route path="/guide" element={<Guide />} />
         <Route path="/docs" element={<Docs />} />
         <Route path="/roadmap" element={<Roadmap />} />
+        <Route path="/payments" element={<Payments />} />
         <Route path="/subscribe" element={<PlatformSubscribe />} />
         <Route path="/subscribe/complete" element={<SubscribeComplete />} />
         <Route path="/test-reset" element={<TestReset />} />
