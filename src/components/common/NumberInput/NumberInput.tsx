@@ -101,7 +101,7 @@ export function NumberInput({
         </svg>
       </button>
 
-      <div className={styles.inputWrapper}>
+      <div className={styles.numberInputWrapper}>
         <input
           ref={inputRef}
           id={id}
@@ -113,9 +113,9 @@ export function NumberInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className={styles.input}
+          className={styles.numberTextInput}
         />
-        {label && <span className={styles.label}>{label}</span>}
+        {label && <span className={styles.numberUnitLabel}>{label}</span>}
       </div>
 
       <button

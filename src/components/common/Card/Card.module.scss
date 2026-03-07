@@ -31,11 +31,11 @@
 }
 
 // Variants
-.default {
+.cardFlat {
   background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-bg-light) 100%);
 }
 
-.elevated {
+.cardRaised {
   background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-bg-light) 100%);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
@@ -44,25 +44,25 @@
   }
 }
 
-.bordered {
+.cardOutlined {
   background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-bg-light) 100%);
   border: 1px solid var(--color-bg-light);
 }
 
 // Padding
-.padding-none {
+.paddingNone {
   padding: 0;
 }
 
-.padding-small {
+.paddingCompact {
   padding: 1rem;
 }
 
-.padding-medium {
+.paddingNormal {
   padding: 1.5rem;
 }
 
-.padding-large {
+.paddingSpacious {
   padding: 2rem;
 }
 

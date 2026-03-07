@@ -63,11 +63,11 @@ const StatCard = ({
 
   return (
     <div ref={ref} className={classes}>
-      <div className={`${styles.value} ${styles[gradient]}`}>
+      <div className={`${styles.statValue} ${styles[gradient]}`}>
         {displayValue}
-        {suffix && <span className={styles.suffix}>{suffix}</span>}
+        {suffix && <span className={styles.statSuffix}>{suffix}</span>}
       </div>
-      <div className={styles.label}>{label}</div>
+      <div className={styles.statLabel}>{label}</div>
     </div>
   );
 };

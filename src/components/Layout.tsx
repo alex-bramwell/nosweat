@@ -70,7 +70,7 @@ const Layout = ({ children }: LayoutProps) => {
       <div className={styles.pageArea}>
         <BrandingOverrideOnly overrides={isAdmin ? draftBranding : null}>
           <Navbar />
-          <main className={styles.main}>
+          <main className={styles.layoutContent}>
             {children}
           </main>
           <Footer />

@@ -14,7 +14,7 @@
   }
 }
 
-.value {
+.statValue {
   font-family: var(--font-header, 'Inter'), sans-serif;
   font-size: var(--text-4xl);
   font-weight: 700;
@@ -34,11 +34,11 @@
   background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
 }
 
-.suffix {
+.statSuffix {
   font-size: var(--text-xl);
 }
 
-.label {
+.statLabel {
   font-size: var(--text-sm);
   color: var(--color-muted);
   letter-spacing: 0.02em;

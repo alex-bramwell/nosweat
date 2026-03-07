@@ -4,16 +4,22 @@ import styles from './Button.module.scss';
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'compact' | 'default' | 'prominent';
   fullWidth?: boolean;
   as?: 'button' | 'a';
   href?: string;
 }
 
+const sizeClassMap: Record<NonNullable<ButtonProps['size']>, string> = {
+  compact: styles.sizeCompact,
+  default: styles.sizeDefault,
+  prominent: styles.sizeProminent,
+};
+
 const Button = ({
   children,
   variant = 'primary',
-  size = 'medium',
+  size = 'default',
   fullWidth = false,
   className = '',
   as = 'button',
@@ -23,7 +29,7 @@ const Button = ({
   const buttonClasses = [
     styles.button,
     styles[variant],
-    styles[size],
+    sizeClassMap[size],
     fullWidth ? styles.fullWidth : '',
     className,
   ]

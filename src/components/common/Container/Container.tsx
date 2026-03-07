@@ -3,13 +3,13 @@ import styles from './Container.module.scss';
 
 export interface ContainerProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
-  size?: 'small' | 'medium' | 'large' | 'full';
+  size?: 'contentNarrow' | 'contentStandard' | 'contentWide' | 'contentFull';
   as?: 'div' | 'main' | 'article' | 'section';
 }
 
 const Container = ({
   children,
-  size = 'medium',
+  size = 'contentStandard',
   as: Component = 'div',
   className = '',
   ...rest

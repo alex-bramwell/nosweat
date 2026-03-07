@@ -5,10 +5,17 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  size?: 'small' | 'medium' | 'large' | 'fullscreen';
+  size?: 'compact' | 'default' | 'wide' | 'fullscreen';
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 'medium' }) => {
+const sizeClassMap: Record<string, string> = {
+  compact: styles.sizeCompact,
+  default: styles.sizeDefault,
+  wide: styles.sizeWide,
+  fullscreen: styles.sizeFullscreen,
+};
+
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 'default' }) => {
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -30,13 +37,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 'medium
 
   if (!isOpen) return null;
 
-  const sizeClass = styles[size] || '';
+  const sizeClass = sizeClassMap[size] || '';
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={`${styles.modal} ${sizeClass}`} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={`${styles.modalContent} ${sizeClass}`} onClick={(e) => e.stopPropagation()}>
         <button
-          className={styles.closeButton}
+          className={styles.modalClose}
           onClick={onClose}
           aria-label="Close modal"
         >

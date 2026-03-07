@@ -9,20 +9,20 @@
   container-type: inline-size;
 }
 
-// Size variants
-.small {
+// Content-width variants
+.contentNarrow {
   max-width: 768px;
 }
 
-.medium {
+.contentStandard {
   max-width: 1200px;
 }
 
-.large {
+.contentWide {
   max-width: 1440px;
 }
 
-.full {
+.contentFull {
   max-width: 100%;
   padding-left: 2rem;
   padding-right: 2rem;
@@ -35,12 +35,12 @@
     padding-right: 1rem;
   }
 
-  .large {
+  .contentWide {
     padding-left: 1rem;
     padding-right: 1rem;
   }
 
-  .full {
+  .contentFull {
     padding-left: 1rem;
     padding-right: 1rem;
   }

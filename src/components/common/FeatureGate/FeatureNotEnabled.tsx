@@ -18,7 +18,7 @@ export const FeatureNotEnabled: React.FC<FeatureNotEnabledProps> = ({ feature })
   const featureName = definition?.name || feature;
 
   return (
-    <Section spacing="large" background="surface">
+    <Section spacing="relaxed" background="surface">
       <Container>
         <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>

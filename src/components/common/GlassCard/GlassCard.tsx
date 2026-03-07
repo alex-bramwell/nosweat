@@ -3,28 +3,32 @@ import styles from './GlassCard.module.scss';
 
 export interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
-  blur?: 'light' | 'medium' | 'heavy';
+  blur?: 'subtle' | 'normal' | 'strong';
   tint?: 'neutral' | 'accent' | 'secondary';
   hoverable?: boolean;
   glow?: boolean;
-  padding?: 'none' | 'small' | 'medium' | 'large';
+  padding?: 'none' | 'compact' | 'normal' | 'spacious';
 }
 
 const GlassCard = ({
   children,
-  blur = 'medium',
+  blur = 'normal',
   tint = 'neutral',
   hoverable = false,
   glow = false,
-  padding = 'medium',
+  padding = 'normal',
   className = '',
   ...rest
 }: GlassCardProps) => {
+  const blurMap = { subtle: 'blurSubtle', normal: 'blurNormal', strong: 'blurStrong' } as const;
+  const tintMap = { neutral: 'tintNeutral', accent: 'tintAccent', secondary: 'tintSecondary' } as const;
+  const paddingMap = { none: 'paddingNone', compact: 'paddingCompact', normal: 'paddingNormal', spacious: 'paddingSpacious' } as const;
+
   const classes = [
     styles.glassCard,
-    styles[`blur-${blur}`],
-    styles[`tint-${tint}`],
-    styles[`padding-${padding}`],
+    styles[blurMap[blur]],
+    styles[tintMap[tint]],
+    styles[paddingMap[padding]],
     hoverable ? styles.hoverable : '',
     glow ? styles.glow : '',
     className,

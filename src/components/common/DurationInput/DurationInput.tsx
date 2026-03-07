@@ -127,7 +127,7 @@ export function DurationInput({
         </svg>
       </button>
 
-      <div className={styles.inputWrapper}>
+      <div className={styles.durationInputWrapper}>
         <input
           id={id}
           type="text"
@@ -138,9 +138,9 @@ export function DurationInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className={styles.input}
+          className={styles.durationTextInput}
         />
-        <span className={styles.label}>min</span>
+        <span className={styles.durationUnitLabel}>min</span>
       </div>
 
       <button

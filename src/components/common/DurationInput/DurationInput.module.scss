@@ -14,7 +14,7 @@
   }
 }
 
-.inputWrapper {
+.durationInputWrapper {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -24,7 +24,7 @@
   min-width: 60px;
 }
 
-.input {
+.durationTextInput {
   width: 100%;
   padding: 0.25rem 0 0;
   background: transparent;
@@ -59,7 +59,7 @@
   }
 }
 
-.label {
+.durationUnitLabel {
   font-size: 0.625rem;
   color: var(--color-muted);
   text-transform: uppercase;
