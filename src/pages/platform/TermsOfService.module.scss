@@ -1,0 +1,111 @@
+@use '../../styles/mixins' as *;
+
+$platform-bg: #0a0a0f;
+$platform-accent: #2563eb;
+$platform-accent-rgb: 37, 99, 235;
+$platform-secondary: #7c3aed;
+$platform-secondary-rgb: 124, 58, 237;
+$platform-border: rgba(255, 255, 255, 0.08);
+$platform-text: #f0f0f5;
+$platform-text-muted: #8b8b9e;
+
+.termsPage {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+  color: $platform-text;
+
+  @media (max-width: 640px) {
+    padding: 2rem 1.25rem 4rem;
+  }
+}
+
+.termsHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid $platform-border;
+}
+
+.termsTitle {
+  @include header;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.termsEffective {
+  @include body;
+  font-size: 0.95rem;
+  color: $platform-text-muted;
+}
+
+.termsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.termsSection {
+  @include body;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgba($platform-text, 0.85);
+
+  p {
+    margin-bottom: 1rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.termsSectionTitle {
+  @include header;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: $platform-text;
+  margin-bottom: 1rem;
+}
+
+.termsList {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  li {
+    position: relative;
+    padding-left: 1.5rem;
+    line-height: 1.6;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.65em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, $platform-accent, $platform-secondary);
+    }
+  }
+}
+
+.termsLink {
+  color: $platform-accent;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: lighten($platform-accent, 15%);
+  }
+}

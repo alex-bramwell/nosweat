@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import CloseButton from './CloseButton';
 import styles from './Modal.module.scss';
 
 interface ModalProps {
@@ -42,13 +43,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 'defaul
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={`${styles.modalContent} ${sizeClass}`} onClick={(e) => e.stopPropagation()}>
-        <button
-          className={styles.modalClose}
-          onClick={onClose}
-          aria-label="Close modal"
-        >
-          ×
-        </button>
+        <CloseButton onClick={onClose} aria-label="Close modal" />
         {children}
       </div>
     </div>

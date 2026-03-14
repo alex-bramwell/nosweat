@@ -108,8 +108,22 @@ async function storeOAuthState(
   state: string,
   redirectUrl: string
 ): Promise<void> {
-  console.log(`Storing OAuth state: ${state} for user ${userId}, provider ${provider}`);
-  // TODO: Implement proper state storage
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 min expiry
+
+  const { error } = await supabase
+    .from('oauth_states')
+    .insert({
+      state,
+      user_id: userId,
+      provider,
+      redirect_url: redirectUrl,
+      expires_at: expiresAt
+    });
+
+  if (error) {
+    console.error('Failed to store OAuth state:', error);
+    throw new Error('Failed to store OAuth state');
+  }
 }
 
 /**
@@ -146,17 +160,19 @@ async function handleConnect(req: VercelRequest, userId: string) {
   // Store state for verification in callback
   await storeOAuthState(userId, provider, state, redirectUrl);
 
-  // Get callback URI from environment
-  const callbackUri = process.env.QUICKBOOKS_REDIRECT_URI ||
-                     process.env.XERO_REDIRECT_URI ||
-                     `${req.headers.host}/api/accounting/callback`;
+  // Get callback URI from environment - require explicit config
+  const callbackUri = provider === 'quickbooks'
+    ? process.env.QUICKBOOKS_REDIRECT_URI
+    : process.env.XERO_REDIRECT_URI;
+
+  if (!callbackUri) {
+    return {
+      status: 500,
+      body: { error: 'OAuth redirect URI not configured' }
+    };
+  }
 
   console.log('[OAuth] Using callback URI:', callbackUri);
-  console.log('[OAuth] Environment variables check:', {
-    hasQuickBooksRedirectUri: !!process.env.QUICKBOOKS_REDIRECT_URI,
-    hasXeroRedirectUri: !!process.env.XERO_REDIRECT_URI,
-    hostHeader: req.headers.host
-  });
 
   // Generate authorization URL based on provider
   let authorizationUrl: string;
@@ -426,14 +442,12 @@ export default async function handler(
       }
 
       return res.status(500).json({
-        error: 'Failed to process request',
-        message: error.message
+        error: 'An internal error occurred'
       });
     }
 
     return res.status(500).json({
-      error: 'Failed to process request',
-      message: 'Unknown error occurred'
+      error: 'An internal error occurred'
     });
   }
 }

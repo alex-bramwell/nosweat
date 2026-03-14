@@ -1,16 +1,7 @@
 @use '../../styles/variables' as *;
 
-.authModalBody {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.authModalHeader {
-  text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 1.5rem;
-}
+// Body, header, title, subtitle, form, fieldGroup, fieldLabel, input, error, success
+// are now shared via modalStyles from common/Modal/Modal.module.scss
 
 .coachBanner {
   display: flex;
@@ -37,83 +28,6 @@
   }
 }
 
-.authModalTitle {
-  @include header;
-  font-size: clamp(1.75rem, 4vw, 2.25rem);
-  color: var(--color-text);
-  margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary2) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.authModalSubtitle {
-  @include body;
-  font-size: 0.95rem;
-  color: var(--color-muted);
-  line-height: 1.5;
-}
-
-.authForm {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.authFieldGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.authFieldLabel {
-  @include header;
-  font-size: 0.875rem;
-  color: var(--color-secondary);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.25rem;
-}
-
-.authInput {
-  @include body;
-  width: 100%;
-  padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.05) 100%);
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  color: var(--color-text);
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  position: relative;
-
-  &::placeholder {
-    color: var(--color-muted);
-    font-style: italic;
-    opacity: 0.7;
-  }
-
-  &:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.08) 100%);
-  }
-
-  &:focus {
-    outline: none;
-    border-color: var(--color-secondary);
-    background: linear-gradient(135deg, rgba(var(--color-secondary-rgb), 0.05) 0%, rgba(var(--color-secondary-rgb), 0.08) 100%);
-    box-shadow: 0 0 0 4px rgba(var(--color-secondary-rgb), 0.15), 0 4px 12px rgba(var(--color-secondary-rgb), 0.2);
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background: rgba(255, 255, 255, 0.02);
-  }
-}
 
 .honeypot {
   position: absolute;
@@ -325,71 +239,6 @@
   color: var(--color-secondary);
 }
 
-.authModalError {
-  @include body;
-  padding: 0.875rem 1.125rem;
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.08) 0%, rgba(255, 128, 0, 0.12) 100%);
-  border: 2px solid rgba(255, 153, 0, 0.4);
-  border-radius: 12px;
-  color: #ffaa00;
-  font-size: 0.875rem;
-  font-weight: 500;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.875rem;
-  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15);
-  animation: slideIn 0.3s ease-out;
-
-  &::before {
-    content: '⚠';
-    font-size: 1.25rem;
-    flex-shrink: 0;
-    line-height: 1;
-    margin-top: 0.125rem;
-  }
-}
-
-.authModalSuccess {
-  @include body;
-  padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%);
-  border: 2px solid rgba(34, 197, 94, 0.4);
-  border-radius: 12px;
-  color: rgb(34, 197, 94);
-  font-size: 0.9rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
-  animation: slideIn 0.3s ease-out;
-
-  &::before {
-    content: '✓';
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: rgb(34, 197, 94);
-    color: white;
-    border-radius: 50%;
-    font-weight: 700;
-    font-size: 0.875rem;
-    flex-shrink: 0;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 .loginFooter {
   display: flex;

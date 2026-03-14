@@ -280,6 +280,131 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   margin: 0 auto;
 }
 
+.missionCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 2.5rem;
+  padding: 0.875rem 2rem;
+  border-radius: 32px;
+  border: 1px solid $platform-border-bright;
+  background: $platform-glass-bg;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: $platform-text;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  svg {
+    color: rgba(37, 99, 235, 0.8);
+    transition: color 250ms ease;
+  }
+
+  &:hover {
+    background: $platform-glass-bg-elevated;
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
+
+    svg { color: #2563eb; }
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.97);
+  }
+}
+
+// ── Contact FAB ──
+.contactFab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 90;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+  transition: all 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  opacity: 0;
+  transform: scale(0) translateY(20px);
+  pointer-events: none;
+
+  &:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 8px 30px rgba(37, 99, 235, 0.5);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  @media (max-width: 640px) {
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.contactFabVisible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+// ── Contact Modal (uses common <Modal> shell, styles match AuthModal) ──
+// Body, header, title, subtitle, form, fieldGroup, fieldLabel, input, error
+// are now shared via modalStyles from common/Modal/Modal.module.scss
+
+// ── Sent Confirmation ──
+.contactSent {
+  text-align: center;
+  padding: 2rem 0 1rem;
+}
+
+.contactSentIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.25rem;
+  background: rgba(52, 211, 153, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #34d399;
+  animation: sentPop 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes sentPop {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.contactSentTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.contactSentText {
+  font-size: 0.95rem;
+  color: var(--color-muted);
+  margin-bottom: 1.5rem;
+}
+
+// Sent confirmation uses common <Button> component
+
 // ── Features Section ──
 .features {
   padding: 6rem 2rem;
@@ -313,10 +438,119 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   margin-bottom: 3.5rem;
 }
 
+// ── Role Toggle ──
+.roleToggle {
+  display: flex;
+  position: relative;
+  background: $platform-glass-bg;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid $platform-border;
+  border-radius: 16px;
+  padding: 4px;
+  margin-bottom: 3rem;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media (max-width: 640px) {
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+}
+
+.roleToggleTab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.875rem 1rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 12px;
+  position: relative;
+  z-index: 1;
+  transition: color 250ms ease;
+  font-family: inherit;
+
+  @media (max-width: 640px) {
+    padding: 0.75rem 0.5rem;
+    border-radius: 8px;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.roleToggleLabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $platform-text-muted;
+  transition: color 250ms ease;
+
+  @media (max-width: 640px) {
+    font-size: 0.8rem;
+  }
+}
+
+.roleToggleSubtitle {
+  font-size: 0.75rem;
+  color: rgba(139, 139, 158, 0.7);
+  font-weight: 400;
+  transition: color 250ms ease;
+  white-space: nowrap;
+
+  @media (max-width: 640px) {
+    font-size: 0.65rem;
+  }
+}
+
+.roleToggleTabActive {
+  .roleToggleLabel {
+    color: #ffffff;
+  }
+
+  .roleToggleSubtitle {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.roleToggleIndicator {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / 3);
+  height: calc(100% - 8px);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.35) 0%, rgba(124, 58, 237, 0.25) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+
+  @media (max-width: 640px) {
+    border-radius: 8px;
+  }
+}
+
 .featuresGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
+  animation: featuresFadeIn 300ms ease;
+}
+
+@keyframes featuresFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .featureCard {
@@ -438,6 +672,7 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   padding: 6rem 2rem;
   background: $platform-bg-light;
   position: relative;
+  overflow: hidden;
 
   @media (max-width: 768px) {
     padding: 4rem 1.5rem;
@@ -446,14 +681,71 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
 
 .stepsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 2.5rem;
   margin-top: 3.5rem;
+  position: relative;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+// Connector line between step numbers
+.stepsConnector {
+  position: absolute;
+  top: 2rem; // vertically centered on step numbers (4rem / 2)
+  left: 0;
+  width: 100%;
+  height: 4px;
+  z-index: 0;
+  pointer-events: none;
+
+  line {
+    opacity: 0.4;
+  }
+
+  @media (max-width: 900px) {
+    display: none;
+  }
 }
 
 .step {
   text-align: center;
   position: relative;
+  z-index: 1;
+
+  // CSS fallback: hidden by default, revealed when visible
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+// CSS fallback stagger delays
+.howItWorksVisible {
+  .step {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .step:nth-child(2) { transition-delay: 0.15s; }
+  .step:nth-child(3) { transition-delay: 0.3s; }
+  .step:nth-child(4) { transition-delay: 0.45s; }
+  .step:nth-child(5) { transition-delay: 0.6s; }
+
+  .stepsConnector line {
+    animation: connectorDraw 1.5s ease-in-out 0.2s forwards;
+  }
+}
+
+@keyframes connectorDraw {
+  from { stroke-dashoffset: 1000; stroke-dasharray: 1000; }
+  to   { stroke-dashoffset: 0; stroke-dasharray: 1000; }
 }
 
 .stepNumber {
@@ -468,17 +760,40 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   font-size: 1.5rem;
   font-weight: 800;
   margin: 0 auto 1.5rem;
-  box-shadow: 0 4px 16px rgba($platform-accent, 0.3);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
   position: relative;
 
   &::after {
     content: '';
     position: absolute;
-    inset: -4px;
+    inset: -6px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba($platform-accent, 0.3), rgba($platform-secondary, 0.3));
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(124, 58, 237, 0.25));
     z-index: -1;
-    filter: blur(8px);
+    filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  // Glow pulse when section is visible
+  .howItWorksVisible & {
+    &::after {
+      opacity: 1;
+      animation: stepGlow 2.5s ease-in-out infinite alternate;
+    }
+  }
+}
+
+@keyframes stepGlow {
+  from {
+    filter: blur(10px);
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  to {
+    filter: blur(14px);
+    opacity: 1;
+    transform: scale(1.15);
   }
 }
 
@@ -493,6 +808,8 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   color: $platform-text-muted;
   line-height: 1.7;
   font-size: 0.95rem;
+  max-width: 260px;
+  margin: 0 auto;
 }
 
 // ── Pricing Section ──

@@ -156,6 +156,7 @@ const GymSettings: React.FC = () => {
 
   const [formData, setFormData] = useState({
     name: gym?.name || '',
+    slug: gym?.slug || '',
     contact_email: gym?.contact_email || '',
     contact_phone: gym?.contact_phone || '',
     address_line1: gym?.address_line1 || '',
@@ -173,6 +174,7 @@ const GymSettings: React.FC = () => {
     if (gym) {
       setFormData({
         name: gym.name || '',
+        slug: gym.slug || '',
         contact_email: gym.contact_email || '',
         contact_phone: gym.contact_phone || '',
         address_line1: gym.address_line1 || '',
@@ -202,6 +204,7 @@ const GymSettings: React.FC = () => {
         .from('gyms')
         .update({
           name: formData.name,
+          slug: formData.slug,
           contact_email: formData.contact_email || null,
           contact_phone: formData.contact_phone || null,
           address_line1: formData.address_line1 || null,
@@ -244,42 +247,12 @@ const GymSettings: React.FC = () => {
         </div>
       )}
 
-      <CustomDomainPanel />
-
-      <Card className={styles.settingsSection}>
-        <h2 className={styles.settingsSectionTitle}>Gym Information</h2>
-        <div className={styles.settingsFormGrid}>
-          <div className={styles.settingsFormField}>
-            <label htmlFor="name">Gym Name *</label>
-            <input
-              type="text"
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              className={styles.settingsInput}
-              required
-            />
-          </div>
-
-          <div className={styles.settingsFormField}>
-            <label htmlFor="slug">URL Slug (read-only)</label>
-            <input
-              type="text"
-              id="slug"
-              value={gym.slug}
-              className={styles.settingsInput}
-              disabled
-              readOnly
-            />
-            <span className={styles.settingsFieldHelp}>
-              {gym.custom_domain && gym.custom_domain_status === 'verified'
-                ? <>Custom domain: {gym.custom_domain} (also available at nosweat.fitness/gym/{gym.slug})</>
-                : <>Your gym's URL: nosweat.fitness/gym/{gym.slug}</>
-              }
-            </span>
-          </div>
-        </div>
-      </Card>
+      <CustomDomainPanel
+        gymName={formData.name}
+        onNameChange={(name) => handleChange('name', name)}
+        slug={formData.slug}
+        onSlugChange={(slug) => handleChange('slug', slug)}
+      />
 
       <Card className={styles.settingsSection}>
         <h2 className={styles.settingsSectionTitle}>Contact Information</h2>

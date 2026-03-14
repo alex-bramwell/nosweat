@@ -33,6 +33,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(404).json({ error: 'Gym not found' });
     }
 
+    // Verify user owns this gym
+    if (gym.owner_id !== user.id) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .eq('gym_id', gymId)
+        .single();
+
+      if (!profile || profile.role !== 'admin') {
+        return res.status(403).json({ error: 'Only gym owners and admins can manage domains' });
+      }
+    }
+
     if (!gym.custom_domain) {
       return res.status(400).json({ error: 'No custom domain configured' });
     }

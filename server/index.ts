@@ -7,6 +7,7 @@ import express from 'express';
 import cors from 'cors';
 import { config } from 'dotenv';
 import accountingRoutes from './routes/accounting.js';
+import contactRoutes from './routes/contact.js';
 import paymentRoutes from './routes/payments.js';
 import webhookRoutes from './routes/webhooks.js';
 
@@ -30,6 +31,7 @@ app.use(express.json());
 
 // API Routes
 app.use('/api/accounting', accountingRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/webhooks', webhookRoutes);
 

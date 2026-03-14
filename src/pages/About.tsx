@@ -3,6 +3,16 @@ import { useTenant } from '../contexts/TenantContext';
 import { useBrandingWithOverrides } from '../hooks/useBrandingWithOverrides';
 import styles from './About.module.scss';
 
+const isValidMapsUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' &&
+      (parsed.hostname === 'www.google.com' || parsed.hostname === 'maps.google.com' || parsed.hostname.endsWith('.google.com'));
+  } catch {
+    return false;
+  }
+};
+
 const About = () => {
   const { gym } = useTenant();
   const branding = useBrandingWithOverrides();
@@ -244,7 +254,7 @@ const About = () => {
                   )}
                 </div>
 
-                {gym?.google_maps_embed_url && (
+                {gym?.google_maps_embed_url && isValidMapsUrl(gym.google_maps_embed_url) && (
                   <div className={styles.mapContainer}>
                     <iframe
                       src={gym.google_maps_embed_url}

@@ -184,8 +184,12 @@ export async function getOrCreateCustomer(
   displayName: string
 ): Promise<QBCustomer> {
   return new Promise((resolve, reject) => {
-    // Search for customer by email
-    const query = `SELECT * FROM Customer WHERE PrimaryEmailAddr = '${email}'`;
+    // Validate and sanitize email before using in query
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return reject(new Error('Invalid email format'));
+    }
+    const sanitizedEmail = email.replace(/'/g, "\\'");
+    const query = `SELECT * FROM Customer WHERE PrimaryEmailAddr = '${sanitizedEmail}'`;
 
     qbo.findCustomers(query, (err: any, customers: any) => {
       if (err) {

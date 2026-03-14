@@ -36,6 +36,7 @@ import Roadmap from './pages/platform/Roadmap';
 import Payments from './pages/platform/Payments';
 import PlatformSubscribe, { SubscribeComplete } from './pages/platform/PlatformSubscribe';
 import TestReset from './pages/platform/TestReset';
+import TermsOfService from './pages/platform/TermsOfService';
 import PlatformDashboard from './pages/platform/PlatformDashboard';
 import TrialBanner from './components/common/TrialBanner';
 
@@ -251,6 +252,7 @@ function PlatformShell() {
         <Route path="/payments" element={<Payments />} />
         <Route path="/subscribe" element={<PlatformSubscribe />} />
         <Route path="/subscribe/complete" element={<SubscribeComplete />} />
+        <Route path="/terms" element={<TermsOfService />} />
         <Route path="/test-reset" element={<TestReset />} />
       </Routes>
     </PlatformLayout>

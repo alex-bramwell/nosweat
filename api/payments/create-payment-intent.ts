@@ -7,6 +7,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-12-15.clover',
 });
 
+function sanitizeMetadata(value: string): string {
+  return String(value || '').replace(/<[^>]*>/g, '').slice(0, 500);
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
 
@@ -78,14 +82,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       currency: 'gbp',
       customer: stripeCustomerId,
       metadata: {
-        user_id: userId,
-        class_id: classId,
-        class_day: classDetails.day,
-        class_time: classDetails.time,
-        class_name: classDetails.className,
-        coach_name: classDetails.coach || '',
+        user_id: sanitizeMetadata(userId),
+        class_id: sanitizeMetadata(classId),
+        class_day: sanitizeMetadata(classDetails.day),
+        class_time: sanitizeMetadata(classDetails.time),
+        class_name: sanitizeMetadata(classDetails.className),
+        coach_name: sanitizeMetadata(classDetails.coach || ''),
         payment_type: 'day-pass',
-        gym_id: gymId || '',
+        gym_id: sanitizeMetadata(gymId || ''),
       },
       automatic_payment_methods: {
         enabled: true,

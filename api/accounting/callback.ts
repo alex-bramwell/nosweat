@@ -234,9 +234,28 @@ export default async function handler(
       });
     }
 
-    // TODO: Verify state parameter (CSRF protection)
-    // For Phase 1, we'll skip state verification
-    // In Phase 2, implement proper state storage and verification
+    // Verify state parameter (CSRF protection)
+    const stateValue = state as string;
+    const { data: storedState, error: stateError } = await supabase
+      .from('oauth_states')
+      .select('*')
+      .eq('state', stateValue)
+      .single();
+
+    if (stateError || !storedState) {
+      console.error('OAuth state verification failed: no matching state found');
+      return res.status(403).json({ error: 'Invalid or expired OAuth state' });
+    }
+
+    // Check expiry
+    if (new Date(storedState.expires_at) < new Date()) {
+      // Clean up expired state
+      await supabase.from('oauth_states').delete().eq('state', stateValue);
+      return res.status(403).json({ error: 'OAuth state has expired' });
+    }
+
+    // Delete the state (one-time use)
+    await supabase.from('oauth_states').delete().eq('state', stateValue);
 
     // Determine provider based on query parameters
     // QuickBooks includes realmId, Xero doesn't
@@ -290,10 +309,10 @@ export default async function handler(
   } catch (error) {
     console.error('OAuth callback error:', error);
 
-    // Redirect to frontend with error
+    // Redirect to frontend with error (generic message only)
     const redirectUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const errorUrl = `${redirectUrl}/admin/settings?accounting=error&message=${encodeURIComponent(
-      error instanceof Error ? error.message : 'Unknown error'
+      'Failed to complete accounting connection'
     )}`;
 
     return res.redirect(302, errorUrl);

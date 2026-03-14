@@ -112,8 +112,7 @@ export default async function handler(
   } catch (error: any) {
     console.error('[Accounts] Error:', error);
     return res.status(500).json({
-      error: 'Internal server error',
-      details: error.message
+      error: 'An internal error occurred'
     });
   }
 }

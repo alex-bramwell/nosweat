@@ -2,7 +2,7 @@ export { default as Button } from './Button';
 export { default as Card } from './Card';
 export { default as Section } from './Section';
 export { default as Container } from './Container';
-export { Modal } from './Modal';
+export { Modal, modalStyles, CloseButton } from './Modal';
 export { Select } from './Select';
 export { NumberInput } from './NumberInput';
 export { DurationInput } from './DurationInput';

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { Button, CloseButton, modalStyles as m } from '../../components/common';
 import styles from './PlatformAuth.module.scss';
 
 const PlatformLogin = () => {
@@ -58,52 +59,57 @@ const PlatformLogin = () => {
   return (
     <div className={styles.authPage}>
       <div className={styles.authCard}>
-        <h1 className={styles.authTitle}>Log in to your account</h1>
-        <p className={styles.authSubtitle}>Welcome back! Manage your gym.</p>
-
-        <form onSubmit={handleSubmit} className={styles.authForm}>
-          {error && <div className={styles.authErrorBanner}>{error}</div>}
-
-          <div className={styles.authFieldGroup}>
-            <label htmlFor="email" className={styles.authFieldLabel}>
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className={styles.authTextInput}
-              placeholder="you@example.com"
-            />
+        <CloseButton href="/" aria-label="Back to home" />
+        <div className={m.modalBody}>
+          <div className={m.modalHeader}>
+            <h1 className={m.modalTitle}>Log in to your account</h1>
+            <p className={m.modalSubtitle}>Welcome back! Manage your gym.</p>
           </div>
 
-          <div className={styles.authFieldGroup}>
-            <label htmlFor="password" className={styles.authFieldLabel}>
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className={styles.authTextInput}
-              placeholder="••••••••"
-            />
+          <form onSubmit={handleSubmit} className={m.modalForm}>
+            {error && <div className={m.modalError}>{error}</div>}
+
+            <div className={m.modalFieldGroup}>
+              <label htmlFor="email" className={m.modalFieldLabel}>
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className={m.modalInput}
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <div className={m.modalFieldGroup}>
+              <label htmlFor="password" className={m.modalFieldLabel}>
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className={m.modalInput}
+                placeholder="Enter your password"
+              />
+            </div>
+
+            <Button type="submit" disabled={loading} fullWidth>
+              {loading ? 'Logging in...' : 'Log in'}
+            </Button>
+          </form>
+
+          <div className={styles.authFooterNav}>
+            Don't have an account?{' '}
+            <Link to="/signup" className={styles.authInlineLink}>
+              Sign up
+            </Link>
           </div>
-
-          <button type="submit" disabled={loading} className={styles.submitButton}>
-            {loading ? 'Logging in...' : 'Log in'}
-          </button>
-        </form>
-
-        <div className={styles.authFooterNav}>
-          Don't have an account?{' '}
-          <Link to="/signup" className={styles.authInlineLink}>
-            Sign up
-          </Link>
         </div>
       </div>
     </div>

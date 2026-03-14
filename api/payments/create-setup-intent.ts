@@ -7,6 +7,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-12-15.clover',
 });
 
+function sanitizeMetadata(value: string): string {
+  return String(value || '').replace(/<[^>]*>/g, '').slice(0, 500);
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
 
@@ -70,7 +74,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       customer: stripeCustomerId,
       payment_method_types: ['card'],
       metadata: {
-        user_id: userId,
+        user_id: sanitizeMetadata(userId),
         payment_type: 'trial-setup',
       },
     });
