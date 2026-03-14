@@ -1,0 +1,41 @@
+.detailGrid {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem;
+  background: var(--color-bg-light);
+  border-radius: var(--border-radius);
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detailLabel {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.detailValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.valueEnabled {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #059669;
+}
+
+.valueDisabled {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.valueMuted {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}

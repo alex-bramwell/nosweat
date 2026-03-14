@@ -1,0 +1,41 @@
+.selectableCard {
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.1));
+  border-radius: var(--border-radius);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: var(--color-bg-light);
+  outline: none;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--color-accent);
+    background: var(--color-surface);
+  }
+}
+
+.selectableCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.selectableCardIcon {
+  display: flex;
+  align-items: center;
+  color: var(--color-accent);
+}
+
+.selectableCardTitle {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.selectableCardDescription {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  margin: 0;
+  padding-left: 2.875rem;
+}

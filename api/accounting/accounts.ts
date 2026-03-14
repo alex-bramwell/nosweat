@@ -5,13 +5,9 @@
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+import { assertMethod } from '../lib/auth';
 import { createQBClient, getChartOfAccounts } from '../services/quickbooksService';
-
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
 
 /**
  * Verify user is authenticated and has admin role
@@ -47,9 +43,7 @@ export default async function handler(
   res: VercelResponse
 ) {
   // Only allow GET
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (!assertMethod(req, res, 'GET')) return;
 
   try {
     // Verify admin authentication
