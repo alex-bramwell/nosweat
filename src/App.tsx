@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { RegistrationProvider } from './contexts/RegistrationContext';
 import { useSessionTimeout } from './hooks/useSessionTimeout';
 import { useTenantTheme } from './hooks/useTenantTheme';
+import { useDomainResolution } from './hooks/useDomainResolution';
 import Layout from './components/Layout';
 import ScrollToHash from './components/ScrollToHash';
 import { SessionWarning } from './components/SessionWarning';
@@ -43,9 +44,9 @@ function PasswordRecoveryRedirect() {
   const navigate = useNavigate();
   const location = useLocation();
   const hasRedirected = useRef(false);
-  const { tenantSlug } = useTenant();
+  const { tenantSlug, isCustomDomain } = useTenant();
 
-  const basePath = tenantSlug ? `/gym/${tenantSlug}` : '';
+  const basePath = isCustomDomain ? '' : (tenantSlug ? `/gym/${tenantSlug}` : '');
 
   useEffect(() => {
     if (hasRedirected.current) {
@@ -256,24 +257,74 @@ function PlatformShell() {
   );
 }
 
+// ------------------------------------------------------------------
+// Custom Domain Shell — when app is accessed via a gym's own domain
+// ------------------------------------------------------------------
+function CustomDomainApp({ slug }: { slug: string }) {
+  return (
+    <TenantProvider initialSlug={slug} customDomain>
+      <AuthProvider>
+        <RegistrationProvider>
+          <Routes>
+            {/* All gym routes at root — no /gym/:slug prefix */}
+            <Route path="/*" element={<GymShell />} />
+          </Routes>
+        </RegistrationProvider>
+      </AuthProvider>
+    </TenantProvider>
+  );
+}
+
+// ------------------------------------------------------------------
+// Standard App — path-based tenancy + platform routes
+// ------------------------------------------------------------------
+function StandardApp() {
+  return (
+    <TenantProvider>
+      <Routes>
+        {/* Gym routes — path-based tenancy */}
+        <Route path="/gym/:slug/*" element={
+          <AuthProvider>
+            <RegistrationProvider>
+              <GymShell />
+            </RegistrationProvider>
+          </AuthProvider>
+        } />
+
+        {/* Platform routes — the SaaS company site */}
+        <Route path="/*" element={<PlatformShell />} />
+      </Routes>
+    </TenantProvider>
+  );
+}
+
 function App() {
+  const domainResolution = useDomainResolution();
+
+  // Show loading while resolving custom domain
+  if (domainResolution.mode === 'loading') {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f8f9fa',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: '#6b7280', fontFamily: "'Inter', sans-serif" }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <BrowserRouter>
-      <TenantProvider>
-        <Routes>
-          {/* Gym routes — path-based tenancy */}
-          <Route path="/gym/:slug/*" element={
-            <AuthProvider>
-              <RegistrationProvider>
-                <GymShell />
-              </RegistrationProvider>
-            </AuthProvider>
-          } />
-
-          {/* Platform routes — the SaaS company site */}
-          <Route path="/*" element={<PlatformShell />} />
-        </Routes>
-      </TenantProvider>
+      {domainResolution.mode === 'custom-domain' ? (
+        <CustomDomainApp slug={domainResolution.slug} />
+      ) : (
+        <StandardApp />
+      )}
     </BrowserRouter>
   );
 }

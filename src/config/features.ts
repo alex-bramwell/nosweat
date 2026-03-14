@@ -106,6 +106,16 @@ export const FEATURES: FeatureDefinition[] = [
     icon: '👥',
     illustrationKey: 'memberManagement',
   },
+  {
+    key: 'custom_domain',
+    name: 'Custom Domain',
+    description:
+      'Use your own domain (e.g., www.mygym.com) instead of nosweat.fitness/gym/your-slug. Includes SSL certificate and DNS verification.',
+    monthlyPricePence: 2000,
+    category: 'business',
+    icon: '🌐',
+    illustrationKey: 'customDomain',
+  },
 ];
 
 /** Get feature definition by key */
