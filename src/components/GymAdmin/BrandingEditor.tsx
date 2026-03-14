@@ -421,8 +421,8 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
             ))}
           </div>
           <div className={styles.paletteSuggestionActions}>
-            <Button variant="primary" size="small" onClick={applySuggestedPalette}>Apply Colours</Button>
-            <Button variant="ghost" size="small" onClick={() => setSuggestedPalette(null)}>No thanks</Button>
+            <Button variant="primary" size="compact" onClick={applySuggestedPalette}>Apply Colours</Button>
+            <Button variant="ghost" size="compact" onClick={() => setSuggestedPalette(null)}>No thanks</Button>
           </div>
         </div>
       )}
