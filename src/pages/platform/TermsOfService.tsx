@@ -151,8 +151,8 @@ const TermsOfService = () => {
           <h2 className={styles.termsSectionTitle}>14. Contact</h2>
           <p>
             If you have questions about these Terms, please contact us at{' '}
-            <a href="mailto:legal@nosweatfitness.com" className={styles.termsLink}>
-              legal@nosweatfitness.com
+            <a href="mailto:alex@nosweat.fitness" className={styles.termsLink}>
+              alex@nosweat.fitness
             </a>.
           </p>
         </section>
