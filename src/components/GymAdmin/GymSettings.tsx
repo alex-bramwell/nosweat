@@ -1,15 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTenant } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
-import { Button, Card } from '../common';
+import { authFetch } from '../../lib/auth';
+import { useMessage } from '../../hooks/useMessage';
+import { Button, Card, StatusBadge, DetailGrid } from '../common';
+import type { BadgeVariant, DetailGridItem } from '../common';
 import CustomDomainPanel from './CustomDomainPanel';
 import styles from './GymSettings.module.scss';
-
-async function getAccessToken(): Promise<string> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) throw new Error('Not authenticated');
-  return session.access_token;
-}
 
 // ── Stripe Connect Panel ──────────────────────────────────────────
 const StripeConnectPanel: React.FC = () => {
@@ -30,21 +27,10 @@ const StripeConnectPanel: React.FC = () => {
 
     const fetchStatus = async () => {
       try {
-        const token = await getAccessToken();
-        const res = await fetch('/api/connect/account-status', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ gymId: gym.id }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setAccountStatus(data);
-        }
+        const data = await authFetch('/api/connect/account-status', { gymId: gym.id });
+        setAccountStatus(data as { chargesEnabled?: boolean; payoutsEnabled?: boolean; detailsSubmitted?: boolean });
       } catch {
-        // Silently fail — DB status is still shown
+        // Silently fail - DB status is still shown
       }
     };
     fetchStatus();
@@ -56,43 +42,14 @@ const StripeConnectPanel: React.FC = () => {
     setConnectError(null);
 
     try {
-      const token = await getAccessToken();
-
       // Step 1: Create Connect account if none exists
       if (!gym.stripe_account_id) {
-        const createRes = await fetch('/api/connect/create-account', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ gymId: gym.id }),
-        });
-
-        if (!createRes.ok) {
-          const err = await createRes.json();
-          throw new Error(err.error || 'Failed to create Connect account');
-        }
-
+        await authFetch('/api/connect/create-account', { gymId: gym.id });
         await refreshTenant();
       }
 
       // Step 2: Get onboarding link
-      const linkRes = await fetch('/api/connect/onboarding-link', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ gymId: gym.id }),
-      });
-
-      if (!linkRes.ok) {
-        const err = await linkRes.json();
-        throw new Error(err.error || 'Failed to create onboarding link');
-      }
-
-      const { url } = await linkRes.json();
+      const { url } = await authFetch<{ url: string }>('/api/connect/onboarding-link', { gymId: gym.id });
       window.location.href = url;
     } catch (err) {
       setConnectError(err instanceof Error ? err.message : 'Something went wrong');
@@ -107,22 +64,7 @@ const StripeConnectPanel: React.FC = () => {
     setConnectError(null);
 
     try {
-      const token = await getAccessToken();
-      const res = await fetch('/api/connect/dashboard-link', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ gymId: gym.id }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Failed to get dashboard link');
-      }
-
-      const { url } = await res.json();
+      const { url } = await authFetch<{ url: string }>('/api/connect/dashboard-link', { gymId: gym.id });
       window.open(url, '_blank');
     } catch (err) {
       setConnectError(err instanceof Error ? err.message : 'Something went wrong');
@@ -131,63 +73,53 @@ const StripeConnectPanel: React.FC = () => {
     }
   }, [gym]);
 
-  const statusConfig: Record<string, { label: string; className: string; description: string }> = {
+  const statusConfig: Record<string, { label: string; variant: BadgeVariant; description: string }> = {
     not_started: {
       label: 'Not Connected',
-      className: styles.connectStatusDefault,
+      variant: 'default',
       description: 'Connect your Stripe account to receive payments from members.',
     },
     onboarding: {
       label: 'Onboarding',
-      className: styles.connectStatusOnboarding,
+      variant: 'warning',
       description: 'Your Stripe account setup is in progress. Continue onboarding to start accepting payments.',
     },
     active: {
       label: 'Active',
-      className: styles.connectStatusActive,
+      variant: 'success',
       description: 'Your Stripe account is connected and ready to accept payments.',
     },
     restricted: {
       label: 'Restricted',
-      className: styles.connectStatusRestricted,
+      variant: 'warning',
       description: 'Your Stripe account has restrictions. Please complete any pending requirements.',
     },
     disabled: {
       label: 'Disabled',
-      className: styles.connectStatusDisabled,
+      variant: 'error',
       description: 'Your Stripe account has been disabled. Please contact support.',
     },
   };
 
   const config = statusConfig[status] || statusConfig.not_started;
 
+  const detailItems: DetailGridItem[] = accountStatus && status === 'active'
+    ? [
+        { label: 'Charges', value: accountStatus.chargesEnabled ? 'Enabled' : 'Disabled', status: accountStatus.chargesEnabled ? 'enabled' : 'disabled' },
+        { label: 'Payouts', value: accountStatus.payoutsEnabled ? 'Enabled' : 'Disabled', status: accountStatus.payoutsEnabled ? 'enabled' : 'disabled' },
+      ]
+    : [];
+
   return (
     <Card className={styles.settingsSection}>
       <div className={styles.connectHeader}>
         <h2 className={styles.settingsSectionTitle}>Payments</h2>
-        <span className={`${styles.connectStatusBadge} ${config.className}`}>
-          {config.label}
-        </span>
+        <StatusBadge label={config.label} variant={config.variant} />
       </div>
 
       <p className={styles.connectDescription}>{config.description}</p>
 
-      {accountStatus && status === 'active' && (
-        <div className={styles.connectDetails}>
-          <div className={styles.connectDetailItem}>
-            <span className={styles.connectDetailLabel}>Charges</span>
-            <span className={accountStatus.chargesEnabled ? styles.connectEnabled : styles.connectDisabledText}>
-              {accountStatus.chargesEnabled ? 'Enabled' : 'Disabled'}
-            </span>
-          </div>
-          <div className={styles.connectDetailItem}>
-            <span className={styles.connectDetailLabel}>Payouts</span>
-            <span className={accountStatus.payoutsEnabled ? styles.connectEnabled : styles.connectDisabledText}>
-              {accountStatus.payoutsEnabled ? 'Enabled' : 'Disabled'}
-            </span>
-          </div>
-        </div>
-      )}
+      {detailItems.length > 0 && <DetailGrid items={detailItems} />}
 
       {connectError && (
         <div className={`${styles.settingsMessage} ${styles.error}`}>
@@ -220,7 +152,7 @@ const StripeConnectPanel: React.FC = () => {
 const GymSettings: React.FC = () => {
   const { gym, refreshTenant } = useTenant();
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const { message, showSuccess, showError } = useMessage();
 
   const [formData, setFormData] = useState({
     name: gym?.name || '',
@@ -264,7 +196,6 @@ const GymSettings: React.FC = () => {
     if (!gym) return;
 
     setIsLoading(true);
-    setMessage(null);
 
     try {
       const { error } = await supabase
@@ -288,11 +219,10 @@ const GymSettings: React.FC = () => {
       if (error) throw error;
 
       await refreshTenant();
-      setMessage({ type: 'success', text: 'Settings saved successfully!' });
-      setTimeout(() => setMessage(null), 5000);
+      showSuccess('Settings saved successfully!');
     } catch (error) {
       console.error('Error saving settings:', error);
-      setMessage({ type: 'error', text: 'Failed to save settings. Please try again.' });
+      showError('Failed to save settings. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -313,6 +243,8 @@ const GymSettings: React.FC = () => {
           {message.text}
         </div>
       )}
+
+      <CustomDomainPanel />
 
       <Card className={styles.settingsSection}>
         <h2 className={styles.settingsSectionTitle}>Gym Information</h2>
@@ -452,7 +384,7 @@ const GymSettings: React.FC = () => {
               placeholder="https://www.google.com/maps/embed?pb=..."
             />
             <span className={styles.settingsFieldHelp}>
-              Get this from Google Maps: Share → Embed a map → Copy HTML
+              Get this from Google Maps: Share &gt; Embed a map &gt; Copy HTML
             </span>
           </div>
         </div>
@@ -500,7 +432,6 @@ const GymSettings: React.FC = () => {
       </Card>
 
       <StripeConnectPanel />
-      <CustomDomainPanel />
 
       <div className={styles.settingsActions}>
         <Button onClick={handleSave} disabled={isLoading}>

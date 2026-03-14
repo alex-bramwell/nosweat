@@ -72,11 +72,12 @@ nosweat.fitness/gym/comet/dashboard   → Member dashboard
 - **Member Management** — Admin panel with roles, invitations, and directory
 - **Coach Analytics** — Muscle group tracking, volume analysis, programming balance
 - **Accounting Integration** — QuickBooks and Xero sync for payments and invoices
-- **Feature Toggles** — Gym owners enable/disable features from admin panel
-- **Full Brand Customisation** — Logo, colours, fonts, and theme per tenant
+- **Custom Domains** - Gyms can use their own domain (e.g., www.mygym.com) as a paid feature with automatic DNS verification
+- **Feature Toggles** - Gym owners enable/disable features from admin panel
+- **Full Brand Customisation** - Logo, colours, fonts, and theme per tenant
 
 ### Technical Features
-- **Multi-tenant path routing** — `/gym/:slug` with per-tenant theming via CSS custom properties
+- **Multi-tenant routing** - Path-based (`/gym/:slug`) and custom domain (hostname-based) with per-tenant theming via CSS custom properties
 - **Supabase Auth** — Email verification, password recovery, session management
 - **Stripe Payments** — PaymentIntents (day passes) and SetupIntents (trials)
 - **Row-Level Security** — Tenant data isolation at the database level
@@ -196,7 +197,14 @@ Both services mount the project directory for live reloading. Node modules are p
 ```
 gym.GymForge/
 ├── api/                              # Vercel serverless functions (production)
+│   ├── lib/                         # Shared API utilities
+│   │   ├── supabase.ts              # Singleton Supabase service client
+│   │   └── auth.ts                  # verifyAuth() + assertMethod() helpers
+│   ├── domains/                     # Custom domain management (add, verify, remove, resolve)
+│   ├── connect/                     # Stripe Connect account management
 │   ├── payments/
+│   ├── subscriptions/
+│   ├── accounting/
 │   └── webhooks/
 ├── server/                           # Express API server (local development)
 ├── public/                           # Static assets
@@ -215,6 +223,10 @@ gym.GymForge/
 │   │   │   ├── GlassCard/          # Glassmorphism card
 │   │   │   ├── GlassDivider/       # Glass-style divider
 │   │   │   ├── GradientText/       # Gradient text effect
+│   │   │   ├── StatusBadge/       # Pill badge (default/warning/success/error)
+│   │   │   ├── DetailGrid/        # Label/value pairs with status coloring
+│   │   │   ├── SelectableCard/    # Clickable option card (icon, title, desc)
+│   │   │   ├── InfoBox/           # Styled instruction/tip block
 │   │   │   ├── Icons/              # SVG icon components
 │   │   │   ├── illustrations/      # 12 SVG feature illustrations
 │   │   │   ├── Logo.tsx            # NSF logo component
@@ -242,10 +254,13 @@ gym.GymForge/
 │   │   ├── TenantContext.tsx       # Tenant/gym state
 │   │   └── RegistrationContext.tsx # User intent tracking
 │   ├── hooks/
+│   │   ├── useDomainResolution.ts # Custom domain hostname resolution
+│   │   ├── useMessage.ts         # Success/error toast state with auto-dismiss
 │   │   ├── usePermissions.ts      # Role-based permissions
 │   │   ├── useSessionTimeout.ts   # Session management
 │   │   └── useTenantTheme.ts      # Per-tenant CSS theming
 │   ├── lib/
+│   │   ├── auth.ts               # getAccessToken() + authFetch() utilities
 │   │   ├── stripe.ts             # Stripe client config
 │   │   └── supabase.ts           # Supabase client config
 │   ├── pages/
@@ -287,8 +302,56 @@ gym.GymForge/
 
 ### Why Two API Folders?
 
-- **`/api`** — Vercel serverless functions for production deployment
-- **`/server`** — Express server for local Docker development (same endpoints, better DX)
+- **`/api`** - Vercel serverless functions for production deployment
+- **`/server`** - Express server for local Docker development (same endpoints, better DX)
+
+### Shared Utilities
+
+**Backend (`api/lib/`)**
+
+All API endpoints import from shared utilities rather than duplicating boilerplate:
+
+```typescript
+import { supabase } from '../lib/supabase';        // Singleton Supabase service client
+import { verifyAuth, assertMethod } from '../lib/auth';  // Auth + method guards
+
+export default async function handler(req, res) {
+  if (!assertMethod(req, res, 'POST')) return;       // 405 if wrong method
+  const user = await verifyAuth(req, res);           // 401 if not authenticated
+  if (!user) return;
+  // ... business logic using user.id and supabase
+}
+```
+
+**Frontend (`src/lib/auth.ts`)**
+
+Components use `authFetch()` instead of manually constructing fetch calls with auth headers:
+
+```typescript
+import { authFetch } from '../../lib/auth';
+
+// Before (repeated in every component):
+const token = await getAccessToken();
+const res = await fetch('/api/endpoint', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  body: JSON.stringify({ gymId }),
+});
+const data = await res.json();
+if (!res.ok) throw new Error(data.error);
+
+// After (one line):
+const data = await authFetch('/api/endpoint', { gymId });
+```
+
+**Hooks (`src/hooks/useMessage.ts`)**
+
+Replaces the repeated message/toast pattern across admin components:
+
+```typescript
+const { message, showSuccess, showError } = useMessage();
+// Auto-dismisses after 5 seconds, handles timeout cleanup
+```
 
 ---
 

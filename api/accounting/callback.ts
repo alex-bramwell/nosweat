@@ -8,14 +8,9 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+import { assertMethod } from '../lib/auth';
 import { encryptToken } from '../utils/encryption.js';
-
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
 
 interface OAuthTokenResponse {
   access_token: string;
@@ -217,9 +212,7 @@ export default async function handler(
   res: VercelResponse
 ) {
   // Only allow GET requests
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (!assertMethod(req, res, 'GET')) return;
 
   try {
     const { code, state, realmId, error: oauthError } = req.query;
