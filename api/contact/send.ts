@@ -35,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const cleanMessage = sanitize(message);
 
     await resend.emails.send({
-      from: 'No Sweat <noreply@nosweat.fitness>',
+      from: 'No Sweat <alex@nosweat.fitness>',
       to: RECIPIENTS,
       replyTo: cleanEmail,
       subject: `New enquiry from ${cleanName}`,

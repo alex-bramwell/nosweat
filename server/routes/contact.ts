@@ -35,7 +35,7 @@ router.post('/send', async (req, res) => {
       const resend = new Resend(process.env.RESEND_API_KEY);
 
       await resend.emails.send({
-        from: 'No Sweat <noreply@nosweat.fitness>',
+        from: 'No Sweat <alex@nosweat.fitness>',
         to: RECIPIENTS,
         replyTo: cleanEmail,
         subject: `New enquiry from ${cleanName}`,
