@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTenant } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { Button, Card } from '../common';
+import CustomDomainPanel from './CustomDomainPanel';
 import styles from './GymSettings.module.scss';
 
 async function getAccessToken(): Promise<string> {
@@ -339,7 +340,10 @@ const GymSettings: React.FC = () => {
               readOnly
             />
             <span className={styles.settingsFieldHelp}>
-              Your gym's URL: nosweat.fitness/gym/{gym.slug}
+              {gym.custom_domain && gym.custom_domain_status === 'verified'
+                ? <>Custom domain: {gym.custom_domain} (also available at nosweat.fitness/gym/{gym.slug})</>
+                : <>Your gym's URL: nosweat.fitness/gym/{gym.slug}</>
+              }
             </span>
           </div>
         </div>
@@ -496,6 +500,7 @@ const GymSettings: React.FC = () => {
       </Card>
 
       <StripeConnectPanel />
+      <CustomDomainPanel />
 
       <div className={styles.settingsActions}>
         <Button onClick={handleSave} disabled={isLoading}>

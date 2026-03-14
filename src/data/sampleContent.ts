@@ -89,6 +89,98 @@ export const SAMPLE_WORKOUT: WorkoutDB = {
   status: 'published',
 };
 
+// ── Sample month of workouts (for site builder preview) ──
+
+const WORKOUT_TEMPLATES: Pick<WorkoutDB, 'title' | 'type' | 'description' | 'movements' | 'metcon' | 'warmup' | 'strength' | 'duration'>[] = [
+  { title: 'Fran', type: 'fortime', description: 'Classic benchmark. Fast and intense.', movements: ['Thrusters', 'Pull-Ups'], metcon: ['21 Thrusters (43/30 kg)', '21 Pull-Ups', '15 Thrusters', '15 Pull-Ups', '9 Thrusters', '9 Pull-Ups'], warmup: ['400m Row', 'PVC Pass-Throughs x 10'], strength: [], duration: '10 min cap' },
+  { title: 'Back Squat Day', type: 'strength', description: 'Heavy back squats with accessory work.', movements: ['Back Squat', 'GHD Sit-Ups'], metcon: [], warmup: ['3 min Bike', 'Leg Swings x 10/side'], strength: ['Back Squat 5-5-5-5-5', 'GHD Sit-Ups 3x15'], duration: '45 min' },
+  { title: 'Murph Prep', type: 'fortime', description: 'Partition the reps however you like.', movements: ['Run', 'Pull-Ups', 'Push-Ups', 'Squats'], metcon: ['800m Run', '50 Pull-Ups', '100 Push-Ups', '150 Squats', '800m Run'], warmup: ['200m Jog', 'Arm Circles'], strength: [], duration: '40 min cap' },
+  { title: 'EMOM Conditioning', type: 'emom', description: 'Every minute on the minute for 20 minutes.', movements: ['Kettlebell Swings', 'Box Jumps', 'Burpees', 'Rowing'], metcon: ['Min 1: 15 KB Swings', 'Min 2: 12 Box Jumps', 'Min 3: 10 Burpees', 'Min 4: 15 Cal Row'], warmup: ['500m Row', 'KB Deadlifts x 10'], strength: [], duration: '20 min' },
+  { title: 'Deadlift & Metcon', type: 'strength', description: 'Build to a heavy set then hit a short metcon.', movements: ['Deadlift', 'Wall Balls', 'Double-Unders'], metcon: ['3 Rounds:', '12 Wall Balls (9/6 kg)', '30 Double-Unders'], warmup: ['Good Mornings x 10', 'Banded Walks x 20'], strength: ['Deadlift 3-3-3-3-3'], duration: '50 min' },
+  { title: 'Tabata Burnout', type: 'tabata', description: '8 rounds of 20s on / 10s off per movement.', movements: ['Air Squats', 'Push-Ups', 'Sit-Ups', 'Burpees'], metcon: ['Tabata Air Squats', 'Tabata Push-Ups', 'Tabata Sit-Ups', 'Tabata Burpees'], warmup: ['200m Run', 'Inch Worms x 5'], strength: [], duration: '20 min' },
+  { title: 'Clean Complex', type: 'strength', description: 'Hang clean + clean + front squat + jerk.', movements: ['Hang Clean', 'Clean', 'Front Squat', 'Jerk'], metcon: [], warmup: ['Barbell Warm-Up Complex', 'Muscle Cleans x 5'], strength: ['Complex: 1 HC + 1 Clean + 1 FS + 1 Jerk — build to heavy'], duration: '40 min' },
+  { title: 'Cindy', type: 'amrap', description: '20 min AMRAP — classic bodyweight benchmark.', movements: ['Pull-Ups', 'Push-Ups', 'Air Squats'], metcon: ['5 Pull-Ups', '10 Push-Ups', '15 Air Squats'], warmup: ['400m Run', 'Kip Swings x 10'], strength: [], duration: '20 min' },
+  { title: 'Row & Thruster', type: 'fortime', description: 'Couplet grind. Pace the row, push the thrusters.', movements: ['Row', 'Thrusters'], metcon: ['5 Rounds:', '500m Row', '12 Thrusters (43/30 kg)'], warmup: ['2 min Row', 'Barbell Front Squats x 8'], strength: [], duration: '25 min cap' },
+  { title: 'Overhead Squat Focus', type: 'strength', description: 'Skill work and strength in the overhead squat.', movements: ['Overhead Squat', 'Snatch Balance'], metcon: ['3 Rounds: 8 OHS + 200m Run'], warmup: ['Snatch Grip Push Press x 8', 'OHS with PVC x 10'], strength: ['Overhead Squat 3-3-3-3'], duration: '45 min' },
+  { title: '5K Row', type: 'endurance', description: 'Endurance piece. Set a consistent split.', movements: ['Row'], metcon: ['5,000m Row for Time'], warmup: ['1,000m Easy Row', 'Leg Swings'], strength: [], duration: '25 min' },
+  { title: 'Grace', type: 'fortime', description: '30 clean and jerks for time.', movements: ['Clean & Jerk'], metcon: ['30 Clean & Jerks (61/43 kg)'], warmup: ['Barbell Complex x 2 sets', 'Hang Cleans x 5'], strength: [], duration: '10 min cap' },
+];
+
+/** Generate a full month of sample workouts for the current month (weekdays only, skip Sun) */
+export function generateSampleMonth(): { workouts: WorkoutDB[]; muscleGroups: Record<string, string[]> } {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const lastDay = new Date(year, month + 1, 0).getDate();
+
+  const muscleMap: Record<string, string[]> = {
+    'Thrusters': ['legs', 'shoulders'],
+    'Pull-Ups': ['back', 'arms'],
+    'Back Squat': ['legs', 'core'],
+    'Run': ['legs'],
+    'Kettlebell Swings': ['back', 'legs'],
+    'Box Jumps': ['legs'],
+    'Burpees': ['full body'],
+    'Rowing': ['back', 'legs'],
+    'Deadlift': ['back', 'legs'],
+    'Wall Balls': ['legs', 'shoulders'],
+    'Air Squats': ['legs'],
+    'Push-Ups': ['chest', 'arms'],
+    'Sit-Ups': ['core'],
+    'Hang Clean': ['legs', 'shoulders'],
+    'Clean': ['legs', 'back'],
+    'Front Squat': ['legs', 'core'],
+    'Jerk': ['shoulders', 'legs'],
+    'Row': ['back', 'legs'],
+    'Overhead Squat': ['legs', 'shoulders'],
+    'Clean & Jerk': ['legs', 'shoulders', 'back'],
+  };
+
+  const workouts: WorkoutDB[] = [];
+  const workoutMuscleGroups: Record<string, string[]> = {};
+  let templateIdx = 0;
+
+  for (let day = 1; day <= lastDay; day++) {
+    const date = new Date(year, month, day);
+    const dow = date.getDay();
+    if (dow === 0) continue; // skip Sunday
+
+    const tpl = WORKOUT_TEMPLATES[templateIdx % WORKOUT_TEMPLATES.length];
+    templateIdx++;
+
+    const id = `sample-month-${day}`;
+    const dateStr = date.toISOString().split('T')[0];
+    const isDraft = day > lastDay - 3; // last few days are drafts
+
+    workouts.push({
+      id,
+      date: dateStr,
+      title: tpl.title,
+      description: tpl.description,
+      movements: tpl.movements,
+      type: tpl.type as WorkoutDB['type'],
+      duration: tpl.duration,
+      metcon: tpl.metcon,
+      warmup: tpl.warmup,
+      strength: tpl.strength,
+      cooldown: [],
+      coachNotes: '',
+      scalingNotes: '',
+      status: isDraft ? 'draft' : 'published',
+    });
+
+    // Derive muscle groups from first 2 movements
+    const muscles = tpl.movements
+      .slice(0, 3)
+      .flatMap((m) => muscleMap[m] || ['full body'])
+      .filter((v, i, a) => a.indexOf(v) === i)
+      .slice(0, 3);
+    workoutMuscleGroups[id] = muscles;
+  }
+
+  return { workouts, muscleGroups: workoutMuscleGroups };
+}
+
 // ── Schedule ──
 
 export const SAMPLE_SCHEDULE: GymScheduleEntry[] = [

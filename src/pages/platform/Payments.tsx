@@ -1,12 +1,27 @@
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import DayPassIllustration from '../../components/common/illustrations/DayPassIllustration';
+import ServiceBookingIllustration from '../../components/common/illustrations/ServiceBookingIllustration';
+import AccountingIllustration from '../../components/common/illustrations/AccountingIllustration';
+import PaymentFlowIllustration from '../../components/common/illustrations/PaymentFlowIllustration';
 import styles from './Payments.module.scss';
+
+const NAV_ITEMS = [
+  { id: 'how-it-works', label: 'How It Works' },
+  { id: 'day-passes', label: 'Day Passes' },
+  { id: 'service-bookings', label: 'Bookings' },
+  { id: 'payment-types', label: 'Payment Types' },
+  { id: 'accounting', label: 'Accounting' },
+  { id: 'stripe', label: 'Stripe' },
+  { id: 'faq', label: 'FAQ' },
+];
 
 const STEPS = [
   {
     number: '1',
     title: 'A member books or subscribes',
     description:
-      'Whether it\'s a day pass, a PT session, or a monthly membership, your members pay through your branded gym website. It looks and feels like your business — because it is.',
+      'Whether it\'s a day pass, a PT session, or a monthly membership, your members pay through your branded gym website. It looks and feels like your business -because it is.',
   },
   {
     number: '2',
@@ -45,7 +60,7 @@ const PAYMENT_TYPES = [
   },
   {
     title: 'PT & Coaching Sessions',
-    description: 'Your coaches set their rates, members book and pay online. The money flows to your gym account automatically — no cash in hand, no awkward conversations.',
+    description: 'Your coaches set their rates, members book and pay online. The money flows to your gym account automatically -no cash in hand, no awkward conversations.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2" />
@@ -68,7 +83,7 @@ const PAYMENT_TYPES = [
 const TRUST_POINTS = [
   {
     title: 'Bank-level security',
-    description: 'All payments are processed by Stripe, which is PCI DSS Level 1 certified — the highest level of security in the payments industry. Card details never touch our servers.',
+    description: 'All payments are processed by Stripe, which is PCI DSS Level 1 certified -the highest level of security in the payments industry. Card details never touch our servers.',
   },
   {
     title: 'Transparent fees',
@@ -80,13 +95,97 @@ const TRUST_POINTS = [
   },
   {
     title: 'You\'re always in control',
-    description: 'Your Stripe account belongs to you. View payouts, download reports, issue refunds, and manage everything from your own Stripe dashboard — independent of No Sweat.',
+    description: 'Your Stripe account belongs to you. View payouts, download reports, issue refunds, and manage everything from your own Stripe dashboard -independent of No Sweat.',
   },
 ];
 
 const Payments = () => {
+  const [activeSection, setActiveSection] = useState(NAV_ITEMS[0].id);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        }
+      },
+      { rootMargin: '-20% 0px -60% 0px', threshold: 0 },
+    );
+
+    const refs = sectionRefs.current;
+    for (const id of Object.keys(refs)) {
+      const el = refs[id];
+      if (el) observer.observe(el);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const assignRef = useCallback(
+    (id: string) => (el: HTMLElement | null) => {
+      sectionRefs.current[id] = el;
+    },
+    [],
+  );
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    setSidebarOpen(false);
+  };
+
   return (
     <div className={styles.paymentsPage}>
+      {/* ── Floating Sidebar Nav ── */}
+      {sidebarOpen && (
+        <div
+          className={styles.sidebarBackdrop}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <nav className={`${styles.paymentsSidebar} ${sidebarOpen ? styles.paymentsSidebarOpen : ''}`}>
+        <div className={styles.sidebarHeader}>
+          <span className={styles.sidebarTitle}>Sections</span>
+          <button
+            className={styles.sidebarClose}
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close navigation"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => scrollTo(item.id)}
+            className={`${styles.sidebarLink} ${activeSection === item.id ? styles.sidebarLinkActive : ''}`}
+          >
+            <span className={styles.sidebarDot} />
+            <span className={styles.sidebarLabel}>{item.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <button
+        className={`${styles.sidebarToggle} ${sidebarOpen ? styles.sidebarToggleHidden : ''}`}
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Open section navigation"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
       {/* Hero */}
       <section className={styles.paymentsHero}>
         <div className={styles.paymentsHeroContent}>
@@ -98,9 +197,10 @@ const Payments = () => {
             Get paid. Without the headache.
           </h1>
           <p className={styles.paymentsHeroSubtitle}>
-            Every payment from your members goes directly to your bank account.
-            No invoicing, no chasing, no spreadsheets. Just money in your account
-            while you focus on running your gym.
+            Every payment from your members goes directly to your bank account
+            through Stripe -the same platform trusted by Amazon, Shopify, and
+            millions of businesses. No invoicing, no chasing, no spreadsheets.
+            Just money in your account while you focus on running your gym.
           </p>
           <div className={styles.paymentsHeroCtas}>
             <Link to="/signup" className={styles.paymentsCtaPrimary}>
@@ -117,7 +217,7 @@ const Payments = () => {
       </section>
 
       {/* How it works */}
-      <section className={styles.paymentsSection}>
+      <section id="how-it-works" ref={assignRef('how-it-works')} className={styles.paymentsSection}>
         <div className={styles.paymentsInner}>
           <h2 className={styles.paymentsSectionTitle}>How you get paid</h2>
           <p className={styles.paymentsSectionSubtitle}>
@@ -133,11 +233,115 @@ const Payments = () => {
               </div>
             ))}
           </div>
+
+          <div className={styles.flowIllustration}>
+            <PaymentFlowIllustration />
+          </div>
+        </div>
+      </section>
+
+      {/* Showcase: Day Passes & Trials */}
+      <section id="day-passes" ref={assignRef('day-passes')} className={styles.showcaseSection}>
+        <div className={styles.showcaseInner}>
+          <div className={styles.showcaseRow}>
+            <div className={styles.showcaseText}>
+              <h2 className={styles.showcaseTitle}>
+                Day passes and free trials that sell themselves
+              </h2>
+              <p className={styles.showcaseDescription}>
+                Visitors land on your site, pick a day pass or claim a free trial,
+                and pay in seconds. No phone calls, no cash at the front desk.
+                Free trials collect a card for authorisation without charging,
+                so you can convert them into paying members when they're ready.
+              </p>
+              <ul className={styles.showcaseBullets}>
+                <li className={styles.showcaseBullet}>
+                  <span className={styles.bulletCheck}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </span>
+                  Stripe-powered checkout on your branded site
+                </li>
+                <li className={styles.showcaseBullet}>
+                  <span className={styles.bulletCheck}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </span>
+                  Free trials with secure card authorisation
+                </li>
+                <li className={styles.showcaseBullet}>
+                  <span className={styles.bulletCheck}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </span>
+                  Zero friction -visitors become members in one tap
+                </li>
+              </ul>
+            </div>
+            <div className={styles.showcaseVisual}>
+              <div className={styles.illustrationWrapper}>
+                <DayPassIllustration />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Showcase: Service Bookings */}
+      <section id="service-bookings" ref={assignRef('service-bookings')} className={styles.showcaseSectionAlt}>
+        <div className={styles.showcaseInner}>
+          <div className={`${styles.showcaseRow} ${styles.showcaseRowReversed}`}>
+            <div className={styles.showcaseText}>
+              <h2 className={styles.showcaseTitle}>
+                Coaches get booked and paid automatically
+              </h2>
+              <p className={styles.showcaseDescription}>
+                Personal training, sports massage, nutrition consultations.
+                whatever your coaches offer. Members pick a coach, choose a time,
+                and pay online. The money flows straight to your gym account.
+                No cash in hand, no awkward conversations about money.
+              </p>
+              <ul className={styles.showcaseBullets}>
+                <li className={styles.showcaseBullet}>
+                  <span className={styles.bulletCheck}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </span>
+                  Coach-managed availability and pricing
+                </li>
+                <li className={styles.showcaseBullet}>
+                  <span className={styles.bulletCheck}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </span>
+                  Online payment at time of booking
+                </li>
+                <li className={styles.showcaseBullet}>
+                  <span className={styles.bulletCheck}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </span>
+                  PT, massage, nutrition and more
+                </li>
+              </ul>
+            </div>
+            <div className={styles.showcaseVisual}>
+              <div className={styles.illustrationWrapper}>
+                <ServiceBookingIllustration />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Payment types */}
-      <section className={styles.paymentTypesSection}>
+      <section id="payment-types" ref={assignRef('payment-types')} className={styles.paymentTypesSection}>
         <div className={styles.paymentsInner}>
           <h2 className={styles.paymentsSectionTitle}>Every way your gym makes money</h2>
           <p className={styles.paymentsSectionSubtitle}>
@@ -156,13 +360,65 @@ const Payments = () => {
         </div>
       </section>
 
-      {/* Trust & Security */}
-      <section className={styles.paymentsSection}>
+      {/* Showcase: Accounting Integration */}
+      <section id="accounting" ref={assignRef('accounting')} className={styles.showcaseSection}>
+        <div className={styles.showcaseInner}>
+          <div className={styles.showcaseRow}>
+            <div className={styles.showcaseText}>
+              <h2 className={styles.showcaseTitle}>
+                Your books, always in sync
+              </h2>
+              <p className={styles.showcaseDescription}>
+                Already using QuickBooks or Xero? Connect your account and every
+                payment flows straight into your accounting software automatically.
+                Day pass sales, PT sessions, membership subscriptions -all synced
+                in real-time. No double entry, no missed transactions, no
+                end-of-month panic. Your accountant will love you for it.
+              </p>
+              <ul className={styles.showcaseBullets}>
+                <li className={styles.showcaseBullet}>
+                  <span className={styles.bulletCheck}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </span>
+                  QuickBooks and Xero integration
+                </li>
+                <li className={styles.showcaseBullet}>
+                  <span className={styles.bulletCheck}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </span>
+                  Automatic payment and invoice sync
+                </li>
+                <li className={styles.showcaseBullet}>
+                  <span className={styles.bulletCheck}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </span>
+                  Real-time transaction flow -no manual entry
+                </li>
+              </ul>
+            </div>
+            <div className={styles.showcaseVisual}>
+              <div className={styles.illustrationWrapper}>
+                <AccountingIllustration />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stripe requirement -positioned as a benefit */}
+      <section id="stripe" ref={assignRef('stripe')} className={styles.paymentsSection}>
         <div className={styles.paymentsInner}>
-          <h2 className={styles.paymentsSectionTitle}>Your money. Your control.</h2>
+          <h2 className={styles.paymentsSectionTitle}>Built on Stripe. The gold standard.</h2>
           <p className={styles.paymentsSectionSubtitle}>
-            We built payments on Stripe so you never have to worry about security,
-            compliance, or where your money is.
+            Every No Sweat gym connects a free Stripe account to accept payments.
+            It takes minutes to set up and gives you access to the same world-class
+            payment infrastructure used by the biggest brands on the planet.
           </p>
 
           <div className={styles.trustGrid}>
@@ -177,7 +433,7 @@ const Payments = () => {
       </section>
 
       {/* FAQ */}
-      <section className={styles.paymentTypesSection}>
+      <section id="faq" ref={assignRef('faq')} className={styles.paymentTypesSection}>
         <div className={styles.paymentsInner}>
           <h2 className={styles.paymentsSectionTitle}>Common questions</h2>
 
@@ -202,9 +458,12 @@ const Payments = () => {
             <div className={styles.faqItem}>
               <h3 className={styles.faqQuestion}>Do I need a Stripe account already?</h3>
               <p className={styles.faqAnswer}>
-                Nope. When you're ready to accept payments, just click "Connect Stripe Account"
-                in your gym admin panel. We'll walk you through creating and verifying your account
-                in a few minutes. All you need is your bank details and some basic business info.
+                No -and it's completely free to create one. When you're ready to accept payments,
+                click "Connect Stripe Account" in your gym admin panel. We walk you through
+                creating and verifying your account in a few minutes. All you need is your bank
+                details and some basic business info. A Stripe account is required to accept
+                payments through No Sweat, but there's no monthly fee from Stripe -you only pay
+                a small processing fee when a transaction happens.
               </p>
             </div>
 
@@ -226,11 +485,14 @@ const Payments = () => {
             </div>
 
             <div className={styles.faqItem}>
-              <h3 className={styles.faqQuestion}>Is this safe for my members?</h3>
+              <h3 className={styles.faqQuestion}>Does it link to my accounting software?</h3>
               <p className={styles.faqAnswer}>
-                Absolutely. Card details are handled entirely by Stripe and never pass through
-                our servers. Stripe protects billions of pounds in payments every year for
-                companies like Amazon, Google, and Deliveroo.
+                Yes. No Sweat integrates with QuickBooks and Xero so every payment -
+                day passes, PT sessions, memberships -syncs automatically into your
+                accounting software. No manual data entry, no reconciliation headaches.
+                If you don't use accounting software yet, don't worry -your Stripe
+                dashboard gives you full transaction history, reports, and export tools
+                out of the box.
               </p>
             </div>
           </div>

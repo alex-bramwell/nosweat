@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import { useTenant } from '../../contexts/TenantContext';
+import { Link } from 'react-router-dom';
+import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { FEATURES, getFeaturesByCategory, type FeatureDefinition } from '../../config/features';
 import type { FeatureKey } from '../../types/tenant';
@@ -37,10 +38,14 @@ const FEATURE_ICONS: Record<FeatureKey, ReactNode> = {
   member_management: (
     <svg {...svgProps}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
   ),
+  custom_domain: (
+    <svg {...svgProps}><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
+  ),
 };
 
 const FeatureTogglePanel: React.FC = () => {
   const { gym, features, refreshTenant } = useTenant();
+  const gymPath = useGymPath();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [disableModalData, setDisableModalData] = useState<{
@@ -166,6 +171,11 @@ const FeatureTogglePanel: React.FC = () => {
           {message.text}
         </div>
       )}
+
+      <p className={styles.featureHint}>
+        You can also toggle features from the{' '}
+        <Link to={gymPath('/site-builder')} className={styles.featureHintLink}>Site Builder</Link>.
+      </p>
 
       {Object.entries(featuresByCategory).map(([category, categoryFeatures]) => (
         <div key={category} className={styles.featureCategory}>

@@ -63,84 +63,6 @@
   100% { background-position: 0% 50%; }
 }
 
-.heroCometEffect {
-  position: absolute;
-  top: 20%;
-  left: -100px;
-  width: 15px;
-  height: 15px;
-  background: radial-gradient(circle, rgba(var(--color-accent-rgb), 0.6) 0%, rgba(var(--color-accent-rgb), 0.3) 50%, transparent 70%);
-  border-radius: 50%;
-  box-shadow:
-    0 0 10px rgba(var(--color-accent-rgb), 0.3),
-    0 0 20px rgba(var(--color-accent-rgb), 0.2);
-  animation: cometFly 8s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.heroCometTrail {
-  position: absolute;
-  top: 50%;
-  right: 100%;
-  width: 150px;
-  height: 2px;
-  background: linear-gradient(
-    to left,
-    rgba(var(--color-accent-rgb), 0.4) 0%,
-    rgba(var(--color-accent-rgb), 0.2) 30%,
-    rgba(var(--color-secondary-rgb), 0.2) 60%,
-    transparent 100%
-  );
-  transform: translateY(-50%);
-  filter: blur(2px);
-  box-shadow: 0 0 5px rgba(var(--color-accent-rgb), 0.2);
-  animation: cometTrailFade 8s ease-in-out infinite;
-}
-
-@keyframes cometFly {
-  0% {
-    top: 20%;
-    left: -100px;
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  50% {
-    top: 60%;
-    left: 50%;
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    top: 80%;
-    left: calc(100% + 100px);
-    opacity: 0;
-  }
-}
-
-@keyframes cometTrailFade {
-  0%, 100% {
-    opacity: 0;
-    width: 0;
-  }
-  10% {
-    opacity: 0.8;
-    width: 150px;
-  }
-  50% {
-    opacity: 1;
-    width: 200px;
-  }
-  90% {
-    opacity: 0.8;
-    width: 150px;
-  }
-}
-
 .heroBody {
   position: relative;
   z-index: 2;
@@ -178,14 +100,10 @@
 
 .heroActions {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
   max-width: 1000px;
   margin: 0 auto;
-
-  @media (max-width: 900px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
 
   @media (max-width: 600px) {
     grid-template-columns: 1fr;

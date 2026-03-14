@@ -33,10 +33,12 @@
 // Variants
 .cardFlat {
   background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-bg-light) 100%);
+  border: 1px solid var(--color-bg-dark);
 }
 
 .cardRaised {
   background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-bg-light) 100%);
+  border: 1px solid var(--color-bg-dark);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
   &:hover {

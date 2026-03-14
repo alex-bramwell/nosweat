@@ -27,6 +27,9 @@ export interface Gym {
   trial_end_date: string | null;
   trial_member_limit: number;
   trial_status: 'none' | 'active' | 'expired' | 'converted';
+  custom_domain: string | null;
+  custom_domain_status: 'none' | 'pending' | 'verified' | 'failed';
+  custom_domain_verified_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -87,6 +90,21 @@ export interface GymBranding {
 
   // Section visibility
   visible_sections: Record<string, boolean>;
+
+  // Hero action cards
+  hero_cards: HeroCards;
+}
+
+export interface HeroCardContent {
+  title: string;
+  description: string;
+  button: string;
+}
+
+export interface HeroCards {
+  daypass: HeroCardContent;
+  trial: HeroCardContent;
+  schedule: HeroCardContent;
 }
 
 export interface GymFeature {
@@ -107,7 +125,8 @@ export type FeatureKey =
   | 'service_booking'
   | 'accounting_integration'
   | 'coach_analytics'
-  | 'member_management';
+  | 'member_management'
+  | 'custom_domain';
 
 export interface GymProgram {
   id: string;
