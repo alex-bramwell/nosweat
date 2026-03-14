@@ -74,6 +74,7 @@ const ALL_FEATURE_KEYS: FeatureKey[] = [
   'accounting_integration',
   'coach_analytics',
   'member_management',
+  'custom_domain',
 ];
 
 function buildFeatureMap(features: GymFeature[]): Record<FeatureKey, boolean> {
@@ -106,6 +107,7 @@ interface TenantContextType {
   isLoading: boolean;
   error: string | null;
   isPlatformSite: boolean;
+  isCustomDomain: boolean;
   tenantSlug: string | null;
 
   // Actions
@@ -152,11 +154,12 @@ function resolveSlugFromLocation(pathname: string, search: string): string | nul
 // Gym path helper hook
 // -------------------------------------------------------------------
 export const useGymPath = () => {
-  const { tenantSlug } = useTenant();
+  const { tenantSlug, isCustomDomain } = useTenant();
   return (path: string) => {
     if (!tenantSlug) return path;
-    // Normalize: gymPath('/schedule') → '/gym/comet/schedule'
-    // gymPath('/') → '/gym/comet'
+    // Custom domain: paths are root-relative (no /gym/:slug prefix)
+    if (isCustomDomain) return path;
+    // Standard: gymPath('/schedule') -> '/gym/comet/schedule'
     const cleanPath = path === '/' ? '' : path;
     return `/gym/${tenantSlug}${cleanPath}`;
   };
@@ -168,9 +171,10 @@ export const useGymPath = () => {
 interface TenantProviderProps {
   children: ReactNode;
   initialSlug?: string | null;
+  customDomain?: boolean;
 }
 
-export const TenantProvider: React.FC<TenantProviderProps> = ({ children, initialSlug }) => {
+export const TenantProvider: React.FC<TenantProviderProps> = ({ children, initialSlug, customDomain = false }) => {
   const location = useLocation();
   const [gym, setGym] = useState<Gym | null>(null);
   const [branding, setBranding] = useState<GymBranding>(DEFAULT_BRANDING);
@@ -309,6 +313,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children, initia
     isLoading,
     error,
     isPlatformSite,
+    isCustomDomain: customDomain,
     tenantSlug,
     refreshTenant: fetchTenantData,
   };
