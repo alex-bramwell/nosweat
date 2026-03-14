@@ -8,15 +8,10 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+import { assertMethod } from '../lib/auth';
 import { decryptToken } from '../utils/encryption.js';
 import * as crypto from 'crypto';
-
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
 
 /**
  * Verify admin role
@@ -383,9 +378,7 @@ export default async function handler(
   res: VercelResponse
 ) {
   // Only allow POST requests
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (!assertMethod(req, res, 'POST')) return;
 
   try {
     console.log('[Connection] Request received:', {

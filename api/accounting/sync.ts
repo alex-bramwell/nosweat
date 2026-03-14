@@ -7,7 +7,7 @@
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
 import {
   Provider,
   SyncResult,
@@ -31,11 +31,6 @@ import {
   createSalesReceipt,
   createCreditMemo
 } from '../services/quickbooksService.js';
-
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
 
 /**
  * Verify user is authenticated and has admin role

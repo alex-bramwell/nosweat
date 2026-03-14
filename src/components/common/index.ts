@@ -10,6 +10,10 @@ export * from './InfoTooltip';
 export { FeatureGate } from './FeatureGate/FeatureGate';
 export { FeatureNotEnabled } from './FeatureGate/FeatureNotEnabled';
 export { default as EmptyStatePreview } from './EmptyStatePreview/EmptyStatePreview';
+export { StatusBadge } from './StatusBadge';
+export { DetailGrid } from './DetailGrid';
+export { SelectableCard } from './SelectableCard';
+export { InfoBox } from './InfoBox';
 
 export type { ButtonProps } from './Button';
 export type { CardProps } from './Card';
@@ -18,3 +22,7 @@ export type { ContainerProps } from './Container';
 export type { SelectOption } from './Select';
 export type { NumberInputProps } from './NumberInput';
 export type { DurationInputProps } from './DurationInput';
+export type { StatusBadgeProps, BadgeVariant } from './StatusBadge';
+export type { DetailGridProps, DetailGridItem } from './DetailGrid';
+export type { SelectableCardProps } from './SelectableCard';
+export type { InfoBoxProps, InfoBoxVariant } from './InfoBox';
