@@ -105,10 +105,7 @@ const PlatformHome = () => {
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroContent}>
-          <div className={styles.heroBadge}>
-            <span className={styles.heroBadgeDot} />
-            Built for gym owners, by athletes
-          </div>
+          <p className={styles.heroEyebrow}>Built for <span className={styles.heroEyebrowHighlight}>gym owners</span>, by <span className={styles.heroEyebrowHighlight}>athletes</span></p>
           <h1 className={styles.heroHeadline}>
             Stop juggling five apps to run one gym
           </h1>

@@ -57,15 +57,20 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
 
 // ── Navbar ──
 .navbar {
-  background: $platform-glass-bg;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid $platform-border;
-  padding: 0.875rem 2rem;
   position: sticky;
   top: 0;
   z-index: 100;
+  padding: 1rem 2rem;
+  background: transparent;
   transition: all 250ms cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  @media (max-width: 768px) {
+    padding: 0.75rem;
+    background: $platform-glass-bg;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid $platform-border;
+  }
 }
 
 .navContainer {
@@ -74,6 +79,22 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid $platform-border;
+  border-radius: 16px;
+  padding: 0.625rem 1.5rem;
+  transition: all 250ms cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  @media (max-width: 768px) {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    border-radius: 0;
+    padding: 0.25rem 0.75rem;
+  }
 }
 
 .logo {
@@ -87,9 +108,6 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
     color: $platform-text;
   }
 
-  &:hover {
-    opacity: 0.85;
-  }
 }
 
 .logoMark {
