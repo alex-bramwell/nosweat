@@ -460,7 +460,8 @@ $mobile-breakpoint: 768px;
 }
 
 .mobileMenuOpen {
-  max-height: 300px;
+  max-height: 80vh;
+  overflow-y: auto;
   opacity: 1;
   padding: 1rem;
   border-top: 1px solid $platform-border;
