@@ -221,9 +221,35 @@ const Onboarding = () => {
 
       const createdGymId = gymData.id;
 
-      // 2. Create default branding record
+      // 2. Create branding with starter dark theme
       const { error: brandingError } = await supabase.from('gym_branding').insert({
         gym_id: createdGymId,
+        color_bg: '#181820',
+        color_bg_light: '#2a2a38',
+        color_bg_dark: '#0f0f14',
+        color_surface: '#23232e',
+        color_accent: '#ff4f1f',
+        color_accent2: '#ff1f4f',
+        color_secondary: '#00d4ff',
+        color_secondary2: '#00ff88',
+        color_specialty: '#9d4edd',
+        color_text: '#ffffff',
+        color_muted: '#888888',
+        color_header: '#ffffff',
+        color_footer: '#ffffff',
+        font_header: 'Poppins',
+        font_body: 'Open Sans',
+        border_radius: '1rem',
+        theme_mode: 'dark',
+        nav_style: 'floating',
+        hero_headline: `Welcome to ${gymName.trim()}`,
+        hero_subtitle: 'Where strength meets community. Transform your fitness journey with expert coaching, world-class programming, and a supportive atmosphere.',
+        cta_headline: 'Ready to Start Your Journey?',
+        cta_subtitle: 'Join us today and experience the difference. Your first class is free!',
+        about_mission: 'We believe fitness is more than just a workout - it\'s a lifestyle. Our mission is to create a welcoming, inclusive community where athletes of all levels can push their limits, achieve their goals, and become the best version of themselves.',
+        about_philosophy: 'Built on the principles of functional fitness, community support, and expert coaching. Whether you\'re a complete beginner or a seasoned athlete, we\'re here to guide you every step of the way.',
+        hero_effect: 'none',
+        visible_sections: { hero: true, programs: true, wod: true, cta: true, stats: true },
       });
       if (brandingError) throw brandingError;
 
@@ -241,10 +267,59 @@ const Onboarding = () => {
         .insert(featureInserts);
       if (featuresError) throw featuresError;
 
-      // 4. Link profile to gym
+      // 4. Seed starter programs
+      const { error: programsError } = await supabase.from('gym_programs').insert([
+        {
+          gym_id: createdGymId, slug: 'crossfit', title: 'CrossFit',
+          description: 'High-intensity functional fitness for all levels. Build strength, endurance, and community.',
+          tagline: 'Forge Elite Fitness Through Functional Movement',
+          level: 'all', price_pence: 7000, price_unit: 'per month',
+          schedule_info: 'Multiple daily sessions Mon-Fri, weekends available', sort_order: 0,
+        },
+        {
+          gym_id: createdGymId, slug: 'open-gym', title: 'Open Gym',
+          description: 'Train on your own schedule. Access to all equipment and facilities during open gym hours.',
+          tagline: 'Train On Your Terms',
+          level: 'intermediate', schedule_info: 'Multiple sessions daily - see schedule', sort_order: 1,
+        },
+      ]);
+      if (programsError) console.error('Programs seed error:', programsError);
+
+      // 5. Seed starter schedule (Mon-Sat template)
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+      const scheduleEntries = days.flatMap((day) => [
+        { gym_id: createdGymId, day_of_week: day, start_time: '06:00', class_name: 'CrossFit', max_capacity: 16 },
+        { gym_id: createdGymId, day_of_week: day, start_time: '07:00', class_name: 'CrossFit', max_capacity: 16 },
+        { gym_id: createdGymId, day_of_week: day, start_time: '09:30', class_name: 'CrossFit', max_capacity: 16 },
+        { gym_id: createdGymId, day_of_week: day, start_time: '16:30', class_name: 'CrossFit', max_capacity: 16 },
+      ]);
+      scheduleEntries.push(
+        { gym_id: createdGymId, day_of_week: 'saturday', start_time: '08:00', class_name: 'CrossFit', max_capacity: 16 },
+        { gym_id: createdGymId, day_of_week: 'saturday', start_time: '09:00', class_name: 'CrossFit', max_capacity: 16 },
+        { gym_id: createdGymId, day_of_week: 'saturday', start_time: '10:00', class_name: 'Open Gym', max_capacity: 16 },
+      );
+      const { error: scheduleError } = await supabase.from('gym_schedule').insert(scheduleEntries);
+      if (scheduleError) console.error('Schedule seed error:', scheduleError);
+
+      // 6. Seed starter stats
+      const { error: statsError } = await supabase.from('gym_stats').insert([
+        { gym_id: createdGymId, label: 'Classes Per Week', value: 23, suffix: '+', sort_order: 0 },
+        { gym_id: createdGymId, label: 'Coaches', value: 0, suffix: null, sort_order: 1 },
+      ]);
+      if (statsError) console.error('Stats seed error:', statsError);
+
+      // 7. Seed starter memberships
+      const { error: membershipsError } = await supabase.from('gym_memberships').insert([
+        { gym_id: createdGymId, slug: 'trial', display_name: 'Free Trial', description: 'Try a class with no commitment', price_pence: 0, billing_period: 'one-time', sort_order: 0 },
+        { gym_id: createdGymId, slug: 'crossfit', display_name: 'CrossFit', description: 'Full access to all classes', price_pence: 7000, billing_period: 'monthly', sort_order: 1 },
+        { gym_id: createdGymId, slug: 'open-gym', display_name: 'Open Gym', description: 'Access during open gym hours', price_pence: 4000, billing_period: 'monthly', sort_order: 2 },
+      ]);
+      if (membershipsError) console.error('Memberships seed error:', membershipsError);
+
+      // 8. Link profile to gym and set as admin
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ gym_id: createdGymId })
+        .update({ gym_id: createdGymId, role: 'admin' })
         .eq('id', userId);
       if (profileError) throw profileError;
 

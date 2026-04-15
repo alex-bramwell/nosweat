@@ -427,6 +427,16 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
         </div>
       )}
 
+      {/* Starter design notice */}
+      <div className={styles.starterNotice}>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <p>This is a starter design. Customise the colours, fonts, and content below to make it yours.</p>
+      </div>
+
       {/* ━━ GLOBAL ━━ */}
       <div className={styles.sectionGroupHeading}>Global</div>
 
