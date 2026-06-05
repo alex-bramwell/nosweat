@@ -111,9 +111,11 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       .update({ status: 'succeeded' })
       .eq('stripe_payment_intent_id', paymentIntent.id);
 
-    // Create booking
+    // Create booking. gym_id is carried in the payment metadata and is required:
+    // bookings has a NOT NULL gym_id on a freshly-provisioned database.
     await supabase.from('bookings').insert({
       user_id: userId,
+      gym_id: paymentIntent.metadata.gym_id || null,
       class_id: classId,
       class_day: paymentIntent.metadata.class_day,
       class_time: paymentIntent.metadata.class_time,

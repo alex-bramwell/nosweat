@@ -21,6 +21,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    if (!gymId) {
+      return res.status(400).json({ error: 'Missing gymId' });
+    }
+
     // Verify auth token
     const user = await verifyAuth(req, res);
     if (!user) return;
@@ -104,9 +108,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams);
 
-    // Save payment record to database
+    // Save payment record to database. gym_id is required: payments has a
+    // NOT NULL gym_id on a freshly-provisioned database.
     await supabase.from('payments').insert({
       user_id: userId,
+      gym_id: gymId,
       stripe_payment_intent_id: paymentIntent.id,
       stripe_customer_id: stripeCustomerId,
       amount: 1000,
