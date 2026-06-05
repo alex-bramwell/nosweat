@@ -1,3 +1,26 @@
+// =============================================================================
+// App.tsx - Application Root & Multi-Tenant Routing Architecture
+//
+// KEY ARCHITECTURE: This app serves two completely different audiences from one
+// codebase using a "two-shell" pattern:
+//
+//   1. GymShell  (/gym/:slug/*) - White-label sites for individual gyms.
+//      Each gym gets its own branded experience with tenant-specific data,
+//      theming, features, and auth. Wrapped in TenantProvider + AuthProvider.
+//
+//   2. PlatformShell (/*) - The SaaS marketing/onboarding site for gym owners.
+//      Completely separate layout, dark theme, and routes. No tenant context.
+//
+// CUSTOM DOMAINS: A third mode (CustomDomainApp) handles gyms with their own
+// domain (e.g. www.mygym.com). It mounts all gym routes at "/" instead of
+// "/gym/:slug", resolved via useDomainResolution() before React Router mounts.
+//
+// PROVIDER COMPOSITION: Context providers are nested deliberately -
+// TenantProvider wraps everything (even platform, where it short-circuits),
+// but AuthProvider and RegistrationProvider only wrap gym routes. This avoids
+// loading auth/registration infrastructure on the platform marketing site.
+// =============================================================================
+
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { TenantProvider, useTenant } from './contexts/TenantContext';
@@ -40,7 +63,10 @@ import TermsOfService from './pages/platform/TermsOfService';
 import PlatformDashboard from './pages/platform/PlatformDashboard';
 import TrialBanner from './components/common/TrialBanner';
 
-// Component to detect password recovery tokens and redirect
+// Supabase sends password recovery links with tokens in the URL hash fragment.
+// This component intercepts those tokens on any page and redirects to the
+// dedicated reset-password route, preserving the hash so Supabase can consume it.
+// It also handles expired tokens gracefully by redirecting with a query param.
 function PasswordRecoveryRedirect() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -92,7 +118,21 @@ function PasswordRecoveryRedirect() {
 }
 
 // ------------------------------------------------------------------
-// Gym Shell — rendered for /gym/:slug/* routes
+// GymShell - The tenant-facing app shell for individual gym sites.
+//
+// This is where multi-tenancy comes alive: useTenantTheme() injects
+// the gym's branding (colors, fonts, favicon) as CSS custom properties
+// on :root, so the entire component tree re-themes without prop drilling.
+//
+// ROUTE STRUCTURE: Uses nested <Routes> to separate the site-builder
+// (full-screen, no chrome) from all other pages (wrapped in Layout with
+// navbar + footer). The outer Routes matches /site-builder first, then
+// the catch-all /* renders Layout around an inner Routes for page-level
+// routing. This avoids duplicating the Layout wrapper on every route.
+//
+// SESSION MANAGEMENT: 30-minute timeout with a 5-minute warning modal.
+// The session timer resets on user activity, and logout clears both the
+// auth state and any in-progress registration intents (see AuthContext).
 // ------------------------------------------------------------------
 function GymShell() {
   const { isLoading, error, gym, tenantSlug } = useTenant();
@@ -146,7 +186,9 @@ function GymShell() {
       <PasswordRecoveryRedirect />
       <ScrollToHash />
       <Routes>
-        {/* Site Builder — full-screen, no Layout wrapper */}
+        {/* Site Builder - full-screen, no Layout wrapper.
+            Listed BEFORE the catch-all so it matches first and avoids
+            rendering inside the navbar/footer chrome. */}
         <Route
           path="/site-builder"
           element={
@@ -156,7 +198,11 @@ function GymShell() {
           }
         />
 
-        {/* All other routes — wrapped in Layout with Navbar + Footer */}
+        {/* All other gym routes - wrapped in Layout (navbar + footer).
+            FEATURE GATING: Routes like /schedule and /coaches are wrapped
+            in <FeatureGate> - if the gym hasn't enabled that feature, users
+            see a "feature not enabled" page instead of a broken route.
+            This is the route-level complement to section-level gating in Home.tsx. */}
         <Route
           path="/*"
           element={
@@ -235,7 +281,10 @@ function GymShell() {
 }
 
 // ------------------------------------------------------------------
-// Platform Shell — rendered for root platform routes
+// Platform Shell - the SaaS marketing and onboarding site at the root domain.
+// Completely separate from the gym tenant UI - has its own dark theme,
+// layout, and routes (login, signup, onboarding, docs, pricing, etc.).
+// This is what gym owners see when they sign up for the platform.
 // ------------------------------------------------------------------
 function PlatformShell() {
   return (
@@ -260,7 +309,17 @@ function PlatformShell() {
 }
 
 // ------------------------------------------------------------------
-// Custom Domain Shell — when app is accessed via a gym's own domain
+// CustomDomainApp - Routes gym pages at "/" instead of "/gym/:slug".
+//
+// When a gym uses their own domain (e.g. www.mygym.com), the slug is
+// resolved from the hostname via useDomainResolution() (API call to
+// /api/domains/resolve, cached in sessionStorage). The `customDomain`
+// flag flows through TenantContext to useGymPath(), which then generates
+// root-relative links ("/schedule") instead of prefixed ones ("/gym/comet/schedule").
+//
+// This means every <Link> and navigation call in the app automatically
+// adapts to whichever routing mode is active, without any component
+// needing to know whether it's on a custom domain or not.
 // ------------------------------------------------------------------
 function CustomDomainApp({ slug }: { slug: string }) {
   return (
@@ -278,7 +337,16 @@ function CustomDomainApp({ slug }: { slug: string }) {
 }
 
 // ------------------------------------------------------------------
-// Standard App — path-based tenancy + platform routes
+// StandardApp - Default routing mode using path-based multi-tenancy.
+//
+// CRITICAL DESIGN DECISION: The /gym/:slug/* route renders AuthProvider
+// and RegistrationProvider, but the platform /* route does NOT. This means
+// the platform marketing site never initializes Supabase auth listeners,
+// never fetches gym data, and never sets up registration state. The
+// platform has its own lightweight auth flow in PlatformLayout.
+//
+// The TenantProvider wraps both routes but short-circuits for platform
+// pages (isPlatformSite = true skips all data fetching).
 // ------------------------------------------------------------------
 function StandardApp() {
   return (
@@ -300,6 +368,17 @@ function StandardApp() {
   );
 }
 
+// Top-level App component - the FIRST decision point in the entire app.
+//
+// ROUTING DECISION TREE:
+//   1. useDomainResolution() checks hostname (before React Router even mounts)
+//   2. If custom domain detected -> CustomDomainApp (gym routes at "/")
+//   3. If platform domain -> StandardApp (gym at "/gym/:slug", platform at "/")
+//
+// This two-phase approach (resolve domain THEN mount router) means the
+// entire routing tree is determined by hostname, not just URL path. The
+// BrowserRouter is created AFTER domain resolution to avoid flash of
+// wrong content.
 function App() {
   const domainResolution = useDomainResolution();
 
