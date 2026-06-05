@@ -18,5 +18,11 @@
       "source": "/((?!api).*)",
       "destination": "/index.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/expire-trials",
+      "schedule": "0 2 * * *"
+    }
   ]
 }

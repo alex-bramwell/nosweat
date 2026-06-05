@@ -1,21 +1,52 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTenant } from '../contexts/TenantContext';
 import { Section, Container, Card, Button, EmptyStatePreview } from '../components/common';
 import { ProfileSettings } from '../components/ProfileSettings';
 import { WeeklyVolume } from '../components/WeeklyVolume';
 import { ServiceBookingModal } from '../components/ServiceBookingModal';
 import { workoutService } from '../services/workoutService';
+import { classBookingService } from '../services/classBookingService';
+import { subscriptionService, type MemberSubscription } from '../services/subscriptionService';
 import { coachServicesService, type CoachService, type ServiceBooking, SERVICE_LABELS, SERVICE_DESCRIPTIONS } from '../services/coachServicesService';
+import { useMessage } from '../hooks/useMessage';
 import { SAMPLE_WORKOUT } from '../data/sampleContent';
 import type { WorkoutDB } from '../types';
+import type { GymScheduleEntry } from '../types/tenant';
 import styles from './Dashboard.module.scss';
+
+const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+
+// Convert a 'HH:MM:SS' time string into a friendly '6:00 AM' label.
+const formatClassTime = (time: string): string => {
+  const [hourStr, minuteStr] = time.split(':');
+  const hour = Number(hourStr);
+  const minute = Number(minuteStr);
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${hour12}:${String(minute).padStart(2, '0')} ${period}`;
+};
+
+interface ClassInstance {
+  classId: string; // unique per schedule slot per date
+  dayIndex: number;
+  dayName: string;
+  dateLabel: string;
+  time: string;
+  className: string;
+  maxCapacity: number;
+  classDateISO: string;
+}
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const { gym, schedule } = useTenant();
+  const { message, showSuccess, showError } = useMessage();
   const [activeTab, setActiveTab] = useState<'wod' | 'booking' | 'services' | 'profile'>('wod');
-  const [classType, setClassType] = useState<'crossfit' | 'opengym'>('crossfit');
-  const [bookingClassType, setBookingClassType] = useState<'crossfit' | 'opengym'>('crossfit');
   const [selectedClasses, setSelectedClasses] = useState<Set<string>>(new Set());
+  const [bookedClassIds, setBookedClassIds] = useState<Set<string>>(new Set());
+  const [classCounts, setClassCounts] = useState<Record<string, number>>({});
+  const [isBooking, setIsBooking] = useState(false);
   const [todaysWorkout, setTodaysWorkout] = useState<WorkoutDB | null>(null);
   const [isWorkoutLoading, setIsWorkoutLoading] = useState(true);
   const [availableServices, setAvailableServices] = useState<CoachService[]>([]);
@@ -23,6 +54,102 @@ const Dashboard = () => {
   const [selectedServiceForBooking, setSelectedServiceForBooking] = useState<CoachService | null>(null);
   const [myBookings, setMyBookings] = useState<ServiceBooking[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
+  const [subscription, setSubscription] = useState<MemberSubscription | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  // Build bookable class instances for the next 7 days from the gym's real
+  // schedule. Each schedule slot becomes a dated instance with a stable id.
+  const next7Days = useMemo(() => {
+    const days: Date[] = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      days.push(date);
+    }
+    return days;
+  }, []);
+
+  const classInstances = useMemo<ClassInstance[]>(() => {
+    const activeSchedule = (schedule || []).filter((s: GymScheduleEntry) => s.is_active);
+    const instances: ClassInstance[] = [];
+    const today = new Date();
+
+    next7Days.forEach((date, dayIndex) => {
+      const dayOfWeek = DAY_NAMES[date.getDay()];
+      const slots = activeSchedule
+        .filter((s) => s.day_of_week === dayOfWeek)
+        .sort((a, b) => a.start_time.localeCompare(b.start_time));
+
+      slots.forEach((slot) => {
+        const [hour, minute] = slot.start_time.split(':').map(Number);
+        const classDate = new Date(date);
+        classDate.setHours(hour, minute, 0, 0);
+        const dateKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+        instances.push({
+          classId: `${slot.id}__${dateKey}`,
+          dayIndex,
+          dayName: date.toLocaleDateString('en-US', { weekday: 'long' }),
+          dateLabel:
+            date.toDateString() === today.toDateString()
+              ? 'Today'
+              : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          time: formatClassTime(slot.start_time),
+          className: slot.class_name,
+          maxCapacity: slot.max_capacity,
+          classDateISO: classDate.toISOString(),
+        });
+      });
+    });
+
+    return instances;
+  }, [schedule, next7Days]);
+
+  // Group instances by day for the booking grid.
+  const instancesByDay = useMemo(() => {
+    const grouped = new Map<number, ClassInstance[]>();
+    classInstances.forEach((instance) => {
+      const list = grouped.get(instance.dayIndex) || [];
+      list.push(instance);
+      grouped.set(instance.dayIndex, list);
+    });
+    return grouped;
+  }, [classInstances]);
+
+  const loadClassBookings = useCallback(async () => {
+    if (!user?.id || classInstances.length === 0) {
+      setBookedClassIds(new Set());
+      setClassCounts({});
+      return;
+    }
+    try {
+      const classIds = classInstances.map((c) => c.classId);
+      const summaries = await classBookingService.getClassSummaries(classIds);
+
+      const counts: Record<string, number> = {};
+      const mine = new Set<string>();
+      summaries.forEach((s) => {
+        counts[s.classId] = s.bookingCount;
+        if (s.userBooked) mine.add(s.classId);
+      });
+
+      setClassCounts(counts);
+      setBookedClassIds(mine);
+    } catch (error) {
+      console.error('Error loading class bookings:', error);
+    }
+  }, [user?.id, classInstances]);
+
+  const loadSubscription = useCallback(async () => {
+    if (!user?.id || !gym?.id) return;
+    try {
+      const sub = await subscriptionService.getActiveSubscription(user.id, gym.id);
+      setSubscription(sub);
+    } catch (error) {
+      console.error('Error loading subscription:', error);
+    }
+  }, [user?.id, gym?.id]);
 
   useEffect(() => {
     loadTodaysWorkout();
@@ -32,8 +159,13 @@ const Dashboard = () => {
   useEffect(() => {
     if (user?.id) {
       loadMyBookings();
+      loadSubscription();
     }
-  }, [user?.id]);
+  }, [user?.id, loadSubscription]);
+
+  useEffect(() => {
+    loadClassBookings();
+  }, [loadClassBookings]);
 
   const loadAvailableServices = async () => {
     setServicesLoading(true);
@@ -77,7 +209,7 @@ const Dashboard = () => {
       loadMyBookings();
     } catch (error) {
       console.error('Error cancelling booking:', error);
-      alert('Failed to cancel booking. Please try again.');
+      showError('Failed to cancel booking. Please try again.');
     }
   };
 
@@ -94,21 +226,8 @@ const Dashboard = () => {
 
   if (!user) return null;
 
-  // Generate next 7 days starting from today
-  const getNext7Days = () => {
-    const days = [];
-    const today = new Date();
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      days.push(date);
-    }
-    return days;
-  };
-
-  const next7Days = getNext7Days();
-
   const toggleClassSelection = (classId: string) => {
+    if (bookedClassIds.has(classId)) return; // already booked - not selectable
     setSelectedClasses(prev => {
       const newSet = new Set(prev);
       if (newSet.has(classId)) {
@@ -120,21 +239,81 @@ const Dashboard = () => {
     });
   };
 
-  const handleBlockBook = () => {
+  const handleBlockBook = async () => {
     if (selectedClasses.size === 0) {
-      alert('Please select at least one class to book');
+      showError('Please select at least one class to book');
       return;
     }
-    // TODO: Implement actual booking logic
-    alert(`Booking ${selectedClasses.size} class(es)`);
-    setSelectedClasses(new Set());
+
+    if (!gym?.id) {
+      showError('Unable to book - gym not loaded');
+      return;
+    }
+
+    const toBook = classInstances.filter(
+      (c) => selectedClasses.has(c.classId) && !bookedClassIds.has(c.classId)
+    );
+
+    if (toBook.length === 0) {
+      showError('Those classes are already booked');
+      return;
+    }
+
+    setIsBooking(true);
+    try {
+      await classBookingService.bookClasses(
+        user.id,
+        gym.id,
+        toBook.map((c) => ({
+          classId: c.classId,
+          classDay: c.dayName,
+          classTime: c.time,
+          className: c.className,
+          classDate: c.classDateISO,
+        }))
+      );
+      showSuccess(`Booked ${toBook.length} class${toBook.length !== 1 ? 'es' : ''}`);
+      setSelectedClasses(new Set());
+      await loadClassBookings();
+    } catch (error) {
+      console.error('Error booking classes:', error);
+      showError('Failed to book classes. Please try again.');
+    } finally {
+      setIsBooking(false);
+    }
+  };
+
+  const handleCancelClass = async (classId: string) => {
+    try {
+      await classBookingService.cancelClassBooking(user.id, classId);
+      showSuccess('Class booking cancelled');
+      await loadClassBookings();
+    } catch (error) {
+      console.error('Error cancelling class:', error);
+      showError('Failed to cancel booking. Please try again.');
+    }
   };
 
   const clearSelection = () => {
     setSelectedClasses(new Set());
   };
 
-  // Removed unused: getMembershipTypeName
+  const handleCancelSubscription = async () => {
+    if (!subscription?.stripeSubscriptionId) return;
+    if (!confirm('Cancel your membership? You will keep access until the end of your current billing period.')) return;
+
+    setIsCancelling(true);
+    try {
+      await subscriptionService.cancelSubscription(subscription.stripeSubscriptionId);
+      showSuccess('Your membership will end at the close of the current billing period');
+      await loadSubscription();
+    } catch (error) {
+      console.error('Error cancelling subscription:', error);
+      showError(error instanceof Error ? error.message : 'Failed to cancel membership');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -154,6 +333,12 @@ const Dashboard = () => {
               Sign Out
             </Button>
           </div>
+
+          {message && (
+            <div className={`${styles.feedbackMessage} ${message.type === 'success' ? styles.feedbackSuccess : styles.feedbackError}`}>
+              {message.text}
+            </div>
+          )}
 
           <div className={styles.navigationTabs}>
             <button
@@ -188,89 +373,6 @@ const Dashboard = () => {
                 {/* Weekly Volume at the top */}
                 <div className={styles.weeklyVolumeContainer}>
                   <WeeklyVolume />
-                </div>
-
-                <div className={styles.bookingSection}>
-                  <div className={styles.bookingHeader}>
-                    <h3 className={styles.bookingSectionTitle}>Book Today's Class</h3>
-
-                    <div className={styles.classTypeToggle}>
-                      <button
-                        type="button"
-                        className={`${styles.toggleButton} ${classType === 'crossfit' ? styles.active : ''}`}
-                        onClick={() => setClassType('crossfit')}
-                      >
-                        CrossFit
-                      </button>
-                      <button
-                        type="button"
-                        className={`${styles.toggleButton} ${classType === 'opengym' ? styles.active : ''}`}
-                        onClick={() => setClassType('opengym')}
-                      >
-                        Open Gym
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className={styles.todayClasses}>
-                    {classType === 'crossfit' ? (
-                      <>
-                        <div className={styles.classSlot}>
-                          <div className={styles.classTime}>6:00 AM</div>
-                          <div className={styles.classSpots}>8 spots left</div>
-                          <Button variant="primary" size="compact">Book</Button>
-                        </div>
-                        <div className={styles.classSlot}>
-                          <div className={styles.classTime}>9:00 AM</div>
-                          <div className={styles.classSpots}>5 spots left</div>
-                          <Button variant="primary" size="compact">Book</Button>
-                        </div>
-                        <div className={styles.classSlot}>
-                          <div className={styles.classTime}>12:00 PM</div>
-                          <div className={styles.classSpots}>6 spots left</div>
-                          <Button variant="primary" size="compact">Book</Button>
-                        </div>
-                        <div className={styles.classSlot}>
-                          <div className={styles.classTime}>4:30 PM</div>
-                          <div className={styles.classSpots}>4 spots left</div>
-                          <Button variant="primary" size="compact">Book</Button>
-                        </div>
-                        <div className={styles.classSlot}>
-                          <div className={styles.classTime}>5:30 PM</div>
-                          <div className={styles.classSpots}>3 spots left</div>
-                          <Button variant="primary" size="compact">Book</Button>
-                        </div>
-                        <div className={styles.classSlot}>
-                          <div className={styles.classTime}>6:30 PM</div>
-                          <div className={styles.classSpots}>7 spots left</div>
-                          <Button variant="primary" size="compact">Book</Button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className={styles.classSlot}>
-                          <div className={styles.classTime}>6:00 AM</div>
-                          <div className={styles.classSpots}>12 spots left</div>
-                          <Button variant="primary" size="compact">Book</Button>
-                        </div>
-                        <div className={styles.classSlot}>
-                          <div className={styles.classTime}>10:00 AM</div>
-                          <div className={styles.classSpots}>10 spots left</div>
-                          <Button variant="primary" size="compact">Book</Button>
-                        </div>
-                        <div className={styles.classSlot}>
-                          <div className={styles.classTime}>2:00 PM</div>
-                          <div className={styles.classSpots}>15 spots left</div>
-                          <Button variant="primary" size="compact">Book</Button>
-                        </div>
-                        <div className={styles.classSlot}>
-                          <div className={styles.classTime}>6:00 PM</div>
-                          <div className={styles.classSpots}>8 spots left</div>
-                          <Button variant="primary" size="compact">Book</Button>
-                        </div>
-                      </>
-                    )}
-                  </div>
                 </div>
 
                 <h2 className={styles.sectionTitle}>Today&apos;s Workout</h2>
@@ -412,111 +514,107 @@ const Dashboard = () => {
                         <span className={styles.selectedCount}>
                           {selectedClasses.size} class{selectedClasses.size !== 1 ? 'es' : ''} selected
                         </span>
-                        <Button variant="secondary" size="compact" onClick={clearSelection}>
+                        <Button variant="secondary" size="compact" onClick={clearSelection} disabled={isBooking}>
                           Clear
                         </Button>
-                        <Button variant="primary" size="compact" onClick={handleBlockBook}>
-                          Book Selected ({selectedClasses.size})
+                        <Button variant="primary" size="compact" onClick={handleBlockBook} disabled={isBooking}>
+                          {isBooking ? 'Booking...' : `Book Selected (${selectedClasses.size})`}
                         </Button>
                       </div>
                     )}
                   </div>
-
-                  <div className={styles.classTypeToggle}>
-                    <button
-                      type="button"
-                      className={`${styles.toggleButton} ${bookingClassType === 'crossfit' ? styles.active : ''}`}
-                      onClick={() => setBookingClassType('crossfit')}
-                    >
-                      CrossFit
-                    </button>
-                    <button
-                      type="button"
-                      className={`${styles.toggleButton} ${bookingClassType === 'opengym' ? styles.active : ''}`}
-                      onClick={() => setBookingClassType('opengym')}
-                    >
-                      Open Gym
-                    </button>
-                  </div>
                 </div>
 
                 <div className={styles.bookingSection}>
-                  <div className={styles.bookingDaysGrid}>
-                    {next7Days.map((date, dayIndex) => {
-                      const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-                      const dateString = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                      const isToday = date.toDateString() === new Date().toDateString();
+                  {classInstances.length === 0 ? (
+                    <EmptyStatePreview
+                      title="No classes scheduled"
+                      description="Your gym hasn't published a class schedule yet. Check back soon!"
+                    >
+                      <Card variant="raised">
+                        <div style={{ padding: '2rem', textAlign: 'center' }}>
+                          Class timetable coming soon.
+                        </div>
+                      </Card>
+                    </EmptyStatePreview>
+                  ) : (
+                    <div className={styles.bookingDaysGrid}>
+                      {next7Days.map((date, dayIndex) => {
+                        const dayClasses = instancesByDay.get(dayIndex) || [];
+                        const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+                        const dateString = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        const isToday = date.toDateString() === new Date().toDateString();
 
-                      // Sample classes for each day based on selected type
-                      let classes = [];
+                        return (
+                          <Card key={dayIndex} variant="raised">
+                            <div className={styles.bookingDayCard}>
+                              <div className={styles.bookingDayHeader}>
+                                <h4 className={styles.bookingDayTitle}>{dayName}</h4>
+                                <span className={styles.dateLabel}>
+                                  {isToday ? 'Today' : dateString}
+                                </span>
+                              </div>
+                              <div className={styles.bookingClassList}>
+                                {dayClasses.length === 0 ? (
+                                  <div className={styles.classSpots}>No classes</div>
+                                ) : (
+                                  dayClasses.map((classInfo) => {
+                                    const isSelected = selectedClasses.has(classInfo.classId);
+                                    const isBooked = bookedClassIds.has(classInfo.classId);
+                                    const booked = classCounts[classInfo.classId] || 0;
+                                    const spotsLeft = Math.max(0, classInfo.maxCapacity - booked);
+                                    const isFull = spotsLeft === 0 && !isBooked;
 
-                      if (bookingClassType === 'crossfit') {
-                        classes = [
-                          { time: '6:00 AM', name: 'CrossFit', spots: 8, type: 'crossfit' },
-                          { time: '9:00 AM', name: 'CrossFit', spots: 5, type: 'crossfit' },
-                          { time: '5:30 PM', name: 'CrossFit', spots: 3, type: 'crossfit' },
-                        ];
-                        // Add Saturday special class
-                        if (date.getDay() === 6) {
-                          classes.push({ time: '10:30 AM', name: 'Gymnastics', spots: 6, type: 'crossfit' });
-                        }
-                      } else {
-                        classes = [
-                          { time: '6:00 AM', name: 'Open Gym', spots: 12, type: 'opengym' },
-                          { time: '10:00 AM', name: 'Open Gym', spots: 10, type: 'opengym' },
-                          { time: '2:00 PM', name: 'Open Gym', spots: 15, type: 'opengym' },
-                          { time: '6:00 PM', name: 'Open Gym', spots: 8, type: 'opengym' },
-                        ];
-                      }
-
-                      return (
-                        <Card key={dayIndex} variant="raised">
-                          <div className={styles.bookingDayCard}>
-                            <div className={styles.bookingDayHeader}>
-                              <h4 className={styles.bookingDayTitle}>{dayName}</h4>
-                              <span className={styles.dateLabel}>
-                                {isToday ? 'Today' : dateString}
-                              </span>
-                            </div>
-                            <div className={styles.bookingClassList}>
-                              {classes.map((classInfo, classIndex) => {
-                                const classId = `${dayIndex}-${classIndex}`;
-                                const isSelected = selectedClasses.has(classId);
-
-                                return (
-                                  <div
-                                    key={classIndex}
-                                    className={`${styles.bookingClassItem} ${isSelected ? styles.bookingClassSelected : ''} ${classInfo.type === 'crossfit' ? styles.classCrossFit : styles.classOpenGym}`}
-                                    onClick={() => toggleClassSelection(classId)}
-                                  >
-                                    <div className={styles.bookingClassHeader}>
-                                      <div className={styles.classTime}>{classInfo.time}</div>
-                                      <div className={styles.checkboxWrapper}>
-                                        <input
-                                          type="checkbox"
-                                          checked={isSelected}
-                                          onChange={() => toggleClassSelection(classId)}
-                                          className={styles.classCheckbox}
-                                          onClick={(e) => e.stopPropagation()}
-                                          id={`class-${classId}`}
-                                        />
-                                        <label htmlFor={`class-${classId}`} className={styles.checkboxLabel}></label>
+                                    return (
+                                      <div
+                                        key={classInfo.classId}
+                                        className={`${styles.bookingClassItem} ${isSelected ? styles.bookingClassSelected : ''}`}
+                                        onClick={() => !isFull && toggleClassSelection(classInfo.classId)}
+                                        style={isFull ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+                                      >
+                                        <div className={styles.bookingClassHeader}>
+                                          <div className={styles.classTime}>{classInfo.time}</div>
+                                          {isBooked ? (
+                                            <button
+                                              type="button"
+                                              className={styles.selectedCount}
+                                              onClick={(e) => { e.stopPropagation(); handleCancelClass(classInfo.classId); }}
+                                            >
+                                              Booked &times;
+                                            </button>
+                                          ) : (
+                                            <div className={styles.checkboxWrapper}>
+                                              <input
+                                                type="checkbox"
+                                                checked={isSelected}
+                                                onChange={() => toggleClassSelection(classInfo.classId)}
+                                                className={styles.classCheckbox}
+                                                onClick={(e) => e.stopPropagation()}
+                                                id={`class-${classInfo.classId}`}
+                                                disabled={isFull}
+                                              />
+                                              <label htmlFor={`class-${classInfo.classId}`} className={styles.checkboxLabel}></label>
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className={styles.bookingClassName}>{classInfo.className}</div>
+                                        <div className={styles.classSpots}>
+                                          {isBooked ? 'You’re booked' : isFull ? 'Full' : `${spotsLeft} spots left`}
+                                        </div>
                                       </div>
-                                    </div>
-                                    <div className={styles.bookingClassName}>{classInfo.name}</div>
-                                    <div className={styles.classSpots}>{classInfo.spots} spots left</div>
-                                  </div>
-                                );
-                              })}
+                                    );
+                                  })
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </Card>
-                      );
-                    })}
-                  </div>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   <div className={styles.bookingNote}>
-                    <strong>Tip:</strong> Click on classes to select them, then use "Book Selected" to book multiple classes at once. Cancel at least 2 hours before class to avoid charges.
+                    <strong>Tip:</strong> Select classes then use "Book Selected" to book several at once. Classes are included with your membership. Tap a booked class to cancel it.
                   </div>
                 </div>
               </div>
@@ -666,6 +764,45 @@ const Dashboard = () => {
 
             {activeTab === 'profile' && (
               <div className={styles.tabPanel}>
+                <h2 className={styles.sectionTitle}>Membership</h2>
+                <Card variant="raised">
+                  <div className={styles.infoCard}>
+                    {subscription ? (
+                      <>
+                        <div className={styles.infoLabel}>Current plan</div>
+                        <div className={styles.infoValueActive}>
+                          {subscription.planName || 'Gym membership'}
+                          {subscription.pricePence ? ` — £${(subscription.pricePence / 100).toFixed(2)}/${subscription.billingPeriod === 'yearly' ? 'year' : 'month'}` : ''}
+                        </div>
+                        {subscription.cancelAtPeriodEnd ? (
+                          <p className={styles.bookingNote}>
+                            Your membership is set to end
+                            {subscription.currentPeriodEnd
+                              ? ` on ${new Date(subscription.currentPeriodEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
+                              : ' at the end of the current period'}.
+                          </p>
+                        ) : (
+                          <div className={styles.membershipActions}>
+                            <Button
+                              variant="secondary"
+                              size="compact"
+                              onClick={handleCancelSubscription}
+                              disabled={isCancelling}
+                            >
+                              {isCancelling ? 'Cancelling...' : 'Cancel membership'}
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div className={styles.infoLabel}>Current plan</div>
+                        <div className={styles.infoValue}>No active membership subscription</div>
+                      </>
+                    )}
+                  </div>
+                </Card>
+
                 <ProfileSettings />
               </div>
             )}

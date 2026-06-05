@@ -4,6 +4,26 @@
   width: 100%;
 }
 
+.feedbackMessage {
+  padding: 0.85rem 1.1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+}
+
+.feedbackSuccess {
+  background: rgba(var(--color-accent-rgb), 0.12);
+  border-color: rgba(var(--color-accent-rgb), 0.4);
+  color: var(--color-text);
+}
+
+.feedbackError {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #dc2626;
+}
+
 .dashboardHeader {
   display: flex;
   justify-content: space-between;
