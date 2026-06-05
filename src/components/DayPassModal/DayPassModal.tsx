@@ -121,7 +121,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
 const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { schedule } = useTenant();
+  const { schedule, gym } = useTenant();
 
   const weeklySchedule: ClassSchedule[] = useMemo(() =>
     schedule.map(entry => ({
@@ -250,6 +250,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
           userId: user?.id,
           classId: classInfo.id,
           classDetails: classInfo,
+          gymId: gym?.id,
         }),
       });
 

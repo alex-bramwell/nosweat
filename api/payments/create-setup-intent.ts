@@ -15,10 +15,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
 
   try {
-    const { userId } = req.body;
+    const { userId, gymId } = req.body;
 
     if (!userId) {
       return res.status(400).json({ error: 'Missing userId' });
+    }
+
+    if (!gymId) {
+      return res.status(400).json({ error: 'Missing gymId' });
     }
 
     // Verify auth token
@@ -79,9 +83,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     });
 
-    // Create trial membership record
+    // Create trial membership record. gym_id is required: trial_memberships has
+    // a NOT NULL gym_id on a freshly-provisioned database.
     await supabase.from('trial_memberships').insert({
       user_id: userId,
+      gym_id: gymId,
       stripe_setup_intent_id: setupIntent.id,
       status: 'active',
       auto_convert_enabled: true,

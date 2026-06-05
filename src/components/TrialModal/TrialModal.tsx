@@ -207,6 +207,7 @@ const TrialModal: React.FC<TrialModalProps> = ({ isOpen, onClose }) => {
             {user && (
               <StripeCardSetupForm
                 userId={user.id}
+                gymId={gym?.id}
                 onSuccess={handleSetupSuccess}
                 onError={handleSetupError}
               />

@@ -6,6 +6,7 @@ import { stripePromise } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import { formatCurrency, handlePaymentError } from '../../utils/payment';
 import { useRegistrationIntent } from '../../contexts/RegistrationContext';
+import { useTenant } from '../../contexts/TenantContext';
 import styles from './DayPassPaymentModal.module.scss';
 
 interface DayPassPaymentModalProps {
@@ -163,6 +164,7 @@ const DayPassPaymentModal: React.FC<DayPassPaymentModalProps> = ({
 }) => {
   const navigate = useNavigate();
   const { clearIntent } = useRegistrationIntent();
+  const { gym } = useTenant();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -194,6 +196,7 @@ const DayPassPaymentModal: React.FC<DayPassPaymentModalProps> = ({
           userId,
           classId: selectedClass.id,
           classDetails: selectedClass,
+          gymId: gym?.id,
         }),
       });
 
