@@ -61,7 +61,7 @@ export interface Payment {
   currency: string;
   status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'cancelled';
   paymentType: 'day-pass' | 'trial-setup' | 'membership';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
 }
 

@@ -34,9 +34,9 @@ const PlatformSignup = () => {
       }
 
       navigate('/onboarding');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Signup error:', err);
-      setError(err.message || 'Failed to create account. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to create account. Please try again.');
     } finally {
       setLoading(false);
     }

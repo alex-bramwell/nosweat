@@ -6,6 +6,7 @@ import { stripePromise } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import { formatCurrency, handlePaymentError } from '../../utils/payment';
 import { useTenant } from '../../contexts/TenantContext';
+import type { User } from '@supabase/supabase-js';
 import type { ClassSchedule } from '../../types';
 import { createDayPassPaymentIntent, pollForBooking } from '../../services/dayPassService';
 import styles from './DayPassModal.module.scss';
@@ -106,7 +107,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
     })), [schedule]);
   const [currentStep, setCurrentStep] = useState<Step>('auth');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [selectedClass, setSelectedClass] = useState<ClassSchedule | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -183,8 +184,8 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
         setUser(data.user);
         setCurrentStep('class-selection');
       }
-    } catch (err: any) {
-      setAuthError(err.message || 'Authentication failed');
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : 'Authentication failed');
     } finally {
       setIsLoading(false);
     }
@@ -534,10 +535,10 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
 
             <div className={styles.classDetails}>
               <h3>Class Details</h3>
-              {(selectedClass as any).selectedDate && (
+              {(selectedClass as { selectedDate?: string }).selectedDate && (
                 <div className={styles.detailRow}>
                   <span className={styles.dayPassDetailLabel}>Date:</span>
-                  <span className={styles.dayPassDetailValue}>{(selectedClass as any).selectedDate}</span>
+                  <span className={styles.dayPassDetailValue}>{(selectedClass as { selectedDate?: string }).selectedDate}</span>
                 </div>
               )}
               <div className={styles.detailRow}>
@@ -547,7 +548,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
               <div className={styles.detailRow}>
                 <span className={styles.dayPassDetailLabel}>Class Type:</span>
                 <span className={styles.dayPassDetailValue}>
-                  {(selectedClass as any).selectedType || selectedClass.className}
+                  {(selectedClass as { selectedType?: string }).selectedType || selectedClass.className}
                 </span>
               </div>
               {selectedClass.coach && (
@@ -583,7 +584,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
               </div>
             )}
 
-            {!isLoading && !error && clientSecret && (
+            {!isLoading && !error && clientSecret && user && (
               <Elements
                 stripe={stripePromise}
                 options={{
@@ -594,7 +595,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
                 }}
               >
                 <PaymentForm
-                  userId={user?.id}
+                  userId={user.id}
                   clientSecret={clientSecret}
                   onSuccess={handleSuccess}
                   onError={handleError}

@@ -146,9 +146,9 @@ const Onboarding = () => {
       if (profileError) throw profileError;
 
       setCurrentStep(2);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error updating profile:', err);
-      setError(err.message || 'Failed to save details. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to save details. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -325,18 +325,19 @@ const Onboarding = () => {
 
       setSlug(gymData.slug);
       setLaunched(true);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error creating gym:', err);
+      const e = err as { code?: string; message?: string };
 
-      if (err.code === '23505' && err.message?.includes('gyms_slug_key')) {
+      if (e.code === '23505' && e.message?.includes('gyms_slug_key')) {
         setSlugAvailable(false);
         setError('That URL was just taken. Please choose a different one.');
-      } else if (err.code === '42501' || err.message?.includes('permission denied')) {
+      } else if (e.code === '42501' || e.message?.includes('permission denied')) {
         setError('Permission denied. Please log out and log back in, then try again.');
-      } else if (err.message?.includes('infinite recursion')) {
+      } else if (e.message?.includes('infinite recursion')) {
         setError('A database configuration issue was detected. Please contact support.');
       } else {
-        setError(err.message || 'Failed to create gym. Please try again.');
+        setError(e.message || 'Failed to create gym. Please try again.');
       }
     } finally {
       setLoading(false);

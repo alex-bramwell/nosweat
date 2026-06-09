@@ -36,6 +36,15 @@ export default defineConfig([
     },
   },
 
+  // node-quickbooks and intuit-oauth ship no type declarations; this file is the
+  // untyped boundary to them, so `any` accurately reflects those external shapes.
+  {
+    files: ['api/services/quickbooksService.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+
   // Frontend: no debug logging in committed code (console.warn/error are fine).
   {
     files: ['src/**/*.{ts,tsx}'],

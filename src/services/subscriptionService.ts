@@ -53,7 +53,8 @@ export const subscriptionService = {
 
     if (!data) return null;
 
-    const rawPlan = (data as any).gym_memberships;
+    type PlanRow = { display_name?: string; price_pence?: number; billing_period?: string };
+    const rawPlan = (data as { gym_memberships?: PlanRow | PlanRow[] }).gym_memberships;
     const plan = Array.isArray(rawPlan) ? rawPlan[0] : rawPlan;
 
     return {

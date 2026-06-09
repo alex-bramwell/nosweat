@@ -37,7 +37,7 @@ export interface Payment {
   payment_type: string;
   payment_intent_id: string | null;
   status: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
   accounting_synced_qb: boolean;
@@ -57,7 +57,7 @@ export interface SyncLogEntry {
   transactions_succeeded: number;
   transactions_failed: number;
   error_message: string | null;
-  error_details: any;
+  error_details: unknown;
   date_range_start: string | null;
   date_range_end: string | null;
   triggered_by: string | null;
@@ -340,12 +340,12 @@ export async function updateSyncLog(
     transactions_succeeded?: number;
     transactions_failed?: number;
     error_message?: string;
-    error_details?: any;
+    error_details?: unknown;
     date_range_start?: string;
     date_range_end?: string;
   }
 ): Promise<void> {
-  const updateData: any = { ...updates };
+  const updateData: Record<string, unknown> = { ...updates };
 
   // Calculate duration if completing
   if (updates.status && updates.status !== 'in_progress') {
@@ -563,7 +563,7 @@ export async function updateIntegrationLastSync(
   status: string,
   error?: string
 ): Promise<void> {
-  const updateData: any = {
+  const updateData: Record<string, unknown> = {
     last_sync_at: new Date().toISOString(),
     last_sync_status: status,
     updated_at: new Date().toISOString()

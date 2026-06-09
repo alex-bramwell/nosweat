@@ -89,7 +89,7 @@ export default async function handler(
       accounts = await getChartOfAccounts(qbo);
 
       // Format for frontend
-      accounts = accounts.map((account: any) => ({
+      accounts = accounts.map((account) => ({
         id: account.Id,
         name: account.Name,
         type: account.AccountType,
@@ -109,7 +109,7 @@ export default async function handler(
       accounts: accounts || []
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('[Accounts] Error:', error);
     return res.status(500).json({
       error: 'An internal error occurred'

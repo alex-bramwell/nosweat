@@ -48,9 +48,9 @@ const PlatformLogin = () => {
         // User doesn't own a gym, redirect to onboarding
         navigate('/onboarding');
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Login error:', err);
-      setError(err.message || 'Failed to log in. Please check your credentials.');
+      setError(err instanceof Error ? err.message : 'Failed to log in. Please check your credentials.');
     } finally {
       setLoading(false);
     }

@@ -45,9 +45,9 @@ export const SyncDashboard: React.FC<SyncDashboardProps> = ({
       setTimeout(() => {
         window.location.reload();
       }, 3000);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Sync error:', err);
-      setError(err.message || 'Failed to sync');
+      setError(err instanceof Error ? err.message : 'Failed to sync');
     } finally {
       setSyncing(false);
     }

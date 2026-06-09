@@ -108,7 +108,7 @@ export const coachServicesService = {
       throw error;
     }
 
-    return (data || []).map((item: any) => ({
+    return (data || []).map((item) => ({
       ...mapToCoachService(item),
       coachName: item.profiles?.full_name || 'Unknown',
       coachEmail: item.profiles?.email || '',
@@ -220,7 +220,7 @@ export const coachServicesService = {
       throw error;
     }
 
-    return (data || []).map((item: any) => ({
+    return (data || []).map((item) => ({
       ...mapToServiceBooking(item),
       coachName: item.profiles?.full_name || 'Unknown',
       serviceType: item.coach_services?.service_type,
@@ -246,7 +246,7 @@ export const coachServicesService = {
       throw error;
     }
 
-    return (data || []).map((item: any) => ({
+    return (data || []).map((item) => ({
       ...mapToServiceBooking(item),
       memberName: item.profiles?.full_name || 'Unknown',
       serviceType: item.coach_services?.service_type,
@@ -347,7 +347,8 @@ export const coachServicesService = {
   },
 };
 
-// Helper to map database row to CoachService
+// Helper to map a raw (untyped) Supabase row to CoachService.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapToCoachService(row: any): CoachService {
   return {
     id: row.id,
@@ -361,7 +362,8 @@ function mapToCoachService(row: any): CoachService {
   };
 }
 
-// Helper to map database row to ServiceBooking
+// Helper to map a raw (untyped) Supabase row to ServiceBooking.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapToServiceBooking(row: any): ServiceBooking {
   return {
     id: row.id,
