@@ -24,7 +24,7 @@ import {
   recordSyncedTransaction,
   getIntegration,
   updateIntegrationLastSync,
-} from '../../src/services/accountingSyncService.js';
+} from '../services/accountingSyncService.js';
 import {
   createQBClient,
   getOrCreateCustomer,
