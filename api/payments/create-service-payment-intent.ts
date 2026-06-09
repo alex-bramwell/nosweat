@@ -1,11 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
+import { stripe } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
 import { verifyAuth, assertMethod } from '../lib/auth';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
 
 function sanitizeMetadata(value: string): string {
   return String(value || '').replace(/<[^>]*>/g, '').slice(0, 500);

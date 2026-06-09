@@ -27,13 +27,10 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
+import { stripe } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
 import { assertMethod } from '../lib/auth';
 import { buffer } from 'micro';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 

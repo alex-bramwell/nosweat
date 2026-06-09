@@ -12,13 +12,9 @@
 // =============================================================================
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import Stripe from 'stripe';
+import { stripe } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
 import { assertMethod, verifyAuth } from '../lib/auth';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
