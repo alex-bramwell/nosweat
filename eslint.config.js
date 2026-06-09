@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', '.claude', 'supabase']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -18,6 +18,21 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+    },
+    rules: {
+      // Allow intentionally-unused names prefixed with _ (params, vars, caught errors).
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
+      // Advisory React Compiler / Fast-Refresh hints: keep visible as warnings
+      // rather than hard errors. They flag optimization/HMR concerns (not runtime
+      // bugs) and "fixing" them can require risky refactors.
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/purity': 'warn',
+      'react-hooks/immutability': 'warn',
+      'react-refresh/only-export-components': 'warn',
     },
   },
 

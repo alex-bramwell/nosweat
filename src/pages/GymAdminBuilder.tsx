@@ -40,34 +40,6 @@ const GymAdminBuilder: React.FC = () => {
 
   usePreviewTheme(previewRef, draftBranding);
 
-  // Authorization check
-  const isAuthorized = user && gym && (user.id === gym.owner_id || user.role === 'admin');
-
-  if (!isAuthorized) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#12121a',
-        color: '#f0f0f5',
-        fontFamily: "'Inter', sans-serif",
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ marginBottom: '1rem', color: '#8b8b9e' }}>
-            <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          </div>
-          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Access Denied</h1>
-          <p style={{ color: '#8b8b9e' }}>Only gym owners and administrators can access the site builder.</p>
-        </div>
-      </div>
-    );
-  }
-
   const allPreviewPages: { id: PreviewPage; label: string; locked: boolean; visibleTo: ViewRole[] }[] = [
     { id: 'home', label: 'Home', locked: false, visibleTo: ['admin', 'coach', 'member', 'public'] },
     { id: 'schedule', label: 'Schedule', locked: !hasClassBooking, visibleTo: ['admin', 'coach', 'member', 'public'] },
@@ -96,12 +68,40 @@ const GymAdminBuilder: React.FC = () => {
       '/dashboard': 'dashboard',
       '/coach-dashboard': 'coach-dashboard',
     };
-    // Strip gym path prefix — match the last segment
+    // Strip gym path prefix - match the last segment
     const segments = page.replace(/\/$/, '').split('/');
     const lastPart = '/' + (segments.pop() || '');
     const mapped = pathMap[lastPart] || pathMap[page] || 'home';
     setPreviewPage(mapped);
   }, []);
+
+  // Authorization check
+  const isAuthorized = user && gym && (user.id === gym.owner_id || user.role === 'admin');
+
+  if (!isAuthorized) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#12121a',
+        color: '#f0f0f5',
+        fontFamily: "'Inter', sans-serif",
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ marginBottom: '1rem', color: '#8b8b9e' }}>
+            <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Access Denied</h1>
+          <p style={{ color: '#8b8b9e' }}>Only gym owners and administrators can access the site builder.</p>
+        </div>
+      </div>
+    );
+  }
 
   const renderPreviewPage = () => {
     const requiredFeature = PAGE_FEATURE_MAP[previewPage];

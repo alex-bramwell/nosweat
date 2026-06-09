@@ -291,7 +291,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       await supabase.auth.signOut();
-    } catch (error) {
+    } catch {
+      // signOut errors are non-fatal - we clear local state regardless
     }
 
     setUser(null);

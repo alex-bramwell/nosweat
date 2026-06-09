@@ -151,9 +151,9 @@ async function syncToQuickBooks(
  * Sync payments to Xero (placeholder for Phase 6)
  */
 async function syncToXero(
-  integrationId: string,
-  categorizedPayments: any[],
-  accountMappings: any[]
+  _integrationId: string,
+  _categorizedPayments: unknown[],
+  _accountMappings: unknown[]
 ): Promise<{
   succeeded: string[];
   failed: Array<{ paymentId: string; error: string }>;

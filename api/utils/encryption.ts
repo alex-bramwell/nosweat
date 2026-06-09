@@ -147,7 +147,7 @@ export function decryptToken(encryptedBase64: string): string {
     ]);
 
     return decrypted.toString('utf8');
-  } catch (error) {
+  } catch {
     // GCM authentication will fail if:
     // - Wrong key
     // - Data has been tampered with

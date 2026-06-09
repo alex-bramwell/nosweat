@@ -79,7 +79,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     if (mode === 'changePassword') {
       if (isAuthenticated && user) {
         setIsSessionReady(true);
-      } else {
       }
     }
   }, [mode, isAuthenticated, user]);

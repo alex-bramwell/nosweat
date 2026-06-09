@@ -106,7 +106,8 @@ export async function refreshQBTokenIfNeeded(integrationId: string): Promise<QBT
 
   console.log('[QB] Token expiring soon, refreshing...');
 
-  // Initialize OAuth client
+  // Initialize OAuth client (intuit-oauth is an untyped CJS module).
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const oauthClient = new (require('intuit-oauth'))({
     clientId: process.env.QUICKBOOKS_CLIENT_ID!,
     clientSecret: process.env.QUICKBOOKS_CLIENT_SECRET!,

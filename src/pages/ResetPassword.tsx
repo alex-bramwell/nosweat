@@ -22,7 +22,7 @@ const ResetPassword = () => {
       hasUppercase: /[A-Z]/.test(pwd),
       hasLowercase: /[a-z]/.test(pwd),
       hasNumber: /[0-9]/.test(pwd),
-      hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
+      hasSpecial: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd),
     };
   };
 
@@ -40,7 +40,7 @@ const ResetPassword = () => {
     if (/[a-z]/.test(pwd)) strength += 10;
     if (/[A-Z]/.test(pwd)) strength += 10;
     if (/[0-9]/.test(pwd)) strength += 10;
-    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)) strength += 15;
+    if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd)) strength += 15;
     if (pwd.length >= 20) strength += 5;
 
     if (strength < 40) return { strength, label: 'Weak', color: '#ff4444' };
