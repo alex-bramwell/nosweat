@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Modal, Button } from '../common';
 import { stripePromise } from '../../lib/stripe';
-import { supabase } from '../../lib/supabase';
+import { createDayPassPaymentIntent, pollForBooking } from '../../services/dayPassService';
 import { formatCurrency, handlePaymentError } from '../../utils/payment';
 import { useRegistrationIntent } from '../../contexts/RegistrationContext';
 import { useTenant } from '../../contexts/TenantContext';
@@ -79,35 +79,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     }
   };
 
-  const pollForBooking = async (userId: string, paymentIntentId: string, maxAttempts = 10): Promise<string> => {
-    for (let i = 0; i < maxAttempts; i++) {
-      const { data: payment } = await supabase
-        .from('payments')
-        .select('id')
-        .eq('stripe_payment_intent_id', paymentIntentId)
-        .eq('status', 'succeeded')
-        .single();
-
-      if (payment) {
-        const { data: booking } = await supabase
-          .from('bookings')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('payment_id', payment.id)
-          .single();
-
-        if (booking) {
-          return booking.id;
-        }
-      }
-
-      // Wait 1 second before next attempt
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-
-    throw new Error('Booking creation timeout');
-  };
-
   return (
     <form onSubmit={handleSubmit} className={styles.paymentForm}>
       <div className={styles.classDetails}>
@@ -181,32 +152,13 @@ const DayPassPaymentModal: React.FC<DayPassPaymentModalProps> = ({
     setError(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
-
-      const response = await fetch('/api/payments/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          userId,
-          classId: selectedClass.id,
-          classDetails: selectedClass,
-          gymId: gym?.id,
-        }),
+      const clientSecret = await createDayPassPaymentIntent({
+        userId,
+        classId: selectedClass.id,
+        classDetails: selectedClass,
+        gymId: gym?.id,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create payment intent');
-      }
-
-      const data = await response.json();
-      setClientSecret(data.clientSecret);
+      setClientSecret(clientSecret);
     } catch (err) {
       setError(handlePaymentError(err));
     } finally {

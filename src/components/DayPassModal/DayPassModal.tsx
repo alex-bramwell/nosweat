@@ -7,6 +7,7 @@ import { supabase } from '../../lib/supabase';
 import { formatCurrency, handlePaymentError } from '../../utils/payment';
 import { useTenant } from '../../contexts/TenantContext';
 import type { ClassSchedule } from '../../types';
+import { createDayPassPaymentIntent, pollForBooking } from '../../services/dayPassService';
 import styles from './DayPassModal.module.scss';
 
 interface DayPassModalProps {
@@ -69,35 +70,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       onError(handlePaymentError(err));
       setIsProcessing(false);
     }
-  };
-
-  const pollForBooking = async (userId: string, paymentIntentId: string, maxAttempts = 10): Promise<string> => {
-    for (let i = 0; i < maxAttempts; i++) {
-      const { data: payment } = await supabase
-        .from('payments')
-        .select('id')
-        .eq('stripe_payment_intent_id', paymentIntentId)
-        .eq('status', 'succeeded')
-        .single();
-
-      if (payment) {
-        const { data: booking } = await supabase
-          .from('bookings')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('payment_id', payment.id)
-          .single();
-
-        if (booking) {
-          return booking.id;
-        }
-      }
-
-      // Wait 1 second before next attempt
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-
-    throw new Error('Booking creation timeout');
   };
 
   return (
@@ -235,32 +207,13 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
     setError(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
-
-      const response = await fetch('/api/payments/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          userId: user?.id,
-          classId: classInfo.id,
-          classDetails: classInfo,
-          gymId: gym?.id,
-        }),
+      const clientSecret = await createDayPassPaymentIntent({
+        userId: user?.id,
+        classId: classInfo.id,
+        classDetails: classInfo,
+        gymId: gym?.id,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create payment intent');
-      }
-
-      const data = await response.json();
-      setClientSecret(data.clientSecret);
+      setClientSecret(clientSecret);
     } catch (err) {
       setError(handlePaymentError(err));
     } finally {
