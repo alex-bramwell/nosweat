@@ -27,13 +27,17 @@ Closes #
 - 
 
 ## Testing
-<!-- Describe the testing you've done -->
+<!-- Verify as much as possible BEFORE requesting review. See README -> Deployment -> Shipping process. -->
 
-- [ ] Tested locally
-- [ ] Added/updated unit tests
-- [ ] Added/updated integration tests
-- [ ] Tested on multiple browsers/devices
-- [ ] Verified accessibility
+**Local (before opening the PR):**
+- [ ] `npm run lint` passes (0 errors) and `npm run build` succeeds
+- [ ] Affected `/api/*` endpoints smoke-tested locally (expected status codes)
+- [ ] DB migrations applied locally (`npx supabase migration up`) if schema changed
+
+**On the Vercel preview (this PR):**
+- [ ] No CSP / console errors loading a gym site
+- [ ] Stripe **test-mode** checkout works end-to-end (if payments/CSP touched)
+- [ ] Fonts, images, and auth behave as expected
 
 ## Screenshots (if applicable)
 <!-- Add screenshots to demonstrate visual changes -->
