@@ -583,7 +583,7 @@ Each tenant overrides colours and fonts via CSS custom properties loaded from th
 
 ### Migration Files
 
-43 migration files in `supabase/migrations/` covering:
+Numbered migration files in `supabase/migrations/` covering:
 - Base tables (profiles, bookings, payments, stripe customers, workouts, movements)
 - Multi-tenancy (gyms, feature toggles, tenant-scoped RLS policies)
 - Seed data (CrossFit Comet demo gym)
