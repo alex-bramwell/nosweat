@@ -34,4 +34,12 @@ services:
       - NODE_ENV=development
       - API_PORT=3001
       - VITE_APP_URL=http://localhost:5173
+      # Server-side override only: inside the container 127.0.0.1 is the container
+      # itself, so the host's local Supabase (started via `npm run db:start`) is
+      # reachable via host.docker.internal. The frontend keeps the .env.local
+      # 127.0.0.1 value because that runs in the browser.
+      - VITE_SUPABASE_URL=http://host.docker.internal:54321
+    extra_hosts:
+      # host-gateway makes host.docker.internal resolve on Linux too; no-op on Docker Desktop.
+      - "host.docker.internal:host-gateway"
     command: npm run server
