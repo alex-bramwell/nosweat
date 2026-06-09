@@ -86,11 +86,9 @@ function PasswordRecoveryRedirect() {
     const error = hashParams.get('error');
     const errorCode = hashParams.get('error_code');
 
-    console.log('PasswordRecoveryRedirect:', { type, hasToken: !!accessToken, error, errorCode, pathname: location.pathname, search: location.search });
 
     // Handle expired or invalid tokens
     if (error === 'access_denied' && errorCode === 'otp_expired') {
-      console.log('Detected expired token, redirecting to reset-expired');
       if (!location.search.includes('reset-expired=true')) {
         hasRedirected.current = true;
         navigate(`${basePath}/?reset-expired=true`, { replace: true });
@@ -102,13 +100,11 @@ function PasswordRecoveryRedirect() {
 
     // If we have a recovery token and we're on the reset-password page, stay there
     if (type === 'recovery' && accessToken && location.pathname === resetPath) {
-      console.log('On reset-password page with valid token - staying here');
       return;
     }
 
     // If we have a recovery token on any other page, redirect to reset-password with the hash preserved
     if (type === 'recovery' && accessToken && location.pathname !== resetPath) {
-      console.log('Detected recovery token on wrong page, redirecting to reset-password');
       hasRedirected.current = true;
       window.location.href = resetPath + window.location.hash;
     }

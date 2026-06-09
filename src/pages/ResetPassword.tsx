@@ -53,13 +53,11 @@ const ResetPassword = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      console.log('ResetPassword: Checking session...');
 
       // First check if we already have a session (handled by supabase-js from hash)
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
-        console.log('ResetPassword: Found existing session');
         setIsSessionReady(true);
         return;
       }
@@ -78,7 +76,6 @@ const ResetPassword = () => {
       }
 
       if (tokenHash && type === 'recovery') {
-        console.log('ResetPassword: Verifying token_hash...');
         const { error } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
           type: 'recovery',
@@ -89,13 +86,11 @@ const ResetPassword = () => {
           setError(error.message);
         } else {
           // Verification successful, session should be set
-          console.log('ResetPassword: Verification successful');
           setIsSessionReady(true);
           // Clear URL params
           window.history.replaceState(null, '', window.location.pathname);
         }
       } else {
-        console.log('ResetPassword: No valid session or token found');
         setError('Please use the password reset link from your email to access this page.');
       }
     };

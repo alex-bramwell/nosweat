@@ -97,7 +97,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
 
-      console.log('Fetching profile via direct API for user:', userId);
       
       const response = await fetch(
         `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=*`,
@@ -115,10 +114,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const data = await response.json();
-      console.log('Profile data:', data);
       
       if (!data || data.length === 0) {
-        console.log('No profile found for user');
         return null;
       }
 
@@ -153,12 +150,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const storageKey = `sb-${supabaseUrl.split('//')[1].split('.')[0]}-auth-token`;
         const storedSession = localStorage.getItem(storageKey);
         
-        console.log('AuthContext: Checking localStorage, key:', storageKey);
-        console.log('AuthContext: Found session:', !!storedSession);
         
         if (storedSession) {
           const session = JSON.parse(storedSession);
-          console.log('AuthContext: Session user:', session?.user?.id, session?.user?.email);
           
           if (session?.user?.id) {
             // Try to fetch profile, but use session data as fallback
@@ -166,14 +160,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             
             try {
               profile = await fetchUserProfile(session.user.id, session.access_token);
-              console.log('AuthContext: Fetched profile:', profile?.name);
             } catch (e) {
               console.error('AuthContext: Profile fetch failed:', e);
             }
             
             // If profile fetch fails, create user from session data
             if (!profile && session.user) {
-              console.log('AuthContext: Using session data as fallback');
               profile = {
                 id: session.user.id,
                 email: session.user.email || '',
@@ -186,7 +178,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
             
             if (profile) {
-              console.log('AuthContext: Setting user:', profile.name);
               setUser(profile);
             }
           }
@@ -239,8 +230,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signup = async (email: string, password: string, name: string) => {
-    console.log('Signup attempt for:', email);
-    console.log('Email redirect URL:', `${window.location.origin}/email-verified`);
     
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -253,18 +242,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       },
     });
 
-    console.log('Signup response:', { 
-      hasUser: !!data.user, 
-      hasSession: !!data.session, 
-      userId: data.user?.id,
-      userEmail: data.user?.email,
-      emailConfirmedAt: data.user?.email_confirmed_at,
-      confirmationSentAt: data.user?.confirmation_sent_at,
-      identities: data.user?.identities,
-      identitiesLength: data.user?.identities?.length,
-      error 
-    });
-
     if (error) {
       throw new Error(error.message);
     }
@@ -275,25 +252,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // user object with an empty `identities` array. We detect this pattern and
     // surface a user-friendly message rather than silently failing.
     if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
-      console.log('Detected existing user - identities array is empty or missing');
       throw new Error('An account with this email already exists. Please sign in instead.');
     }
 
     // Additional check: if user exists but email is already confirmed, they're an existing user
     if (data.user && data.user.email_confirmed_at && !data.session) {
-      console.log('Detected existing user - email already confirmed');
       throw new Error('An account with this email already exists. Please sign in instead.');
     }
 
     // Check if confirmation was actually sent (for new users)
     if (data.user && !data.session && !data.user.confirmation_sent_at) {
-      console.log('WARNING: No confirmation email sent - user may already exist');
       throw new Error('An account with this email may already exist. Please try signing in, or use a different email.');
     }
 
     // If email confirmation is enabled, user won't have a session yet
     if (data.user && !data.session) {
-      console.log('Email confirmation required - no session provided');
       throw new Error('Please check your email to verify your account before signing in.');
     }
 
@@ -319,7 +292,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await supabase.auth.signOut();
     } catch (error) {
-      console.log('Supabase signOut error (ignored):', error);
     }
 
     setUser(null);
