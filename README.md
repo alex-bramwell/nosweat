@@ -189,7 +189,12 @@ docker-compose down
 | Frontend | `gymnosweatfitness-frontend-1` | 5173 | Vite dev server, proxies API to backend |
 | Backend | `gymnosweatfitness-backend-1` | 3001 | Express API: payments, accounting, webhooks |
 
-Both services mount the project directory for live reloading. Node modules are preserved in Docker volumes.
+Both services mount the project directory for live reloading. Node modules live in an anonymous Docker volume.
+
+> **Adding a dependency**: because `node_modules` is an anonymous volume that persists across rebuilds and shadows the image's copy, a plain `--build` won't pick up newly added packages. After changing `package.json`, run:
+> ```bash
+> docker-compose up -d --build --renew-anon-volumes
+> ```
 
 ---
 
@@ -546,6 +551,38 @@ Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `setup_inte
 - **Session Timeout** — 30-minute inactivity with 5-minute warning
 - **Input Sanitisation** — XSS prevention, SQL injection detection
 - **Row-Level Security** — Tenant data isolation at database level
+- **Security Headers** — HSTS, CSP, X-Frame-Options, nosniff, Referrer-Policy (see below)
+- **API Rate Limiting** — Postgres-backed throttle on payment + contact endpoints (see below)
+
+---
+
+## Production Hardening & Observability
+
+### Security headers
+`vercel.json` sends HSTS, X-Content-Type-Options, X-Frame-Options (SAMEORIGIN), Referrer-Policy, Permissions-Policy and a Content-Security-Policy on every response. The CSP allowlists the app's third parties (Stripe, Supabase, Google Fonts); `script`/`style` still allow `'unsafe-inline'` for the Vite bundle and runtime theme injection - tighten to nonces later if desired.
+
+### API rate limiting
+Abuse-prone endpoints are throttled by a Postgres-backed sliding-window limiter (`api/lib/rateLimit.ts` + migration `080_rate_limits.sql`, no external service):
+- payment-intent / setup-intent / service-payment: **10 requests/min per user**
+- contact form: **5 requests / 10 min per IP**
+
+Returns `429` when exceeded; fails open if the limiter itself errors.
+
+### Health checks
+- `GET /api/health` — liveness (200 if the function runs)
+- `GET /api/health?deep=1` — readiness (also checks Supabase; `503` if down)
+
+Point an uptime monitor at the `?deep=1` URL.
+
+### Error tracking (Sentry)
+Optional, off by default. Set `VITE_SENTRY_DSN` (frontend) and `SENTRY_DSN` (backend) to enable - the SDK is a no-op without them. Frontend uses `@sentry/react` (init + ErrorBoundary in `src/main.tsx`); backend uses `@sentry/node` via `api/lib/sentry.ts` `captureError()`, wired into the payment, Stripe-webhook and accounting-sync handlers. Free hosted tier at sentry.io, or self-host GlitchTip (same SDK). **New API handlers should call `captureError(err, { endpoint })` in their catch block.**
+
+### Backups & recovery
+- **Schema**: every change is a migration in `supabase/migrations/`, auto-applied on merge to `main`.
+- **Data**: Supabase managed backups (confirm PITR is enabled for your plan). `npm run db:push-data` also writes a timestamped prod backup to `backups/` before any write.
+- **Restore (prod)**: from a backup file via the local DB container's psql:
+  `docker exec -i supabase_db_nosweat psql "<prod-pooler-connection-string>" < backups/<file>.sql`
+  or restore from the Supabase dashboard (Database → Backups). Test a restore periodically.
 
 ---
 
