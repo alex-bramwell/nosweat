@@ -20,4 +20,35 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+
+  // Frontend: no debug logging in committed code (console.warn/error are fine).
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+    },
+  },
+
+  // Backend (Vercel functions + the Express adapter): Node environment. Must not
+  // import frontend code or use Vite-only import.meta.env (undefined in Node).
+  {
+    files: ['api/**/*.ts', 'server/**/*.ts'],
+    languageOptions: {
+      globals: globals.node,
+    },
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [{
+          group: ['**/src/*', '**/src/**', '../**/src/**', '../../src/**'],
+          message:
+            'Backend (api/, server/) must not import frontend code from src/. Put shared server code in api/lib/ or api/services/.',
+        }],
+      }],
+      // Ban import.meta.env specifically (import.meta.url is fine for __dirname).
+      'no-restricted-syntax': ['error', {
+        selector: "MemberExpression[object.type='MetaProperty'][property.name='env']",
+        message: 'import.meta.env is Vite-only and undefined in Node. Use process.env in backend code.',
+      }],
+    },
+  },
 ])
