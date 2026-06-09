@@ -4,6 +4,7 @@ import { stripe } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
 import { verifyAuth, assertMethod } from '../lib/auth';
 import { sanitizeMetadata, getOrCreateStripeCustomer } from '../lib/stripe-helpers';
+import { checkRateLimit } from '../lib/rateLimit';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
@@ -29,6 +30,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (user.id !== memberId) {
       return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (!(await checkRateLimit(`service-payment:${memberId}`, 10, 60))) {
+      return res.status(429).json({ error: 'Too many requests. Please slow down and try again shortly.' });
     }
 
     // Fetch the service to get the hourly rate

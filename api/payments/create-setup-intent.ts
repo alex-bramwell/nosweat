@@ -3,6 +3,7 @@ import { stripe } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
 import { verifyAuth, assertMethod } from '../lib/auth';
 import { sanitizeMetadata, getOrCreateStripeCustomer } from '../lib/stripe-helpers';
+import { checkRateLimit } from '../lib/rateLimit';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
@@ -24,6 +25,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (user.id !== userId) {
       return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (!(await checkRateLimit(`setup-intent:${userId}`, 10, 60))) {
+      return res.status(429).json({ error: 'Too many requests. Please slow down and try again shortly.' });
     }
 
     // Check if user already used their trial
