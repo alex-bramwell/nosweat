@@ -18,7 +18,11 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const projectRef = supabaseUrl.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1];
 
 async function main() {
-  const sqlFile = process.argv[2] || 'scripts/fix-trigger-and-seed.sql';
+  const sqlFile = process.argv[2];
+  if (!sqlFile) {
+    console.error('Usage: node scripts/run-sql.js <path/to/file.sql>');
+    process.exit(1);
+  }
   console.log(`Running SQL from: ${sqlFile}\n`);
 
   const sql = readFileSync(sqlFile, 'utf8');

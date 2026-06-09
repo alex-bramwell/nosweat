@@ -115,8 +115,8 @@ nosweat.fitness/gym/comet/dashboard   → Member dashboard
 
 ```bash
 # Clone the repository
-git clone https://github.com/alex-bramwell/gym.GymForge.git
-cd gym.GymForge
+git clone https://github.com/alex-bramwell/nosweat.git
+cd nosweat
 
 # Copy environment variables
 cp .env.example .env.local
@@ -186,8 +186,8 @@ docker-compose down
 
 | Service | Container | Port | Description |
 |---------|-----------|------|-------------|
-| Frontend | `gymgymforge-frontend-1` | 5173 | Vite dev server, proxies API to backend |
-| Backend | `gymgymforge-backend-1` | 3001 | Express API: payments, accounting, webhooks |
+| Frontend | `gymnosweatfitness-frontend-1` | 5173 | Vite dev server, proxies API to backend |
+| Backend | `gymnosweatfitness-backend-1` | 3001 | Express API: payments, accounting, webhooks |
 
 Both services mount the project directory for live reloading. Node modules are preserved in Docker volumes.
 
@@ -196,7 +196,7 @@ Both services mount the project directory for live reloading. Node modules are p
 ## Project Structure
 
 ```
-gym.GymForge/
+nosweat/
 ├── api/                              # Vercel serverless functions (production)
 │   ├── lib/                         # Shared API utilities
 │   │   ├── supabase.ts              # Singleton Supabase service client
@@ -211,7 +211,7 @@ gym.GymForge/
 ├── public/                           # Static assets
 ├── scripts/                          # Shell scripts (dev.sh, prod.sh, down.sh)
 ├── supabase/
-│   └── migrations/                   # 43 SQL migration files (000-060)
+│   └── migrations/                   # Numbered SQL migration files (000-079)
 ├── src/
 │   ├── components/
 │   │   ├── common/                   # Reusable UI components
@@ -701,7 +701,7 @@ npm run build
 
 **SCSS compilation errors**
 - Use `rgba($color-variable, alpha)` not `rgba($rgb-tuple, alpha)` for Sass variables
-- Restart the Docker container to clear Vite cache: `docker restart gymgymforge-frontend-1`
+- Restart the Docker container to clear Vite cache: `docker restart gymnosweatfitness-frontend-1`
 
 **Payment Intent not creating**
 - Check Stripe keys in `.env.local`
