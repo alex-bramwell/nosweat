@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabase } from '../lib/supabase';
-import { verifyAuth, assertMethod } from '../lib/auth';
+import { supabase } from '../lib/supabase.js';
+import { verifyAuth, assertMethod } from '../lib/auth.js';
 
 const VERCEL_API_TOKEN = process.env.VERCEL_API_TOKEN!;
 const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID!;

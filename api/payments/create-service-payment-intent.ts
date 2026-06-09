@@ -1,15 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
-import { supabase } from '../lib/supabase';
-import { verifyAuth, assertMethod } from '../lib/auth';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
-
-function sanitizeMetadata(value: string): string {
-  return String(value || '').replace(/<[^>]*>/g, '').slice(0, 500);
-}
+import { stripe } from '../lib/stripe.js';
+import { supabase } from '../lib/supabase.js';
+import { verifyAuth, assertMethod } from '../lib/auth.js';
+import { sanitizeMetadata, getOrCreateStripeCustomer } from '../lib/stripe-helpers.js';
+import { checkRateLimit } from '../lib/rateLimit.js';
+import { captureError } from '../lib/sentry.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
@@ -35,6 +31,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (user.id !== memberId) {
       return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (!(await checkRateLimit(`service-payment:${memberId}`, 10, 60))) {
+      return res.status(429).json({ error: 'Too many requests. Please slow down and try again shortly.' });
     }
 
     // Fetch the service to get the hourly rate
@@ -63,33 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const amountInPence = Math.round(service.hourly_rate * 100);
 
     // Get or create Stripe customer
-    const { data: existingCustomer } = await supabase
-      .from('stripe_customers')
-      .select('stripe_customer_id')
-      .eq('user_id', memberId)
-      .single();
-
-    let stripeCustomerId: string;
-
-    if (existingCustomer) {
-      stripeCustomerId = existingCustomer.stripe_customer_id;
-    } else {
-      // Create new Stripe customer
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          user_id: memberId,
-        },
-      });
-
-      stripeCustomerId = customer.id;
-
-      // Save to database
-      await supabase.from('stripe_customers').insert({
-        user_id: memberId,
-        stripe_customer_id: stripeCustomerId,
-      });
-    }
+    const stripeCustomerId = await getOrCreateStripeCustomer(memberId, user.email);
 
     // Calculate refund eligible until (24 hours before booking start)
     const bookingDateTime = new Date(`${bookingDate}T${startTime}`);
@@ -163,6 +137,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error) {
     console.error('Error creating service payment intent:', error);
+    await captureError(error, { endpoint: 'payments/create-service-payment-intent' });
     return res.status(500).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error',

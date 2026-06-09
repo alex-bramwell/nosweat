@@ -39,3 +39,7 @@ build
 .claude/
 CLAUDE.md
 .vercel
+
+# Data-sync artifacts (db:pull / db:push-data)
+backups/
+supabase/.tmp/

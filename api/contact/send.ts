@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Resend } from 'resend';
-import { assertMethod } from '../lib/auth';
+import { assertMethod } from '../lib/auth.js';
+import { checkRateLimit, clientIp } from '../lib/rateLimit.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -28,6 +29,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: 'Invalid email address' });
+    }
+
+    if (!(await checkRateLimit(`contact:${clientIp(req)}`, 5, 600))) {
+      return res.status(429).json({ error: 'Too many messages. Please try again later.' });
     }
 
     const cleanName = sanitize(name);

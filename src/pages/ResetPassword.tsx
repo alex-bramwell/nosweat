@@ -22,7 +22,7 @@ const ResetPassword = () => {
       hasUppercase: /[A-Z]/.test(pwd),
       hasLowercase: /[a-z]/.test(pwd),
       hasNumber: /[0-9]/.test(pwd),
-      hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
+      hasSpecial: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd),
     };
   };
 
@@ -40,7 +40,7 @@ const ResetPassword = () => {
     if (/[a-z]/.test(pwd)) strength += 10;
     if (/[A-Z]/.test(pwd)) strength += 10;
     if (/[0-9]/.test(pwd)) strength += 10;
-    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)) strength += 15;
+    if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd)) strength += 15;
     if (pwd.length >= 20) strength += 5;
 
     if (strength < 40) return { strength, label: 'Weak', color: '#ff4444' };
@@ -53,13 +53,11 @@ const ResetPassword = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      console.log('ResetPassword: Checking session...');
 
       // First check if we already have a session (handled by supabase-js from hash)
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
-        console.log('ResetPassword: Found existing session');
         setIsSessionReady(true);
         return;
       }
@@ -78,7 +76,6 @@ const ResetPassword = () => {
       }
 
       if (tokenHash && type === 'recovery') {
-        console.log('ResetPassword: Verifying token_hash...');
         const { error } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
           type: 'recovery',
@@ -89,13 +86,11 @@ const ResetPassword = () => {
           setError(error.message);
         } else {
           // Verification successful, session should be set
-          console.log('ResetPassword: Verification successful');
           setIsSessionReady(true);
           // Clear URL params
           window.history.replaceState(null, '', window.location.pathname);
         }
       } else {
-        console.log('ResetPassword: No valid session or token found');
         setError('Please use the password reset link from your email to access this page.');
       }
     };

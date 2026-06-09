@@ -1,3 +1,30 @@
+// =============================================================================
+// AuthContext - Authentication & Role-Based Access Control
+//
+// ARCHITECTURE: Uses Supabase Auth as the auth layer, but enriches sessions
+// with a `profiles` table for application-level data. The distinction matters:
+//   - Supabase session: WHO the user is (id, email, JWT)
+//   - Profile record:   WHAT they can do (role, membership type, coach assignment)
+//
+// ROLE HIERARCHY: member < staff < coach < admin
+// Each role unlocks additional routes (see ProtectedRoute in App.tsx):
+//   - member: dashboard, profile
+//   - staff:  + coach view access
+//   - coach:  + coach view, WOD editing
+//   - admin:  + gym admin panel, site builder, coach dashboard
+//
+// EDGE CASES HANDLED:
+//   - Duplicate account detection on signup (Supabase returns fake user with
+//     empty identities for existing emails - anti-enumeration protection)
+//   - Session fallback: if profile fetch fails, constructs a minimal user
+//     from the Supabase session metadata (graceful degradation)
+//   - Logout cleanup: clears registration intents from sessionStorage to
+//     prevent stale payment flows on re-login
+//   - OAuth redirect flow (Google/Facebook)
+//   - Email verification with resend capability
+//   - Rate limit handling on password reset/change
+// =============================================================================
+
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 
@@ -45,6 +72,11 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// AuthProvider wraps the entire gym shell with authentication state.
+// Uses Supabase Auth for the auth layer but enriches the session with
+// a profile from our `profiles` table (which adds role, membership type,
+// coach assignment, etc.). The profile is the source of truth for RBAC -
+// Supabase session tells us WHO the user is, the profile tells us WHAT they can do.
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,7 +97,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
 
-      console.log('Fetching profile via direct API for user:', userId);
       
       const response = await fetch(
         `${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=*`,
@@ -83,10 +114,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const data = await response.json();
-      console.log('Profile data:', data);
       
       if (!data || data.length === 0) {
-        console.log('No profile found for user');
         return null;
       }
 
@@ -121,12 +150,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const storageKey = `sb-${supabaseUrl.split('//')[1].split('.')[0]}-auth-token`;
         const storedSession = localStorage.getItem(storageKey);
         
-        console.log('AuthContext: Checking localStorage, key:', storageKey);
-        console.log('AuthContext: Found session:', !!storedSession);
         
         if (storedSession) {
           const session = JSON.parse(storedSession);
-          console.log('AuthContext: Session user:', session?.user?.id, session?.user?.email);
           
           if (session?.user?.id) {
             // Try to fetch profile, but use session data as fallback
@@ -134,14 +160,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             
             try {
               profile = await fetchUserProfile(session.user.id, session.access_token);
-              console.log('AuthContext: Fetched profile:', profile?.name);
             } catch (e) {
               console.error('AuthContext: Profile fetch failed:', e);
             }
             
             // If profile fetch fails, create user from session data
             if (!profile && session.user) {
-              console.log('AuthContext: Using session data as fallback');
               profile = {
                 id: session.user.id,
                 email: session.user.email || '',
@@ -154,7 +178,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
             
             if (profile) {
-              console.log('AuthContext: Setting user:', profile.name);
               setUser(profile);
             }
           }
@@ -207,8 +230,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signup = async (email: string, password: string, name: string) => {
-    console.log('Signup attempt for:', email);
-    console.log('Email redirect URL:', `${window.location.origin}/email-verified`);
     
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -221,44 +242,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       },
     });
 
-    console.log('Signup response:', { 
-      hasUser: !!data.user, 
-      hasSession: !!data.session, 
-      userId: data.user?.id,
-      userEmail: data.user?.email,
-      emailConfirmedAt: data.user?.email_confirmed_at,
-      confirmationSentAt: data.user?.confirmation_sent_at,
-      identities: data.user?.identities,
-      identitiesLength: data.user?.identities?.length,
-      error 
-    });
-
     if (error) {
       throw new Error(error.message);
     }
 
-    // Check if user already exists - Supabase returns a fake user with empty identities
-    // to prevent email enumeration attacks
+    // IMPORTANT EDGE CASE: Supabase's anti-enumeration protection. When someone
+    // signs up with an email that already exists, Supabase does NOT return an error
+    // (that would leak whether the email is registered). Instead, it returns a fake
+    // user object with an empty `identities` array. We detect this pattern and
+    // surface a user-friendly message rather than silently failing.
     if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
-      console.log('Detected existing user - identities array is empty or missing');
       throw new Error('An account with this email already exists. Please sign in instead.');
     }
 
     // Additional check: if user exists but email is already confirmed, they're an existing user
     if (data.user && data.user.email_confirmed_at && !data.session) {
-      console.log('Detected existing user - email already confirmed');
       throw new Error('An account with this email already exists. Please sign in instead.');
     }
 
     // Check if confirmation was actually sent (for new users)
     if (data.user && !data.session && !data.user.confirmation_sent_at) {
-      console.log('WARNING: No confirmation email sent - user may already exist');
       throw new Error('An account with this email may already exist. Please try signing in, or use a different email.');
     }
 
     // If email confirmation is enabled, user won't have a session yet
     if (data.user && !data.session) {
-      console.log('Email confirmation required - no session provided');
       throw new Error('Please check your email to verify your account before signing in.');
     }
 
@@ -271,23 +279,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // LOGOUT: Three-step cleanup to ensure no stale state persists:
+  //   1. Clear localStorage session token (Supabase stores it here)
+  //   2. Call Supabase signOut (may fail for manually-set sessions - that's OK)
+  //   3. Clear registration intents from sessionStorage (prevents resuming
+  //      a stale payment flow if someone logs out mid-registration)
   const logout = async () => {
-    // Clear the session from localStorage (used by direct API login)
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const storageKey = `sb-${supabaseUrl.split('//')[1].split('.')[0]}-auth-token`;
     localStorage.removeItem(storageKey);
-    
-    // Try to sign out via Supabase SDK (may fail if session was set manually)
+
     try {
       await supabase.auth.signOut();
-    } catch (error) {
-      // Ignore errors - we've already cleared localStorage
-      console.log('Supabase signOut error (ignored):', error);
+    } catch {
+      // signOut errors are non-fatal - we clear local state regardless
     }
-    
+
     setUser(null);
-    // Clear registration intent on logout to prevent stale redirects
-    // Find and remove any gym-specific registration intent keys
+    // Iterate backwards since we're removing items during iteration
     for (let i = sessionStorage.length - 1; i >= 0; i--) {
       const key = sessionStorage.key(i);
       if (key && key.endsWith('_registration_intent')) {

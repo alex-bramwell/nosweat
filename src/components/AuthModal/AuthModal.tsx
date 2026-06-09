@@ -77,12 +77,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   // Check if user is authenticated from AuthContext for password recovery
   useEffect(() => {
     if (mode === 'changePassword') {
-      console.log('Checking auth status for password recovery:', { isAuthenticated, hasUser: !!user });
       if (isAuthenticated && user) {
-        console.log('User is authenticated - session ready');
         setIsSessionReady(true);
-      } else {
-        console.log('Waiting for authentication...');
       }
     }
   }, [mode, isAuthenticated, user]);
@@ -158,7 +154,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
       setHoneypot('');
     } else if (honeypot) {
       // In development, just log and clear
-      console.log('Honeypot field filled (dev mode - not blocking):', honeypot);
       setHoneypot('');
     }
 
@@ -207,15 +202,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           );
         }
 
-        console.log('Attempting to update password...');
 
         // First verify we have a valid session
         const { data: sessionData } = await supabase.auth.getSession();
-        console.log('Current session before update:', { 
-          hasSession: !!sessionData.session,
-          userId: sessionData.session?.user?.id,
-          expiresAt: sessionData.session?.expires_at
-        });
 
         if (!sessionData.session) {
           throw new Error('Your session has expired. Please request a new password reset link.');
@@ -233,7 +222,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
         const { data, error: updateError } = await Promise.race([updatePromise, timeoutPromise]) as Awaited<typeof updatePromise>;
 
-        console.log('Update result:', { error: updateError, hasUser: !!data?.user, user: data?.user });
 
         if (updateError) {
           console.error('Password update error:', updateError);
@@ -254,7 +242,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         }
 
         // Success - show completion message and redirect
-        console.log('Password updated successfully!');
         setSuccess('Password updated successfully! Redirecting to sign in...');
         setIsLoading(false); // Reset loading state immediately
         
@@ -262,7 +249,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         await supabase.auth.signOut();
         
         setTimeout(() => {
-          console.log('Redirecting to sign in...');
           onClose();
           setMode('login');
           setPassword('');
@@ -317,8 +303,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-        console.log('Attempting login to:', supabaseUrl);
-        console.log('Email:', email);
 
         const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
           method: 'POST',
@@ -334,7 +318,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
         const result = await response.json();
 
-        console.log('Login API response:', { status: response.status, ok: response.ok, result });
 
         if (!response.ok || result.error) {
           const errorMsg = result.error_description || result.error || result.msg || 'Invalid email or password';

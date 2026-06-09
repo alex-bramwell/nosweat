@@ -88,9 +88,9 @@ const TestReset = () => {
       setMessage('Test account reset complete. Redirecting to onboarding...');
       addLog('Redirecting to /onboarding in 2 seconds...');
       setTimeout(() => navigate('/onboarding'), 2000);
-    } catch (err: any) {
+    } catch (err) {
       setStatus('error');
-      const errorMsg = err.message || 'Unknown error';
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
       setMessage(`Reset failed: ${errorMsg}`);
       addLog(`Reset failed: ${errorMsg}`);
       console.error('Reset error:', err);

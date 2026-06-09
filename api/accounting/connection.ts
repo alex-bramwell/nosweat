@@ -8,8 +8,8 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabase } from '../lib/supabase';
-import { assertMethod } from '../lib/auth';
+import { supabase } from '../lib/supabase.js';
+import { assertMethod } from '../lib/auth.js';
 import { decryptToken } from '../utils/encryption.js';
 import * as crypto from 'crypto';
 

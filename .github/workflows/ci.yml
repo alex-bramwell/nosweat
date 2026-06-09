@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  build:
+    name: Typecheck + build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  guardrails:
+    name: Anti-tech-debt guardrails
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Frontend must not ship debug logging (console.warn/error are allowed).
+      - name: No console.log/debug in src/
+        run: |
+          if grep -rnE "console\.(log|debug)" src --include="*.ts" --include="*.tsx"; then
+            echo "::error::Remove console.log/console.debug from src/ (use console.warn/error, or remove)."
+            exit 1
+          fi
+
+      # Backend code must never import frontend code (src/ uses Vite-only APIs).
+      - name: Backend does not import frontend (src/)
+        run: |
+          if grep -rnE "from ['\"].*/src/|from ['\"]\.\./\.\./src" api server --include="*.ts"; then
+            echo "::error::api/ and server/ must not import from src/. Put shared code in api/lib or api/services."
+            exit 1
+          fi
+
+      # import.meta.env is Vite-only and is undefined in the Node runtime.
+      - name: No import.meta.env in backend
+        run: |
+          if grep -rn "import\.meta\.env" api server --include="*.ts"; then
+            echo "::error::import.meta.env is Vite-only; use process.env in api/ and server/."
+            exit 1
+          fi

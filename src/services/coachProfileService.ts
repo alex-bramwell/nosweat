@@ -168,7 +168,8 @@ export const coachProfileService = {
   },
 };
 
-// Helper to map database row to CoachProfile
+// Helper to map a raw (untyped) Supabase row to CoachProfile.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapToCoachProfile(row: any): CoachProfile {
   return {
     id: row.id,
@@ -180,7 +181,7 @@ function mapToCoachProfile(row: any): CoachProfile {
     specialties: row.specialties || [],
     coachId: row.coach_id,
     avatarUrl: row.avatar_url,
-    services: (row.coach_services || []).map((s: any) => ({
+    services: (row.coach_services || []).map((s: { service_type: string; is_active: boolean }) => ({
       serviceType: s.service_type,
       isActive: s.is_active,
     })),

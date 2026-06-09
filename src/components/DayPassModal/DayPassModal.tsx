@@ -6,7 +6,9 @@ import { stripePromise } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import { formatCurrency, handlePaymentError } from '../../utils/payment';
 import { useTenant } from '../../contexts/TenantContext';
+import type { User } from '@supabase/supabase-js';
 import type { ClassSchedule } from '../../types';
+import { createDayPassPaymentIntent, pollForBooking } from '../../services/dayPassService';
 import styles from './DayPassModal.module.scss';
 
 interface DayPassModalProps {
@@ -71,35 +73,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     }
   };
 
-  const pollForBooking = async (userId: string, paymentIntentId: string, maxAttempts = 10): Promise<string> => {
-    for (let i = 0; i < maxAttempts; i++) {
-      const { data: payment } = await supabase
-        .from('payments')
-        .select('id')
-        .eq('stripe_payment_intent_id', paymentIntentId)
-        .eq('status', 'succeeded')
-        .single();
-
-      if (payment) {
-        const { data: booking } = await supabase
-          .from('bookings')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('payment_id', payment.id)
-          .single();
-
-        if (booking) {
-          return booking.id;
-        }
-      }
-
-      // Wait 1 second before next attempt
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-
-    throw new Error('Booking creation timeout');
-  };
-
   return (
     <form onSubmit={handleSubmit} className={styles.paymentForm}>
       <div className={styles.paymentElementWrapper}>
@@ -121,7 +94,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
 const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { schedule } = useTenant();
+  const { schedule, gym } = useTenant();
 
   const weeklySchedule: ClassSchedule[] = useMemo(() =>
     schedule.map(entry => ({
@@ -134,7 +107,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
     })), [schedule]);
   const [currentStep, setCurrentStep] = useState<Step>('auth');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [selectedClass, setSelectedClass] = useState<ClassSchedule | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -211,8 +184,8 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
         setUser(data.user);
         setCurrentStep('class-selection');
       }
-    } catch (err: any) {
-      setAuthError(err.message || 'Authentication failed');
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : 'Authentication failed');
     } finally {
       setIsLoading(false);
     }
@@ -235,31 +208,13 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
     setError(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
-
-      const response = await fetch('/api/payments/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          userId: user?.id,
-          classId: classInfo.id,
-          classDetails: classInfo,
-        }),
+      const clientSecret = await createDayPassPaymentIntent({
+        userId: user?.id,
+        classId: classInfo.id,
+        classDetails: classInfo,
+        gymId: gym?.id,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create payment intent');
-      }
-
-      const data = await response.json();
-      setClientSecret(data.clientSecret);
+      setClientSecret(clientSecret);
     } catch (err) {
       setError(handlePaymentError(err));
     } finally {
@@ -580,10 +535,10 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
 
             <div className={styles.classDetails}>
               <h3>Class Details</h3>
-              {(selectedClass as any).selectedDate && (
+              {(selectedClass as { selectedDate?: string }).selectedDate && (
                 <div className={styles.detailRow}>
                   <span className={styles.dayPassDetailLabel}>Date:</span>
-                  <span className={styles.dayPassDetailValue}>{(selectedClass as any).selectedDate}</span>
+                  <span className={styles.dayPassDetailValue}>{(selectedClass as { selectedDate?: string }).selectedDate}</span>
                 </div>
               )}
               <div className={styles.detailRow}>
@@ -593,7 +548,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
               <div className={styles.detailRow}>
                 <span className={styles.dayPassDetailLabel}>Class Type:</span>
                 <span className={styles.dayPassDetailValue}>
-                  {(selectedClass as any).selectedType || selectedClass.className}
+                  {(selectedClass as { selectedType?: string }).selectedType || selectedClass.className}
                 </span>
               </div>
               {selectedClass.coach && (
@@ -629,7 +584,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
               </div>
             )}
 
-            {!isLoading && !error && clientSecret && (
+            {!isLoading && !error && clientSecret && user && (
               <Elements
                 stripe={stripePromise}
                 options={{
@@ -640,7 +595,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
                 }}
               >
                 <PaymentForm
-                  userId={user?.id}
+                  userId={user.id}
                   clientSecret={clientSecret}
                   onSuccess={handleSuccess}
                   onError={handleError}

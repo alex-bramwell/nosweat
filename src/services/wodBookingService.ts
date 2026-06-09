@@ -47,6 +47,8 @@ export const wodBookingService = {
       throw error;
     }
 
+    // Supabase returns the joined profile as an untyped row shape.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (data || []).map((booking: any) => ({
       id: booking.id,
       workoutId: booking.workout_id,
@@ -251,7 +253,7 @@ export const wodBookingService = {
       throw error;
     }
 
-    return (data || []).map((booking: any) => ({
+    return (data || []).map((booking) => ({
       id: booking.id,
       workoutId: booking.workout_id,
       userId: booking.user_id,

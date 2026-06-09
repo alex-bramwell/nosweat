@@ -69,7 +69,8 @@ const Schedule = () => {
   const timeSlots = Array.from(new Set(weeklySchedule.map(cls => cls.time))).sort((a, b) => {
     const timeToMinutes = (time: string) => {
       const [timePart, period] = time.split(' ');
-      let [hours, minutes] = timePart.split(':').map(Number);
+      const [rawHours, minutes] = timePart.split(':').map(Number);
+      let hours = rawHours;
       if (period === 'PM' && hours !== 12) hours += 12;
       if (period === 'AM' && hours === 12) hours = 0;
       return hours * 60 + minutes;

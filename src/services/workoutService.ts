@@ -141,7 +141,8 @@ export const workoutService = {
     }
   },
 
-  // Map database row to WorkoutDB type
+  // Map a raw (untyped) Supabase row to WorkoutDB.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mapDbToWorkout(data: any): WorkoutDB {
     return {
       id: data.id,
