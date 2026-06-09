@@ -1,17 +1,5 @@
 // Core data types for the gym platform
 
-export interface Program {
-  id: string;
-  title: string;
-  description: string;
-  features: string[];
-  level: 'beginner' | 'intermediate' | 'advanced' | 'all';
-  image?: string;
-  price?: number;
-  priceUnit?: string;
-  priceNote?: string;
-}
-
 export interface Coach {
   id: string;
   name: string;
@@ -38,16 +26,6 @@ export interface WOD {
   type: 'amrap' | 'fortime' | 'emom' | 'tabata' | 'strength' | 'endurance';
   duration?: string;
   rounds?: number;
-}
-
-export interface PricingTier {
-  id: string;
-  name: string;
-  price: number;
-  period: 'month' | 'week' | 'day';
-  features: string[];
-  popular?: boolean;
-  dropIn?: boolean;
 }
 
 export interface ClassSchedule {
@@ -83,19 +61,7 @@ export interface Payment {
   currency: string;
   status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'cancelled';
   paymentType: 'day-pass' | 'trial-setup' | 'membership';
-  metadata?: Record<string, any>;
-  createdAt: string;
-}
-
-export interface TrialMembership {
-  id: string;
-  userId: string;
-  stripeSetupIntentId?: string;
-  stripePaymentMethodId?: string;
-  trialStartDate: string;
-  trialEndDate: string;
-  status: 'active' | 'converted' | 'cancelled' | 'expired';
-  autoConvertEnabled: boolean;
+  metadata?: Record<string, unknown>;
   createdAt: string;
 }
 

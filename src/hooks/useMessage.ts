@@ -11,7 +11,7 @@ export interface Message {
  */
 export function useMessage(autoDismissMs = 5000) {
   const [message, setMessage] = useState<Message | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const clear = useCallback(() => {
     setMessage(null);

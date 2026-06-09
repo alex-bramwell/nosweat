@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabase } from '../lib/supabase';
-import { verifyAuth, assertMethod } from '../lib/auth';
+import { supabase } from '../lib/supabase.js';
+import { verifyAuth, assertMethod } from '../lib/auth.js';
 
 const VERCEL_API_TOKEN = process.env.VERCEL_API_TOKEN!;
 const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID!;
@@ -24,8 +24,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Validate domain format
     const domainClean = domain.toLowerCase().trim();
-    const domainRegex = /^([a-z0-9-]+\.)+[a-z]{2,}$/;
-    if (!domainRegex.test(domainClean)) {
+    const domainRegex = /^(?!-)[a-z0-9-]{1,63}(?<!-)(\.[a-z0-9-]{1,63})*\.[a-z]{2,}$/;
+    const ipRegex = /^\d{1,3}(\.\d{1,3}){3}$/;
+    if (!domainRegex.test(domainClean) || ipRegex.test(domainClean) || domainClean.length > 253) {
       return res.status(400).json({ error: 'Invalid domain format. Use something like www.mygym.com' });
     }
 

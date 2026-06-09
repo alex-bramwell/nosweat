@@ -1,3 +1,31 @@
+// =============================================================================
+// RegistrationContext - Multi-Step Registration State Machine
+//
+// PROBLEM: A user clicks "Book Day Pass" on a gym's homepage but isn't logged
+// in. The app needs to:
+//   1. Remember their intent (day-pass, which class, etc.)
+//   2. Redirect them to sign in/up
+//   3. After auth completes, resume the flow exactly where they left off
+//   4. Continue through payment -> class selection -> confirmation
+//
+// Without this context, the intent would be lost after the auth redirect.
+//
+// SOLUTION: A state machine persisted in sessionStorage with these properties:
+//   - type:          'day-pass' | 'trial' (what they're trying to do)
+//   - step:          'intent' -> 'auth' -> 'payment' -> 'class-selection' -> 'complete'
+//   - selectedClass: the class they picked (if any)
+//   - timestamp:     for 30-minute expiry (prevents stale flows)
+//
+// KEY DESIGN DECISIONS:
+//   - sessionStorage (not localStorage): intent should not survive browser close
+//   - Per-gym scoping: storage key includes gym slug, so intents don't leak
+//     between gyms if the user has multiple tabs open
+//   - 30-min expiry: prevents resuming a stale flow hours later with outdated
+//     class selections or pricing
+//   - Logout cleanup: AuthContext clears all registration intents on logout
+//     (iterates sessionStorage for keys ending in '_registration_intent')
+// =============================================================================
+
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useTenant } from './TenantContext';
 import type { RegistrationIntent } from '../types';
@@ -46,7 +74,10 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
     }
   }, [STORAGE_KEY]);
 
-  // Listen for storage changes (e.g., when logout clears the intent)
+  // CROSS-CONTEXT SYNC: Listen for storage changes from other code paths.
+  // When AuthContext clears intents on logout, this picks it up and nulls
+  // the local state. Uses polling (500ms) because the storage event doesn't
+  // fire for same-tab changes - only cross-tab.
   useEffect(() => {
     const handleStorageChange = () => {
       const stored = sessionStorage.getItem(STORAGE_KEY);

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabase } from '../lib/supabase';
-import { verifyAuth, assertMethod } from '../lib/auth';
+import { supabase } from '../lib/supabase.js';
+import { verifyAuth, assertMethod } from '../lib/auth.js';
 
 const VERCEL_API_TOKEN = process.env.VERCEL_API_TOKEN!;
 const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID!;
@@ -31,6 +31,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (gymError || !gym) {
       return res.status(404).json({ error: 'Gym not found' });
+    }
+
+    // Verify user owns this gym
+    if (gym.owner_id !== user.id) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .eq('gym_id', gymId)
+        .single();
+
+      if (!profile || profile.role !== 'admin') {
+        return res.status(403).json({ error: 'Only gym owners and admins can manage domains' });
+      }
     }
 
     if (!gym.custom_domain) {

@@ -4,13 +4,8 @@
  */
 
 import QuickBooks from 'node-quickbooks';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase.js';
 import { decryptToken, encryptToken } from '../utils/encryption.js';
-
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
 
 interface QBTokens {
   accessToken: string;
@@ -111,7 +106,8 @@ export async function refreshQBTokenIfNeeded(integrationId: string): Promise<QBT
 
   console.log('[QB] Token expiring soon, refreshing...');
 
-  // Initialize OAuth client
+  // Initialize OAuth client (intuit-oauth is an untyped CJS module).
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const oauthClient = new (require('intuit-oauth'))({
     clientId: process.env.QUICKBOOKS_CLIENT_ID!,
     clientSecret: process.env.QUICKBOOKS_CLIENT_SECRET!,
@@ -184,8 +180,12 @@ export async function getOrCreateCustomer(
   displayName: string
 ): Promise<QBCustomer> {
   return new Promise((resolve, reject) => {
-    // Search for customer by email
-    const query = `SELECT * FROM Customer WHERE PrimaryEmailAddr = '${email}'`;
+    // Validate and sanitize email before using in query
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return reject(new Error('Invalid email format'));
+    }
+    const sanitizedEmail = email.replace(/'/g, "\\'");
+    const query = `SELECT * FROM Customer WHERE PrimaryEmailAddr = '${sanitizedEmail}'`;
 
     qbo.findCustomers(query, (err: any, customers: any) => {
       if (err) {

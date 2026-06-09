@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Section, Container, Card, Button, EmptyStatePreview } from '../../common';
 import { ProgramModal } from '../../ProgramModal';
 import { useTenant } from '../../../contexts/TenantContext';
@@ -82,7 +82,14 @@ const Programs = () => {
                   </div>
                 )}
                 {program.description && (
-                  <p className={styles.programDescription} dangerouslySetInnerHTML={{ __html: program.description }} />
+                  <p className={styles.programDescription}>
+                    {program.description.split('\n').map((line, i, arr) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        {i < arr.length - 1 && <br />}
+                      </React.Fragment>
+                    ))}
+                  </p>
                 )}
                 <ul className={styles.programFeatures}>
                   {program.features.map((feature, index) => (

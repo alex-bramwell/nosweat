@@ -1,20 +1,23 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import Stripe from 'stripe';
-import { supabase } from '../lib/supabase';
-import { verifyAuth, assertMethod } from '../lib/auth';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
+import { stripe } from '../lib/stripe.js';
+import { supabase } from '../lib/supabase.js';
+import { verifyAuth, assertMethod } from '../lib/auth.js';
+import { sanitizeMetadata, getOrCreateStripeCustomer } from '../lib/stripe-helpers.js';
+import { checkRateLimit } from '../lib/rateLimit.js';
+import { captureError } from '../lib/sentry.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
 
   try {
-    const { userId } = req.body;
+    const { userId, gymId } = req.body;
 
     if (!userId) {
       return res.status(400).json({ error: 'Missing userId' });
+    }
+
+    if (!gymId) {
+      return res.status(400).json({ error: 'Missing gymId' });
     }
 
     // Verify auth token
@@ -23,6 +26,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (user.id !== userId) {
       return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (!(await checkRateLimit(`setup-intent:${userId}`, 10, 60))) {
+      return res.status(429).json({ error: 'Too many requests. Please slow down and try again shortly.' });
     }
 
     // Check if user already used their trial
@@ -37,47 +44,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Get or create Stripe customer
-    const { data: existingCustomer } = await supabase
-      .from('stripe_customers')
-      .select('stripe_customer_id')
-      .eq('user_id', userId)
-      .single();
-
-    let stripeCustomerId: string;
-
-    if (existingCustomer) {
-      stripeCustomerId = existingCustomer.stripe_customer_id;
-    } else {
-      // Create new Stripe customer
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          user_id: userId,
-        },
-      });
-
-      stripeCustomerId = customer.id;
-
-      // Save to database
-      await supabase.from('stripe_customers').insert({
-        user_id: userId,
-        stripe_customer_id: stripeCustomerId,
-      });
-    }
+    const stripeCustomerId = await getOrCreateStripeCustomer(userId, user.email);
 
     // Create setup intent for future payments (no charge now)
     const setupIntent = await stripe.setupIntents.create({
       customer: stripeCustomerId,
       payment_method_types: ['card'],
       metadata: {
-        user_id: userId,
+        user_id: sanitizeMetadata(userId),
         payment_type: 'trial-setup',
       },
     });
 
-    // Create trial membership record
+    // Create trial membership record. gym_id is required: trial_memberships has
+    // a NOT NULL gym_id on a freshly-provisioned database.
     await supabase.from('trial_memberships').insert({
       user_id: userId,
+      gym_id: gymId,
       stripe_setup_intent_id: setupIntent.id,
       status: 'active',
       auto_convert_enabled: true,
@@ -89,6 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error) {
     console.error('Error creating setup intent:', error);
+    await captureError(error, { endpoint: 'payments/create-setup-intent' });
     return res.status(500).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error',

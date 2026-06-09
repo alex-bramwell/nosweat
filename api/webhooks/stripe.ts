@@ -1,15 +1,43 @@
+// =============================================================================
+// Stripe Webhook Handler - Central Payment Event Router
+//
+// ARCHITECTURE: This is the server-side counterpart to the frontend payment
+// flows. Stripe sends events here after payments succeed/fail, and this handler
+// updates the database accordingly. It's a Vercel serverless function, so it
+// scales automatically and runs independently of the frontend.
+//
+// SECURITY: Two layers of protection:
+//   1. assertMethod() - rejects non-POST requests
+//   2. stripe.webhooks.constructEvent() - verifies the request signature using
+//      STRIPE_WEBHOOK_SECRET. This proves the request came from Stripe, not an
+//      attacker. Raw body parsing (bodyParser: false) is required because
+//      signature verification needs the exact bytes Stripe sent.
+//
+// EVENT TYPES HANDLED (full payment lifecycle):
+//   - payment_intent.succeeded/failed - Day pass payments
+//   - setup_intent.succeeded/failed   - Trial signups (card saved, not charged)
+//   - checkout.session.completed      - Subscriptions (gym memberships + platform)
+//   - customer.subscription.updated/deleted - Subscription lifecycle changes
+//   - account.updated                 - Stripe Connect onboarding status
+//
+// DESIGN CHOICE: All class details (day, time, name, coach) are stored in
+// payment metadata when the intent is created, so this webhook handler is
+// self-contained - it doesn't need to look up class data from the database.
+// =============================================================================
+
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
-import { supabase } from '../lib/supabase';
-import { assertMethod } from '../lib/auth';
+import { stripe } from '../lib/stripe.js';
+import { supabase } from '../lib/supabase.js';
+import { assertMethod } from '../lib/auth.js';
+import { captureError } from '../lib/sentry.js';
 import { buffer } from 'micro';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-});
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
+// Disable Vercel's default body parsing so we can access the raw request
+// body for Stripe signature verification. Without this, the signature
+// check fails because the body gets parsed and re-serialized.
 export const config = {
   api: {
     bodyParser: false,
@@ -36,7 +64,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Webhook signature verification failed' });
     }
 
-    // Handle the event
+    // Central event router - handles the full payment lifecycle:
+    // - Day pass payments (payment_intent.succeeded/failed)
+    // - Trial signups (setup_intent.succeeded/failed) - card saved but not charged
+    // - Platform & gym subscriptions (checkout.session.completed, subscription updates)
+    // - Stripe Connect onboarding status (account.updated)
     switch (event.type) {
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
@@ -93,6 +125,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ received: true });
   } catch (error) {
     console.error('Webhook error:', error);
+    await captureError(error, { endpoint: 'webhooks/stripe' });
     return res.status(500).json({
       error: 'Webhook handler failed',
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -100,6 +133,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 }
 
+// Day pass payment succeeded - update the payment record and create a confirmed
+// booking. All the class details were stored in payment metadata when the intent
+// was created, so the webhook is self-contained and doesn't need extra DB lookups.
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   try {
     const userId = paymentIntent.metadata.user_id;
@@ -111,9 +147,11 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       .update({ status: 'succeeded' })
       .eq('stripe_payment_intent_id', paymentIntent.id);
 
-    // Create booking
+    // Create booking. gym_id is carried in the payment metadata and is required:
+    // bookings has a NOT NULL gym_id on a freshly-provisioned database.
     await supabase.from('bookings').insert({
       user_id: userId,
+      gym_id: paymentIntent.metadata.gym_id || null,
       class_id: classId,
       class_day: paymentIntent.metadata.class_day,
       class_time: paymentIntent.metadata.class_time,
@@ -145,6 +183,9 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
   }
 }
 
+// Trial signup completed - a SetupIntent saves the user's card without charging.
+// We activate the trial membership and mark trial_used on their profile so they
+// can't sign up for multiple free trials at the same gym.
 async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
   try {
     const userId = setupIntent.metadata.user_id;
@@ -175,6 +216,12 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
   }
 }
 
+// TWO-SIDED MARKETPLACE: This handler processes subscriptions for both sides:
+//   1. Gym memberships (payment_type: 'gym-membership') - a member subscribing
+//      to a gym. Payment flows through Stripe Connect to the gym's account.
+//   2. Platform subscriptions - a gym owner subscribing to noSweat's SaaS.
+//      Payment goes directly to the platform's Stripe account.
+// The payment_type metadata (set during checkout creation) determines which path.
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   try {
     const userId = session.metadata?.user_id;
@@ -263,6 +310,11 @@ async function handleSetupIntentFailed(setupIntent: Stripe.SetupIntent) {
   }
 }
 
+// STRIPE CONNECT ONBOARDING: Tracks whether a gym has completed Stripe's KYC
+// verification. Status progression: onboarding -> restricted -> active.
+// A gym can only receive payments once charges_enabled && payouts_enabled are
+// both true. Until then, payments fall back to the platform's direct account
+// (see create-payment-intent.ts for the fallback logic).
 async function handleAccountUpdated(account: Stripe.Account) {
   try {
     const gymId = account.metadata?.gym_id;

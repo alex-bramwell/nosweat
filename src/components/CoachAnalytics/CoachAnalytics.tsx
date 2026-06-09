@@ -1204,8 +1204,7 @@ export const CoachAnalytics: React.FC = () => {
                                             key={sIdx}
                                             className={styles.suggestionOption}
                                             onClick={() => {
-                                              // TODO: Implement swap functionality
-                                              console.log('Swap to:', suggestion.name);
+                                              // TODO: wire up movement swap (not yet implemented)
                                             }}
                                           >
                                             <div className={styles.suggestionDetails}>

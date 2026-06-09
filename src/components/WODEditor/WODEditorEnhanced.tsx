@@ -61,7 +61,7 @@ export const WODEditorEnhanced: React.FC<WODEditorEnhancedProps> = ({
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [workoutType, setWorkoutType] = useState<WorkoutFormData['workoutType']>(
-    initialData?.workoutType || (initialData as any)?.type || 'amrap'
+    initialData?.workoutType || (initialData as { type?: WorkoutFormData['workoutType'] })?.type || 'amrap'
   );
   const [duration, setDuration] = useState(initialData?.duration || '');
   const [rounds, setRounds] = useState<number | undefined>(initialData?.rounds);

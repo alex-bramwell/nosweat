@@ -180,7 +180,7 @@ export const generateCSRFToken = (): string => {
 export const detectSQLInjection = (input: string): boolean => {
   const sqlPatterns = [
     /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE)\b)/i,
-    /(--|\#|\/\*|\*\/)/,
+    /(--|#|\/\*|\*\/)/,
     /(\bOR\b.*=.*)/i,
     /(\bAND\b.*=.*)/i,
     /(UNION.*SELECT)/i,

@@ -7,6 +7,14 @@
 -- helper functions for tenant resolution.
 -- ============================================================================
 
+-- The helper functions below are created before the tables/columns they
+-- reference (e.g. profiles.gym_id, gym_features) exist later in this same
+-- migration. Postgres validates SQL function bodies at creation time, so a
+-- fresh apply would fail on these forward references. Disable body validation
+-- for this migration; it is reset at the end. The resulting schema is
+-- identical - this only affects creation-time checking.
+SET check_function_bodies = off;
+
 -- ============================================================================
 -- 1. HELPER FUNCTIONS (created first, used by everything else)
 -- ============================================================================
@@ -1106,6 +1114,9 @@ RETURNS SETOF public.gyms AS $$
   SELECT * FROM public.gyms WHERE slug = slug_param AND status = 'active'
   LIMIT 1;
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
+
+-- Restore function body validation now that all referenced objects exist.
+RESET check_function_bodies;
 
 
 -- ============================================================================

@@ -1,10 +1,39 @@
+// =============================================================================
+// useTenantTheme - Runtime White-Label Theming Engine
+//
+// THE CORE INSIGHT: Instead of building separate CSS bundles per gym (which
+// would require a build step every time a gym changes their branding), we use
+// CSS custom properties injected at runtime. Every gym shares the same React
+// bundle, but when a gym's page loads, this hook overwrites :root CSS variables
+// with the gym's brand colors from the database.
+//
+// WHAT IT INJECTS:
+//   - 13 color tokens + their RGB variants (for rgba() without a preprocessor)
+//   - Typography (header + body font families, dynamically loading Google Fonts)
+//   - Border radius, theme mode (light/dark), favicon, page title
+//   - Arbitrary custom CSS the gym admin can inject via the site builder
+//
+// WHY CSS CUSTOM PROPERTIES:
+//   - All component SCSS uses var(--color-accent) etc., so changing the
+//     property value re-themes the ENTIRE app instantly - no prop drilling,
+//     no re-renders, pure CSS cascade
+//   - Works with SCSS modules - components don't need to know about theming
+//   - Cleanup function prevents style leakage when navigating between gyms
+//
+// RGB VARIANTS: Every color gets both a hex var (--color-accent: #2563eb) and
+// an RGB var (--color-accent-rgb: 37, 99, 235). This enables transparency in
+// pure CSS: rgba(var(--color-accent-rgb), 0.5) - no Sass color functions needed.
+// =============================================================================
+
 import { useEffect } from 'react';
 import { useTenant } from '../contexts/TenantContext';
 import type { GymBranding } from '../types/tenant';
 
 /**
- * Converts a hex color to its RGB components string (e.g. "255, 79, 31")
- * This allows using CSS variables inside rgba(): rgba(var(--color-accent-rgb), 0.5)
+ * Converts a hex color to its RGB components string (e.g. "255, 79, 31").
+ * Every color token gets both a hex variable (--color-accent: #2563eb) and an
+ * RGB variable (--color-accent-rgb: 37, 99, 235) so SCSS/CSS can use them
+ * in rgba() for transparency without a preprocessor: rgba(var(--color-accent-rgb), 0.5)
  */
 export function hexToRgb(hex: string): string {
   const clean = hex.replace('#', '');
@@ -21,10 +50,9 @@ export function hexToRgb(hex: string): string {
   return `${r}, ${g}, ${b}`;
 }
 
-/**
- * Map of branding fields to CSS variable names.
- * Each entry maps a GymBranding color field to its CSS custom property.
- */
+// Single source of truth for branding-to-CSS mapping. This array is also
+// imported by the site builder's BrandingEditor, so the admin UI and the
+// runtime theming always stay in sync.
 export const COLOR_MAP: { field: keyof GymBranding; cssVar: string }[] = [
   { field: 'color_bg', cssVar: '--color-bg' },
   { field: 'color_bg_light', cssVar: '--color-bg-light' },
@@ -41,9 +69,8 @@ export const COLOR_MAP: { field: keyof GymBranding; cssVar: string }[] = [
   { field: 'color_footer', cssVar: '--color-footer' },
 ];
 
-/**
- * Curated Google Fonts available for gym branding.
- */
+// Curated allowlist of Google Fonts - restricts which fonts gyms can use.
+// This prevents arbitrary font injection and keeps bundle predictable.
 const AVAILABLE_FONTS = [
   'Inter',
   'Poppins',
@@ -60,9 +87,12 @@ const AVAILABLE_FONTS = [
 /** Fonts that are system fonts and don't need loading */
 const SYSTEM_FONTS = ['Arial', 'Helvetica', 'sans-serif', 'serif'];
 
+// Dynamic font loading - injects a <link> tag for Google Fonts on demand.
+// Deduplicates via DOM ID check so switching between gyms that use the
+// same font doesn't create duplicate network requests.
 export function loadGoogleFont(fontName: string) {
-  if (SYSTEM_FONTS.includes(fontName)) return;
-  if (!AVAILABLE_FONTS.includes(fontName)) return;
+  if (SYSTEM_FONTS.includes(fontName)) return;   // No network needed
+  if (!AVAILABLE_FONTS.includes(fontName)) return; // Not on allowlist
 
   const linkId = `google-font-${fontName.replace(/\s+/g, '-').toLowerCase()}`;
   if (document.getElementById(linkId)) return; // Already loaded
@@ -75,9 +105,15 @@ export function loadGoogleFont(fontName: string) {
 }
 
 /**
- * Hook that reads branding from TenantContext and injects CSS custom properties
- * into document.documentElement.style, updates the page title, favicon, and
- * theme-color meta tag.
+ * The core theming hook - reads branding from TenantContext and injects it into
+ * the DOM at runtime. This is what makes white-labeling work without separate
+ * builds per gym: every gym shares the same bundle, but CSS custom properties
+ * on :root are overwritten when a gym's page loads. It also handles fonts
+ * (dynamically loading Google Fonts), favicon, page title, and arbitrary
+ * custom CSS the gym admin can inject via the site builder.
+ *
+ * The cleanup function removes all injected styles when the tenant changes,
+ * preventing style leakage between gyms during navigation.
  */
 export function useTenantTheme() {
   const { gym, branding, isPlatformSite } = useTenant();
@@ -87,7 +123,9 @@ export function useTenantTheme() {
 
     const root = document.documentElement;
 
-    // 1. Inject color CSS variables + RGB versions
+    // 1. Inject color CSS variables + RGB versions onto :root.
+    // All component styles reference var(--color-accent) etc., so
+    // changing these properties re-themes the entire app instantly.
     for (const { field, cssVar } of COLOR_MAP) {
       const value = branding[field] as string;
       if (value) {
@@ -158,7 +196,11 @@ export function useTenantTheme() {
       customStyle.remove();
     }
 
-    // Cleanup: remove injected styles when tenant changes
+    // CLEANUP: Remove all injected styles when tenant changes or unmounts.
+    // Without this, navigating from one gym to another would inherit the
+    // previous gym's colors until the new theme loaded - a "flash of wrong
+    // branding" similar to FOUC. The cleanup runs before the next effect,
+    // so there's a clean slate for the new gym's theme injection.
     return () => {
       for (const { cssVar } of COLOR_MAP) {
         root.style.removeProperty(cssVar);

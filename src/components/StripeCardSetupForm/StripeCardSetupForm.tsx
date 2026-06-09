@@ -8,6 +8,7 @@ import styles from './StripeCardSetupForm.module.scss';
 
 interface StripeCardSetupFormProps {
   userId: string;
+  gymId?: string;
   onSuccess: () => void;
   onError: (error: string) => void;
 }
@@ -140,6 +141,7 @@ const SetupForm: React.FC<SetupFormProps> = ({ userId, onSuccess, onError }) => 
 
 const StripeCardSetupForm: React.FC<StripeCardSetupFormProps> = ({
   userId,
+  gymId,
   onSuccess,
   onError,
 }) => {
@@ -167,7 +169,7 @@ const StripeCardSetupForm: React.FC<StripeCardSetupFormProps> = ({
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ userId, gymId }),
       });
 
       if (!response.ok) {

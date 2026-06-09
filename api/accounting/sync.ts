@@ -7,10 +7,14 @@
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase.js';
+import { captureError } from '../lib/sentry.js';
 import {
   Provider,
   SyncResult,
+  CategorizedPayment,
+  AccountMapping,
+  RevenueCategory,
   isProviderActive,
   getAccountMappings,
   validateAccountMappings,
@@ -24,7 +28,7 @@ import {
   recordSyncedTransaction,
   getIntegration,
   updateIntegrationLastSync,
-} from '../../src/services/accountingSyncService.js';
+} from '../services/accountingSyncService.js';
 import {
   createQBClient,
   getOrCreateCustomer,
@@ -65,8 +69,8 @@ async function verifyAdmin(authHeader: string | undefined): Promise<string | nul
  */
 async function syncToQuickBooks(
   integrationId: string,
-  categorizedPayments: any[],
-  accountMappings: any[]
+  categorizedPayments: CategorizedPayment[],
+  accountMappings: AccountMapping[]
 ): Promise<{
   succeeded: string[];
   failed: Array<{ paymentId: string; error: string }>;
@@ -135,11 +139,11 @@ async function syncToQuickBooks(
 
       console.log(`[QB] Successfully synced payment ${payment.id} as ${externalTxn.DocNumber}`);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error(`[QB] Error syncing payment ${payment.id}:`, error);
       failed.push({
         paymentId: payment.id,
-        error: error.message || 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   }
@@ -151,9 +155,9 @@ async function syncToQuickBooks(
  * Sync payments to Xero (placeholder for Phase 6)
  */
 async function syncToXero(
-  integrationId: string,
-  categorizedPayments: any[],
-  accountMappings: any[]
+  _integrationId: string,
+  _categorizedPayments: unknown[],
+  _accountMappings: unknown[]
 ): Promise<{
   succeeded: string[];
   failed: Array<{ paymentId: string; error: string }>;
@@ -167,8 +171,8 @@ async function syncToXero(
 async function syncToProvider(
   provider: Provider,
   integrationId: string,
-  categorizedPayments: any[],
-  accountMappings: any[]
+  categorizedPayments: CategorizedPayment[],
+  accountMappings: AccountMapping[]
 ): Promise<{
   succeeded: string[];
   failed: Array<{ paymentId: string; error: string }>;
@@ -185,7 +189,7 @@ async function syncToProvider(
 /**
  * Handle POST - Manual sync trigger
  */
-async function handleManualSync(req: VercelRequest, userId: string): Promise<{ status: number; body: any }> {
+async function handleManualSync(req: VercelRequest, userId: string): Promise<{ status: number; body: unknown }> {
   const { provider, limit = 100 } = req.body;
 
   if (!provider || !['quickbooks', 'xero'].includes(provider)) {
@@ -230,7 +234,7 @@ async function handleManualSync(req: VercelRequest, userId: string): Promise<{ s
     'service_physio',
     'refund'
   ];
-  const validation = await validateAccountMappings(provider, requiredCategories as any);
+  const validation = await validateAccountMappings(provider, requiredCategories as RevenueCategory[]);
   if (!validation.valid) {
     return {
       status: 400,
@@ -353,7 +357,7 @@ async function handleManualSync(req: VercelRequest, userId: string): Promise<{ s
 /**
  * Handle GET - Sync status check
  */
-async function handleSyncStatus(req: VercelRequest): Promise<{ status: number; body: any }> {
+async function handleSyncStatus(req: VercelRequest): Promise<{ status: number; body: unknown }> {
   const { syncLogId } = req.query;
 
   if (!syncLogId || typeof syncLogId !== 'string') {
@@ -433,11 +437,11 @@ export default async function handler(
 
     return res.status(result.status).json(result.body);
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('[Sync] Error:', error);
+    await captureError(error, { endpoint: 'accounting/sync' });
     return res.status(500).json({
-      error: 'Internal server error',
-      details: error.message
+      error: 'An internal error occurred'
     });
   }
 }

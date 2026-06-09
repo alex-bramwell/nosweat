@@ -43,7 +43,7 @@ export interface SyncStatus {
   succeeded: number;
   failed: number;
   errorMessage: string | null;
-  errorDetails: any;
+  errorDetails: unknown;
   dateRangeStart: string | null;
   dateRangeEnd: string | null;
   triggeredBy: string | null;

@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRegistrationIntent } from '../../contexts/RegistrationContext';
 import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
-import { Modal, Button } from '../common';
+import { Modal, Button, modalStyles as m } from '../common';
 import { checkPasswordCompromised, sanitizeInput, isValidEmail } from '../../utils/security';
 import styles from './AuthModal.module.scss';
 
@@ -77,12 +77,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   // Check if user is authenticated from AuthContext for password recovery
   useEffect(() => {
     if (mode === 'changePassword') {
-      console.log('Checking auth status for password recovery:', { isAuthenticated, hasUser: !!user });
       if (isAuthenticated && user) {
-        console.log('User is authenticated - session ready');
         setIsSessionReady(true);
-      } else {
-        console.log('Waiting for authentication...');
       }
     }
   }, [mode, isAuthenticated, user]);
@@ -158,7 +154,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
       setHoneypot('');
     } else if (honeypot) {
       // In development, just log and clear
-      console.log('Honeypot field filled (dev mode - not blocking):', honeypot);
       setHoneypot('');
     }
 
@@ -207,15 +202,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           );
         }
 
-        console.log('Attempting to update password...');
 
         // First verify we have a valid session
         const { data: sessionData } = await supabase.auth.getSession();
-        console.log('Current session before update:', { 
-          hasSession: !!sessionData.session,
-          userId: sessionData.session?.user?.id,
-          expiresAt: sessionData.session?.expires_at
-        });
 
         if (!sessionData.session) {
           throw new Error('Your session has expired. Please request a new password reset link.');
@@ -233,7 +222,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
         const { data, error: updateError } = await Promise.race([updatePromise, timeoutPromise]) as Awaited<typeof updatePromise>;
 
-        console.log('Update result:', { error: updateError, hasUser: !!data?.user, user: data?.user });
 
         if (updateError) {
           console.error('Password update error:', updateError);
@@ -254,7 +242,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         }
 
         // Success - show completion message and redirect
-        console.log('Password updated successfully!');
         setSuccess('Password updated successfully! Redirecting to sign in...');
         setIsLoading(false); // Reset loading state immediately
         
@@ -262,7 +249,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         await supabase.auth.signOut();
         
         setTimeout(() => {
-          console.log('Redirecting to sign in...');
           onClose();
           setMode('login');
           setPassword('');
@@ -317,8 +303,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-        console.log('Attempting login to:', supabaseUrl);
-        console.log('Email:', email);
 
         const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
           method: 'POST',
@@ -334,7 +318,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
         const result = await response.json();
 
-        console.log('Login API response:', { status: response.status, ok: response.ok, result });
 
         if (!response.ok || result.error) {
           const errorMsg = result.error_description || result.error || result.msg || 'Invalid email or password';
@@ -487,8 +470,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   // Show change password modal (2-step flow for password recovery)
   if (mode === 'changePassword') {
     const changePasswordContent = (
-      <div className={styles.authModalBody}>
-        <h2 className={styles.authModalTitle}>
+      <div className={m.modalBody}>
+        <h2 className={m.modalTitle}>
           {changePasswordStep === 1 ? 'Reset Your Password' : 'Create New Password'}
         </h2>
 
@@ -564,12 +547,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           </div>
         ) : (
           // Step 2: Password form
-          <form onSubmit={handleSubmit} className={styles.authForm}>
-              {error && <div className={styles.authModalError}>{error}</div>}
-              {success && <div className={styles.authModalSuccess}>{success}</div>}
+          <form onSubmit={handleSubmit} className={m.modalForm}>
+              {error && <div className={m.modalError}>{error}</div>}
+              {success && <div className={m.modalSuccess}>{success}</div>}
 
-              <div className={styles.authFieldGroup}>
-              <label htmlFor="new-password" className={styles.authFieldLabel}>New Password</label>
+              <div className={m.modalFieldGroup}>
+              <label htmlFor="new-password" className={m.modalFieldLabel}>New Password</label>
               <div className={styles.passwordInputWrapper}>
                 <input
                   id="new-password"
@@ -579,7 +562,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                   placeholder="Enter your new password"
                   disabled={isLoading}
                   autoComplete="new-password"
-                  className={styles.authInput}
+                  className={m.modalInput}
                 />
                 <button
                   type="button"
@@ -675,8 +658,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
               )}
             </div>
 
-            <div className={styles.authFieldGroup}>
-              <label htmlFor="confirm-password" className={styles.authFieldLabel}>Confirm Password</label>
+            <div className={m.modalFieldGroup}>
+              <label htmlFor="confirm-password" className={m.modalFieldLabel}>Confirm Password</label>
               <div className={styles.passwordInputWrapper}>
                 <input
                   id="confirm-password"
@@ -686,7 +669,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                   placeholder="Confirm your new password"
                   disabled={isLoading}
                   autoComplete="new-password"
-                  className={styles.authInput}
+                  className={m.modalInput}
                 />
                 <button
                   type="button"
@@ -753,7 +736,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   // Show completion screen after password reset request
   if (showResetCompletion) {
     const resetCompletionContent = (
-      <div className={styles.authModalBody}>
+      <div className={m.modalBody}>
         <div className={styles.completionContainer}>
           <div className={styles.completionIcon}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -833,7 +816,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   // Show completion screen after signup
   if (showCompletion) {
     const completionContent = (
-      <div className={styles.authModalBody}>
+      <div className={m.modalBody}>
         <div className={styles.completionContainer}>
           <div className={styles.completionIcon}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -906,14 +889,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   }
 
   const content = (
-    <div className={styles.authModalBody}>
-        <div className={styles.authModalHeader}>
-          <h2 className={styles.authModalTitle}>
+    <div className={m.modalBody}>
+        <div className={m.modalHeader}>
+          <h2 className={m.modalTitle}>
             {mode === 'login' && 'Welcome Back'}
             {mode === 'signup' && 'Create Account'}
             {mode === 'reset' && 'Reset Password'}
           </h2>
-          <p className={styles.authModalSubtitle}>
+          <p className={m.modalSubtitle}>
             {mode === 'login' && 'Sign in to access your member dashboard'}
             {mode === 'signup' && `Join ${gym?.name || 'our gym'} and start your fitness journey`}
             {mode === 'reset' && 'Enter your email to receive a password reset link'}
@@ -942,7 +925,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className={styles.authForm}>
+        <form onSubmit={handleSubmit} className={m.modalForm}>
           {/* Honeypot field - hidden from users, visible to bots */}
           <input
             type="text"
@@ -957,14 +940,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           />
 
           {mode === 'signup' && (
-            <div className={styles.authFieldGroup}>
-              <label htmlFor="name" className={styles.authFieldLabel}>Full Name</label>
+            <div className={m.modalFieldGroup}>
+              <label htmlFor="name" className={m.modalFieldLabel}>Full Name</label>
               <input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className={styles.authInput}
+                className={m.modalInput}
                 placeholder="Enter your full name"
                 disabled={isLoading}
                 required
@@ -972,14 +955,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             </div>
           )}
 
-          <div className={styles.authFieldGroup}>
-            <label htmlFor="email" className={styles.authFieldLabel}>Email</label>
+          <div className={m.modalFieldGroup}>
+            <label htmlFor="email" className={m.modalFieldLabel}>Email</label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={styles.authInput}
+              className={m.modalInput}
               placeholder="Enter your email"
               disabled={isLoading}
               required
@@ -987,15 +970,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           </div>
 
           {mode !== 'reset' && (
-            <div className={styles.authFieldGroup}>
-              <label htmlFor="password" className={styles.authFieldLabel}>Password</label>
+            <div className={m.modalFieldGroup}>
+              <label htmlFor="password" className={m.modalFieldLabel}>Password</label>
               <div className={styles.passwordInputWrapper}>
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={styles.authInput}
+                  className={m.modalInput}
                   placeholder="Enter your password"
                   disabled={isLoading}
                   required
@@ -1097,8 +1080,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
             </div>
           )}
 
-          {error && <div className={styles.authModalError}>{error}</div>}
-          {success && <div className={styles.authModalSuccess}>{success}</div>}
+          {error && <div className={m.modalError}>{error}</div>}
+          {success && <div className={m.modalSuccess}>{success}</div>}
 
           <Button
             type="submit"
