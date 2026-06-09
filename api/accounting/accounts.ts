@@ -5,9 +5,9 @@
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabase } from '../lib/supabase';
-import { assertMethod } from '../lib/auth';
-import { createQBClient, getChartOfAccounts } from '../services/quickbooksService';
+import { supabase } from '../lib/supabase.js';
+import { assertMethod } from '../lib/auth.js';
+import { createQBClient, getChartOfAccounts } from '../services/quickbooksService.js';
 
 /**
  * Verify user is authenticated and has admin role

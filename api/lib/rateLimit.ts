@@ -1,5 +1,5 @@
 import type { VercelRequest } from '@vercel/node';
-import { supabase } from './supabase';
+import { supabase } from './supabase.js';
 
 /**
  * Sliding-window rate limit backed by Postgres (no external service).

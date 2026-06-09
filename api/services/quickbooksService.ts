@@ -4,7 +4,7 @@
  */
 
 import QuickBooks from 'node-quickbooks';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase.js';
 import { decryptToken, encryptToken } from '../utils/encryption.js';
 
 interface QBTokens {

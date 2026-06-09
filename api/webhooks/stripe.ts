@@ -27,10 +27,10 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
-import { stripe } from '../lib/stripe';
-import { supabase } from '../lib/supabase';
-import { assertMethod } from '../lib/auth';
-import { captureError } from '../lib/sentry';
+import { stripe } from '../lib/stripe.js';
+import { supabase } from '../lib/supabase.js';
+import { assertMethod } from '../lib/auth.js';
+import { captureError } from '../lib/sentry.js';
 import { buffer } from 'micro';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;

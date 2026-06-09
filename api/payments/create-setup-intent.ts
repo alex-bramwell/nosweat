@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { stripe } from '../lib/stripe';
-import { supabase } from '../lib/supabase';
-import { verifyAuth, assertMethod } from '../lib/auth';
-import { sanitizeMetadata, getOrCreateStripeCustomer } from '../lib/stripe-helpers';
-import { checkRateLimit } from '../lib/rateLimit';
-import { captureError } from '../lib/sentry';
+import { stripe } from '../lib/stripe.js';
+import { supabase } from '../lib/supabase.js';
+import { verifyAuth, assertMethod } from '../lib/auth.js';
+import { sanitizeMetadata, getOrCreateStripeCustomer } from '../lib/stripe-helpers.js';
+import { checkRateLimit } from '../lib/rateLimit.js';
+import { captureError } from '../lib/sentry.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;

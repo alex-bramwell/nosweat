@@ -1,5 +1,5 @@
-import { stripe } from './stripe';
-import { supabase } from './supabase';
+import { stripe } from './stripe.js';
+import { supabase } from './supabase.js';
 
 /**
  * Strip HTML tags and cap length before sending values to Stripe metadata.

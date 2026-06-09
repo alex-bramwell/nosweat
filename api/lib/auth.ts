@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { User } from '@supabase/supabase-js';
-import { supabase } from './supabase';
+import { supabase } from './supabase.js';
 
 /**
  * Verify the Bearer token from the request and return the authenticated user.

@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Resend } from 'resend';
-import { assertMethod } from '../lib/auth';
-import { checkRateLimit, clientIp } from '../lib/rateLimit';
+import { assertMethod } from '../lib/auth.js';
+import { checkRateLimit, clientIp } from '../lib/rateLimit.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

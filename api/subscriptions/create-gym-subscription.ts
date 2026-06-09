@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { stripe } from '../lib/stripe';
-import { supabase } from '../lib/supabase';
-import { assertMethod, verifyAuth } from '../lib/auth';
+import { stripe } from '../lib/stripe.js';
+import { supabase } from '../lib/supabase.js';
+import { assertMethod, verifyAuth } from '../lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
