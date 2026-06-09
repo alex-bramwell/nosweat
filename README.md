@@ -436,32 +436,29 @@ main           ← Production-ready code (tagged releases)
 
 ### Daily Workflow
 
+Work happens on `feature/*` branches and reaches `develop`/`main` **only via pull request** — never merge straight to `develop` or `main`. Every PR is gated by CI (lint + build + anti-debt guardrails) and a Vercel preview, and the change is verified on that preview before promotion.
+
 ```bash
 # 1. Start from develop
-git checkout develop
-git pull origin develop
+git checkout develop && git pull origin develop
 
-# 2. Create feature branch
+# 2. Create a feature branch (kebab-case)
 git checkout -b feature/your-feature
 
 # 3. Commit with conventional commits
-git add <files>
-git commit -m "feat(scope): description"
+git add <files> && git commit -m "feat(scope): description"
 
-# 4. Merge to develop
-git checkout develop
-git merge --no-ff feature/your-feature
-git push origin develop
+# 4. Push and open a PR INTO develop
+git push -u origin feature/your-feature
+gh pr create --base develop --head feature/your-feature
+```
 
-# 5. When ready for production
-git checkout main
-git merge --no-ff develop
-git push origin main
+Opening the PR runs CI and builds a **Vercel preview**. Verify the change on the preview, then promote to production (`develop → main`). The full step-by-step — including the local checks to run *before* opening the PR and how to verify the preview — is in **[Deployment → Shipping process](#deployment)**. Promotion uses explicit merge commits:
 
-# 6. Sync develop with main
-git checkout develop
-git merge main
-git push origin develop
+```bash
+# Promote (after the PR is verified)
+git checkout main && git merge --no-ff develop && git push origin main   # deploys prod + applies migrations
+git checkout develop && git merge main && git push origin develop        # keep develop in sync
 ```
 
 ### Commit Convention
