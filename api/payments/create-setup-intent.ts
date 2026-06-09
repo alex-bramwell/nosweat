@@ -2,10 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { stripe } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
 import { verifyAuth, assertMethod } from '../lib/auth';
-
-function sanitizeMetadata(value: string): string {
-  return String(value || '').replace(/<[^>]*>/g, '').slice(0, 500);
-}
+import { sanitizeMetadata, getOrCreateStripeCustomer } from '../lib/stripe-helpers';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
@@ -41,33 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Get or create Stripe customer
-    const { data: existingCustomer } = await supabase
-      .from('stripe_customers')
-      .select('stripe_customer_id')
-      .eq('user_id', userId)
-      .single();
-
-    let stripeCustomerId: string;
-
-    if (existingCustomer) {
-      stripeCustomerId = existingCustomer.stripe_customer_id;
-    } else {
-      // Create new Stripe customer
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          user_id: userId,
-        },
-      });
-
-      stripeCustomerId = customer.id;
-
-      // Save to database
-      await supabase.from('stripe_customers').insert({
-        user_id: userId,
-        stripe_customer_id: stripeCustomerId,
-      });
-    }
+    const stripeCustomerId = await getOrCreateStripeCustomer(userId, user.email);
 
     // Create setup intent for future payments (no charge now)
     const setupIntent = await stripe.setupIntents.create({

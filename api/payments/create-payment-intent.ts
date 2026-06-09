@@ -29,13 +29,7 @@ import Stripe from 'stripe';
 import { stripe } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
 import { verifyAuth, assertMethod } from '../lib/auth';
-
-// Sanitize metadata values before sending to Stripe - strip HTML tags and
-// truncate to 500 chars. Stripe metadata is visible in the dashboard and
-// passed to webhooks, so we prevent XSS/injection at the boundary.
-function sanitizeMetadata(value: string): string {
-  return String(value || '').replace(/<[^>]*>/g, '').slice(0, 500);
-}
+import { sanitizeMetadata, getOrCreateStripeCustomer } from '../lib/stripe-helpers';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
@@ -59,36 +53,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    // IDEMPOTENT CUSTOMER CREATION: Check if we already have a Stripe customer
-    // record for this user. If not, create one and persist the mapping.
-    // This avoids creating duplicate Stripe customers on repeat purchases.
-    const { data: existingCustomer } = await supabase
-      .from('stripe_customers')
-      .select('stripe_customer_id')
-      .eq('user_id', userId)
-      .single();
-
-    let stripeCustomerId: string;
-
-    if (existingCustomer) {
-      stripeCustomerId = existingCustomer.stripe_customer_id;
-    } else {
-      // Create new Stripe customer
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          user_id: userId,
-        },
-      });
-
-      stripeCustomerId = customer.id;
-
-      // Save to database
-      await supabase.from('stripe_customers').insert({
-        user_id: userId,
-        stripe_customer_id: stripeCustomerId,
-      });
-    }
+    // Get or create the Stripe customer for this user (idempotent).
+    const stripeCustomerId = await getOrCreateStripeCustomer(userId, user.email);
 
     // Stripe Connect - look up whether this gym has completed Connect onboarding.
     // If they have, payments are routed through their Connect account with a
