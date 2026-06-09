@@ -30,6 +30,7 @@ import Stripe from 'stripe';
 import { stripe } from '../lib/stripe';
 import { supabase } from '../lib/supabase';
 import { assertMethod } from '../lib/auth';
+import { captureError } from '../lib/sentry';
 import { buffer } from 'micro';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -124,6 +125,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ received: true });
   } catch (error) {
     console.error('Webhook error:', error);
+    await captureError(error, { endpoint: 'webhooks/stripe' });
     return res.status(500).json({
       error: 'Webhook handler failed',
       message: error instanceof Error ? error.message : 'Unknown error',

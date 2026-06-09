@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { verifyAuth, assertMethod } from '../lib/auth';
 import { sanitizeMetadata, getOrCreateStripeCustomer } from '../lib/stripe-helpers';
 import { checkRateLimit } from '../lib/rateLimit';
+import { captureError } from '../lib/sentry';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
@@ -136,6 +137,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error) {
     console.error('Error creating service payment intent:', error);
+    await captureError(error, { endpoint: 'payments/create-service-payment-intent' });
     return res.status(500).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error',

@@ -8,6 +8,7 @@
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabase } from '../lib/supabase';
+import { captureError } from '../lib/sentry';
 import {
   Provider,
   SyncResult,
@@ -438,6 +439,7 @@ export default async function handler(
 
   } catch (error) {
     console.error('[Sync] Error:', error);
+    await captureError(error, { endpoint: 'accounting/sync' });
     return res.status(500).json({
       error: 'An internal error occurred'
     });

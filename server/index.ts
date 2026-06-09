@@ -21,6 +21,7 @@ import { config } from 'dotenv';
 import { readdirSync } from 'fs';
 import { join, dirname, relative, sep } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { captureError } from '../api/lib/sentry';
 
 config();
 
@@ -118,6 +119,7 @@ mountApiRoutes();
 
 app.use((err: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Server error:', err);
+  void captureError(err, { path: req.path });
   res.status(500).json({
     error: 'Internal server error',
     message: process.env.NODE_ENV === 'development' ? err.message : 'An error occurred',

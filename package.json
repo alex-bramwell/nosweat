@@ -31,6 +31,8 @@
     "db:push-data": "node scripts/db-push-data.js"
   },
   "dependencies": {
+    "@sentry/node": "^10.57.0",
+    "@sentry/react": "^10.57.0",
     "@stripe/react-stripe-js": "^5.4.1",
     "@stripe/stripe-js": "^8.6.0",
     "@supabase/supabase-js": "^2.90.1",
