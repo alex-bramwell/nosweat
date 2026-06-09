@@ -663,18 +663,24 @@ needed. The local Supabase stack must be running (`npm run db:start`).
 
 ## Deployment
 
-### Production Release
+Every change follows the same path: **`feature/*` → PR into `develop` → verify on the Vercel preview → merge `develop` → `main` (prod)**. Production is auto-deployed by Vercel on push to `main`, and the Supabase migrations Action auto-applies pending migrations.
+
+### Shipping process (follow every time)
+
+1. **Verify locally first** — exhaust everything that can be checked before review:
+   - `npm run lint` (must be **0 errors**) and `npm run build` (must pass)
+   - `docker-compose up -d` and smoke-test affected endpoints (e.g. `curl -s 'localhost:3001/api/health?deep=1'`; hit each changed `/api/*` route and confirm the expected status codes)
+   - DB changes: apply locally with `npx supabase migration up` and confirm
+2. **Open a PR into `develop`**: `gh pr create --base develop --head <branch>`. This runs CI (lint + build + anti-debt guardrails) and builds a **Vercel preview deployment**.
+3. **Verify on the preview** what can't be tested locally — load a gym site with DevTools open and watch for CSP errors, run a Stripe **test-mode** checkout end to end, and check fonts/images/auth. Fix forward on the same branch if anything breaks (no prod impact).
+4. **Promote to production** once green — explicit merge commits per the git flow:
 
 ```bash
-# Merge develop to main
-git checkout main
-git merge --no-ff develop
-git push origin main
-
-# Sync develop
-git checkout develop
-git merge main
-git push origin develop
+# feature -> develop
+git checkout develop && git merge --no-ff feature/<name> && git push origin develop
+# develop -> main (deploys prod + applies migrations)
+git checkout main && git merge --no-ff develop && git push origin main
+git checkout develop && git merge main && git push origin develop   # keep develop in sync
 ```
 
 ### What Happens on Push to Main
