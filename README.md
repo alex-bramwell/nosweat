@@ -601,6 +601,27 @@ npx supabase db push
 
 Migrations in `supabase/migrations/` are automatically applied via GitHub Actions when pushed to `main`.
 
+### Syncing Data (local <-> prod)
+
+Migrations carry *schema*; these scripts carry *data*, so local dev can mirror production.
+
+```bash
+# Pull prod data + storage DOWN into your local DB (safe - only local is written).
+# Replaces local data with prod's. Add --no-auth / --no-storage / --no-reset to scope.
+npm run db:pull
+
+# Push local data UP to prod (DESTRUCTIVE). Requires typing PROD to confirm and
+# auto-writes a full prod backup to backups/ first. Pushes public app tables only;
+# auth users and storage are never pushed.
+npm run db:push-data
+```
+
+Both read prod credentials from `.env.local`: `SUPABASE_DB_PASSWORD` (prod database
+password) and, for storage, `SUPABASE_PROD_SERVICE_KEY`. The prod project ref is read
+from `supabase/.temp/project-ref` (or `SUPABASE_PROD_PROJECT_REF`). All dump/restore runs
+through the local Supabase DB container's `pg_dump`/`psql`, so no host Postgres tools are
+needed. The local Supabase stack must be running (`npm run db:start`).
+
 ---
 
 ## Deployment
