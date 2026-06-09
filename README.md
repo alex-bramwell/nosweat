@@ -295,8 +295,7 @@ gym.GymForge/
 │   └── main.tsx                   # Application entry point
 ├── docker-compose.yml             # Development orchestration
 ├── docker-compose.prod.yml        # Production orchestration
-├── Dockerfile                     # Frontend dev container
-├── Dockerfile.api                 # Backend dev container
+├── Dockerfile                     # Multi-stage: dev / build / web / api targets
 ├── vercel.json                    # Vercel deployment config
 └── package.json                   # Dependencies and scripts
 ```
