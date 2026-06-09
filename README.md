@@ -151,8 +151,9 @@ npm run preview        # Preview production build
 npm run lint           # ESLint checks
 
 # Database
-npm run seed:coaches   # Seed coach accounts
 npm run db:run-sql     # Run SQL files against database
+npm run db:pull        # Copy prod data + storage into local
+npm run db:push-data   # Push local data up to prod (gated, backs up first)
 ```
 
 ---
