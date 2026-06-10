@@ -14,6 +14,7 @@ export { StatusBadge } from './StatusBadge';
 export { DetailGrid } from './DetailGrid';
 export { SelectableCard } from './SelectableCard';
 export { InfoBox } from './InfoBox';
+export { CardFields } from './CardFields/CardFields';
 
 export type { ButtonProps } from './Button';
 export type { CardProps } from './Card';
