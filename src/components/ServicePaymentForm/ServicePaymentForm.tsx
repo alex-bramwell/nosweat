@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Button } from '../common';
+import { Elements, CardNumberElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Button, CardFields } from '../common';
 import { stripePromise } from '../../lib/stripe';
 import { handlePaymentError } from '../../utils/payment';
 import { SERVICE_LABELS, type ServiceType } from '../../services/coachServicesService';
@@ -30,6 +30,7 @@ interface ServicePaymentFormProps {
 }
 
 interface PaymentFormInnerProps {
+  clientSecret: string;
   bookingDetails: BookingDetails;
   amount: number;
   onSuccess: (paymentIntentId: string) => void;
@@ -39,6 +40,7 @@ interface PaymentFormInnerProps {
 }
 
 const PaymentFormInner: React.FC<PaymentFormInnerProps> = ({
+  clientSecret,
   bookingDetails,
   amount,
   onSuccess,
@@ -60,19 +62,15 @@ const PaymentFormInner: React.FC<PaymentFormInnerProps> = ({
     setIsProcessing(true);
 
     try {
-      const { error: submitError } = await elements.submit();
-      if (submitError) {
-        onError(handlePaymentError(submitError));
+      const cardNumber = elements.getElement(CardNumberElement);
+      if (!cardNumber) {
+        onError('Card details not ready. Please try again.');
         setIsProcessing(false);
         return;
       }
 
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/dashboard`,
-        },
-        redirect: 'if_required',
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: cardNumber },
       });
 
       if (error) {
@@ -141,9 +139,7 @@ const PaymentFormInner: React.FC<PaymentFormInnerProps> = ({
         </div>
       </div>
 
-      <div className={styles.paymentElementWrapper}>
-        <PaymentElement />
-      </div>
+      <CardFields />
 
       <div className={styles.refundPolicy}>
         <p>
@@ -201,16 +197,9 @@ export const ServicePaymentForm: React.FC<ServicePaymentFormProps> = ({
   }
 
   return (
-    <Elements
-      stripe={stripePromise}
-      options={{
-        clientSecret,
-        appearance: {
-          theme: 'stripe',
-        },
-      }}
-    >
+    <Elements stripe={stripePromise}>
       <PaymentFormInner
+        clientSecret={clientSecret}
         bookingDetails={bookingDetails}
         amount={amount}
         onSuccess={onSuccess}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Modal, Button } from '../common';
+import { Elements, CardNumberElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Modal, Button, CardFields } from '../common';
 import { stripePromise } from '../../lib/stripe';
 import { createDayPassPaymentIntent, pollForBooking } from '../../services/dayPassService';
 import { formatCurrency, handlePaymentError } from '../../utils/payment';
@@ -33,6 +33,7 @@ interface PaymentFormProps {
 const PaymentForm: React.FC<PaymentFormProps> = ({
   selectedClass,
   userId,
+  clientSecret,
   onSuccess,
   onError,
 }) => {
@@ -50,19 +51,15 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     setIsProcessing(true);
 
     try {
-      const { error: submitError } = await elements.submit();
-      if (submitError) {
-        onError(handlePaymentError(submitError));
+      const cardNumber = elements.getElement(CardNumberElement);
+      if (!cardNumber) {
+        onError('Card details not ready. Please try again.');
         setIsProcessing(false);
         return;
       }
 
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/booking-confirmation`,
-        },
-        redirect: 'if_required',
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: cardNumber },
       });
 
       if (error) {
@@ -110,9 +107,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         </div>
       </div>
 
-      <div className={styles.paymentElementWrapper}>
-        <PaymentElement />
-      </div>
+      <CardFields />
 
       <Button
         type="submit"
@@ -223,15 +218,7 @@ const DayPassPaymentModal: React.FC<DayPassPaymentModalProps> = ({
         )}
 
         {!isLoading && !error && !isSuccess && clientSecret && (
-          <Elements
-            stripe={stripePromise}
-            options={{
-              clientSecret,
-              appearance: {
-                theme: 'stripe',
-              },
-            }}
-          >
+          <Elements stripe={stripePromise}>
             <PaymentForm
               selectedClass={selectedClass}
               userId={userId}

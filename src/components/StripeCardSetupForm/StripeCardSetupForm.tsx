@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Button } from '../common';
+import { Elements, CardNumberElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Button, CardFields } from '../common';
 import { stripePromise } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import { handlePaymentError } from '../../utils/payment';
@@ -20,7 +20,7 @@ interface SetupFormProps {
   onError: (error: string) => void;
 }
 
-const SetupForm: React.FC<SetupFormProps> = ({ userId, onSuccess, onError }) => {
+const SetupForm: React.FC<SetupFormProps> = ({ userId, clientSecret, onSuccess, onError }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -35,19 +35,15 @@ const SetupForm: React.FC<SetupFormProps> = ({ userId, onSuccess, onError }) => 
     setIsProcessing(true);
 
     try {
-      const { error: submitError } = await elements.submit();
-      if (submitError) {
-        onError(handlePaymentError(submitError));
+      const cardNumber = elements.getElement(CardNumberElement);
+      if (!cardNumber) {
+        onError('Card details not ready. Please try again.');
         setIsProcessing(false);
         return;
       }
 
-      const { error, setupIntent } = await stripe.confirmSetup({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/schedule`,
-        },
-        redirect: 'if_required',
+      const { error, setupIntent } = await stripe.confirmCardSetup(clientSecret, {
+        payment_method: { card: cardNumber },
       });
 
       if (error) {
@@ -102,9 +98,7 @@ const SetupForm: React.FC<SetupFormProps> = ({ userId, onSuccess, onError }) => 
         </div>
       </div>
 
-      <div className={styles.paymentElementWrapper}>
-        <PaymentElement />
-      </div>
+      <CardFields />
 
       <div className={styles.trialInfo}>
         <p>
@@ -207,15 +201,7 @@ const StripeCardSetupForm: React.FC<StripeCardSetupFormProps> = ({
   }
 
   return (
-    <Elements
-      stripe={stripePromise}
-      options={{
-        clientSecret,
-        appearance: {
-          theme: 'stripe',
-        },
-      }}
-    >
+    <Elements stripe={stripePromise}>
       <SetupForm
         userId={userId}
         clientSecret={clientSecret}
