@@ -316,12 +316,9 @@ const Onboarding = () => {
       ]);
       if (membershipsError) console.error('Memberships seed error:', membershipsError);
 
-      // 8. Link profile to gym and set as admin
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ gym_id: createdGymId, role: 'admin' })
-        .eq('id', userId);
-      if (profileError) throw profileError;
+      // The owner's profile is linked to the gym and granted the 'admin' role
+      // server-side by the grant_owner_admin trigger on gym creation. We can't
+      // do it here because RLS forbids a user from changing their own role.
 
       setSlug(gymData.slug);
       setLaunched(true);
