@@ -127,10 +127,10 @@ const PlatformHome = () => {
           <div className={styles.heroMain}>
           <p className={styles.heroEyebrow}>Built for <span className={styles.heroEyebrowHighlight}>gym owners</span>, by <span className={styles.heroEyebrowHighlight}>athletes</span></p>
           <h1 className={styles.heroHeadline}>
-            A web app built for gym owners
+            We help you run your gym
           </h1>
           <p className={styles.heroSubtitle}>
-            Everything you need to run your gym at scale.
+            Everything a gym needs, inside your own website.
           </p>
           <div className={styles.heroCtas}>
             <Link to="/signup" className={styles.ctaPrimary}>
