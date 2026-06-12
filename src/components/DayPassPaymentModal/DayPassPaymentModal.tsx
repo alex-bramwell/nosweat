@@ -6,7 +6,7 @@ import { stripePromise } from '../../lib/stripe';
 import { createDayPassPaymentIntent, pollForBooking } from '../../services/dayPassService';
 import { formatCurrency, handlePaymentError } from '../../utils/payment';
 import { useRegistrationIntent } from '../../contexts/RegistrationContext';
-import { useTenant } from '../../contexts/TenantContext';
+import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import styles from './DayPassPaymentModal.module.scss';
 
 interface DayPassPaymentModalProps {
@@ -129,6 +129,7 @@ const DayPassPaymentModal: React.FC<DayPassPaymentModalProps> = ({
   userId,
 }) => {
   const navigate = useNavigate();
+  const gymPath = useGymPath();
   const { clearIntent } = useRegistrationIntent();
   const { gym } = useTenant();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -165,7 +166,7 @@ const DayPassPaymentModal: React.FC<DayPassPaymentModalProps> = ({
     setIsSuccess(true);
     setTimeout(() => {
       clearIntent();
-      navigate(`/booking-confirmation?bookingId=${bookingId}`);
+      navigate(gymPath(`/booking-confirmation?bookingId=${bookingId}`));
       onClose();
     }, 2000);
   };

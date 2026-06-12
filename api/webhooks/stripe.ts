@@ -141,15 +141,19 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     const userId = paymentIntent.metadata.user_id;
     const classId = paymentIntent.metadata.class_id;
 
-    // Update payment status
-    await supabase
+    // Update payment status and grab its id so we can link the booking to it.
+    // The frontend (pollForBooking) matches the new booking by payment_id, so
+    // this link is required for the confirmation screen to ever appear.
+    const { data: payment } = await supabase
       .from('payments')
       .update({ status: 'succeeded' })
-      .eq('stripe_payment_intent_id', paymentIntent.id);
+      .eq('stripe_payment_intent_id', paymentIntent.id)
+      .select('id')
+      .single();
 
     // Create booking. gym_id is carried in the payment metadata and is required:
     // bookings has a NOT NULL gym_id on a freshly-provisioned database.
-    await supabase.from('bookings').insert({
+    const { error: bookingError } = await supabase.from('bookings').insert({
       user_id: userId,
       gym_id: paymentIntent.metadata.gym_id || null,
       class_id: classId,
@@ -159,7 +163,21 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       coach_name: paymentIntent.metadata.coach_name || null,
       booking_type: 'day-pass',
       status: 'confirmed',
+      payment_id: payment?.id ?? null,
     });
+
+    // Don't fake success: a swallowed insert error means the customer paid but
+    // has no booking, and the frontend poll will time out. Surface it instead of
+    // logging "booking created" unconditionally. We don't rethrow (a duplicate of
+    // an existing active booking is effectively idempotent, and rethrowing would
+    // trigger endless Stripe webhook retries).
+    if (bookingError) {
+      console.error(
+        `Booking insert failed for user ${userId}, payment intent ${paymentIntent.id}: ${bookingError.message}`
+      );
+      await captureError(bookingError, { endpoint: 'webhooks/stripe', step: 'create-booking' });
+      return;
+    }
 
     console.log(`Payment succeeded and booking created for user ${userId}`);
   } catch (error) {
