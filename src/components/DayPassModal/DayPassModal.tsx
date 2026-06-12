@@ -5,7 +5,7 @@ import { Modal, Button, CardFields } from '../common';
 import { stripePromise } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import { formatCurrency, handlePaymentError } from '../../utils/payment';
-import { useTenant } from '../../contexts/TenantContext';
+import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import type { User } from '@supabase/supabase-js';
 import type { ClassSchedule } from '../../types';
 import { createDayPassPaymentIntent, pollForBooking } from '../../services/dayPassService';
@@ -89,6 +89,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
 const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const gymPath = useGymPath();
   const { schedule, gym } = useTenant();
 
   const weeklySchedule: ClassSchedule[] = useMemo(() =>
@@ -220,7 +221,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
   const handleSuccess = (bookingId: string) => {
     setCurrentStep('success');
     setTimeout(() => {
-      navigate(`/booking-confirmation?bookingId=${bookingId}`);
+      navigate(gymPath(`/booking-confirmation?bookingId=${bookingId}`));
       onClose();
     }, 2000);
   };
