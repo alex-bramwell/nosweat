@@ -29,6 +29,7 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { DEMO_GYM_SLUG } from '../config/demo';
 import type {
   Gym,
   GymBranding,
@@ -140,6 +141,9 @@ interface TenantContextType {
   error: string | null;
   isPlatformSite: boolean;
   isCustomDomain: boolean;
+  /** The showcase gym: public pages fall back to sample content so every
+   *  feature is visible to prospective owners exploring it. */
+  isDemoGym: boolean;
   tenantSlug: string | null;
 
   // Actions
@@ -364,6 +368,7 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children, initia
     error,
     isPlatformSite,
     isCustomDomain: customDomain,
+    isDemoGym: tenantSlug === DEMO_GYM_SLUG,
     tenantSlug,
     refreshTenant: fetchTenantData,
   };

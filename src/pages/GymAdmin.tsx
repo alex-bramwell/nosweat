@@ -8,12 +8,10 @@ import GymSettings from '../components/GymAdmin/GymSettings';
 import DataManagement from '../components/GymAdmin/DataManagement';
 import GettingStarted from '../components/GymAdmin/GettingStarted';
 import PlatformBillingPanel from '../components/GymAdmin/PlatformBillingPanel';
+import { DEMO_GYM_SLUG } from '../config/demo';
 import styles from './GymAdmin.module.scss';
 
 type Tab = 'features' | 'settings' | 'billing' | 'data';
-
-// A fully-seeded example gym owners can explore to understand the features.
-const EXAMPLE_GYM_SLUG = 'comet';
 
 const GymAdmin: React.FC = () => {
   const { user } = useAuth();
@@ -52,7 +50,7 @@ const GymAdmin: React.FC = () => {
             <p>Manage your gym's features, settings, and data</p>
           </div>
           <a
-            href={`/gym/${EXAMPLE_GYM_SLUG}`}
+            href={`/gym/${DEMO_GYM_SLUG}`}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.exampleSiteButton}

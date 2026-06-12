@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { useGymPath } from '../contexts/TenantContext';
+import { useGymPath, useTenant } from '../contexts/TenantContext';
 import { Section, Container, Card, Button, EmptyStatePreview } from '../components/common';
 import { coachProfileService, type CoachProfile } from '../services/coachProfileService';
 import { SERVICE_LABELS } from '../services/coachServicesService';
@@ -11,6 +11,7 @@ import styles from './Coaches.module.scss';
 const Coaches = () => {
   const location = useLocation();
   const gymPath = useGymPath();
+  const { isDemoGym } = useTenant();
   const isBuilder = useIsBuilder();
   const coachRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [coaches, setCoaches] = useState<CoachProfile[]>([]);
@@ -191,6 +192,10 @@ const Coaches = () => {
                 {SAMPLE_COACHES.map((coach, index) => renderCoachCard(coach, index))}
               </div>
             </EmptyStatePreview>
+          ) : isDemoGym ? (
+            <div className={styles.coachesGrid}>
+              {SAMPLE_COACHES.map((coach, index) => renderCoachCard(coach, index))}
+            </div>
           ) : (
             <div className={styles.loading}>
               <p>No coaches available at this time.</p>
