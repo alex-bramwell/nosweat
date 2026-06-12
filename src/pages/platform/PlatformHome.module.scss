@@ -603,6 +603,7 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
 
 .roleToggleTab {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -617,8 +618,11 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   transition: color 250ms ease;
   font-family: inherit;
 
+  @media (max-width: 768px) {
+    padding: 0.85rem 0.5rem;
+  }
+
   @media (max-width: 640px) {
-    padding: 0.75rem 0.5rem;
     border-radius: 8px;
   }
 
@@ -631,9 +635,14 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   font-size: 0.95rem;
   font-weight: 600;
   color: $platform-text-muted;
+  white-space: nowrap;
   transition: color 250ms ease;
 
-  @media (max-width: 640px) {
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 400px) {
     font-size: 0.8rem;
   }
 }
@@ -645,8 +654,10 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   transition: color 250ms ease;
   white-space: nowrap;
 
-  @media (max-width: 640px) {
-    font-size: 0.65rem;
+  // Drop the supporting copy on tablet/mobile, where three columns of it can't
+  // fit; the short labels (Gym Owners / Coaches / Members) carry the meaning.
+  @media (max-width: 768px) {
+    display: none;
   }
 }
 
