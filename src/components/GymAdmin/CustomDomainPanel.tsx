@@ -61,7 +61,19 @@ const CustomDomainPanel: React.FC<CustomDomainPanelProps> = ({ gymName, onNameCh
   const [showSetupModal, setShowSetupModal] = useState(false);
   const [setupPath, setSetupPath] = useState<SetupPath>('choose');
   const [editingSlug, setEditingSlug] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+  const [autoChecking, setAutoChecking] = useState(false);
   const slugInputRef = useRef<HTMLInputElement>(null);
+
+  const copyToClipboard = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(value);
+      setTimeout(() => setCopied((c) => (c === value ? null : c)), 1500);
+    } catch {
+      /* clipboard unavailable - ignore */
+    }
+  };
 
   // Track whether the user has manually edited the slug
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
@@ -70,6 +82,9 @@ const CustomDomainPanel: React.FC<CustomDomainPanelProps> = ({ gymName, onNameCh
 
   const status = gym?.custom_domain_status || 'none';
   const currentDomain = gym?.custom_domain;
+  const dnsName = currentDomain
+    ? dnsInfo?.name || (currentDomain.startsWith('www.') ? 'www' : '@')
+    : '';
 
   // Auto-update slug from name if user hasn't manually edited it
   const handleNameChange = (name: string) => {
@@ -148,6 +163,29 @@ const CustomDomainPanel: React.FC<CustomDomainPanelProps> = ({ gymName, onNameCh
       setLoading(false);
     }
   }, [gym, refreshTenant]);
+
+  // While DNS is pending, quietly re-check every 20s so the owner doesn't have
+  // to keep clicking - the panel flips to Active on its own once DNS propagates.
+  useEffect(() => {
+    const gymId = gym?.id;
+    if (status !== 'pending' || !gymId) {
+      setAutoChecking(false);
+      return;
+    }
+    setAutoChecking(true);
+    const id = setInterval(async () => {
+      try {
+        const data = await authFetch<{ verified: boolean }>('/api/domains/verify', { gymId });
+        if (data.verified) {
+          setDnsInfo(null);
+          await refreshTenant();
+        }
+      } catch {
+        /* keep trying on the next tick */
+      }
+    }, 20000);
+    return () => clearInterval(id);
+  }, [status, gym?.id, refreshTenant]);
 
   const handleRemove = useCallback(async () => {
     if (!gym) return;
@@ -338,20 +376,37 @@ const CustomDomainPanel: React.FC<CustomDomainPanelProps> = ({ gymName, onNameCh
 
         {/* DNS instructions */}
         {(status === 'pending' || status === 'failed') && currentDomain && (
-          <InfoBox title="DNS Configuration Required">
-            <p>Add the following DNS record with your domain registrar:</p>
+          <InfoBox title="One step left: add this record at your domain provider">
+            <p>
+              Sign in wherever you bought your domain (GoDaddy, Namecheap, Cloudflare, etc.), open its{' '}
+              <strong>DNS settings</strong>, and add this one record:
+            </p>
             <div className={styles.dnsGrid}>
-              <span className={styles.dnsLabel}>Type:</span>
+              <span className={styles.dnsLabel}>Type</span>
               <span className={styles.dnsValue}>CNAME</span>
-              <span className={styles.dnsLabel}>Name:</span>
+              <span className={styles.dnsLabel}>Name</span>
               <span className={styles.dnsValue}>
-                {dnsInfo?.name || (currentDomain.startsWith('www.') ? 'www' : '@')}
+                {dnsName}
+                <button type="button" className={styles.dnsCopyBtn} onClick={() => copyToClipboard(dnsName)}>
+                  {copied === dnsName ? 'Copied' : 'Copy'}
+                </button>
               </span>
-              <span className={styles.dnsLabel}>Value:</span>
-              <span className={styles.dnsValue}>cname.vercel-dns.com</span>
+              <span className={styles.dnsLabel}>Value</span>
+              <span className={styles.dnsValue}>
+                cname.vercel-dns.com
+                <button type="button" className={styles.dnsCopyBtn} onClick={() => copyToClipboard('cname.vercel-dns.com')}>
+                  {copied === 'cname.vercel-dns.com' ? 'Copied' : 'Copy'}
+                </button>
+              </span>
             </div>
-            <p style={{ marginTop: '0.75rem', fontSize: '0.8125rem' }}>
-              DNS changes can take up to 48 hours to propagate. Click "Check Verification" once your records are configured.
+            <p className={styles.dnsHint}>
+              <strong>Name</strong> is the part before your domain - use <strong>www</strong> for
+              www.yourgym.com, or <strong>@</strong> for the bare yourgym.com.
+            </p>
+            <p className={styles.autoCheckNote}>
+              {autoChecking
+                ? "Checking automatically - this page switches to Active on its own once your domain is ready. It usually takes a few minutes (occasionally up to 48 hours). Feel free to carry on with the rest of your dashboard meanwhile."
+                : 'Once the record is saved, click "Check now" below.'}
             </p>
           </InfoBox>
         )}
@@ -382,7 +437,7 @@ const CustomDomainPanel: React.FC<CustomDomainPanelProps> = ({ gymName, onNameCh
           {(status === 'pending' || status === 'failed') && (
             <div className={styles.connectActions}>
               <Button onClick={handleVerify} disabled={loading}>
-                {loading ? 'Checking...' : 'Check Verification'}
+                {loading ? 'Checking...' : 'Check now'}
               </Button>
               <Button onClick={handleRemove} disabled={loading} variant="outline">
                 Remove Domain
@@ -462,12 +517,21 @@ const CustomDomainPanel: React.FC<CustomDomainPanelProps> = ({ gymName, onNameCh
 
           {setupPath === 'existing-domain' && (
             <>
+              <InfoBox variant="accent" className={styles.modalTip}>
+                <p>
+                  <strong>Good to know:</strong> this points your web address (like www.mygym.com) at the
+                  gym site you build here in noSweat. Your old website's pages aren't moved over - you keep
+                  editing your site in the Site Builder, and anyone visiting your domain sees it. Your
+                  nosweat.fitness address keeps working too.
+                </p>
+              </InfoBox>
+
               <InfoBox title="How it works">
                 <ol>
                   <li>Enter your domain below</li>
-                  <li>We will give you a DNS record to add with your domain registrar</li>
-                  <li>Add the DNS record (usually a CNAME pointing to our servers)</li>
-                  <li>Come back and click "Check Verification" - once confirmed, your domain is live</li>
+                  <li>We give you one DNS record to add where you bought your domain</li>
+                  <li>Add the record (we show you exactly what to paste, with Copy buttons)</li>
+                  <li>That's it - we check automatically and your domain goes live on its own</li>
                 </ol>
               </InfoBox>
 
