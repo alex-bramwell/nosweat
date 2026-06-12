@@ -1,4 +1,4 @@
-interface LocalizedPrice {
+export interface LocalizedPrice {
   symbol: string;
   amount: string;
   formatted: string;
@@ -73,4 +73,11 @@ export function getLocalizedPrice(): LocalizedPrice {
 
   // Default GBP
   return PRICES.GBP;
+}
+
+// Resolve the plan a gym is actually billed on from its stored Stripe price id,
+// so the billing panel shows the real price regardless of the viewer's locale.
+export function getPriceByStripeId(priceId: string | null | undefined): LocalizedPrice | null {
+  if (!priceId) return null;
+  return Object.values(PRICES).find((p) => p.stripePriceId === priceId) ?? null;
 }

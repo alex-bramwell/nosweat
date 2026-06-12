@@ -1,0 +1,55 @@
+@use '../../styles/variables' as *;
+
+.billingPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panelHeader {
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 0.25rem 0;
+  }
+
+  p {
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+}
+
+.feedbackSuccess,
+.feedbackError {
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.feedbackSuccess {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: var(--color-text);
+}
+
+.feedbackError {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: var(--color-text);
+}
+
+.confirmText {
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
