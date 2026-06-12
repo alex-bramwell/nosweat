@@ -60,9 +60,28 @@ const ROLE_FEATURES: Record<RoleTab, RoleFeature[]> = {
   ],
 };
 
+const SETUP_STEPS = [
+  {
+    title: 'Create your website',
+    detail:
+      'Pick your colours, fonts, logo and content in the visual site builder - no code, no designers. Your branded gym site is live in about a minute.',
+  },
+  {
+    title: 'Add your staff',
+    detail:
+      'Invite your coaches and front-desk team, choose what each can do, and let them manage classes, programming and the schedule.',
+  },
+  {
+    title: 'Add your members',
+    detail:
+      'Bring your members on board, take bookings and card payments, run trials and day passes, and track attendance from day one.',
+  },
+];
+
 const PlatformHome = () => {
   const price = useMemo(() => getLocalizedPrice(), []);
   const [activeRole, setActiveRole] = useState<RoleTab>('owners');
+  const [openStep, setOpenStep] = useState(0);
   const [contactOpen, setContactOpen] = useState(false);
   const touchStartX = useRef(0);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -105,6 +124,7 @@ const PlatformHome = () => {
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroContent}>
+          <div className={styles.heroMain}>
           <p className={styles.heroEyebrow}>Built for <span className={styles.heroEyebrowHighlight}>gym owners</span>, by <span className={styles.heroEyebrowHighlight}>athletes</span></p>
           <h1 className={styles.heroHeadline}>
             A web app built for gym owners
@@ -138,6 +158,33 @@ const PlatformHome = () => {
               <span className={styles.heroStatValue}>0</span>
               <span className={styles.heroStatLabel}>Other apps needed</span>
             </div>
+          </div>
+          </div>
+
+          <div className={styles.heroSteps}>
+            <p className={styles.heroStepsTitle}>Up and running in 3 steps</p>
+            {SETUP_STEPS.map((step, i) => {
+              const open = openStep === i;
+              return (
+                <div key={step.title} className={`${styles.heroStep} ${open ? styles.heroStepOpen : ''}`}>
+                  <button
+                    type="button"
+                    className={styles.heroStepHeader}
+                    onClick={() => setOpenStep(open ? -1 : i)}
+                    aria-expanded={open}
+                  >
+                    <span className={styles.heroStepNumber}>{i + 1}</span>
+                    <span className={styles.heroStepLabel}>{step.title}</span>
+                    <svg className={styles.heroStepChevron} viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
+                  </button>
+                  <div className={styles.heroStepBody}>
+                    <p>{step.detail}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
