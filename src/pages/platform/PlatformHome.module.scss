@@ -82,6 +82,132 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   margin: 0 auto;
   position: relative;
   z-index: 2;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3.5rem;
+  align-items: center;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+.heroMain {
+  min-width: 0;
+}
+
+// ── Hero "3 steps" accordion panel (right column) ──
+.heroSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.5rem;
+  border-radius: 18px;
+  background: rgba($platform-bg, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid $platform-border-bright;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+
+  // On mobile, drop the heavy panel chrome so it reads as a simple list.
+  @media (max-width: 900px) {
+    text-align: left;
+  }
+}
+
+.heroStepsTitle {
+  margin: 0 0 0.4rem 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: $platform-text-muted;
+}
+
+.heroStep {
+  border-radius: 12px;
+  border: 1px solid $platform-border;
+  background: $platform-glass-bg;
+  overflow: hidden;
+  transition: border-color 200ms ease, background 200ms ease;
+
+  &:hover {
+    border-color: rgba($platform-accent, 0.4);
+  }
+}
+
+.heroStepHeader {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  background: none;
+  border: none;
+  color: $platform-text;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.heroStepNumber {
+  flex-shrink: 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
+}
+
+.heroStepLabel {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.heroStepChevron {
+  flex-shrink: 0;
+  color: $platform-text-muted;
+  transition: transform 250ms ease;
+}
+
+.heroStepBody {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 280ms ease, opacity 220ms ease, padding 280ms ease;
+  padding: 0 1rem 0 3.5rem;
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: $platform-text-muted;
+  }
+}
+
+.heroStepOpen {
+  border-color: rgba($platform-accent, 0.45);
+  background: rgba($platform-accent, 0.06);
+
+  .heroStepChevron {
+    transform: rotate(180deg);
+    color: $platform-text;
+  }
+
+  .heroStepBody {
+    max-height: 200px;
+    opacity: 1;
+    padding-top: 0.1rem;
+    padding-bottom: 1rem;
+  }
 }
 
 .heroEyebrow {
