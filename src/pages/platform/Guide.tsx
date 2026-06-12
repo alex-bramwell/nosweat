@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { GUIDE_SECTIONS, GUIDE_NAV_ITEMS, PHOTO_DIVIDERS } from '../../components/guide/guideData';
 import { ILLUSTRATIONS } from '../../components/guide/GuideIllustrations';
 import { getLocalizedPrice } from '../../utils/pricing';
+import { SectionNav } from '../../components/common';
+import { useScrollSpy } from '../../hooks/useScrollSpy';
 import styles from './Guide.module.scss';
 
 const HERO_IMAGE =
@@ -19,44 +21,7 @@ const CTA_IMAGE =
 
 const Guide = () => {
   const price = useMemo(() => getLocalizedPrice(), []);
-  const [activeSection, setActiveSection] = useState<string>(GUIDE_SECTIONS[0].id);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
-
-  // IntersectionObserver to highlight the active section in the sticky nav
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        }
-      },
-      { rootMargin: '-20% 0px -60% 0px', threshold: 0 },
-    );
-
-    const refs = sectionRefs.current;
-    for (const id of Object.keys(refs)) {
-      const el = refs[id];
-      if (el) observer.observe(el);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  const assignRef = useCallback(
-    (id: string) => (el: HTMLElement | null) => {
-      sectionRefs.current[id] = el;
-    },
-    [],
-  );
-
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-    setSidebarOpen(false);
-  };
+  const { activeId, assignRef, scrollTo } = useScrollSpy(GUIDE_NAV_ITEMS.map((i) => i.id));
 
   return (
     <div className={styles.guidePage}>
@@ -85,51 +50,7 @@ const Guide = () => {
       </section>
 
       {/* ── Floating Sidebar Nav ── */}
-      {sidebarOpen && (
-        <div
-          className={styles.sidebarBackdrop}
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      <nav className={`${styles.guideSidebar} ${sidebarOpen ? styles.guideSidebarOpen : ''}`}>
-        <div className={styles.sidebarHeader}>
-          <span className={styles.sidebarTitle}>Sections</span>
-          <button
-            className={styles.sidebarClose}
-            onClick={() => setSidebarOpen(false)}
-            aria-label="Close navigation"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-        {GUIDE_NAV_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => scrollTo(item.id)}
-            className={`${styles.sidebarLink} ${activeSection === item.id ? styles.sidebarLinkActive : ''}`}
-          >
-            <span className={styles.sidebarDot} />
-            <span className={styles.sidebarLabel}>{item.label}</span>
-          </button>
-        ))}
-      </nav>
-
-      {/* Toggle button — always visible */}
-      <button
-        className={`${styles.sidebarToggle} ${sidebarOpen ? styles.sidebarToggleHidden : ''}`}
-        onClick={() => setSidebarOpen(true)}
-        aria-label="Open section navigation"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <line x1="3" y1="12" x2="21" y2="12" />
-          <line x1="3" y1="18" x2="21" y2="18" />
-        </svg>
-      </button>
+      <SectionNav items={GUIDE_NAV_ITEMS} activeId={activeId} onSelect={scrollTo} />
 
       {/* ── Section Groups ── */}
       {GUIDE_SECTIONS.map((section, sectionIdx) => {

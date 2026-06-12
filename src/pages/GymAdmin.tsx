@@ -12,6 +12,9 @@ import styles from './GymAdmin.module.scss';
 
 type Tab = 'features' | 'settings' | 'billing' | 'data';
 
+// A fully-seeded example gym owners can explore to understand the features.
+const EXAMPLE_GYM_SLUG = 'comet';
+
 const GymAdmin: React.FC = () => {
   const { user } = useAuth();
   const { gym } = useTenant();
@@ -44,8 +47,25 @@ const GymAdmin: React.FC = () => {
     <div className={styles.gymAdmin}>
       <Container>
         <div className={styles.adminPageHeader}>
-          <h1>Dashboard</h1>
-          <p>Manage your gym's features, settings, and data</p>
+          <div className={styles.adminPageHeaderText}>
+            <h1>Dashboard</h1>
+            <p>Manage your gym's features, settings, and data</p>
+          </div>
+          <a
+            href={`/gym/${EXAMPLE_GYM_SLUG}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.exampleSiteButton}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+            <span>
+              See an example gym
+              <small>Explore a fully built site to see what's possible</small>
+            </span>
+          </a>
         </div>
 
         {/* Site Builder Launch Card */}
