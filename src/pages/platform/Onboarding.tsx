@@ -494,6 +494,17 @@ const Onboarding = () => {
                   )}
                 </div>
 
+                <div className={styles.domainNote}>
+                  <p className={styles.domainNoteTitle}>Already have a website or your own web address?</p>
+                  <p className={styles.domainNoteBody}>
+                    You'll build your new gym site right here in noSweat - that's how you unlock online
+                    bookings, payments, schedules and member management, so your existing website can't be
+                    carried over. The good news: you can keep your current web address. After you finish
+                    setting up, connect a domain like <strong>www.yourgym.com</strong> in
+                    Settings -&gt; Custom Domain and it will point visitors straight to your new noSweat site.
+                  </p>
+                </div>
+
                 <div className={styles.onboardingFieldGroup}>
                   <label htmlFor="addressLine1" className={styles.onboardingFieldLabel}>
                     Address

@@ -314,6 +314,46 @@
 
 .dnsValue {
   color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.dnsCopyBtn {
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(var(--color-accent-rgb), 0.4);
+  background: rgba(var(--color-accent-rgb), 0.12);
+  color: var(--color-accent);
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(var(--color-accent-rgb), 0.22);
+  }
+}
+
+.dnsHint {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+
+  strong {
+    color: var(--color-text);
+  }
+}
+
+.autoCheckNote {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  line-height: 1.5;
 }
 
 // ── Modal helpers ─────────────────────────────────
