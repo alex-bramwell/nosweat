@@ -12,7 +12,7 @@ import styles from './WOD.module.scss';
 
 const WOD = () => {
   const { user } = useAuth();
-  const { gym, stats } = useTenant();
+  const { gym, stats, isDemoGym } = useTenant();
   const isBuilder = useIsBuilder();
   const [workout, setWorkout] = useState<WorkoutDB | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -112,8 +112,11 @@ const WOD = () => {
     );
   }
 
-  const displayWorkout = workout ?? (isBuilder ? SAMPLE_WORKOUT : null);
-  const displayStats = stats.length > 0 ? stats : (isBuilder ? SAMPLE_STATS : []);
+  // On the demo gym, show the sample workout to visitors too (as real content,
+  // not the builder "Preview" ghost) so the feature is visible.
+  const showSample = isBuilder || isDemoGym;
+  const displayWorkout = workout ?? (showSample ? SAMPLE_WORKOUT : null);
+  const displayStats = stats.length > 0 ? stats : (showSample ? SAMPLE_STATS : []);
   const isSample = !workout && isBuilder;
 
   if (!displayWorkout) {
