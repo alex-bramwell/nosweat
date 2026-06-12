@@ -107,12 +107,10 @@ const PlatformHome = () => {
         <div className={styles.heroContent}>
           <p className={styles.heroEyebrow}>Built for <span className={styles.heroEyebrowHighlight}>gym owners</span>, by <span className={styles.heroEyebrowHighlight}>athletes</span></p>
           <h1 className={styles.heroHeadline}>
-            Stop juggling five apps to run one gym
+            A web app built for gym owners
           </h1>
           <p className={styles.heroSubtitle}>
-            Booking, programming, payments, coaching tools, and your
-            public website. Finally in a single platform. Branded to you.
-            Live in 60 seconds.
+            Everything you need to run your gym at scale.
           </p>
           <div className={styles.heroCtas}>
             <Link to="/signup" className={styles.ctaPrimary}>
