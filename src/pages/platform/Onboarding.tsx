@@ -316,12 +316,9 @@ const Onboarding = () => {
       ]);
       if (membershipsError) console.error('Memberships seed error:', membershipsError);
 
-      // 8. Link profile to gym and set as admin
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ gym_id: createdGymId, role: 'admin' })
-        .eq('id', userId);
-      if (profileError) throw profileError;
+      // The owner's profile is linked to the gym and granted the 'admin' role
+      // server-side by the grant_owner_admin trigger on gym creation. We can't
+      // do it here because RLS forbids a user from changing their own role.
 
       setSlug(gymData.slug);
       setLaunched(true);
@@ -495,6 +492,17 @@ const Onboarding = () => {
                       ✗ This URL is already taken. Try another.
                     </p>
                   )}
+                </div>
+
+                <div className={styles.domainNote}>
+                  <p className={styles.domainNoteTitle}>Already have a website or your own web address?</p>
+                  <p className={styles.domainNoteBody}>
+                    You'll build your new gym site right here in noSweat - that's how you unlock online
+                    bookings, payments, schedules and member management, so your existing website can't be
+                    carried over. The good news: you can keep your current web address. After you finish
+                    setting up, connect a domain like <strong>www.yourgym.com</strong> in
+                    Settings -&gt; Custom Domain and it will point visitors straight to your new noSweat site.
+                  </p>
                 </div>
 
                 <div className={styles.onboardingFieldGroup}>
