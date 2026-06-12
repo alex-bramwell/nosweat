@@ -15,6 +15,8 @@ export { DetailGrid } from './DetailGrid';
 export { SelectableCard } from './SelectableCard';
 export { InfoBox } from './InfoBox';
 export { CardFields } from './CardFields/CardFields';
+export { SectionNav } from './SectionNav/SectionNav';
+export type { SectionNavItem } from './SectionNav/SectionNav';
 
 export type { ButtonProps } from './Button';
 export type { CardProps } from './Card';

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTenant } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
+import { SectionNav } from '../common';
 
 interface ChecklistItem {
   id: string;
@@ -29,36 +30,11 @@ const GettingStarted: React.FC<GettingStartedProps> = ({ onNavigateTab }) => {
       ]);
 
       setItems([
-        {
-          id: 'logo',
-          label: 'Upload your logo',
-          completed: !!branding.logo_url,
-          tab: 'branding',
-        },
-        {
-          id: 'colors',
-          label: 'Customise your brand colours',
-          completed: branding.color_accent !== '#111111',
-          tab: 'branding',
-        },
-        {
-          id: 'schedule',
-          label: 'Add your first class',
-          completed: (scheduleResult.count ?? 0) > 0,
-          tab: 'settings',
-        },
-        {
-          id: 'coach',
-          label: 'Invite a coach',
-          completed: (coachResult.count ?? 0) > 0,
-          tab: 'settings',
-        },
-        {
-          id: 'member',
-          label: 'Add your first member',
-          completed: (memberResult.count ?? 0) > 0,
-          tab: 'settings',
-        },
+        { id: 'logo', label: 'Upload your logo', completed: !!branding.logo_url, tab: 'branding' },
+        { id: 'colors', label: 'Customise your brand colours', completed: branding.color_accent !== '#111111', tab: 'branding' },
+        { id: 'schedule', label: 'Add your first class', completed: (scheduleResult.count ?? 0) > 0, tab: 'settings' },
+        { id: 'coach', label: 'Invite a coach', completed: (coachResult.count ?? 0) > 0, tab: 'settings' },
+        { id: 'member', label: 'Add your first member', completed: (memberResult.count ?? 0) > 0, tab: 'settings' },
       ]);
       setLoading(false);
     };
@@ -71,78 +47,20 @@ const GettingStarted: React.FC<GettingStartedProps> = ({ onNavigateTab }) => {
 
   if (loading || allDone) return null;
 
-  return (
-    <div style={{
-      background: 'rgba(255, 255, 255, 0.03)',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      borderRadius: '16px',
-      padding: '1.5rem',
-      marginBottom: '2rem',
-    }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1rem',
-      }}>
-        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: 0 }}>Getting Started</h2>
-        <span style={{
-          fontSize: '0.85rem',
-          color: '#8b8b9e',
-          fontWeight: 500,
-        }}>
-          {completedCount}/{items.length} complete
-        </span>
-      </div>
+  const handleSelect = (id: string) => {
+    const item = items.find((i) => i.id === id);
+    if (item && !item.completed) onNavigateTab(item.tab);
+  };
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        {items.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onNavigateTab(item.tab)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              padding: '0.75rem',
-              background: item.completed ? 'rgba(16, 185, 129, 0.06)' : 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid',
-              borderColor: item.completed ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.06)',
-              borderRadius: '10px',
-              cursor: item.completed ? 'default' : 'pointer',
-              textAlign: 'left',
-              color: 'inherit',
-              font: 'inherit',
-              width: '100%',
-              transition: 'all 150ms ease',
-            }}
-          >
-            <span style={{
-              width: '1.5rem',
-              height: '1.5rem',
-              borderRadius: '50%',
-              border: item.completed ? 'none' : '2px solid rgba(255, 255, 255, 0.15)',
-              background: item.completed ? '#10b981' : 'transparent',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '0.75rem',
-              color: '#ffffff',
-              flexShrink: 0,
-            }}>
-              {item.completed && '✓'}
-            </span>
-            <span style={{
-              fontSize: '0.9rem',
-              fontWeight: 500,
-              color: item.completed ? '#8b8b9e' : '#f0f0f5',
-              textDecoration: item.completed ? 'line-through' : 'none',
-            }}>
-              {item.label}
-            </span>
-          </button>
-        ))}
-      </div>
+  return (
+    <div style={{ marginBottom: '2rem' }}>
+      <SectionNav
+        variant="inline"
+        title="Getting Started"
+        meta={`${completedCount}/${items.length} complete`}
+        items={items.map((i) => ({ id: i.id, label: i.label, done: i.completed }))}
+        onSelect={handleSelect}
+      />
     </div>
   );
 };
