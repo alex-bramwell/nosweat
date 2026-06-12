@@ -27,6 +27,11 @@ export interface Gym {
   trial_end_date: string | null;
   trial_member_limit: number;
   trial_status: 'none' | 'active' | 'expired' | 'converted';
+  stripe_subscription_id: string | null;
+  stripe_price_id: string | null;
+  subscription_status: string | null;
+  subscription_cancel_at_period_end: boolean;
+  subscription_current_period_end: string | null;
   custom_domain: string | null;
   custom_domain_status: 'none' | 'pending' | 'verified' | 'failed';
   custom_domain_verified_at: string | null;

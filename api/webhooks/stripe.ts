@@ -234,6 +234,15 @@ async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent) {
   }
 }
 
+// The current period end moved from the top-level subscription onto the
+// subscription item in recent Stripe API versions. Read the item first and fall
+// back to the legacy top-level field, returning an ISO string (or null).
+function subscriptionPeriodEnd(subscription: Stripe.Subscription): string | null {
+  const item = subscription.items?.data?.[0] as { current_period_end?: number } | undefined;
+  const ts = item?.current_period_end ?? subscription.current_period_end;
+  return ts ? new Date(ts * 1000).toISOString() : null;
+}
+
 // TWO-SIDED MARKETPLACE: This handler processes subscriptions for both sides:
 //   1. Gym memberships (payment_type: 'gym-membership') - a member subscribing
 //      to a gym. Payment flows through Stripe Connect to the gym's account.
@@ -279,15 +288,29 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const priceId = subscription.items.data[0]?.price?.id;
 
-    await supabase
-      .from('profiles')
+    // The platform subscription belongs to the gym the owner runs. Record it on
+    // the gym and convert it out of its trial. The previous code wrote these
+    // fields to `profiles`, where the columns do not exist, so the update
+    // silently failed and the subscription was never recorded anywhere.
+    const { error: gymUpdateError } = await supabase
+      .from('gyms')
       .update({
-        membership_type: 'platform_subscriber',
         stripe_subscription_id: subscriptionId,
         stripe_price_id: priceId || null,
-        subscription_status: 'active',
+        subscription_status: subscription.status,
+        subscription_cancel_at_period_end: subscription.cancel_at_period_end,
+        subscription_current_period_end: subscriptionPeriodEnd(subscription),
+        trial_status: 'converted',
       })
-      .eq('id', userId);
+      .eq('owner_id', userId);
+
+    if (gymUpdateError) {
+      console.error(
+        `Failed to record platform subscription for owner ${userId}, subscription ${subscriptionId}: ${gymUpdateError.message}`
+      );
+      await captureError(gymUpdateError, { endpoint: 'webhooks/stripe', step: 'platform-subscription' });
+      return;
+    }
 
     // Ensure stripe customer record exists
     const customerId = session.customer as string;
@@ -392,6 +415,32 @@ async function handleAccountUpdated(account: Stripe.Account) {
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   try {
+    // Platform subscription (gym owner paying noSweat): sync status, the
+    // pending-cancellation flag and the period end so the billing panel can
+    // show "access until <date>".
+    const { data: gym } = await supabase
+      .from('gyms')
+      .select('id')
+      .eq('stripe_subscription_id', subscription.id)
+      .single();
+
+    if (gym) {
+      await supabase
+        .from('gyms')
+        .update({
+          subscription_status: subscription.status,
+          subscription_cancel_at_period_end: subscription.cancel_at_period_end,
+          subscription_current_period_end: subscriptionPeriodEnd(subscription),
+        })
+        .eq('id', gym.id);
+
+      console.log(
+        `Platform subscription ${subscription.id} updated — status: ${subscription.status}, cancel_at_period_end: ${subscription.cancel_at_period_end}`
+      );
+      return;
+    }
+
+    // Otherwise it is a gym-membership subscription (member paying a gym).
     const { data: memberSub } = await supabase
       .from('member_subscriptions')
       .select('id')
@@ -399,7 +448,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       .single();
 
     if (!memberSub) {
-      console.log(`No member subscription found for ${subscription.id}`);
+      console.log(`No subscription found for ${subscription.id}`);
       return;
     }
 
@@ -432,6 +481,29 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   try {
+    // Platform subscription reaching its end (after a cancel-at-period-end, or a
+    // failed renewal): the gym loses paid access and reverts to expired so the
+    // trial/upgrade prompts come back.
+    const { data: gym } = await supabase
+      .from('gyms')
+      .select('id')
+      .eq('stripe_subscription_id', subscription.id)
+      .single();
+
+    if (gym) {
+      await supabase
+        .from('gyms')
+        .update({
+          subscription_status: 'canceled',
+          subscription_cancel_at_period_end: false,
+          trial_status: 'expired',
+        })
+        .eq('id', gym.id);
+
+      console.log(`Platform subscription ${subscription.id} ended — gym ${gym.id} reverted to expired`);
+      return;
+    }
+
     await supabase
       .from('member_subscriptions')
       .update({ status: 'cancelled' })

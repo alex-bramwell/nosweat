@@ -7,9 +7,10 @@ import FeatureTogglePanel from '../components/GymAdmin/FeatureTogglePanel';
 import GymSettings from '../components/GymAdmin/GymSettings';
 import DataManagement from '../components/GymAdmin/DataManagement';
 import GettingStarted from '../components/GymAdmin/GettingStarted';
+import PlatformBillingPanel from '../components/GymAdmin/PlatformBillingPanel';
 import styles from './GymAdmin.module.scss';
 
-type Tab = 'features' | 'settings' | 'data';
+type Tab = 'features' | 'settings' | 'billing' | 'data';
 
 const GymAdmin: React.FC = () => {
   const { user } = useAuth();
@@ -100,6 +101,18 @@ const GymAdmin: React.FC = () => {
             <span>Settings</span>
           </button>
           <button
+            className={`${styles.adminTab} ${activeTab === 'billing' ? styles.adminTabActive : ''}`}
+            onClick={() => setActiveTab('billing')}
+          >
+            <span className={styles.adminTabIcon}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <path d="M2 10h20" />
+              </svg>
+            </span>
+            <span>Billing</span>
+          </button>
+          <button
             className={`${styles.adminTab} ${activeTab === 'data' ? styles.adminTabActive : ''}`}
             onClick={() => setActiveTab('data')}
           >
@@ -117,6 +130,7 @@ const GymAdmin: React.FC = () => {
         <div className={styles.adminTabContent}>
           {activeTab === 'features' && <FeatureTogglePanel />}
           {activeTab === 'settings' && <GymSettings />}
+          {activeTab === 'billing' && <PlatformBillingPanel />}
           {activeTab === 'data' && <DataManagement />}
         </div>
       </Container>
