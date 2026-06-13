@@ -3,6 +3,7 @@ import { Button } from '../common';
 import { ServicePaymentForm } from '../ServicePaymentForm';
 import { coachServicesService, type CoachService, SERVICE_LABELS, type ServiceType } from '../../services/coachServicesService';
 import { supabase } from '../../lib/supabase';
+import { authFetch } from '../../lib/auth';
 import styles from './ServiceBookingModal.module.scss';
 
 interface ServiceBookingModalProps {
@@ -95,36 +96,16 @@ export const ServiceBookingModal = ({
       const endHour = (parseInt(hours, 10) + 1).toString().padStart(2, '0');
       const endTime = `${endHour}:00`;
 
-      // Get session for auth
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Please log in to book a service');
-      }
-
       // Create payment intent
-      const response = await fetch('/api/payments/create-service-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          serviceId: service.id,
-          coachId: service.coachId,
-          memberId,
-          bookingDate,
-          startTime,
-          endTime,
-          notes: notes || undefined,
-        }),
+      const data = await authFetch<PaymentData>('/api/payments/create-service-payment-intent', {
+        serviceId: service.id,
+        coachId: service.coachId,
+        memberId,
+        bookingDate,
+        startTime,
+        endTime,
+        notes: notes || undefined,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to initialize payment');
-      }
-
-      const data = await response.json();
       setPaymentData(data);
       setStep('payment');
     } catch (err) {
