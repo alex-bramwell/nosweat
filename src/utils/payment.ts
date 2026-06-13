@@ -1,5 +1,10 @@
 import type { StripeError } from '@stripe/stripe-js';
 
+// Day-pass price, single source of truth. PENCE is the amount charged via Stripe;
+// LABEL is the short display form (no decimals) used in marketing/info copy.
+export const DAY_PASS_PRICE_PENCE = 1000;
+export const DAY_PASS_PRICE_LABEL = '£10';
+
 export function formatCurrency(amount: number, currency: string = 'gbp'): string {
   const formatter = new Intl.NumberFormat('en-GB', {
     style: 'currency',
