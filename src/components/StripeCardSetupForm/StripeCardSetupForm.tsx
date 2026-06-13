@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Elements, CardNumberElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Button, CardFields } from '../common';
+import { authFetch } from '../../lib/auth';
 import { stripePromise } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import { handlePaymentError } from '../../utils/payment';
@@ -152,26 +153,7 @@ const StripeCardSetupForm: React.FC<StripeCardSetupFormProps> = ({
     setIsLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
-
-      const response = await fetch('/api/payments/create-setup-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ userId, gymId }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create setup intent');
-      }
-
-      const data = await response.json();
+      const data = await authFetch<{ clientSecret: string }>('/api/payments/create-setup-intent', { userId, gymId });
       setClientSecret(data.clientSecret);
     } catch (err) {
       onError(handlePaymentError(err));
