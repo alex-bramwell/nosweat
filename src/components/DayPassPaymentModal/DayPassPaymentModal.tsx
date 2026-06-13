@@ -4,7 +4,7 @@ import { Elements, CardNumberElement, useStripe, useElements } from '@stripe/rea
 import { Modal, Button, CardFields } from '../common';
 import { stripePromise } from '../../lib/stripe';
 import { createDayPassPaymentIntent, pollForBooking } from '../../services/dayPassService';
-import { formatCurrency, handlePaymentError } from '../../utils/payment';
+import { formatCurrency, handlePaymentError, DAY_PASS_PRICE_PENCE } from '../../utils/payment';
 import { useRegistrationIntent } from '../../contexts/RegistrationContext';
 import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import styles from './DayPassPaymentModal.module.scss';
@@ -103,7 +103,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       <div className={styles.priceSection}>
         <div className={styles.priceRow}>
           <span className={styles.priceLabel}>Day Pass:</span>
-          <span className={styles.priceValue}>{formatCurrency(1000, 'gbp')}</span>
+          <span className={styles.priceValue}>{formatCurrency(DAY_PASS_PRICE_PENCE, 'gbp')}</span>
         </div>
       </div>
 
@@ -116,7 +116,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         fullWidth
         disabled={!stripe || isProcessing}
       >
-        {isProcessing ? 'Processing...' : `Pay ${formatCurrency(1000, 'gbp')} and Book Class`}
+        {isProcessing ? 'Processing...' : `Pay ${formatCurrency(DAY_PASS_PRICE_PENCE, 'gbp')} and Book Class`}
       </Button>
     </form>
   );

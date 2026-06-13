@@ -3,7 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useGymPath } from '../contexts/TenantContext';
 import { Section, Container, Button } from '../components/common';
 import { supabase } from '../lib/supabase';
-import { formatCurrency } from '../utils/payment';
+import { formatCurrency, DAY_PASS_PRICE_PENCE } from '../utils/payment';
 import type { Booking } from '../types';
 import styles from './BookingConfirmation.module.scss';
 
@@ -177,7 +177,7 @@ const BookingConfirmation: React.FC = () => {
             <div className={styles.bookingCardFooter}>
               <div className={styles.receiptRow}>
                 <span>Day Pass</span>
-                <span className={styles.amount}>{formatCurrency(1000, 'gbp')}</span>
+                <span className={styles.amount}>{formatCurrency(DAY_PASS_PRICE_PENCE, 'gbp')}</span>
               </div>
             </div>
           </div>
