@@ -15,6 +15,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { stripe } from '../lib/stripe.js';
 import { supabase } from '../lib/supabase.js';
 import { assertMethod, verifyAuth } from '../lib/auth.js';
+import { checkRateLimit } from '../lib/rateLimit.js';
+import { captureError } from '../lib/sentry.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
@@ -28,6 +30,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const user = await verifyAuth(req, res);
     if (!user) return;
+
+    if (!(await checkRateLimit(`cancel-subscription:${user.id}`, 10, 60))) {
+      return res.status(429).json({ error: 'Too many requests. Please slow down and try again shortly.' });
+    }
 
     // Look up the subscription and verify it belongs to the caller.
     const { data: memberSub, error: subError } = await supabase
@@ -78,6 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error) {
     console.error('Error cancelling subscription:', error);
+    await captureError(error, { endpoint: 'subscriptions/cancel-subscription' });
     return res.status(500).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error',

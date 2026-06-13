@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabase } from '../lib/supabase.js';
 import { verifyAuth, assertMethod } from '../lib/auth.js';
+import { captureError } from '../lib/sentry.js';
 
 const VERCEL_API_TOKEN = process.env.VERCEL_API_TOKEN!;
 const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID!;
@@ -131,6 +132,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (err) {
     console.error('Domain add error:', err);
+    await captureError(err, { endpoint: 'domains/add' });
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
