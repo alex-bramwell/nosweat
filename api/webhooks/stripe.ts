@@ -243,6 +243,12 @@ function subscriptionPeriodEnd(subscription: Stripe.Subscription): string | null
   return ts ? new Date(ts * 1000).toISOString() : null;
 }
 
+function subscriptionPeriodStart(subscription: Stripe.Subscription): string | null {
+  const item = subscription.items?.data?.[0] as { current_period_start?: number } | undefined;
+  const ts = item?.current_period_start ?? subscription.current_period_start;
+  return ts ? new Date(ts * 1000).toISOString() : null;
+}
+
 // TWO-SIDED MARKETPLACE: This handler processes subscriptions for both sides:
 //   1. Gym memberships (payment_type: 'gym-membership') - a member subscribing
 //      to a gym. Payment flows through Stripe Connect to the gym's account.
@@ -466,13 +472,13 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       .from('member_subscriptions')
       .update({
         status: statusMap[subscription.status] || subscription.status,
-        current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        current_period_start: subscriptionPeriodStart(subscription),
+        current_period_end: subscriptionPeriodEnd(subscription),
         cancel_at_period_end: subscription.cancel_at_period_end,
       })
       .eq('stripe_subscription_id', subscription.id);
 
-    console.log(`Member subscription ${subscription.id} updated — status: ${subscription.status}`);
+    console.log(`Member subscription ${subscription.id} updated - status: ${subscription.status}`);
   } catch (error) {
     console.error('Error handling customer.subscription.updated:', error);
     throw error;
