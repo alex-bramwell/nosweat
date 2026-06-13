@@ -49,10 +49,9 @@ const GymAdmin: React.FC = () => {
             <h1>Dashboard</h1>
             <p>Manage your gym's features, settings, and data</p>
           </div>
-          <a
-            href={`/gym/${DEMO_GYM_SLUG}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => window.open(`/gym/${DEMO_GYM_SLUG}`, '_blank')}
             className={styles.exampleSiteButton}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -63,7 +62,7 @@ const GymAdmin: React.FC = () => {
               See an example gym
               <small>Explore a fully built site to see what's possible</small>
             </span>
-          </a>
+          </button>
         </div>
 
         {/* Site Builder Launch Card */}

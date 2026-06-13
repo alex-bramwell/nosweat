@@ -14,8 +14,10 @@ import styles from './Schedule.module.scss';
 const Schedule = () => {
   const { isAuthenticated, user, isLoading } = useAuth();
   const { intent, updateStep } = useRegistrationIntent();
-  const { schedule } = useTenant();
+  const { schedule, isDemoGym } = useTenant();
   const isBuilder = useIsBuilder();
+  // On the demo gym, class names are genericised to "Group Training".
+  const groupLabel = isDemoGym ? 'Group Training' : 'CrossFit';
 
   const displaySchedule = schedule.length > 0 ? schedule : (isBuilder ? SAMPLE_SCHEDULE : []);
   const isSample = schedule.length === 0 && isBuilder;
@@ -98,8 +100,8 @@ const Schedule = () => {
 
   const getBadgeForClassType = (classType: string): { badge: string; label: string } => {
     const normalizedType = classType.toLowerCase().trim();
-    if (normalizedType.includes('crossfit')) {
-      return { badge: styles.badgeCF, label: 'CF' };
+    if (normalizedType.includes('crossfit') || normalizedType.includes('group training')) {
+      return { badge: styles.badgeCF, label: isDemoGym ? 'GT' : 'CF' };
     }
     if (normalizedType.includes('open gym')) {
       return { badge: styles.badgeOG, label: 'OG' };
@@ -200,7 +202,7 @@ const Schedule = () => {
             <div className={styles.legend}>
               <div className={styles.legendItem}>
                 <span className={`${styles.legendColor} ${styles.legendCrossFit}`}></span>
-                <span>CrossFit</span>
+                <span>{groupLabel}</span>
               </div>
               <div className={styles.legendItem}>
                 <span className={`${styles.legendColor} ${styles.legendOpenGym}`}></span>
