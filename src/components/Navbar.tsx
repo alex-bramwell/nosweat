@@ -9,6 +9,36 @@ import { supabase } from '../lib/supabase';
 import { AuthModal } from './AuthModal';
 import styles from './Navbar.module.scss';
 
+// The gym logo / name block, shared by the desktop bar and the mobile menu.
+const NavBrand: React.FC<{ className: string; onClick: () => void }> = ({ className, onClick }) => {
+  const { gym } = useTenant();
+  const branding = useBrandingWithOverrides();
+  const { user } = useAuth();
+  const gymPath = useGymPath();
+  return (
+    <Link to={gymPath('/')} className={className} onClick={onClick}>
+      {branding.logo_url ? (
+        <img src={branding.logo_url} alt={gym?.name || 'Gym'} className={styles.navBrandImage} />
+      ) : user?.role === 'admin' ? (
+        <div className={styles.navBrandPlaceholder}>Upload your logo</div>
+      ) : (
+        <>
+          <div className={styles.navBrandName}>{gym?.name || 'Gym'}</div>
+          <div className={styles.navBrandSubtitle}>Affiliate</div>
+        </>
+      )}
+    </Link>
+  );
+};
+
+const LogoutIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+    <polyline points="16 17 21 12 16 7"></polyline>
+    <line x1="21" y1="12" x2="9" y2="12"></line>
+  </svg>
+);
+
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { gym } = useTenant();
@@ -164,18 +194,7 @@ const Navbar: React.FC = () => {
   return (
     <div className={`${styles.navbarWrapper} ${navStyle === 'standard' ? styles.navbarStandard : ''}`}>
       <nav className={`${styles.navBar} ${isScrolled ? styles.navBarScrolled : ''}`}>
-        <Link to={gymPath('/')} className={styles.navBrand} onClick={closeMenu}>
-          {branding.logo_url ? (
-            <img src={branding.logo_url} alt={gym?.name || 'Gym'} className={styles.navBrandImage} />
-          ) : user?.role === 'admin' ? (
-            <div className={styles.navBrandPlaceholder}>Upload your logo</div>
-          ) : (
-            <>
-              <div className={styles.navBrandName}>{gym?.name || 'Gym'}</div>
-              <div className={styles.navBrandSubtitle}>Affiliate</div>
-            </>
-          )}
-        </Link>
+        <NavBrand className={styles.navBrand} onClick={closeMenu} />
 
         {/* Hamburger Button - Mobile Only */}
         <button
@@ -371,11 +390,7 @@ const Navbar: React.FC = () => {
                       }
                     }}
                   >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                      <polyline points="16 17 21 12 16 7"></polyline>
-                      <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
+                    <LogoutIcon />
                     Sign Out
                   </button>
                 </div>
@@ -397,18 +412,7 @@ const Navbar: React.FC = () => {
       {/* Full Screen Mobile Menu */}
       <div className={`${styles.mobileMenu} ${isMenuOpen ? styles.mobileMenuOpen : ''}`}>
         <div className={styles.mobileMenuHeader}>
-          <Link to={gymPath('/')} className={styles.mobileNavBrand} onClick={closeMenu}>
-            {branding.logo_url ? (
-              <img src={branding.logo_url} alt={gym?.name || 'Gym'} className={styles.navBrandImage} />
-            ) : user?.role === 'admin' ? (
-              <div className={styles.navBrandPlaceholder}>Upload your logo</div>
-            ) : (
-              <>
-                <div className={styles.navBrandName}>{gym?.name || 'Gym'}</div>
-                <div className={styles.navBrandSubtitle}>Affiliate</div>
-              </>
-            )}
-          </Link>
+          <NavBrand className={styles.mobileNavBrand} onClick={closeMenu} />
           <button
             className={styles.mobileMenuClose}
             onClick={closeMenu}
@@ -528,11 +532,7 @@ const Navbar: React.FC = () => {
                     }
                   }}
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                  </svg>
+                  <LogoutIcon />
                   Sign Out
                 </button>
               </>
