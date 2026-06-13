@@ -9,6 +9,7 @@ import { useTenant } from '../contexts/TenantContext';
 import { useIsBuilder } from '../contexts/BrandingOverrideContext';
 import { SAMPLE_SCHEDULE } from '../data/sampleContent';
 import type { ClassSchedule } from '../types';
+import { DAY_PASS_PRICE_LABEL } from '../utils/payment';
 import styles from './Schedule.module.scss';
 
 const Schedule = () => {
@@ -147,7 +148,7 @@ const Schedule = () => {
                     <line x1="12" y1="16" x2="12" y2="12"/>
                     <line x1="12" y1="8" x2="12.01" y2="8"/>
                   </svg>
-                  <span className={styles.infoText}>Select a class to book your day pass (£10)</span>
+                  <span className={styles.infoText}>Select a class to book your day pass ({DAY_PASS_PRICE_LABEL})</span>
                 </span>
               </div>
             )}
@@ -163,7 +164,7 @@ const Schedule = () => {
                   </span>
                 </span>
                 <Button variant="primary" size="compact" onClick={handleContinueToPayment}>
-                  Continue to Payment (£10)
+                  Continue to Payment ({DAY_PASS_PRICE_LABEL})
                 </Button>
               </div>
             )}

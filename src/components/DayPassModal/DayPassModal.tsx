@@ -4,7 +4,7 @@ import { Elements, CardNumberElement, useStripe, useElements } from '@stripe/rea
 import { Modal, Button, CardFields } from '../common';
 import { stripePromise } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
-import { formatCurrency, handlePaymentError } from '../../utils/payment';
+import { formatCurrency, handlePaymentError, DAY_PASS_PRICE_PENCE, DAY_PASS_PRICE_LABEL } from '../../utils/payment';
 import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import type { User } from '@supabase/supabase-js';
 import type { ClassSchedule } from '../../types';
@@ -81,7 +81,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         fullWidth
         disabled={!stripe || isProcessing}
       >
-        {isProcessing ? 'Processing...' : `Pay ${formatCurrency(1000, 'gbp')} and Book Class`}
+        {isProcessing ? 'Processing...' : `Pay ${formatCurrency(DAY_PASS_PRICE_PENCE, 'gbp')} and Book Class`}
       </Button>
     </form>
   );
@@ -397,7 +397,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
         {currentStep === 'class-selection' && (
           <div className={styles.dayPassStepBody}>
             <h2 className={styles.dayPassTitle}>Select Your Class</h2>
-            <p className={styles.dayPassSubtitle}>Choose from the next 7 days (£10 per class)</p>
+            <p className={styles.dayPassSubtitle}>Choose from the next 7 days ({DAY_PASS_PRICE_LABEL} per class)</p>
 
             {/* Class Type Toggle */}
             <div className={styles.classTypeToggle}>
@@ -555,7 +555,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
               )}
               <div className={styles.detailRow}>
                 <span className={styles.dayPassDetailLabel}>Price:</span>
-                <span className={styles.priceValue}>{formatCurrency(1000, 'gbp')}</span>
+                <span className={styles.priceValue}>{formatCurrency(DAY_PASS_PRICE_PENCE, 'gbp')}</span>
               </div>
             </div>
 
