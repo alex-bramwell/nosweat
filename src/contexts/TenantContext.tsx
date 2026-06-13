@@ -126,6 +126,16 @@ function buildFeatureMap(features: GymFeature[]): Record<FeatureKey, boolean> {
 // -------------------------------------------------------------------
 // Context interface
 // -------------------------------------------------------------------
+// The demo gym is presented as a generic "My New Gym" so prospective owners
+// see it as their own potential site, not a specific CrossFit box. Strip the
+// gym-specific and CrossFit branding from text shown on its public pages.
+const DEMO_NAME = 'My New Gym';
+const demoText = (s: string | null | undefined): string =>
+  (s ?? '')
+    .replace(/CrossFit Comet/gi, DEMO_NAME)
+    .replace(/CrossFit/gi, 'Group Training')
+    .replace(/\bComet\b/gi, DEMO_NAME);
+
 interface TenantContextType {
   // Gym data
   gym: Gym | null;
@@ -265,7 +275,12 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children, initia
         return;
       }
 
-      setGym(gymData as Gym);
+      const isDemo = tenantSlug === DEMO_GYM_SLUG;
+      setGym(
+        (isDemo
+          ? { ...gymData, name: DEMO_NAME, contact_email: 'hello@mynewgym.com' }
+          : gymData) as Gym
+      );
       const gymId = gymData.id;
 
       // 2. PERFORMANCE: Fetch all related data in parallel. A single Promise.all
@@ -317,7 +332,19 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children, initia
       // Merge branding with defaults - spread order means DB values override
       // defaults, so gyms only need to set the fields they want to customize.
       if (brandingResult.data) {
-        setBranding({ ...DEFAULT_BRANDING, ...brandingResult.data } as GymBranding);
+        const merged = { ...DEFAULT_BRANDING, ...brandingResult.data } as GymBranding;
+        if (isDemo) {
+          merged.hero_headline = demoText(merged.hero_headline);
+          merged.hero_subtitle = demoText(merged.hero_subtitle);
+          merged.cta_headline = demoText(merged.cta_headline);
+          merged.cta_subtitle = demoText(merged.cta_subtitle);
+          if (merged.about_mission) merged.about_mission = demoText(merged.about_mission);
+          if (merged.about_philosophy) merged.about_philosophy = demoText(merged.about_philosophy);
+          if (merged.about_facility) merged.about_facility = demoText(merged.about_facility);
+          // Drop the CrossFit-affiliate trademark line on the generic demo.
+          merged.footer_text = null;
+        }
+        setBranding(merged);
       }
 
       // Set features
@@ -327,12 +354,20 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children, initia
 
       // Set programs
       if (programsResult.data) {
-        setPrograms(programsResult.data as GymProgram[]);
+        const progs = programsResult.data as GymProgram[];
+        setPrograms(
+          isDemo
+            ? progs.map((p) => ({ ...p, title: demoText(p.title), description: demoText(p.description) }))
+            : progs
+        );
       }
 
       // Set schedule
       if (scheduleResult.data) {
-        setSchedule(scheduleResult.data as GymScheduleEntry[]);
+        const sched = scheduleResult.data as GymScheduleEntry[];
+        setSchedule(
+          isDemo ? sched.map((s) => ({ ...s, class_name: demoText(s.class_name) })) : sched
+        );
       }
 
       // Set stats
