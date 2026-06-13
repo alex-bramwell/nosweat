@@ -1,11 +1,13 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTenant } from '../contexts/TenantContext';
 import { BrandingOverrideOnly } from '../contexts/BrandingOverrideContext';
 import { COLOR_MAP, hexToRgb, loadGoogleFont } from '../hooks/useTenantTheme';
 import type { GymBranding } from '../types/tenant';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import BuilderSidebar from './BuilderSidebar/BuilderSidebar';
+import DemoSiteBanner from './common/DemoSiteBanner/DemoSiteBanner';
 import styles from './Layout.module.scss';
 
 interface LayoutProps {
@@ -59,16 +61,20 @@ function useRootPreviewTheme(draftBranding: Partial<GymBranding> | null) {
 
 const Layout = ({ children }: LayoutProps) => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const { isDemoGym } = useTenant();
+  // On the demo/example gym, show the clean visitor experience (with the demo
+  // banner) rather than the owner's editing sidebar.
+  const showBuilder = user?.role === 'admin' && !isDemoGym;
   const [draftBranding, setDraftBranding] = useState<Partial<GymBranding> | null>(null);
 
-  useRootPreviewTheme(isAdmin ? draftBranding : null);
+  useRootPreviewTheme(showBuilder ? draftBranding : null);
 
   return (
-    <div className={`${styles.layout} ${isAdmin ? styles.withSidebar : ''}`}>
-      {isAdmin && <BuilderSidebar onDraftChange={setDraftBranding} />}
+    <div className={`${styles.layout} ${showBuilder ? styles.withSidebar : ''}`}>
+      {showBuilder && <BuilderSidebar onDraftChange={setDraftBranding} />}
       <div className={styles.pageArea}>
-        <BrandingOverrideOnly overrides={isAdmin ? draftBranding : null}>
+        {isDemoGym && <DemoSiteBanner />}
+        <BrandingOverrideOnly overrides={showBuilder ? draftBranding : null}>
           <Navbar />
           <main className={styles.layoutContent}>
             {children}
