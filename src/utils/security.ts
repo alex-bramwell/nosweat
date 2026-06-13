@@ -203,3 +203,39 @@ export const detectXSS = (input: string): boolean => {
 
   return xssPatterns.some(pattern => pattern.test(input));
 };
+
+export interface PasswordRequirements {
+  minLength: boolean;
+  hasUppercase: boolean;
+  hasLowercase: boolean;
+  hasNumber: boolean;
+  hasSpecial: boolean;
+}
+
+/** Checks a password against the minimum requirements (>=12 chars + character classes). */
+export const validatePassword = (pwd: string): PasswordRequirements => ({
+  minLength: pwd.length >= 12,
+  hasUppercase: /[A-Z]/.test(pwd),
+  hasLowercase: /[a-z]/.test(pwd),
+  hasNumber: /[0-9]/.test(pwd),
+  hasSpecial: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd),
+});
+
+/** Scores a password 0-100 and returns a label + colour for the strength meter. */
+export const calculatePasswordStrength = (pwd: string): { strength: number; label: string; color: string } => {
+  if (!pwd) return { strength: 0, label: '', color: '' };
+
+  let strength = 0;
+  if (pwd.length >= 8) strength += 20;
+  if (pwd.length >= 12) strength += 20;
+  if (pwd.length >= 16) strength += 10;
+  if (/[a-z]/.test(pwd)) strength += 10;
+  if (/[A-Z]/.test(pwd)) strength += 10;
+  if (/[0-9]/.test(pwd)) strength += 10;
+  if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd)) strength += 15;
+  if (pwd.length >= 20) strength += 5;
+
+  if (strength < 40) return { strength, label: 'Weak', color: '#ff4444' };
+  if (strength < 70) return { strength, label: 'Medium', color: '#ffaa00' };
+  return { strength, label: 'Strong', color: '#22c55e' };
+};

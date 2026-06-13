@@ -5,7 +5,7 @@ import { useRegistrationIntent } from '../../contexts/RegistrationContext';
 import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { Modal, Button, modalStyles as m } from '../common';
-import { checkPasswordCompromised, sanitizeInput, isValidEmail } from '../../utils/security';
+import { checkPasswordCompromised, sanitizeInput, isValidEmail, validatePassword, calculatePasswordStrength } from '../../utils/security';
 import styles from './AuthModal.module.scss';
 
 interface AuthModalProps {
@@ -45,16 +45,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   const [isSessionReady, setIsSessionReady] = useState(false);
 
   // Password strength validation
-  const validatePassword = (pwd: string) => {
-    return {
-      minLength: pwd.length >= 12,
-      hasUppercase: /[A-Z]/.test(pwd),
-      hasLowercase: /[a-z]/.test(pwd),
-      hasNumber: /[0-9]/.test(pwd),
-      hasSpecial: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd),
-    };
-  };
-
   // Sync mode state with initialMode prop when it changes or modal opens
   useEffect(() => {
     if (isOpen) {
@@ -94,25 +84,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   const isPasswordValid = passwordRequirements
     ? Object.values(passwordRequirements).every(Boolean)
     : true;
-
-  // Password strength calculator
-  const calculatePasswordStrength = (pwd: string): { strength: number; label: string; color: string } => {
-    if (!pwd) return { strength: 0, label: '', color: '' };
-
-    let strength = 0;
-    if (pwd.length >= 8) strength += 20;
-    if (pwd.length >= 12) strength += 20;
-    if (pwd.length >= 16) strength += 10;
-    if (/[a-z]/.test(pwd)) strength += 10;
-    if (/[A-Z]/.test(pwd)) strength += 10;
-    if (/[0-9]/.test(pwd)) strength += 10;
-    if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd)) strength += 15;
-    if (pwd.length >= 20) strength += 5;
-
-    if (strength < 40) return { strength, label: 'Weak', color: '#ff4444' };
-    if (strength < 70) return { strength, label: 'Medium', color: '#ffaa00' };
-    return { strength, label: 'Strong', color: '#22c55e' };
-  };
 
   const passwordStrength = (mode === 'signup' || mode === 'changePassword') ? calculatePasswordStrength(password) : null;
 

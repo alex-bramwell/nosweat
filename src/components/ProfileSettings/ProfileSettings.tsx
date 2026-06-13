@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTenant } from '../../contexts/TenantContext';
 import { Button, Card } from '../common';
-import { checkPasswordCompromised } from '../../utils/security';
+import { checkPasswordCompromised, validatePassword, calculatePasswordStrength } from '../../utils/security';
 import styles from './ProfileSettings.module.scss';
 
 const ProfileSettings: React.FC = () => {
@@ -26,36 +26,6 @@ const ProfileSettings: React.FC = () => {
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [isCheckingPassword, setIsCheckingPassword] = useState(false);
   const [passwordCompromised, setPasswordCompromised] = useState<{ compromised: boolean; count?: number } | null>(null);
-
-  // Password strength validation
-  const validatePassword = (pwd: string) => {
-    return {
-      minLength: pwd.length >= 12,
-      hasUppercase: /[A-Z]/.test(pwd),
-      hasLowercase: /[a-z]/.test(pwd),
-      hasNumber: /[0-9]/.test(pwd),
-      hasSpecial: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd),
-    };
-  };
-
-  // Password strength calculator (matching AuthModal)
-  const calculatePasswordStrength = (pwd: string): { strength: number; label: string; color: string } => {
-    if (!pwd) return { strength: 0, label: '', color: '' };
-
-    let strength = 0;
-    if (pwd.length >= 8) strength += 20;
-    if (pwd.length >= 12) strength += 20;
-    if (pwd.length >= 16) strength += 10;
-    if (/[a-z]/.test(pwd)) strength += 10;
-    if (/[A-Z]/.test(pwd)) strength += 10;
-    if (/[0-9]/.test(pwd)) strength += 10;
-    if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd)) strength += 15;
-    if (pwd.length >= 20) strength += 5;
-
-    if (strength < 40) return { strength, label: 'Weak', color: '#ff4444' };
-    if (strength < 70) return { strength, label: 'Medium', color: '#ffaa00' };
-    return { strength, label: 'Strong', color: '#22c55e' };
-  };
 
   const passwordRequirements = validatePassword(newPassword);
   const passwordStrength = newPassword ? calculatePasswordStrength(newPassword) : null;
