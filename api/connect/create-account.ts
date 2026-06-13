@@ -2,6 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { stripe } from '../lib/stripe.js';
 import { supabase } from '../lib/supabase.js';
 import { verifyAuth, assertMethod } from '../lib/auth.js';
+import { checkRateLimit } from '../lib/rateLimit.js';
+import { captureError } from '../lib/sentry.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
@@ -15,6 +17,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const user = await verifyAuth(req, res);
     if (!user) return;
+
+    if (!(await checkRateLimit(`connect-create-account:${user.id}`, 10, 60))) {
+      return res.status(429).json({ error: 'Too many requests. Please slow down and try again shortly.' });
+    }
 
     // Verify user is gym owner
     const { data: gym, error: gymError } = await supabase
@@ -74,6 +80,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error) {
     console.error('Error creating Connect account:', error);
+    await captureError(error, { endpoint: 'connect/create-account' });
     return res.status(500).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error',
