@@ -20,7 +20,7 @@
   font-size: 2.5rem;
   font-weight: 800;
   margin: 0 0 0.5rem 0;
-  background: linear-gradient(135deg, var(--primary) 0%, #ff7043 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #ff7043 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -28,7 +28,7 @@
 
 .coachViewSubtitle {
   font-size: 1rem;
-  color: var(--text-secondary);
+  color: var(--color-muted);
   margin: 0;
 }
 
@@ -36,7 +36,7 @@
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
   padding-bottom: 0;
 
   @media (max-width: 768px) {
@@ -48,7 +48,7 @@
   padding: 1rem 1.5rem;
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: var(--color-muted);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -57,11 +57,11 @@
   white-space: nowrap;
 
   &:hover {
-    color: var(--text-primary);
+    color: var(--color-text);
   }
 
   &.tabActive {
-    color: var(--primary);
+    color: var(--color-accent);
 
     &::after {
       content: '';
@@ -70,7 +70,7 @@
       left: 0;
       right: 0;
       height: 2px;
-      background: var(--primary);
+      background: var(--color-accent);
     }
   }
 }
@@ -98,7 +98,7 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
-  color: var(--text-primary);
+  color: var(--color-text);
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -113,7 +113,7 @@
 
   p {
     margin: 0.5rem 0;
-    color: var(--text-secondary);
+    color: var(--color-muted);
   }
 }
 
@@ -121,7 +121,7 @@
   display: inline-block;
   padding: 0.25rem 0.75rem;
   background: rgba(255, 82, 82, 0.1);
-  color: var(--primary);
+  color: var(--color-accent);
   border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -133,7 +133,7 @@
   padding: 1rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  border-left: 3px solid var(--primary);
+  border-left: 3px solid var(--color-accent);
 
   p {
     margin: 0.25rem 0;
@@ -145,7 +145,7 @@
 .bookingCount {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--color-muted);
   background: rgba(255, 255, 255, 0.05);
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -184,7 +184,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary);
+  background: var(--color-accent);
   color: white;
   border-radius: 50%;
   font-size: 0.75rem;
@@ -202,12 +202,12 @@
 
 .bookingName {
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--color-text);
 }
 
 .bookingEmail {
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: var(--color-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -215,12 +215,12 @@
 
 .bookingTime {
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: var(--color-muted);
   flex-shrink: 0;
 }
 
 .noBookings {
-  color: var(--text-secondary);
+  color: var(--color-muted);
   font-style: italic;
   margin: 0;
   padding: 1rem 0;
@@ -236,14 +236,14 @@
 
 .capacityFill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), #ff7043);
+  background: linear-gradient(90deg, var(--color-accent), #ff7043);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
 
 .capacityText {
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: var(--color-muted);
   margin: 0.5rem 0 0;
   text-align: center;
 }
@@ -251,7 +251,7 @@
 .workoutBookings {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-border);
 }
 
 .bookingsHeader {
@@ -268,7 +268,7 @@
   background: var(--bg-surface);
   border-radius: 12px;
   padding: 1.5rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
 }
 
 .calendarHeader {
@@ -303,7 +303,7 @@
   text-align: center;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--color-muted);
   padding: 0.5rem;
   text-transform: uppercase;
 }
@@ -339,7 +339,7 @@
 
   &.calendarDayToday {
     background: rgba(255, 82, 82, 0.1);
-    border: 1px solid var(--primary);
+    border: 1px solid var(--color-accent);
   }
 
   &.calendarDayOutOfMonth {
@@ -358,11 +358,11 @@
 .calendarDayNumber {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--color-muted);
   margin-bottom: 0.25rem;
 
   .calendarDayToday & {
-    color: var(--primary);
+    color: var(--color-accent);
     font-weight: 700;
   }
 }
@@ -399,7 +399,7 @@
 .workoutCardTitle {
   display: block;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -414,7 +414,7 @@
 
 .workoutCardType {
   font-size: 0.6rem;
-  color: var(--text-secondary);
+  color: var(--color-muted);
 }
 
 .muscleGroupIndicators {
@@ -496,7 +496,7 @@
 
 .weekSummaryEmpty {
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: var(--color-muted);
   font-style: italic;
 }
 
@@ -523,18 +523,18 @@
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: var(--text-secondary);
+  color: var(--color-muted);
   cursor: pointer;
   padding: 0;
   line-height: 1;
 
   &:hover {
-    color: var(--text-primary);
+    color: var(--color-text);
   }
 }
 
 .workoutDate {
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: var(--color-muted);
   margin: 0 0 0.5rem 0;
 }
