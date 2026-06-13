@@ -9,11 +9,11 @@
   width: 100%;
   padding: 0.75rem 1rem;
   padding-right: 3.5rem;
-  border: 2px solid var(--border-color);
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   font-size: 1rem;
   background: rgba(13, 13, 13, 0.8);
-  color: var(--text-primary);
+  color: var(--color-text);
   text-align: left;
   cursor: pointer;
   transition: all 0.2s;
@@ -23,13 +23,13 @@
   position: relative;
 
   &:hover {
-    border-color: var(--primary);
+    border-color: var(--color-accent);
     background: rgba(13, 13, 13, 0.95);
   }
 
   &:focus {
     outline: none;
-    border-color: var(--primary);
+    border-color: var(--color-accent);
     box-shadow: 0 0 0 3px rgba(255, 82, 82, 0.15);
   }
 
@@ -94,11 +94,11 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
+    background: var(--color-border);
     border-radius: 4px;
 
     &:hover {
-      background: var(--primary);
+      background: var(--color-accent);
     }
   }
 }

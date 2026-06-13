@@ -33,6 +33,13 @@
   --color-header-rgb: 0, 0, 0;
   --color-footer-rgb: 17, 17, 17;
 
+  // Status colors (theme-independent) + a standard hairline border token.
+  --color-success: #22c55e;  --color-success-rgb: 34, 197, 94;
+  --color-error:   #ef4444;  --color-error-rgb:   239, 68, 68;
+  --color-warning: #f59e0b;  --color-warning-rgb: 245, 158, 11;
+  --color-info: var(--color-accent);
+  --color-border: rgba(var(--color-text-rgb), 0.12);
+
   // Typography (overridden per-tenant)
   --font-header: 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;
