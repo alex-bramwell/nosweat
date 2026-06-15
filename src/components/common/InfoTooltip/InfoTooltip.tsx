@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useDismiss } from '../../../hooks/useDismiss';
 import styles from './InfoTooltip.module.scss';
 
 export interface InfoTooltipProps {
@@ -133,36 +134,14 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({ content, className = '
     }
   }, [isVisible, isMobile]);
 
+  useDismiss([tooltipRef, triggerRef], () => setIsVisible(false), isVisible);
+
+  // Close the tooltip if the page scrolls (the portal position would go stale).
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        tooltipRef.current &&
-        triggerRef.current &&
-        !tooltipRef.current.contains(event.target as Node) &&
-        !triggerRef.current.contains(event.target as Node)
-      ) {
-        setIsVisible(false);
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsVisible(false);
-      }
-    };
-
-    if (isVisible) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleEscape);
-      // Handle scroll to update position or close
-      window.addEventListener('scroll', () => setIsVisible(false), { passive: true });
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-      window.removeEventListener('scroll', () => setIsVisible(false));
-    };
+    if (!isVisible) return;
+    const handleScroll = () => setIsVisible(false);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [isVisible]);
 
   const handleToggle = () => {

@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useDismiss } from '../../hooks/useDismiss';
 import Logo from '../../components/common/Logo';
 import styles from './PlatformLayout.module.scss';
 
@@ -159,31 +160,8 @@ const PlatformLayout = ({ children }: PlatformLayoutProps) => {
     setMobileExpanded(null);
   }, [location.pathname]);
 
-  // Close dropdown on outside click
-  useEffect(() => {
-    if (!activeDropdown) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (navRef.current && !navRef.current.contains(e.target as Node)) {
-        setActiveDropdown(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [activeDropdown]);
-
-  // Close dropdown on Escape
-  useEffect(() => {
-    if (!activeDropdown) return;
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setActiveDropdown(null);
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [activeDropdown]);
+  // Close the open dropdown on outside click or Escape.
+  useDismiss(navRef, () => setActiveDropdown(null), activeDropdown !== null);
 
   // Check auth session
   useEffect(() => {
