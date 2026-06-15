@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Elements, CardNumberElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import React from 'react';
+import { Elements } from '@stripe/react-stripe-js';
 import { Button, CardFields } from '../common';
 import { stripePromise } from '../../lib/stripe';
-import { handlePaymentError } from '../../utils/payment';
+import { useStripePayment } from '../../hooks/useStripePayment';
 import { SERVICE_LABELS, type ServiceType } from '../../services/coachServicesService';
 import styles from './ServicePaymentForm.module.scss';
 
@@ -48,42 +48,12 @@ const PaymentFormInner: React.FC<PaymentFormInnerProps> = ({
   onCancel,
   paymentIntentId,
 }) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      const cardNumber = elements.getElement(CardNumberElement);
-      if (!cardNumber) {
-        onError('Card details not ready. Please try again.');
-        setIsProcessing(false);
-        return;
-      }
-
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: cardNumber },
-      });
-
-      if (error) {
-        onError(handlePaymentError(error));
-        setIsProcessing(false);
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        onSuccess(paymentIntentId);
-      }
-    } catch (err) {
-      onError(handlePaymentError(err));
-      setIsProcessing(false);
-    }
-  };
+  const { submit, isProcessing, stripe } = useStripePayment({
+    mode: 'payment',
+    clientSecret,
+    onError,
+    onSuccess: () => onSuccess(paymentIntentId),
+  });
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-GB', {
@@ -104,7 +74,7 @@ const PaymentFormInner: React.FC<PaymentFormInnerProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.paymentForm}>
+    <form onSubmit={submit} className={styles.paymentForm}>
       <div className={styles.bookingSummary}>
         <h3>Booking Summary</h3>
         <div className={styles.summaryRow}>
