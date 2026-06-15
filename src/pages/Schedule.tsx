@@ -10,6 +10,7 @@ import { useIsBuilder } from '../contexts/BrandingOverrideContext';
 import { SAMPLE_SCHEDULE } from '../data/sampleContent';
 import type { ClassSchedule } from '../types';
 import { DAY_PASS_PRICE_LABEL } from '../utils/payment';
+import { isPrimaryClass, getClassTypes, classifyClass } from '../utils/classType';
 import styles from './Schedule.module.scss';
 
 const Schedule = () => {
@@ -85,30 +86,20 @@ const Schedule = () => {
     return weeklySchedule.find(cls => cls.time === time && cls.day === day);
   };
 
-  const getClassTypeStyle = (className: string): string => {
-    const normalizedName = className.toLowerCase();
-    if (normalizedName.includes('specialty')) {
-      return styles.cellSpecialty;
-    }
-    if (normalizedName.includes('crossfit') && normalizedName.includes('open gym')) {
-      return styles.cellBoth;
-    }
-    if (normalizedName.includes('open gym')) {
-      return styles.cellOpenGym;
-    }
-    return styles.cellCrossFit;
+  const cellStyleByType: Record<string, string> = {
+    specialty: styles.cellSpecialty,
+    both: styles.cellBoth,
+    'open-gym': styles.cellOpenGym,
+    crossfit: styles.cellCrossFit,
   };
+  const getClassTypeStyle = (className: string): string => cellStyleByType[classifyClass(className)];
 
   const getBadgeForClassType = (classType: string): { badge: string; label: string } => {
-    const normalizedType = classType.toLowerCase().trim();
-    if (normalizedType.includes('crossfit') || normalizedType.includes('group training')) {
+    if (isPrimaryClass(classType)) {
       return { badge: styles.badgeCF, label: isDemoGym ? 'GT' : 'CF' };
     }
-    if (normalizedType.includes('open gym')) {
+    if (classType.toLowerCase().includes('open gym')) {
       return { badge: styles.badgeOG, label: 'OG' };
-    }
-    if (normalizedType.includes('specialty')) {
-      return { badge: styles.badgeSpecialty, label: 'SP' };
     }
     return { badge: styles.badgeSpecialty, label: 'SP' };
   };
@@ -302,7 +293,7 @@ const Schedule = () => {
                           <div className={styles.cellClassName}>
                             {classInfo.className.includes('|') ? (
                               <div className={styles.desktopSplitClass}>
-                                {classInfo.className.split('|').map((part, idx) => {
+                                {getClassTypes(classInfo.className).map((part, idx) => {
                                   const badgeInfo = getBadgeForClassType(part);
                                   return (
                                     <div key={idx} className={styles.desktopClassPart}>
@@ -365,7 +356,7 @@ const Schedule = () => {
                           <div className={styles.mobileClassName}>
                             {classInfo?.className.includes('|') ? (
                               <div className={styles.splitClassName}>
-                                {classInfo.className.split('|').map((part, idx) => {
+                                {getClassTypes(classInfo.className).map((part, idx) => {
                                   const badgeInfo = getBadgeForClassType(part);
                                   return (
                                     <div key={idx} className={styles.classNamePart}>
