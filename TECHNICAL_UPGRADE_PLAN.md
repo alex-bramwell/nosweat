@@ -4,6 +4,19 @@
 **Goal:** Remove duplication, fix latent bugs, and adopt better patterns **without changing the site's behaviour or visual design.**
 **Author:** Generated from a full read-only audit (frontend duplication, SCSS/design tokens, services/API). Every item below cites real `file:line` evidence.
 
+## Status: COMPLETE (all phases shipped to main)
+
+Every phase below has been implemented, verified, and merged to `main`. Summary:
+
+- **Phase 1** (correctness): webhook period helpers, `captureError` + `checkRateLimit` across the listed handlers. PR #16.
+- **Phase 2** (CSS tokens): status tokens added to `_variables.scss`; 5 stylesheets remapped. PR #17.
+- **Phase 6** (SCSS hygiene): `@import` -> `@use ... as *` across 14 stylesheets; GlassCard mixins. PR #18.
+- **Phase 3.1** (price constants), **3.2** (password util), **3.6** (`useStripePayment`), **3.4** (`useDismiss`), **3.5** (`classType` util). PRs #19, #20, #23, #25, #24. (3.3 date-format was assessed as genuinely-different formats - correctly skipped.)
+- **Phase 4.1** (Navbar `NavBrand`/`LogoutIcon`), **4.2** (AuthModal sub-views: `PasswordVisibilityToggle`, `PasswordRequirementsList`, `AuthCompletionScreen`). PRs #21, #27.
+- **Phase 5** (services/authFetch in Stripe forms). PR #22.
+- **Phase 7** (types): removed dead `Coach`/`Stat`/`Payment` exports and the unused `services/index.ts` barrel; service-level Booking/Coach shapes left as-is (genuinely distinct, not duplicates). PR #26.
+- **Bonus bug fix**: the demo gym's day-pass class picker showed no classes because "Group Training" failed the `includes('crossfit')` filter - fixed via the shared `classType` util. PR #24.
+
 ---
 
 ## 0. Rules of engagement (read first, every time)
