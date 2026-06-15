@@ -10,6 +10,7 @@ import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import type { User } from '@supabase/supabase-js';
 import type { ClassSchedule } from '../../types';
 import { createDayPassPaymentIntent, pollForBooking } from '../../services/dayPassService';
+import { isPrimaryClass, getClassTypes, classifyClass } from '../../utils/classType';
 import styles from './DayPassModal.module.scss';
 
 interface DayPassModalProps {
@@ -63,7 +64,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const gymPath = useGymPath();
-  const { schedule, gym } = useTenant();
+  const { schedule, gym, isDemoGym } = useTenant();
 
   const weeklySchedule: ClassSchedule[] = useMemo(() =>
     schedule.map(entry => ({
@@ -245,33 +246,17 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
     return weeklySchedule.filter(cls => cls.day === dayName);
   };
 
-  // Helper to check if class includes CrossFit
-  const isCrossFitClass = (className: string): boolean => {
-    return className.toLowerCase().includes('crossfit');
+  // Map the shared class-type classification to this modal's card styles.
+  const classStyleByType: Record<string, string> = {
+    specialty: styles.classSpecialty,
+    both: styles.classBoth,
+    'open-gym': styles.classOpenGym,
+    crossfit: styles.classCrossFit,
   };
+  const getClassTypeStyle = (className: string): string => classStyleByType[classifyClass(className)];
 
-  // Helper to parse class types (when class has both)
-  const getClassTypes = (className: string): string[] => {
-    if (className.includes('|')) {
-      const parts = className.split('|').map(p => p.trim());
-      return parts;
-    }
-    return [className];
-  };
-
-  const getClassTypeStyle = (className: string): string => {
-    const normalizedName = className.toLowerCase();
-    if (normalizedName.includes('specialty')) {
-      return styles.classSpecialty;
-    }
-    if (normalizedName.includes('crossfit') && normalizedName.includes('open gym')) {
-      return styles.classBoth;
-    }
-    if (normalizedName.includes('open gym')) {
-      return styles.classOpenGym;
-    }
-    return styles.classCrossFit;
-  };
+  // Label for the primary group class - generic on the demo gym.
+  const primaryClassLabel = isDemoGym ? 'Group Training' : 'CrossFit';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -379,7 +364,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
                 className={`${styles.toggleButton} ${selectedClassType === 'crossfit' ? styles.active : ''}`}
                 onClick={() => setSelectedClassType('crossfit')}
               >
-                CrossFit
+                {primaryClassLabel}
               </button>
               <button
                 type="button"
@@ -400,7 +385,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
                     className={styles.disclaimerCheckbox}
                   />
                   <span className={styles.disclaimerText}>
-                    I confirm that I am competent in high-level CrossFit movements and understand the risks involved in participating in CrossFit classes.
+                    I confirm that I am competent in high-level {primaryClassLabel} movements and understand the risks involved in participating in {primaryClassLabel} classes.
                   </span>
                 </label>
               </div>
@@ -427,15 +412,15 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
                           // Filter based on selected type
                           const matchingType = classTypes.find(type => {
                             if (selectedClassType === 'crossfit') {
-                              return isCrossFitClass(type);
+                              return isPrimaryClass(type);
                             } else {
-                              return !isCrossFitClass(type);
+                              return !isPrimaryClass(type);
                             }
                           });
 
                           if (!matchingType) return null;
 
-                          const isCrossFit = isCrossFitClass(matchingType);
+                          const isCrossFit = isPrimaryClass(matchingType);
                           const isDisabled = isCrossFit && !hasAgreedToDisclaimer;
 
                           return (
@@ -460,7 +445,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
                           );
                         } else {
                           // Single class type - check if it matches filter
-                          const isCrossFit = isCrossFitClass(classInfo.className);
+                          const isCrossFit = isPrimaryClass(classInfo.className);
                           const matchesFilter = selectedClassType === 'crossfit' ? isCrossFit : !isCrossFit;
 
                           if (!matchesFilter) return null;
