@@ -1,22 +1,5 @@
 // Core data types for the gym platform
 
-export interface Coach {
-  id: string;
-  name: string;
-  title: string;
-  bio: string;
-  certifications: string[];
-  specialties: string[];
-  image?: string;
-}
-
-export interface Stat {
-  id: string;
-  value: string | number;
-  label: string;
-  suffix?: string;
-}
-
 export interface WOD {
   id: string;
   date: string;
@@ -50,19 +33,6 @@ export interface Booking {
   bookedAt: string;
   classDate: string;
   paymentId?: string;
-}
-
-export interface Payment {
-  id: string;
-  userId: string;
-  stripePaymentIntentId: string;
-  stripeCustomerId: string;
-  amount: number;
-  currency: string;
-  status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'cancelled';
-  paymentType: 'day-pass' | 'trial-setup' | 'membership';
-  metadata?: Record<string, unknown>;
-  createdAt: string;
 }
 
 export interface RegistrationIntent {
