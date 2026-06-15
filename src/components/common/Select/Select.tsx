@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
+import { useDismiss } from '../../../hooks/useDismiss';
 import styles from './Select.module.scss';
 
 export interface SelectOption {
@@ -28,29 +29,7 @@ export const Select: React.FC<SelectProps> = ({
 
   const selectedOption = options.find(opt => opt.value === value);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen]);
+  useDismiss(selectRef, () => setIsOpen(false), isOpen);
 
   const handleSelect = (optionValue: string) => {
     onChange(optionValue);
