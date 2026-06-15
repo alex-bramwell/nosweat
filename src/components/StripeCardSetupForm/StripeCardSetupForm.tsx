@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Elements, CardNumberElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import { Button, CardFields } from '../common';
 import { authFetch } from '../../lib/auth';
+import { useStripePayment } from '../../hooks/useStripePayment';
 import { stripePromise } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
 import { handlePaymentError } from '../../utils/payment';
@@ -22,45 +23,6 @@ interface SetupFormProps {
 }
 
 const SetupForm: React.FC<SetupFormProps> = ({ userId, clientSecret, onSuccess, onError }) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      const cardNumber = elements.getElement(CardNumberElement);
-      if (!cardNumber) {
-        onError('Card details not ready. Please try again.');
-        setIsProcessing(false);
-        return;
-      }
-
-      const { error, setupIntent } = await stripe.confirmCardSetup(clientSecret, {
-        payment_method: { card: cardNumber },
-      });
-
-      if (error) {
-        onError(handlePaymentError(error));
-        setIsProcessing(false);
-      } else if (setupIntent && setupIntent.status === 'succeeded') {
-        // Setup succeeded, wait for webhook to process
-        await pollForTrialSetup(userId);
-        onSuccess();
-      }
-    } catch (err) {
-      onError(handlePaymentError(err));
-      setIsProcessing(false);
-    }
-  };
-
   const pollForTrialSetup = async (userId: string, maxAttempts = 10): Promise<void> => {
     for (let i = 0; i < maxAttempts; i++) {
       const { data: trialMembership } = await supabase
@@ -80,8 +42,19 @@ const SetupForm: React.FC<SetupFormProps> = ({ userId, clientSecret, onSuccess, 
     throw new Error('Trial setup timeout');
   };
 
+  const { submit, isProcessing, stripe } = useStripePayment({
+    mode: 'setup',
+    clientSecret,
+    onError,
+    onSuccess: async () => {
+      // Setup succeeded, wait for webhook to process
+      await pollForTrialSetup(userId);
+      onSuccess();
+    },
+  });
+
   return (
-    <form onSubmit={handleSubmit} className={styles.setupForm}>
+    <form onSubmit={submit} className={styles.setupForm}>
       <div className={styles.infoSection}>
         <div className={styles.infoIcon}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

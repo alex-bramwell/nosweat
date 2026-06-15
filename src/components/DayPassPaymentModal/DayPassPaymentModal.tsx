@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Elements, CardNumberElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import { Modal, Button, CardFields } from '../common';
+import { useStripePayment } from '../../hooks/useStripePayment';
 import { stripePromise } from '../../lib/stripe';
 import { createDayPassPaymentIntent, pollForBooking } from '../../services/dayPassService';
 import { formatCurrency, handlePaymentError, DAY_PASS_PRICE_PENCE } from '../../utils/payment';
@@ -37,47 +38,19 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   onSuccess,
   onError,
 }) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      const cardNumber = elements.getElement(CardNumberElement);
-      if (!cardNumber) {
-        onError('Card details not ready. Please try again.');
-        setIsProcessing(false);
-        return;
-      }
-
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: cardNumber },
-      });
-
-      if (error) {
-        onError(handlePaymentError(error));
-        setIsProcessing(false);
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Payment succeeded, poll for booking creation
-        const bookingId = await pollForBooking(userId, paymentIntent.id);
-        onSuccess(bookingId);
-      }
-    } catch (err) {
-      onError(handlePaymentError(err));
-      setIsProcessing(false);
-    }
-  };
+  const { submit, isProcessing, stripe } = useStripePayment({
+    mode: 'payment',
+    clientSecret,
+    onError,
+    onSuccess: async (intent) => {
+      // Payment succeeded, poll for booking creation
+      const bookingId = await pollForBooking(userId, intent.id);
+      onSuccess(bookingId);
+    },
+  });
 
   return (
-    <form onSubmit={handleSubmit} className={styles.paymentForm}>
+    <form onSubmit={submit} className={styles.paymentForm}>
       <div className={styles.classDetails}>
         <h3>Class Details</h3>
         <div className={styles.detailRow}>
