@@ -6,6 +6,9 @@ import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { Modal, Button, modalStyles as m } from '../common';
 import { checkPasswordCompromised, sanitizeInput, isValidEmail, validatePassword, calculatePasswordStrength } from '../../utils/security';
+import PasswordVisibilityToggle from './PasswordVisibilityToggle';
+import PasswordRequirementsList from './PasswordRequirementsList';
+import AuthCompletionScreen from './AuthCompletionScreen';
 import styles from './AuthModal.module.scss';
 
 interface AuthModalProps {
@@ -535,24 +538,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                   autoComplete="new-password"
                   className={m.modalInput}
                 />
-                <button
-                  type="button"
-                  className={styles.passwordToggle}
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
+                <PasswordVisibilityToggle visible={showPassword} onToggle={() => setShowPassword(!showPassword)} />
               </div>
               {showPassword && (
                 <div className={styles.securityWarning}>
@@ -583,38 +569,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
               )}
 
               {passwordRequirements && (
-                <div className={styles.passwordRequirements}>
-                  <div className={styles.requirementsList}>
-                    <div className={`${styles.requirement} ${passwordRequirements.minLength ? styles.met : ''}`}>
-                      <span className={styles.checkmark}>{passwordRequirements.minLength ? '✓' : '✗'}</span>
-                      <span>At least 12 characters</span>
-                    </div>
-                    <div className={`${styles.requirement} ${passwordRequirements.hasUppercase ? styles.met : ''}`}>
-                      <span className={styles.checkmark}>{passwordRequirements.hasUppercase ? '✓' : '✗'}</span>
-                      <span>One uppercase letter</span>
-                    </div>
-                    <div className={`${styles.requirement} ${passwordRequirements.hasLowercase ? styles.met : ''}`}>
-                      <span className={styles.checkmark}>{passwordRequirements.hasLowercase ? '✓' : '✗'}</span>
-                      <span>One lowercase letter</span>
-                    </div>
-                    <div className={`${styles.requirement} ${passwordRequirements.hasNumber ? styles.met : ''}`}>
-                      <span className={styles.checkmark}>{passwordRequirements.hasNumber ? '✓' : '✗'}</span>
-                      <span>One number</span>
-                    </div>
-                    <div className={`${styles.requirement} ${passwordRequirements.hasSpecial ? styles.met : ''}`}>
-                      <span className={styles.checkmark}>{passwordRequirements.hasSpecial ? '✓' : '✗'}</span>
-                      <span>One special character</span>
-                    </div>
-                  </div>
-                  <div className={styles.passwordTip}>
-                    <svg className={styles.tipIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 18h6" />
-                      <path d="M10 22h4" />
-                      <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z" />
-                    </svg>
-                    <span>Tip: Use your browser's password manager to generate a strong password for easier sign in</span>
-                  </div>
-                </div>
+                <PasswordRequirementsList requirements={passwordRequirements} />
               )}
 
               {isCheckingPassword && (
@@ -642,24 +597,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                   autoComplete="new-password"
                   className={m.modalInput}
                 />
-                <button
-                  type="button"
-                  className={styles.passwordToggle}
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showConfirmPassword ? (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
+                <PasswordVisibilityToggle visible={showConfirmPassword} onToggle={() => setShowConfirmPassword(!showConfirmPassword)} />
               </div>
               {showConfirmPassword && (
                 <div className={styles.securityWarning}>
@@ -707,70 +645,31 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   // Show completion screen after password reset request
   if (showResetCompletion) {
     const resetCompletionContent = (
-      <div className={m.modalBody}>
-        <div className={styles.completionContainer}>
-          <div className={styles.completionIcon}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 8v4" />
-              <path d="M12 16h.01" />
-            </svg>
-          </div>
-          <h2 className={styles.completionTitle}>Reset Email Sent!</h2>
-          <p className={styles.completionMessage}>
-            We've sent password reset instructions to <strong>{email}</strong>
-          </p>
-          <div className={styles.completionSteps}>
-            <div className={styles.completionStep}>
-              <div className={styles.stepText}>
-                <h4><span className={styles.stepNumber}>1</span> Check your email</h4>
-                <p>Look for a password reset email from {gym?.name || 'our gym'}</p>
-              </div>
-            </div>
-            <div className={styles.completionStep}>
-              <div className={styles.stepText}>
-                <h4><span className={styles.stepNumber}>2</span> Click the reset link</h4>
-                <p>Follow the secure link to create a new password</p>
-              </div>
-            </div>
-            <div className={styles.completionStep}>
-              <div className={styles.stepText}>
-                <h4><span className={styles.stepNumber}>3</span> Create a new password</h4>
-                <p>Set a strong, secure password for your account</p>
-              </div>
-            </div>
-            <div className={styles.completionStep}>
-              <div className={styles.stepText}>
-                <h4><span className={styles.stepNumber}>4</span> Sign in with new password</h4>
-                <p>Return here and log in with your new credentials</p>
-              </div>
-            </div>
-          </div>
-          <div className={styles.completionNote}>
-            <span className={styles.iconWrapper}>
-              <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="16" x2="12" y2="12" />
-                <line x1="12" y1="8" x2="12.01" y2="8" />
-              </svg>
-            </span>
-            <p>Didn't receive the email? Check your spam folder or wait a few minutes and try again.</p>
-          </div>
-          <Button
-            variant="primary"
-            size="prominent"
-            fullWidth
-            onClick={() => {
-              setShowResetCompletion(false);
-              setEmail('');
-              setMode('login');
-              onClose();
-            }}
-          >
-            Got It
-          </Button>
-        </div>
-      </div>
+      <AuthCompletionScreen
+        icon={
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4" />
+            <path d="M12 16h.01" />
+          </svg>
+        }
+        title="Reset Email Sent!"
+        message={<>We've sent password reset instructions to <strong>{email}</strong></>}
+        steps={[
+          { title: 'Check your email', description: `Look for a password reset email from ${gym?.name || 'our gym'}` },
+          { title: 'Click the reset link', description: 'Follow the secure link to create a new password' },
+          { title: 'Create a new password', description: 'Set a strong, secure password for your account' },
+          { title: 'Sign in with new password', description: 'Return here and log in with your new credentials' },
+        ]}
+        note="Didn't receive the email? Check your spam folder or wait a few minutes and try again."
+        buttonLabel="Got It"
+        onAcknowledge={() => {
+          setShowResetCompletion(false);
+          setEmail('');
+          setMode('login');
+          onClose();
+        }}
+      />
     );
 
     if (embedded) {
@@ -787,65 +686,31 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   // Show completion screen after signup
   if (showCompletion) {
     const completionContent = (
-      <div className={m.modalBody}>
-        <div className={styles.completionContainer}>
-          <div className={styles.completionIcon}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-          </div>
-          <h2 className={styles.completionTitle}>Account Created Successfully!</h2>
-          <p className={styles.completionMessage}>
-            We've sent a verification email to <strong>{email}</strong>
-          </p>
-          <div className={styles.completionSteps}>
-            <div className={styles.completionStep}>
-              <div className={styles.stepText}>
-                <h4><span className={styles.stepNumber}>1</span> Check your email</h4>
-                <p>Look for an email from {gym?.name || 'our gym'}</p>
-              </div>
-            </div>
-            <div className={styles.completionStep}>
-              <div className={styles.stepText}>
-                <h4><span className={styles.stepNumber}>2</span> Verify your account</h4>
-                <p>Click the verification link in the email</p>
-              </div>
-            </div>
-            <div className={styles.completionStep}>
-              <div className={styles.stepText}>
-                <h4><span className={styles.stepNumber}>3</span> Sign in and start training</h4>
-                <p>Access your dashboard and begin your journey</p>
-              </div>
-            </div>
-          </div>
-          <div className={styles.completionNote}>
-            <span className={styles.iconWrapper}>
-              <svg className={styles.infoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="16" x2="12" y2="12" />
-                <line x1="12" y1="8" x2="12.01" y2="8" />
-              </svg>
-            </span>
-            <p>Didn't receive the email? Check your spam folder or contact us for help.</p>
-          </div>
-          <Button
-            variant="primary"
-            size="prominent"
-            fullWidth
-            onClick={() => {
-              setShowCompletion(false);
-              setEmail('');
-              setPassword('');
-              setName('');
-              setMode('login');
-              onClose();
-            }}
-          >
-            Got It
-          </Button>
-        </div>
-      </div>
+      <AuthCompletionScreen
+        icon={
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        }
+        title="Account Created Successfully!"
+        message={<>We've sent a verification email to <strong>{email}</strong></>}
+        steps={[
+          { title: 'Check your email', description: `Look for an email from ${gym?.name || 'our gym'}` },
+          { title: 'Verify your account', description: 'Click the verification link in the email' },
+          { title: 'Sign in and start training', description: 'Access your dashboard and begin your journey' },
+        ]}
+        note="Didn't receive the email? Check your spam folder or contact us for help."
+        buttonLabel="Got It"
+        onAcknowledge={() => {
+          setShowCompletion(false);
+          setEmail('');
+          setPassword('');
+          setName('');
+          setMode('login');
+          onClose();
+        }}
+      />
     );
 
     if (embedded) {
@@ -956,25 +821,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                   minLength={mode === 'signup' ? 12 : 6}
                   autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className={styles.passwordToggle}
-                  disabled={isLoading}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
+                <PasswordVisibilityToggle visible={showPassword} onToggle={() => setShowPassword(!showPassword)} disabled={isLoading} />
               </div>
               {showPassword && (
                 <div className={styles.securityWarning}>
@@ -1015,38 +862,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
                 </div>
               )}
               {mode === 'signup' && password && (
-                <div className={styles.passwordRequirements}>
-                  <div className={styles.requirementsList}>
-                    <div className={`${styles.requirement} ${passwordRequirements?.minLength ? styles.met : ''}`}>
-                      <span className={styles.checkmark}>{passwordRequirements?.minLength ? '✓' : '✗'}</span>
-                      <span>At least 12 characters</span>
-                    </div>
-                    <div className={`${styles.requirement} ${passwordRequirements?.hasUppercase ? styles.met : ''}`}>
-                      <span className={styles.checkmark}>{passwordRequirements?.hasUppercase ? '✓' : '✗'}</span>
-                      <span>One uppercase letter</span>
-                    </div>
-                    <div className={`${styles.requirement} ${passwordRequirements?.hasLowercase ? styles.met : ''}`}>
-                      <span className={styles.checkmark}>{passwordRequirements?.hasLowercase ? '✓' : '✗'}</span>
-                      <span>One lowercase letter</span>
-                    </div>
-                    <div className={`${styles.requirement} ${passwordRequirements?.hasNumber ? styles.met : ''}`}>
-                      <span className={styles.checkmark}>{passwordRequirements?.hasNumber ? '✓' : '✗'}</span>
-                      <span>One number</span>
-                    </div>
-                    <div className={`${styles.requirement} ${passwordRequirements?.hasSpecial ? styles.met : ''}`}>
-                      <span className={styles.checkmark}>{passwordRequirements?.hasSpecial ? '✓' : '✗'}</span>
-                      <span>One special character</span>
-                    </div>
-                  </div>
-                  <div className={styles.passwordTip}>
-                    <svg className={styles.tipIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 18h6" />
-                      <path d="M10 22h4" />
-                      <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z" />
-                    </svg>
-                    <span>Tip: Use your browser's password manager to generate a strong password for easier sign in</span>
-                  </div>
-                </div>
+                <PasswordRequirementsList requirements={passwordRequirements} />
               )}
             </div>
           )}
