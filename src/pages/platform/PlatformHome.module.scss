@@ -240,6 +240,17 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   }
 }
 
+.heroSubtitleAccent {
+  font-style: italic;
+  font-weight: 600;
+  white-space: nowrap;
+  background: linear-gradient(135deg, $platform-accent 0%, $platform-secondary 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
 .heroCtas {
   display: flex;
   gap: 1rem;
