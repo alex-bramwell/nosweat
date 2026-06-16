@@ -22,7 +22,7 @@
 // =============================================================================
 
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { TenantProvider, useTenant } from './contexts/TenantContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { RegistrationProvider } from './contexts/RegistrationContext';
@@ -34,34 +34,44 @@ import ScrollToHash from './components/ScrollToHash';
 import { SessionWarning } from './components/SessionWarning';
 import { FeatureGate } from './components/common';
 import { FeatureNotEnabled } from './components/common/FeatureGate/FeatureNotEnabled';
-import Home from './pages/Home';
-import Schedule from './pages/Schedule';
-import About from './pages/About';
-import Coaches from './pages/Coaches';
-import Dashboard from './pages/Dashboard';
-import CoachDashboard from './pages/CoachDashboard';
-import CoachView from './pages/CoachView';
-import EmailVerified from './pages/EmailVerified';
-import ResetPassword from './pages/ResetPassword';
-import BookingConfirmation from './pages/BookingConfirmation';
-import GymNotFound from './pages/GymNotFound';
-import GymAdmin from './pages/GymAdmin';
-import GymAdminBuilder from './pages/GymAdminBuilder';
 import ProtectedRoute from './components/ProtectedRoute';
 import PlatformLayout from './pages/platform/PlatformLayout';
-import PlatformHome from './pages/platform/PlatformHome';
-import PlatformLogin from './pages/platform/PlatformLogin';
-import PlatformSignup from './pages/platform/PlatformSignup';
-import Onboarding from './pages/platform/Onboarding';
-import Guide from './pages/platform/Guide';
-import Docs from './pages/platform/Docs';
-import Roadmap from './pages/platform/Roadmap';
-import Payments from './pages/platform/Payments';
-import PlatformSubscribe, { SubscribeComplete } from './pages/platform/PlatformSubscribe';
-import TestReset from './pages/platform/TestReset';
-import TermsOfService from './pages/platform/TermsOfService';
-import PlatformDashboard from './pages/platform/PlatformDashboard';
 import TrialBanner from './components/common/TrialBanner';
+import { RouteFallback } from './components/common';
+
+// Landing pages and the gym-not-found error stay eager - they are the most
+// common first paint, so deferring them would just add a loading flash.
+import Home from './pages/Home';
+import GymNotFound from './pages/GymNotFound';
+import PlatformHome from './pages/platform/PlatformHome';
+
+// Everything else is route-split: each page becomes its own chunk that loads
+// on demand, so a public visitor never downloads the admin/builder/coach code.
+const Schedule = lazy(() => import('./pages/Schedule'));
+const About = lazy(() => import('./pages/About'));
+const Coaches = lazy(() => import('./pages/Coaches'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const CoachDashboard = lazy(() => import('./pages/CoachDashboard'));
+const CoachView = lazy(() => import('./pages/CoachView'));
+const EmailVerified = lazy(() => import('./pages/EmailVerified'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const BookingConfirmation = lazy(() => import('./pages/BookingConfirmation'));
+const GymAdmin = lazy(() => import('./pages/GymAdmin'));
+const GymAdminBuilder = lazy(() => import('./pages/GymAdminBuilder'));
+const PlatformLogin = lazy(() => import('./pages/platform/PlatformLogin'));
+const PlatformSignup = lazy(() => import('./pages/platform/PlatformSignup'));
+const Onboarding = lazy(() => import('./pages/platform/Onboarding'));
+const Guide = lazy(() => import('./pages/platform/Guide'));
+const Docs = lazy(() => import('./pages/platform/Docs'));
+const Roadmap = lazy(() => import('./pages/platform/Roadmap'));
+const Payments = lazy(() => import('./pages/platform/Payments'));
+const PlatformSubscribe = lazy(() => import('./pages/platform/PlatformSubscribe'));
+const SubscribeComplete = lazy(() =>
+  import('./pages/platform/PlatformSubscribe').then((m) => ({ default: m.SubscribeComplete }))
+);
+const TestReset = lazy(() => import('./pages/platform/TestReset'));
+const TermsOfService = lazy(() => import('./pages/platform/TermsOfService'));
+const PlatformDashboard = lazy(() => import('./pages/platform/PlatformDashboard'));
 
 // Supabase sends password recovery links with tokens in the URL hash fragment.
 // This component intercepts those tokens on any page and redirects to the
@@ -189,7 +199,9 @@ function GymShell() {
           path="/site-builder"
           element={
             <ProtectedRoute requiredRole="admin">
-              <GymAdminBuilder />
+              <Suspense fallback={<RouteFallback />}>
+                <GymAdminBuilder />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -205,6 +217,7 @@ function GymShell() {
             <>
               <TrialBanner />
               <Layout>
+                <Suspense fallback={<RouteFallback />}>
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route
@@ -260,6 +273,7 @@ function GymShell() {
                     }
                   />
                 </Routes>
+                </Suspense>
               </Layout>
             </>
           }
@@ -285,6 +299,7 @@ function GymShell() {
 function PlatformShell() {
   return (
     <PlatformLayout>
+      <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route path="/" element={<PlatformHome />} />
         <Route path="/login" element={<PlatformLogin />} />
@@ -300,6 +315,7 @@ function PlatformShell() {
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/test-reset" element={<TestReset />} />
       </Routes>
+      </Suspense>
     </PlatformLayout>
   );
 }
