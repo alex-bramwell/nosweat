@@ -8,16 +8,25 @@ import GymSettings from '../components/GymAdmin/GymSettings';
 import DataManagement from '../components/GymAdmin/DataManagement';
 import GettingStarted from '../components/GymAdmin/GettingStarted';
 import PlatformBillingPanel from '../components/GymAdmin/PlatformBillingPanel';
+import StripeConnectPanel from '../components/GymAdmin/StripeConnectPanel';
 import { DEMO_GYM_SLUG } from '../config/demo';
 import styles from './GymAdmin.module.scss';
 
-type Tab = 'features' | 'settings' | 'billing' | 'data';
+const TABS = ['features', 'payments', 'settings', 'billing', 'data'] as const;
+type Tab = (typeof TABS)[number];
 
 const GymAdmin: React.FC = () => {
   const { user } = useAuth();
-  const { gym } = useTenant();
+  const { gym, isDemoGym } = useTenant();
   const gymPath = useGymPath();
-  const [activeTab, setActiveTab] = useState<Tab>('features');
+  // Stripe Connect onboarding returns the owner here with ?tab=payments, so
+  // honour a valid tab from the URL on first render.
+  const urlTab = new URLSearchParams(window.location.search).get('tab');
+  const [activeTab, setActiveTab] = useState<Tab>(
+    TABS.includes(urlTab as Tab) ? (urlTab as Tab) : 'features'
+  );
+
+  const paymentsConnected = gym?.stripe_account_status === 'active';
 
   const isAuthorized = user && gym && (user.id === gym.owner_id || user.role === 'admin');
 
@@ -93,6 +102,26 @@ const GymAdmin: React.FC = () => {
           }
         }} />
 
+        {!paymentsConnected && !isDemoGym && (
+          <button
+            type="button"
+            className={styles.paymentsAlert}
+            onClick={() => setActiveTab('payments')}
+          >
+            <span className={styles.paymentsAlertIcon}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <path d="M2 10h20" />
+              </svg>
+            </span>
+            <span className={styles.paymentsAlertText}>
+              <strong>Set up payments to get paid</strong>
+              <span>Members cannot pay you yet. Connect Stripe to take memberships, day passes, trials and bookings.</span>
+            </span>
+            <span className={styles.paymentsAlertCta}>Set up payments</span>
+          </button>
+        )}
+
         <div className={styles.adminTabBar}>
           <button
             className={`${styles.adminTab} ${activeTab === 'features' ? styles.adminTabActive : ''}`}
@@ -104,6 +133,19 @@ const GymAdmin: React.FC = () => {
               </svg>
             </span>
             <span>Features</span>
+          </button>
+          <button
+            className={`${styles.adminTab} ${activeTab === 'payments' ? styles.adminTabActive : ''}`}
+            onClick={() => setActiveTab('payments')}
+          >
+            <span className={styles.adminTabIcon}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <path d="M2 10h20" />
+                <path d="M6 15h4" />
+              </svg>
+            </span>
+            <span>Payments</span>
           </button>
           <button
             className={`${styles.adminTab} ${activeTab === 'settings' ? styles.adminTabActive : ''}`}
@@ -146,6 +188,7 @@ const GymAdmin: React.FC = () => {
 
         <div className={styles.adminTabContent}>
           {activeTab === 'features' && <FeatureTogglePanel />}
+          {activeTab === 'payments' && <StripeConnectPanel />}
           {activeTab === 'settings' && <GymSettings />}
           {activeTab === 'billing' && <PlatformBillingPanel />}
           {activeTab === 'data' && <DataManagement />}

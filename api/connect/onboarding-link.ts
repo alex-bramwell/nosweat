@@ -34,11 +34,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (gym.owner_id !== user.id) {
-      return res.status(403).json({ error: 'Not authorized — must be gym owner' });
+      return res.status(403).json({ error: 'Not authorized - must be gym owner' });
     }
 
     if (!gym.stripe_account_id) {
-      return res.status(400).json({ error: 'No Stripe account — create one first' });
+      return res.status(400).json({ error: 'No Stripe account - create one first' });
     }
 
     const origin = req.headers.origin || 'https://nosweat.fitness';
@@ -46,8 +46,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Create onboarding link
     const accountLink = await stripe.accountLinks.create({
       account: gym.stripe_account_id,
-      refresh_url: `${origin}/gym/${gym.slug}/gym-admin?tab=settings&stripe=refresh`,
-      return_url: `${origin}/gym/${gym.slug}/gym-admin?tab=settings&stripe=complete`,
+      refresh_url: `${origin}/gym/${gym.slug}/gym-admin?tab=payments&stripe=refresh`,
+      return_url: `${origin}/gym/${gym.slug}/gym-admin?tab=payments&stripe=complete`,
       type: 'account_onboarding',
     });
 
