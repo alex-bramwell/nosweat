@@ -17,6 +17,7 @@ export { InfoBox } from './InfoBox';
 export { CardFields } from './CardFields/CardFields';
 export { SectionNav } from './SectionNav/SectionNav';
 export type { SectionNavItem } from './SectionNav/SectionNav';
+export { default as RouteFallback } from './RouteFallback/RouteFallback';
 
 export type { ButtonProps } from './Button';
 export type { CardProps } from './Card';
