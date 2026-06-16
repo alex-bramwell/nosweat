@@ -62,9 +62,9 @@ const ROLE_FEATURES: Record<RoleTab, RoleFeature[]> = {
 
 const SETUP_STEPS = [
   {
-    title: 'Create your website',
+    title: 'Build your website',
     detail:
-      'Pick your colours, fonts, logo and content in the visual site builder - no code, no designers. Your branded gym site is live in about a minute.',
+      'Pick your colours, fonts, logo and content in the visual site builder - no code, no designers, no agency. Publish your branded gym site when it is ready, and change it any time.',
   },
   {
     title: 'Add your staff',
@@ -72,9 +72,9 @@ const SETUP_STEPS = [
       'Invite your coaches and front-desk team, choose what each can do, and let them manage classes, programming and the schedule.',
   },
   {
-    title: 'Add your members',
+    title: 'Add members and get paid',
     detail:
-      'Bring your members on board, take bookings and card payments, run trials and day passes, and track attendance from day one.',
+      'Taking payment is built in - memberships, trials and day passes run straight through your own site with Stripe, so there is no separate payment app to wire up. Bring your members on board, take bookings and track attendance from day one.',
   },
 ];
 
@@ -150,8 +150,8 @@ const PlatformHome = () => {
             </div>
             <div className={styles.heroStatDivider} />
             <div className={styles.heroStat}>
-              <span className={styles.heroStatValue}>60s</span>
-              <span className={styles.heroStatLabel}>To go live</span>
+              <span className={styles.heroStatValue}>Minutes</span>
+              <span className={styles.heroStatLabel}>To set up</span>
             </div>
             <div className={styles.heroStatDivider} />
             <div className={styles.heroStat}>
