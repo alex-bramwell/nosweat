@@ -18,15 +18,15 @@ export const GUIDE_SECTIONS: GuideSectionGroup[] = [
   {
     id: 'getting-started',
     title: 'Getting Started',
-    subtitle: 'From sign-up to go-live in under five minutes.',
+    subtitle: 'From sign-up to a live, branded site - no agency, no waiting.',
     background: 'light',
     features: [
       {
         id: 'signup',
         title: 'Sign up, name your gym, go live',
         description:
-          'Create your account in seconds. Choose a name for your gym and you immediately get a branded URL at nosweat.fitness/gym/your-name. No DNS configuration, no hosting to manage. Your site is live the moment you sign up.',
-        bullets: ['Instant branded URL', 'No technical setup', 'Live in under 60 seconds'],
+          'Create your account and choose a name for your gym, and you immediately get a branded URL at nosweat.fitness/gym/your-name. No DNS configuration, no hosting to manage. Customise it and publish whenever you are ready.',
+        bullets: ['Branded URL included', 'No technical setup', 'Go live the same day'],
         illustrationKey: 'signup',
       },
       {
