@@ -5,7 +5,7 @@ const STEPS = [
   { number: 1, title: 'Sign up', description: 'Create your account in seconds. No credit card required to start.' },
   { number: 2, title: 'Customise your brand', description: 'Choose your colours, upload your logo, set your theme. Make it yours.' },
   { number: 3, title: 'Choose your features', description: 'Toggle on the features you need. Everything is included in your plan.' },
-  { number: 4, title: 'Go live', description: 'Your gym is online instantly. No technical skills needed.' },
+  { number: 4, title: 'Go live', description: 'Publish when you are ready and your gym is online the same day. No technical skills needed.' },
 ];
 
 const HowItWorks = () => {
