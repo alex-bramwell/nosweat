@@ -129,7 +129,8 @@ const PlatformHome = () => {
             No Sweat runs your gym so you can focus on what matters
           </h1>
           <p className={styles.heroSubtitle}>
-            Everything a gym needs, inside your own website. Built for gym owners, by athletes.
+            Everything a gym needs, inside your own website. Built for gym owners, by athletes.{' '}
+            <span className={styles.heroSubtitleAccent}>No Apps needed</span>
           </p>
           <div className={styles.heroCtas}>
             <Link to="/signup" className={styles.ctaPrimary}>
