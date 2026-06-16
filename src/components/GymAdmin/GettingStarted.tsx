@@ -33,6 +33,7 @@ const GettingStarted: React.FC<GettingStartedProps> = ({ onNavigateTab }) => {
         { id: 'logo', label: 'Upload your logo', completed: !!branding.logo_url, tab: 'branding' },
         { id: 'colors', label: 'Customise your brand colours', completed: branding.color_accent !== '#111111', tab: 'branding' },
         { id: 'schedule', label: 'Add your first class', completed: (scheduleResult.count ?? 0) > 0, tab: 'settings' },
+        { id: 'payments', label: 'Set up payments to get paid', completed: gym.stripe_account_status === 'active', tab: 'payments' },
         { id: 'coach', label: 'Invite a coach', completed: (coachResult.count ?? 0) > 0, tab: 'settings' },
         { id: 'member', label: 'Add your first member', completed: (memberResult.count ?? 0) > 0, tab: 'settings' },
       ]);

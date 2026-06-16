@@ -1,0 +1,77 @@
+.settingsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.settingsSectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-header);
+  margin: 0;
+}
+
+.connectHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.connectDescription {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.connectActions {
+  display: flex;
+  gap: 1rem;
+}
+
+.connectError {
+  padding: 1rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  background: rgba(var(--color-error-rgb), 0.1);
+  color: var(--color-error);
+  border: 1px solid rgba(var(--color-error-rgb), 0.2);
+}
+
+.connectIntro {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.25rem;
+  background: var(--color-bg-light);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+}
+
+.connectIntroIcon {
+  flex-shrink: 0;
+  color: var(--color-accent);
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.connectIntroText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  strong {
+    color: var(--color-header);
+    font-size: 0.9375rem;
+  }
+
+  span {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
