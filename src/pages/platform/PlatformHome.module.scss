@@ -210,25 +210,6 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   }
 }
 
-.heroEyebrow {
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: $platform-text-muted;
-  margin-bottom: 0.375rem;
-}
-
-.heroEyebrowHighlight {
-  display: inline-block;
-  padding: 0.125rem 0.5rem;
-  margin: 0 0.1rem;
-  background: rgba($platform-accent, 0.15);
-  border: 1px solid rgba($platform-accent, 0.25);
-  border-radius: 100px;
-  color: $platform-accent;
-}
-
 .heroHeadline {
   font-size: clamp(2.75rem, 6vw, 5rem);
   font-weight: 800;
