@@ -64,7 +64,7 @@ const SETUP_STEPS = [
   {
     title: 'Build your website',
     detail:
-      'Pick your colours, fonts, logo and content in the visual site builder - no code, no designers, no agency. Publish your branded gym site when it is ready, and change it any time.',
+      'Pick your colours, fonts, logo and content in the visual site builder. No code, no designers, no agency. Publish your branded gym site when it is ready, and change it any time.',
   },
   {
     title: 'Add your staff',
@@ -74,7 +74,7 @@ const SETUP_STEPS = [
   {
     title: 'Add members and get paid',
     detail:
-      'Taking payment is built in - memberships, trials and day passes run straight through your own site with Stripe, so there is no separate payment app to wire up. Bring your members on board, take bookings and track attendance from day one.',
+      'Taking payment is built in. Memberships, trials and day passes run straight through your own site with Stripe, so there is no separate payment app to wire up. Bring your members on board, take bookings and track attendance from day one.',
   },
 ];
 
@@ -125,12 +125,11 @@ const PlatformHome = () => {
       <section className={styles.hero}>
         <div className={styles.heroContent}>
           <div className={styles.heroMain}>
-          <p className={styles.heroEyebrow}>Built for <span className={styles.heroEyebrowHighlight}>gym owners</span>, by <span className={styles.heroEyebrowHighlight}>athletes</span></p>
           <h1 className={styles.heroHeadline}>
-            We help you run your gym
+            No Sweat runs your gym so you can focus on what matters
           </h1>
           <p className={styles.heroSubtitle}>
-            Everything a gym needs, inside your own website.
+            Everything a gym needs, inside your own website. Built for gym owners, by athletes.
           </p>
           <div className={styles.heroCtas}>
             <Link to="/signup" className={styles.ctaPrimary}>
