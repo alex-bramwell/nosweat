@@ -72,7 +72,7 @@ const SETUP_STEPS = [
       'Invite your coaches and front-desk team, choose what each can do, and let them manage classes, programming and the schedule.',
   },
   {
-    title: 'Add members and get paid',
+    title: 'Invite your members',
     detail:
       'Taking payment is built in. Memberships, trials and day passes run straight through your own site with Stripe, so there is no separate payment app to wire up. Bring your members on board, take bookings and track attendance from day one.',
   },
