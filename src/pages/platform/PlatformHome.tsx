@@ -76,6 +76,11 @@ const SETUP_STEPS = [
     detail:
       'Taking payment is built in. Memberships, trials and day passes run straight through your own site with Stripe, so there is no separate payment app to wire up. Bring your members on board, take bookings and track attendance from day one.',
   },
+  {
+    title: 'Create or import your program',
+    detail:
+      'Build your programming in the workout editor with a full movement database, or import what you already run. Every session feeds built-in analytics that track training volume, movement balance, time domains and modality split, so you can see at a glance where the gaps are, keep your athletes progressing and prove your programming stays balanced week to week.',
+  },
 ];
 
 // A word with a single sketchy, hand-drawn underline in the blue-to-purple
