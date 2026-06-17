@@ -1,5 +1,27 @@
 import { supabase } from '../lib/supabase';
+import { authFetch } from '../lib/auth';
 import type { GymMembership } from '../types/tenant';
+
+export interface GymPromoCode {
+  id: string;
+  gym_id: string;
+  code: string;
+  percent_off: number;
+  duration: 'once' | 'forever' | 'repeating';
+  duration_in_months: number | null;
+  max_redemptions: number | null;
+  active: boolean;
+  created_at: string;
+}
+
+export interface CreatePromoInput {
+  gymId: string;
+  code: string;
+  percentOff: number;
+  duration: 'once' | 'forever' | 'repeating';
+  durationInMonths?: number;
+  maxRedemptions?: number;
+}
 
 // Owner-facing CRUD for a gym's membership plans (gym_memberships). The public
 // site and the member subscribe flow read these; this is where gym admins
@@ -121,5 +143,33 @@ export const membershipService = {
     }
 
     return this.listPlans(gymId);
+  },
+
+  /** Active promo codes for a gym (admin-readable via RLS). */
+  async listPromos(gymId: string): Promise<GymPromoCode[]> {
+    const { data, error } = await supabase
+      .from('gym_promo_codes')
+      .select('*')
+      .eq('gym_id', gymId)
+      .eq('active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading promo codes:', error);
+      throw error;
+    }
+    return (data ?? []) as GymPromoCode[];
+  },
+
+  async createPromo(input: CreatePromoInput): Promise<GymPromoCode> {
+    const { promo } = await authFetch<{ promo: GymPromoCode }>(
+      '/api/subscriptions/create-promo-code',
+      input as unknown as Record<string, unknown>
+    );
+    return promo;
+  },
+
+  async deactivatePromo(promoId: string): Promise<void> {
+    await authFetch('/api/subscriptions/deactivate-promo-code', { promoId });
   },
 };

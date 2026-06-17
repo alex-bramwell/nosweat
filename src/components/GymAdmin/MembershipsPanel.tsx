@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTenant } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { useMessage } from '../../hooks/useMessage';
-import { membershipService, type MembershipDraft } from '../../services/membershipService';
+import { membershipService, type MembershipDraft, type GymPromoCode } from '../../services/membershipService';
 import type { GymMembership } from '../../types/tenant';
 import { Button, Card } from '../common';
 import styles from './MembershipsPanel.module.scss';
@@ -52,20 +52,70 @@ const MembershipsPanel: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [dayPassInput, setDayPassInput] = useState('');
   const [savingDayPass, setSavingDayPass] = useState(false);
+  const [promos, setPromos] = useState<GymPromoCode[]>([]);
+  const [promoForm, setPromoForm] = useState({ code: '', percentOff: '', duration: 'once' as 'once' | 'forever' | 'repeating', durationInMonths: '' });
+  const [creatingPromo, setCreatingPromo] = useState(false);
 
   const load = useCallback(async () => {
     if (!gym) return;
     setIsLoading(true);
     try {
-      const plans = await membershipService.listPlans(gym.id);
+      const [plans, promoList] = await Promise.all([
+        membershipService.listPlans(gym.id),
+        membershipService.listPromos(gym.id).catch(() => []),
+      ]);
       setOriginals(plans);
       setDrafts(plans.map(toDraft));
+      setPromos(promoList);
     } catch {
       showError('Could not load your membership plans.');
     } finally {
       setIsLoading(false);
     }
   }, [gym, showError]);
+
+  const handleCreatePromo = async () => {
+    if (!gym) return;
+    const pct = Number(promoForm.percentOff);
+    if (!promoForm.code.trim()) return showError('Enter a code for the promo (e.g. NEWYEAR).');
+    if (!Number.isInteger(pct) || pct < 1 || pct > 100) return showError('Discount must be a whole number between 1 and 100.');
+    if (promoForm.duration === 'repeating' && !Number(promoForm.durationInMonths)) {
+      return showError('Enter how many months a repeating discount lasts.');
+    }
+    setCreatingPromo(true);
+    try {
+      const promo = await membershipService.createPromo({
+        gymId: gym.id,
+        code: promoForm.code,
+        percentOff: pct,
+        duration: promoForm.duration,
+        durationInMonths: promoForm.duration === 'repeating' ? Number(promoForm.durationInMonths) : undefined,
+      });
+      setPromos((prev) => [promo, ...prev]);
+      setPromoForm({ code: '', percentOff: '', duration: 'once', durationInMonths: '' });
+      showSuccess(`Promo code ${promo.code} created.`);
+    } catch (error) {
+      showError(error instanceof Error ? error.message : 'Could not create the promo code.');
+    } finally {
+      setCreatingPromo(false);
+    }
+  };
+
+  const handleDeactivatePromo = async (promoId: string) => {
+    try {
+      await membershipService.deactivatePromo(promoId);
+      setPromos((prev) => prev.filter((p) => p.id !== promoId));
+      showSuccess('Promo code turned off.');
+    } catch (error) {
+      showError(error instanceof Error ? error.message : 'Could not turn off the promo code.');
+    }
+  };
+
+  const promoDurationLabel = (p: GymPromoCode): string => {
+    if (p.duration === 'forever') return 'every payment';
+    if (p.duration === 'repeating') return `first ${p.duration_in_months} months`;
+    return 'first payment';
+  };
 
   useEffect(() => {
     load();
@@ -348,6 +398,84 @@ const MembershipsPanel: React.FC = () => {
           </Button>
         </div>
       )}
+
+      {/* ── Promotions ── */}
+      <h3 className={styles.sectionHeading}>Promo codes</h3>
+      <Card className={styles.promoCard}>
+        <p className={styles.dayPassSubtitle}>
+          Create a discount code members can enter at checkout (e.g. 50% off the first month). Codes
+          only apply to your own membership plans.
+        </p>
+
+        {promos.length > 0 && (
+          <div className={styles.promoList}>
+            {promos.map((promo) => (
+              <div key={promo.id} className={styles.promoRow}>
+                <span className={styles.promoCode}>{promo.code}</span>
+                <span className={styles.promoMeta}>{promo.percent_off}% off, {promoDurationLabel(promo)}</span>
+                <button type="button" className={styles.orderButton} aria-label="Turn off promo" onClick={() => handleDeactivatePromo(promo.id)}>✕</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className={styles.promoForm}>
+          <div className={styles.promoField}>
+            <label htmlFor="promo_code">Code</label>
+            <input
+              type="text"
+              id="promo_code"
+              value={promoForm.code}
+              onChange={(e) => setPromoForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
+              className={styles.planInput}
+              placeholder="NEWYEAR"
+            />
+          </div>
+          <div className={styles.promoFieldNarrow}>
+            <label htmlFor="promo_pct">% off</label>
+            <input
+              type="number"
+              id="promo_pct"
+              min="1"
+              max="100"
+              value={promoForm.percentOff}
+              onChange={(e) => setPromoForm((f) => ({ ...f, percentOff: e.target.value }))}
+              className={styles.planInput}
+              placeholder="50"
+            />
+          </div>
+          <div className={styles.promoField}>
+            <label htmlFor="promo_dur">Applies to</label>
+            <select
+              id="promo_dur"
+              value={promoForm.duration}
+              onChange={(e) => setPromoForm((f) => ({ ...f, duration: e.target.value as 'once' | 'forever' | 'repeating' }))}
+              className={styles.planSelect}
+            >
+              <option value="once">First payment</option>
+              <option value="repeating">First few months</option>
+              <option value="forever">Every payment</option>
+            </select>
+          </div>
+          {promoForm.duration === 'repeating' && (
+            <div className={styles.promoFieldNarrow}>
+              <label htmlFor="promo_months">Months</label>
+              <input
+                type="number"
+                id="promo_months"
+                min="1"
+                value={promoForm.durationInMonths}
+                onChange={(e) => setPromoForm((f) => ({ ...f, durationInMonths: e.target.value }))}
+                className={styles.planInput}
+                placeholder="3"
+              />
+            </div>
+          )}
+          <Button variant="primary" onClick={handleCreatePromo} disabled={creatingPromo}>
+            {creatingPromo ? 'Creating...' : 'Create code'}
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 };

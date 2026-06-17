@@ -275,3 +275,73 @@
   color: var(--color-header);
   margin: 0.5rem 0 0;
 }
+
+// ── Promotions ──
+.promoCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.promoList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.promoRow {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-bg-dark, rgba(255, 255, 255, 0.08));
+  border-radius: var(--border-radius, 0.5rem);
+  background: var(--color-bg-light, rgba(255, 255, 255, 0.02));
+}
+
+.promoCode {
+  font-weight: 700;
+  font-family: var(--font-header);
+  letter-spacing: 0.04em;
+  color: var(--color-accent);
+}
+
+.promoMeta {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.promoForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.promoField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 8rem;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+}
+
+.promoFieldNarrow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 5.5rem;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+}

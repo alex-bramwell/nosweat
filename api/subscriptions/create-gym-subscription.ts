@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
 
   try {
-    const { gymId, membershipId, userId } = req.body;
+    const { gymId, membershipId, userId, promoCode } = req.body;
 
     if (!gymId || !membershipId || !userId) {
       return res.status(400).json({ error: 'Missing required fields: gymId, membershipId, userId' });
@@ -134,6 +134,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .eq('id', membershipId);
     }
 
+    // Resolve a promo code if supplied. We only accept codes that belong to THIS
+    // gym (and are active), then pre-apply them as a discount. This is what keeps
+    // one gym's code from being used on another's checkout - we never let codes be
+    // free-typed at Stripe Checkout.
+    let discountPromotionCodeId: string | undefined;
+    if (promoCode) {
+      const normalised = String(promoCode).trim().toUpperCase();
+      const { data: promo } = await supabase
+        .from('gym_promo_codes')
+        .select('stripe_promotion_code_id')
+        .eq('gym_id', gymId)
+        .eq('code', normalised)
+        .eq('active', true)
+        .single();
+
+      if (!promo?.stripe_promotion_code_id) {
+        return res.status(400).json({ error: 'That promo code is not valid for this gym.' });
+      }
+      discountPromotionCodeId = promo.stripe_promotion_code_id;
+    }
+
     // Calculate application fee (platform cut)
     const feePercent = gym.platform_fee_percent || 10;
     const applicationFeePercent = feePercent / 100;
@@ -146,7 +167,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       mode: 'subscription',
       customer: stripeCustomerId,
       line_items: [{ price: stripePriceId, quantity: 1 }],
-      allow_promotion_codes: true,
+      // Pre-apply the validated gym-scoped code, if any. We deliberately do NOT
+      // set allow_promotion_codes (which would let any platform code be typed).
+      ...(discountPromotionCodeId
+        ? { discounts: [{ promotion_code: discountPromotionCodeId }] }
+        : {}),
       subscription_data: {
         application_fee_percent: applicationFeePercent * 100,
         transfer_data: {

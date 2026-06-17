@@ -76,11 +76,12 @@ export const subscriptionService = {
    * return the hosted checkout URL to redirect to. The server resolves the price
    * from the membership record, so only identifiers are sent here.
    */
-  async startCheckout(gymId: string, membershipId: string, userId: string): Promise<string> {
+  async startCheckout(gymId: string, membershipId: string, userId: string, promoCode?: string): Promise<string> {
     const { url } = await authFetch<{ url: string }>('/api/subscriptions/create-gym-subscription', {
       gymId,
       membershipId,
       userId,
+      ...(promoCode ? { promoCode } : {}),
     });
     return url;
   },

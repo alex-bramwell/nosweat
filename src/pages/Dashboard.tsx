@@ -47,6 +47,7 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'wod' | 'booking' | 'services' | 'profile'>('wod');
   const [subscribingId, setSubscribingId] = useState<string | null>(null);
+  const [promoInput, setPromoInput] = useState('');
   const [selectedClasses, setSelectedClasses] = useState<Set<string>>(new Set());
   const [bookedClassIds, setBookedClassIds] = useState<Set<string>>(new Set());
   const [classCounts, setClassCounts] = useState<Record<string, number>>({});
@@ -339,7 +340,7 @@ const Dashboard = () => {
     setSubscribingId(membershipId);
     try {
       // Redirect to Stripe Checkout; the member returns to ?subscription=success.
-      const url = await subscriptionService.startCheckout(gym.id, membershipId, user.id);
+      const url = await subscriptionService.startCheckout(gym.id, membershipId, user.id, promoInput.trim() || undefined);
       window.location.href = url;
     } catch (error) {
       console.error('Error starting checkout:', error);
@@ -918,6 +919,17 @@ const Dashboard = () => {
                               </Button>
                             </Card>
                           ))}
+                        </div>
+                        <div className={styles.promoEntry}>
+                          <label htmlFor="member_promo">Have a promo code?</label>
+                          <input
+                            type="text"
+                            id="member_promo"
+                            className={styles.promoEntryInput}
+                            value={promoInput}
+                            onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                            placeholder="Enter code"
+                          />
                         </div>
                         <p className={styles.bookingNote}>
                           Secure checkout is handled by Stripe. You can cancel anytime and keep access until the end of the period you've paid for.
