@@ -78,21 +78,31 @@ const SETUP_STEPS = [
   },
 ];
 
-// A word with a single sketchy, hand-drawn underline in the blue-to-purple
-// accent gradient. Sized in em so it scales with the headline.
-const HandUnderline = ({ children }: { children: React.ReactNode }) => {
+// Hand-drawn underlines as filled, tapered brush strokes (thin and sharp at
+// both ends, fuller in the middle). Three distinct wave shapes so the three
+// underlined words do not look mechanically identical.
+const UNDERLINE_PATHS = [
+  // gentle single rise
+  'M2 8.3C45 5.3 95 4.6 140 5.5C165 6 185 6.7 198 7.4C185 9.2 165 8.8 140 8.5C95 9.2 45 10.4 2 8.3Z',
+  // dips then lifts
+  'M2 6.8C40 8.3 72 9.5 112 8.7C142 8.1 172 6.8 198 5.9C178 7.7 150 9.2 116 10.2C78 11 42 9.9 2 6.8Z',
+  // subtle S-curve
+  'M2 7.8C38 5.6 68 5.3 100 6.5C130 7.6 162 8.8 198 6.7C168 8.9 132 9.4 100 8.4C66 7.4 40 7.8 2 7.8Z',
+];
+
+const HandUnderline = ({ children, path }: { children: React.ReactNode; path: string }) => {
   const gradId = useId();
   return (
     <span className={styles.underlinedWord}>
       {children}
-      <svg className={styles.underlineSvg} viewBox="0 0 200 16" preserveAspectRatio="none" fill="none" aria-hidden="true">
+      <svg className={styles.underlineSvg} viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
         <defs>
           <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#2563eb" />
             <stop offset="100%" stopColor="#7c3aed" />
           </linearGradient>
         </defs>
-        <path d="M4 9c34-5 70-6 104-3 30 3 58 2 88-2" stroke={`url(#${gradId})`} strokeWidth="4" strokeLinecap="round" />
+        <path d={path} fill={`url(#${gradId})`} />
       </svg>
     </span>
   );
@@ -146,7 +156,7 @@ const PlatformHome = () => {
         <div className={styles.heroContent}>
           <div className={styles.heroMain}>
           <h1 className={styles.heroHeadline}>
-            No Sweat <HandUnderline>runs</HandUnderline> your gym so you can <HandUnderline>focus</HandUnderline> on what <HandUnderline>matters</HandUnderline>
+            No Sweat <HandUnderline path={UNDERLINE_PATHS[0]}>runs</HandUnderline> your gym so you can <HandUnderline path={UNDERLINE_PATHS[1]}>focus</HandUnderline> on what <HandUnderline path={UNDERLINE_PATHS[2]}>matters</HandUnderline>
           </h1>
           <p className={styles.heroSubtitle}>
             Everything a gym needs, inside your own website. Built for gym owners, by athletes.{' '}
