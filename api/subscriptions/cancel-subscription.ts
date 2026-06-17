@@ -5,10 +5,11 @@
 // of the current billing period (cancel_at_period_end) rather than immediately,
 // so the member keeps access until the period they've already paid for ends.
 //
-// The subscription lives on the gym's connected Stripe account (it was created
-// there by create-gym-subscription.ts), so the cancel call must be scoped to
-// that account via { stripeAccount }. The customer.subscription.updated webhook
-// then syncs cancel_at_period_end back into member_subscriptions.
+// The subscription lives on the PLATFORM account (created as a destination
+// charge by create-gym-subscription.ts, with funds routed to the gym), so the
+// cancel call runs on the platform account - no { stripeAccount } scoping. The
+// customer.subscription.updated webhook then syncs cancel_at_period_end back
+// into member_subscriptions.
 // =============================================================================
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
@@ -54,22 +55,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Subscription already cancelled' });
     }
 
-    // The subscription lives on the gym's connected account.
-    const { data: gym, error: gymError } = await supabase
-      .from('gyms')
-      .select('stripe_account_id')
-      .eq('id', memberSub.gym_id)
-      .single();
-
-    if (gymError || !gym?.stripe_account_id) {
-      return res.status(400).json({ error: 'Gym payment account not found' });
-    }
-
     // Cancel at period end - member keeps access until the paid period ends.
+    // Runs on the platform account (destination-charge subscription).
     const subscription = await stripe.subscriptions.update(
       subscriptionId,
-      { cancel_at_period_end: true },
-      { stripeAccount: gym.stripe_account_id }
+      { cancel_at_period_end: true }
     );
 
     // Reflect the pending cancellation immediately; the webhook will also sync

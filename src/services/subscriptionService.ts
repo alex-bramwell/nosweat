@@ -72,6 +72,20 @@ export const subscriptionService = {
   },
 
   /**
+   * Start a Stripe Checkout session for the member to subscribe to a plan, and
+   * return the hosted checkout URL to redirect to. The server resolves the price
+   * from the membership record, so only identifiers are sent here.
+   */
+  async startCheckout(gymId: string, membershipId: string, userId: string): Promise<string> {
+    const { url } = await authFetch<{ url: string }>('/api/subscriptions/create-gym-subscription', {
+      gymId,
+      membershipId,
+      userId,
+    });
+    return url;
+  },
+
+  /**
    * Cancel the subscription at the end of the current billing period.
    * The member keeps access until then.
    */

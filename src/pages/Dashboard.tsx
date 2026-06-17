@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTenant } from '../contexts/TenantContext';
+import { formatPriceShort } from '../utils/payment';
 import { Section, Container, Card, Button, EmptyStatePreview } from '../components/common';
 import { ProfileSettings } from '../components/ProfileSettings';
 import { WeeklyVolume } from '../components/WeeklyVolume';
@@ -40,9 +42,11 @@ interface ClassInstance {
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-  const { gym, schedule } = useTenant();
+  const { gym, schedule, memberships } = useTenant();
   const { message, showSuccess, showError } = useMessage();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'wod' | 'booking' | 'services' | 'profile'>('wod');
+  const [subscribingId, setSubscribingId] = useState<string | null>(null);
   const [selectedClasses, setSelectedClasses] = useState<Set<string>>(new Set());
   const [bookedClassIds, setBookedClassIds] = useState<Set<string>>(new Set());
   const [classCounts, setClassCounts] = useState<Record<string, number>>({});
@@ -162,6 +166,37 @@ const Dashboard = () => {
       loadSubscription();
     }
   }, [user?.id, loadSubscription]);
+
+  // Handle returns from the membership flow: a "Join" link from the public site
+  // (?plan=) lands on the Membership panel; a Stripe Checkout return (?subscription=)
+  // shows the outcome and refreshes. We then strip the params so a refresh is clean.
+  useEffect(() => {
+    const plan = searchParams.get('plan');
+    const sub = searchParams.get('subscription');
+    if (!plan && !sub) return;
+
+    if (plan || sub) setActiveTab('profile');
+    if (sub === 'success') {
+      showSuccess('Welcome aboard! Your membership is now active.');
+      loadSubscription();
+    } else if (sub === 'cancelled') {
+      showError('Checkout was cancelled - you have not been charged.');
+    }
+
+    if (sub) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('subscription');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams, showSuccess, showError, loadSubscription]);
+
+  // Plans a member can join: active and priced. highlightedPlan is the one they
+  // clicked "Join" on from the public site (?plan=).
+  const activeMemberships = useMemo(
+    () => memberships.filter((m) => m.is_active && (m.price_pence ?? 0) > 0),
+    [memberships]
+  );
+  const highlightedPlan = searchParams.get('plan');
 
   useEffect(() => {
     loadClassBookings();
@@ -296,6 +331,20 @@ const Dashboard = () => {
 
   const clearSelection = () => {
     setSelectedClasses(new Set());
+  };
+
+  const handleSubscribe = async (membershipId: string) => {
+    if (!gym || !user) return;
+    setSubscribingId(membershipId);
+    try {
+      // Redirect to Stripe Checkout; the member returns to ?subscription=success.
+      const url = await subscriptionService.startCheckout(gym.id, membershipId, user.id);
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error starting checkout:', error);
+      showError(error instanceof Error ? error.message : 'Could not start checkout. Please try again.');
+      setSubscribingId(null);
+    }
   };
 
   const handleCancelSubscription = async () => {
@@ -797,11 +846,53 @@ const Dashboard = () => {
                     ) : (
                       <>
                         <div className={styles.infoLabel}>Current plan</div>
-                        <div className={styles.infoValue}>No active membership subscription</div>
+                        <div className={styles.infoValue}>You don't have a membership yet.</div>
                       </>
                     )}
                   </div>
                 </Card>
+
+                {!subscription && (
+                  <div className={styles.planChoiceWrap}>
+                    {activeMemberships.length === 0 ? (
+                      <p className={styles.bookingNote}>This gym hasn't published any membership plans yet.</p>
+                    ) : (
+                      <>
+                        <h3 className={styles.sectionTitle}>Choose a membership</h3>
+                        <div className={styles.planChoiceGrid}>
+                          {activeMemberships.map((plan) => (
+                            <Card
+                              key={plan.id}
+                              variant={plan.id === highlightedPlan ? 'raised' : 'outlined'}
+                              className={styles.planChoiceCard}
+                            >
+                              <div className={styles.planChoiceHead}>
+                                <span className={styles.planChoiceName}>{plan.display_name}</span>
+                                <span className={styles.planChoicePrice}>
+                                  {formatPriceShort(plan.price_pence ?? 0)}
+                                  <span className={styles.planChoicePeriod}>/{plan.billing_period === 'yearly' ? 'year' : 'month'}</span>
+                                </span>
+                              </div>
+                              {plan.description && <p className={styles.planChoiceDesc}>{plan.description}</p>}
+                              <Button
+                                variant="primary"
+                                fullWidth
+                                size="compact"
+                                onClick={() => handleSubscribe(plan.id)}
+                                disabled={subscribingId !== null}
+                              >
+                                {subscribingId === plan.id ? 'Redirecting...' : `Join ${plan.display_name}`}
+                              </Button>
+                            </Card>
+                          ))}
+                        </div>
+                        <p className={styles.bookingNote}>
+                          Secure checkout is handled by Stripe. You can cancel anytime and keep access until the end of the period you've paid for.
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
 
                 <ProfileSettings />
               </div>
