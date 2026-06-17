@@ -12,7 +12,6 @@ const ALL_FEATURE_KEYS = [
   'day_passes',
   'trial_memberships',
   'service_booking',
-  'accounting_integration',
   'coach_analytics',
   'member_management',
 ] as const;

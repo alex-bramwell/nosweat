@@ -8,7 +8,7 @@ const PaymentFlowIllustration = ({ className }: PaymentFlowIllustrationProps) =>
     className={className}
     xmlns="http://www.w3.org/2000/svg"
     role="img"
-    aria-label="Three-step payment flow: member pays on your gym site, Stripe processes to your bank, then syncs to accounting software"
+    aria-label="Three-step payment flow: member pays on your gym site, Stripe processes the payment to your bank, and every transaction lands in your dashboard with reports and export"
   >
     <defs>
       <linearGradient id="pflow-accent" x1="0" y1="0" x2="1" y2="0">
@@ -156,19 +156,16 @@ const PaymentFlowIllustration = ({ className }: PaymentFlowIllustrationProps) =>
       style={{ animation: 'pflow-dash 1.5s linear infinite' }}
     />
     <polygon points="272,107 278,110 272,113" fill="rgba(5,150,105,0.7)" />
-    {/* Sync label on arrow */}
+    {/* Track label on arrow */}
     <rect x="247" y="100" width="24" height="10" rx="5" fill="rgba(5,150,105,0.1)" />
-    <text x="259" y="107.5" textAnchor="middle" fontFamily="'Inter', -apple-system, sans-serif" fontSize="4.5" fontWeight="600" fill="#059669">sync</text>
+    <text x="259" y="107.5" textAnchor="middle" fontFamily="'Inter', -apple-system, sans-serif" fontSize="4.5" fontWeight="600" fill="#059669">track</text>
 
-    {/* ===== NODE 3: Accounting ===== */}
+    {/* ===== NODE 3: Your Dashboard ===== */}
     <rect x="280" y="50" width="96" height="120" rx="10" fill="url(#pflow-node3)" stroke="rgba(5,150,105,0.3)" strokeWidth="0.75" />
 
-    {/* QuickBooks + Xero logos */}
-    <rect x="290" y="58" width="38" height="16" rx="5" fill="rgba(5,150,105,0.1)" stroke="rgba(5,150,105,0.2)" strokeWidth="0.5" />
-    <text x="309" y="69" textAnchor="middle" fontFamily="'Inter', -apple-system, sans-serif" fontSize="5.5" fontWeight="700" fill="#059669">QB</text>
-
-    <rect x="332" y="58" width="34" height="16" rx="5" fill="rgba(37,99,235,0.1)" stroke="rgba(37,99,235,0.2)" strokeWidth="0.5" />
-    <text x="349" y="69" textAnchor="middle" fontFamily="'Inter', -apple-system, sans-serif" fontSize="5.5" fontWeight="700" fill="#60a5fa">Xero</text>
+    {/* Dashboard header */}
+    <rect x="290" y="58" width="76" height="16" rx="5" fill="rgba(5,150,105,0.1)" stroke="rgba(5,150,105,0.2)" strokeWidth="0.5" />
+    <text x="328" y="69" textAnchor="middle" fontFamily="'Inter', -apple-system, sans-serif" fontSize="5.5" fontWeight="700" fill="#059669">Revenue</text>
 
     {/* Transaction list */}
     <rect x="290" y="82" width="76" height="16" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
@@ -176,29 +173,29 @@ const PaymentFlowIllustration = ({ className }: PaymentFlowIllustrationProps) =>
     <path d="M296 90 L297.5 91.5 L300.5 88.5" fill="none" stroke="#059669" strokeWidth="0.7" strokeLinecap="round" />
     <text x="306" y="88" fontFamily="'Inter', -apple-system, sans-serif" fontSize="5" fontWeight="500" fill="#f0f0f5">Day Pass</text>
     <text x="358" y="88" textAnchor="end" fontFamily="'Inter', -apple-system, sans-serif" fontSize="5" fontWeight="600" fill="#059669">+$25</text>
-    <text x="306" y="94" fontFamily="'Inter', -apple-system, sans-serif" fontSize="3.5" fill="#8b8b9e">Synced 2m ago</text>
+    <text x="306" y="94" fontFamily="'Inter', -apple-system, sans-serif" fontSize="3.5" fill="#8b8b9e">Paid</text>
 
     <rect x="290" y="102" width="76" height="16" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
     <circle cx="298" cy="110" r="3.5" fill="rgba(5,150,105,0.12)" />
     <path d="M296 110 L297.5 111.5 L300.5 108.5" fill="none" stroke="#059669" strokeWidth="0.7" strokeLinecap="round" />
     <text x="306" y="108" fontFamily="'Inter', -apple-system, sans-serif" fontSize="5" fontWeight="500" fill="#f0f0f5">PT Session</text>
     <text x="358" y="108" textAnchor="end" fontFamily="'Inter', -apple-system, sans-serif" fontSize="5" fontWeight="600" fill="#059669">+$80</text>
-    <text x="306" y="114" fontFamily="'Inter', -apple-system, sans-serif" fontSize="3.5" fill="#8b8b9e">Synced 15m ago</text>
+    <text x="306" y="114" fontFamily="'Inter', -apple-system, sans-serif" fontSize="3.5" fill="#8b8b9e">Paid</text>
 
     <rect x="290" y="122" width="76" height="16" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
     <circle cx="298" cy="130" r="3.5" fill="rgba(5,150,105,0.12)" />
     <path d="M296 130 L297.5 131.5 L300.5 128.5" fill="none" stroke="#059669" strokeWidth="0.7" strokeLinecap="round" />
     <text x="306" y="128" fontFamily="'Inter', -apple-system, sans-serif" fontSize="5" fontWeight="500" fill="#f0f0f5">Monthly</text>
     <text x="358" y="128" textAnchor="end" fontFamily="'Inter', -apple-system, sans-serif" fontSize="5" fontWeight="600" fill="#059669">+$49</text>
-    <text x="306" y="134" fontFamily="'Inter', -apple-system, sans-serif" fontSize="3.5" fill="#8b8b9e">Synced 1h ago</text>
+    <text x="306" y="134" fontFamily="'Inter', -apple-system, sans-serif" fontSize="3.5" fill="#8b8b9e">Paid</text>
 
-    {/* All synced bar */}
+    {/* Export-ready bar */}
     <rect x="290" y="144" width="76" height="12" rx="6" fill="rgba(5,150,105,0.08)" />
-    <text x="328" y="152.5" textAnchor="middle" fontFamily="'Inter', -apple-system, sans-serif" fontSize="4.5" fontWeight="500" fill="#059669">All synced</text>
+    <text x="328" y="152.5" textAnchor="middle" fontFamily="'Inter', -apple-system, sans-serif" fontSize="4.5" fontWeight="500" fill="#059669">Export ready</text>
 
     {/* Label */}
-    <text x="328" y="184" textAnchor="middle" fontFamily="'Inter', -apple-system, sans-serif" fontSize="8" fontWeight="600" fill="#f0f0f5">Books Updated</text>
-    <text x="328" y="194" textAnchor="middle" fontFamily="'Inter', -apple-system, sans-serif" fontSize="6" fill="#8b8b9e">Automatic sync</text>
+    <text x="328" y="184" textAnchor="middle" fontFamily="'Inter', -apple-system, sans-serif" fontSize="8" fontWeight="600" fill="#f0f0f5">Your Dashboard</text>
+    <text x="328" y="194" textAnchor="middle" fontFamily="'Inter', -apple-system, sans-serif" fontSize="6" fill="#8b8b9e">Reports & export</text>
 
     {/* ===== Bottom Summary Bar ===== */}
     <rect x="24" y="210" width="352" height="46" rx="10" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
@@ -219,9 +216,9 @@ const PaymentFlowIllustration = ({ className }: PaymentFlowIllustrationProps) =>
       {/* Divider */}
       <line x1="272" y1="218" x2="272" y2="248" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
 
-      {/* Synced */}
-      <text x="328" y="228" fontSize="6" fontWeight="500" fill="#8b8b9e">Synced to Books</text>
-      <text x="328" y="242" fontSize="12" fontWeight="800" fill="#059669">100%</text>
+      {/* Exportable */}
+      <text x="328" y="228" fontSize="6" fontWeight="500" fill="#8b8b9e">Exportable</text>
+      <text x="328" y="242" fontSize="12" fontWeight="800" fill="#059669">CSV</text>
     </g>
 
     {/* CSS animation */}

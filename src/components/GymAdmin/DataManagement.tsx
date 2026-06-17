@@ -26,7 +26,6 @@ const EXPORT_TABLES = [
   { table: 'coach_services', label: 'Coach Services', idColumn: 'gym_id' },
   { table: 'service_bookings', label: 'Service Bookings', idColumn: 'gym_id' },
   { table: 'stripe_customers', label: 'Stripe Customers', idColumn: 'gym_id' },
-  { table: 'accounting_integrations', label: 'Accounting Integrations', idColumn: 'gym_id' },
 ] as const;
 
 function escapeCSVField(value: unknown): string {
@@ -168,8 +167,7 @@ const DataManagement: React.FC = () => {
         </p>
         <p className={styles.tableList}>
           Includes: gym info, branding, features, programs, schedule, stats,
-          memberships, members, bookings, workouts, payments, coach services,
-          and accounting data.
+          memberships, members, bookings, workouts, payments, and coach services.
         </p>
         <button
           className={styles.exportButton}

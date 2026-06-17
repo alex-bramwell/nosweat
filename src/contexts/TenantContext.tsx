@@ -104,7 +104,6 @@ const ALL_FEATURE_KEYS: FeatureKey[] = [
   'day_passes',
   'trial_memberships',
   'service_booking',
-  'accounting_integration',
   'coach_analytics',
   'member_management',
   'custom_domain',
