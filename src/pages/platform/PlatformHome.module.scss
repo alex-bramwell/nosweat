@@ -226,6 +226,22 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   }
 }
 
+.underlinedWord {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.underlineSvg {
+  position: absolute;
+  left: -0.04em;
+  bottom: -0.06em;
+  width: calc(100% + 0.08em);
+  height: 0.32em;
+  overflow: visible;
+  pointer-events: none;
+}
+
 .heroSubtitle {
   font-size: 1.2rem;
   line-height: 1.7;

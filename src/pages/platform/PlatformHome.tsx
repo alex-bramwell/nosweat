@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
+import { useMemo, useState, useRef, useCallback, useEffect, useId } from 'react';
 import { FEATURES } from '../../config/features';
 import type { FeatureKey } from '../../types/tenant';
 import FeatureIcon from '../../components/common/FeatureIcon';
@@ -78,6 +78,28 @@ const SETUP_STEPS = [
   },
 ];
 
+// A word with a sketchy, hand-drawn underline in the blue-to-purple accent
+// gradient. Two slightly offset strokes give it the hand-drawn feel. Sized in
+// em so it scales with the headline.
+const HandUnderline = ({ children }: { children: React.ReactNode }) => {
+  const gradId = useId();
+  return (
+    <span className={styles.underlinedWord}>
+      {children}
+      <svg className={styles.underlineSvg} viewBox="0 0 200 16" preserveAspectRatio="none" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#2563eb" />
+            <stop offset="100%" stopColor="#7c3aed" />
+          </linearGradient>
+        </defs>
+        <path d="M4 9c34-5 70-6 104-3 30 3 58 2 88-2" stroke={`url(#${gradId})`} strokeWidth="4" strokeLinecap="round" />
+        <path d="M8 13c40-4 78-3 120-1 24 1 48 0 66-3" stroke={`url(#${gradId})`} strokeWidth="3" strokeLinecap="round" opacity="0.65" />
+      </svg>
+    </span>
+  );
+};
+
 const PlatformHome = () => {
   const price = useMemo(() => getLocalizedPrice(), []);
   const [activeRole, setActiveRole] = useState<RoleTab>('owners');
@@ -126,7 +148,7 @@ const PlatformHome = () => {
         <div className={styles.heroContent}>
           <div className={styles.heroMain}>
           <h1 className={styles.heroHeadline}>
-            No Sweat runs your gym so you can focus on what matters
+            No Sweat <HandUnderline>runs</HandUnderline> your gym so you can <HandUnderline>focus</HandUnderline> on what <HandUnderline>matters</HandUnderline>
           </h1>
           <p className={styles.heroSubtitle}>
             Everything a gym needs, inside your own website. Built for gym owners, by athletes.{' '}
