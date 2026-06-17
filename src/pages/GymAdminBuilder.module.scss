@@ -142,6 +142,55 @@ $chrome-accent: #2563eb;
   // The panel overrides CSS vars locally, but the preview inherits from :root
 }
 
+// Device preview frame: constrains the preview width for tablet/mobile.
+.previewFrame {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  transition: max-width 200ms ease;
+}
+
+.previewFrameConstrained {
+  margin: 1.25rem auto;
+  min-height: auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+// ── Device toggle ──
+.deviceToggle {
+  display: inline-flex;
+  gap: 0.125rem;
+  padding: 0.125rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.deviceButton {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #8b8b9e;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    color: #f0f0f5;
+  }
+}
+
+.deviceButtonActive {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f0f0f5;
+}
+
 // ── Responsive ──
 @media (max-width: 1024px) {
   .toolbarSelectLabel {

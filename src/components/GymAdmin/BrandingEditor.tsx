@@ -34,9 +34,10 @@ const HERO_CARD_LABELS: Record<HeroCardKey, string> = {
 
 interface BrandingEditorProps {
   onDraftChange?: (data: Partial<GymBranding> | null) => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
-const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
+const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange, onDirtyChange }) => {
   const { gym, branding, features, refreshTenant } = useTenant();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -128,6 +129,22 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
   useEffect(() => {
     onDraftChange?.(formData);
   }, [formData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Dirty tracking: unsaved if the form differs from the saved branding. Warn
+  // before the tab is closed/refreshed, and surface it to the builder shell so
+  // it can guard in-app navigation.
+  const isDirty = JSON.stringify(formData) !== JSON.stringify(buildFormData());
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => {
@@ -744,10 +761,10 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
       {renderAccordion('assets', 'Brand Assets',
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>,
         <div className={styles.assetsGrid}>
-          <ImageUpload label="Logo" description="Smart Colour will suggest a palette from your logo" value={formData.logo_url} gymId={gym?.id || ''} assetType="logo" onUpload={(url) => handleImageUpload('logo_url', url)} onRemove={() => handleImageRemove('logo_url')} />
-          <ImageUpload label="Logo (Dark Mode)" description="Used on dark backgrounds" value={formData.logo_dark_url} gymId={gym?.id || ''} assetType="logo_dark" onUpload={(url) => handleImageUpload('logo_dark_url', url)} onRemove={() => handleImageRemove('logo_dark_url')} />
-          <ImageUpload label="Favicon" description="Browser tab icon" value={formData.favicon_url} gymId={gym?.id || ''} assetType="favicon" onUpload={(url) => handleImageUpload('favicon_url', url)} onRemove={() => handleImageRemove('favicon_url')} accept="image/png,image/x-icon,image/svg+xml" />
-          <ImageUpload label="Social Share Image" description="Preview when sharing links" value={formData.og_image_url} gymId={gym?.id || ''} assetType="og_image" onUpload={(url) => handleImageUpload('og_image_url', url)} onRemove={() => handleImageRemove('og_image_url')} />
+          <ImageUpload label="Logo" description="Smart Colour suggests a palette from your logo. Use a transparent PNG, around 240px tall." value={formData.logo_url} gymId={gym?.id || ''} assetType="logo" onUpload={(url) => handleImageUpload('logo_url', url)} onRemove={() => handleImageRemove('logo_url')} />
+          <ImageUpload label="Logo (Dark Mode)" description="Shown on dark backgrounds. Transparent PNG recommended." value={formData.logo_dark_url} gymId={gym?.id || ''} assetType="logo_dark" onUpload={(url) => handleImageUpload('logo_dark_url', url)} onRemove={() => handleImageRemove('logo_dark_url')} />
+          <ImageUpload label="Favicon" description="Browser tab icon. Square PNG, 32x32 or 64x64px." value={formData.favicon_url} gymId={gym?.id || ''} assetType="favicon" onUpload={(url) => handleImageUpload('favicon_url', url)} onRemove={() => handleImageRemove('favicon_url')} accept="image/png,image/x-icon,image/svg+xml" />
+          <ImageUpload label="Social Share Image" description="Preview image when your site is shared on social. Recommended 1200x630px." value={formData.og_image_url} gymId={gym?.id || ''} assetType="og_image" onUpload={(url) => handleImageUpload('og_image_url', url)} onRemove={() => handleImageRemove('og_image_url')} />
         </div>
       )}
 
@@ -827,7 +844,7 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
             <label htmlFor="hero_subtitle">Subtitle</label>
             <input type="text" id="hero_subtitle" value={formData.hero_subtitle} onChange={(e) => handleChange('hero_subtitle', e.target.value)} className={styles.brandingInput} placeholder="Transform your fitness journey..." />
           </div>
-          <ImageUpload label="Background Image" description="Background image for the hero section" value={formData.hero_image_url} gymId={gym?.id || ''} assetType="hero_image" onUpload={(url) => handleImageUpload('hero_image_url', url)} onRemove={() => handleImageRemove('hero_image_url')} />
+          <ImageUpload label="Background Image" description="Hero background. Recommended 1920x1080px (landscape, high quality)." value={formData.hero_image_url} gymId={gym?.id || ''} assetType="hero_image" onUpload={(url) => handleImageUpload('hero_image_url', url)} onRemove={() => handleImageRemove('hero_image_url')} />
           <div className={styles.brandingFormField}>
             <label htmlFor="hero_effect">Background Effect</label>
             <select id="hero_effect" value={formData.hero_effect} onChange={(e) => handleChange('hero_effect', e.target.value)} className={styles.brandingSelect}>
@@ -926,7 +943,7 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
             <label htmlFor="about_facility">Facility Description</label>
             <textarea id="about_facility" value={formData.about_facility} onChange={(e) => handleChange('about_facility', e.target.value)} className={styles.brandingTextarea} placeholder="Our facility features..." rows={3} />
           </div>
-          <ImageUpload label="About Page Image" description="Image for the about page" value={formData.about_image_url} gymId={gym?.id || ''} assetType="about_image" onUpload={(url) => handleImageUpload('about_image_url', url)} onRemove={() => handleImageRemove('about_image_url')} />
+          <ImageUpload label="About Page Image" description="About page image. Recommended around 1200x800px." value={formData.about_image_url} gymId={gym?.id || ''} assetType="about_image" onUpload={(url) => handleImageUpload('about_image_url', url)} onRemove={() => handleImageRemove('about_image_url')} />
         </div>
       )}
 
@@ -1015,10 +1032,11 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
       )}
 
       <div className={styles.brandingActions}>
+        {isDirty && <span className={styles.unsavedPill}>Unsaved changes</span>}
         <Button variant="ghost" onClick={handleReset} disabled={isLoading}>
           Reset
         </Button>
-        <Button onClick={handleSave} disabled={isLoading}>
+        <Button onClick={handleSave} disabled={isLoading || !isDirty}>
           {isLoading ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
