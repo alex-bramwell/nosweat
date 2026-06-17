@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import DayPassIllustration from '../../components/common/illustrations/DayPassIllustration';
 import ServiceBookingIllustration from '../../components/common/illustrations/ServiceBookingIllustration';
-import AccountingIllustration from '../../components/common/illustrations/AccountingIllustration';
 import PaymentFlowIllustration from '../../components/common/illustrations/PaymentFlowIllustration';
 import styles from './Payments.module.scss';
 
@@ -11,7 +10,6 @@ const NAV_ITEMS = [
   { id: 'day-passes', label: 'Day Passes' },
   { id: 'service-bookings', label: 'Bookings' },
   { id: 'payment-types', label: 'Payment Types' },
-  { id: 'accounting', label: 'Accounting' },
   { id: 'stripe', label: 'Stripe' },
   { id: 'faq', label: 'FAQ' },
 ];
@@ -360,57 +358,6 @@ const Payments = () => {
         </div>
       </section>
 
-      {/* Showcase: Accounting Integration */}
-      <section id="accounting" ref={assignRef('accounting')} className={styles.showcaseSection}>
-        <div className={styles.showcaseInner}>
-          <div className={styles.showcaseRow}>
-            <div className={styles.showcaseText}>
-              <h2 className={styles.showcaseTitle}>
-                Your books, always in sync
-              </h2>
-              <p className={styles.showcaseDescription}>
-                Already using QuickBooks or Xero? Connect your account and every
-                payment flows straight into your accounting software automatically.
-                Day pass sales, PT sessions, membership subscriptions -all synced
-                in real-time. No double entry, no missed transactions, no
-                end-of-month panic. Your accountant will love you for it.
-              </p>
-              <ul className={styles.showcaseBullets}>
-                <li className={styles.showcaseBullet}>
-                  <span className={styles.bulletCheck}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 6L9 17l-5-5" />
-                    </svg>
-                  </span>
-                  QuickBooks and Xero integration
-                </li>
-                <li className={styles.showcaseBullet}>
-                  <span className={styles.bulletCheck}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 6L9 17l-5-5" />
-                    </svg>
-                  </span>
-                  Automatic payment and invoice sync
-                </li>
-                <li className={styles.showcaseBullet}>
-                  <span className={styles.bulletCheck}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 6L9 17l-5-5" />
-                    </svg>
-                  </span>
-                  Real-time transaction flow -no manual entry
-                </li>
-              </ul>
-            </div>
-            <div className={styles.showcaseVisual}>
-              <div className={styles.illustrationWrapper}>
-                <AccountingIllustration />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Stripe requirement -positioned as a benefit */}
       <section id="stripe" ref={assignRef('stripe')} className={styles.paymentsSection}>
         <div className={styles.paymentsInner}>
@@ -485,14 +432,12 @@ const Payments = () => {
             </div>
 
             <div className={styles.faqItem}>
-              <h3 className={styles.faqQuestion}>Does it link to my accounting software?</h3>
+              <h3 className={styles.faqQuestion}>How does this work with my bookkeeping?</h3>
               <p className={styles.faqAnswer}>
-                Yes. No Sweat integrates with QuickBooks and Xero so every payment -
-                day passes, PT sessions, memberships -syncs automatically into your
-                accounting software. No manual data entry, no reconciliation headaches.
-                If you don't use accounting software yet, don't worry -your Stripe
-                dashboard gives you full transaction history, reports, and export tools
-                out of the box.
+                Every payment runs through Stripe, so your Stripe dashboard gives you a
+                full transaction history, financial reports, and CSV exports out of the
+                box - everything your accountant needs. QuickBooks and Xero also connect
+                to Stripe directly, so your payment data can flow into your books that way.
               </p>
             </div>
           </div>

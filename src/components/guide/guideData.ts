@@ -133,14 +133,6 @@ export const GUIDE_SECTIONS: GuideSectionGroup[] = [
         bullets: ['Muscle group tracking', 'Weekly volume analysis', 'Programming balance score'],
         illustrationKey: 'analytics',
       },
-      {
-        id: 'accounting',
-        title: 'Your books, always in sync',
-        description:
-          'Connect QuickBooks or Xero and let payments flow automatically into your accounting software. Day pass sales, service bookings, and subscription revenue all sync in real-time. Spend less time on spreadsheets.',
-        bullets: ['QuickBooks and Xero support', 'Automatic payment sync', 'Real-time transaction flow'],
-        illustrationKey: 'accounting',
-      },
     ],
   },
 ];

@@ -10,7 +10,6 @@ import DayPassIllustration from '../common/illustrations/DayPassIllustration';
 import ServiceBookingIllustration from '../common/illustrations/ServiceBookingIllustration';
 import MemberManagementIllustration from '../common/illustrations/MemberManagementIllustration';
 import AnalyticsIllustration from '../common/illustrations/AnalyticsIllustration';
-import AccountingIllustration from '../common/illustrations/AccountingIllustration';
 
 interface IllustrationProps {
   className?: string;
@@ -28,5 +27,4 @@ export const ILLUSTRATIONS: Record<string, ComponentType<IllustrationProps>> = {
   serviceBooking: ServiceBookingIllustration,
   memberManagement: MemberManagementIllustration,
   analytics: AnalyticsIllustration,
-  accounting: AccountingIllustration,
 };

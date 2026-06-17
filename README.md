@@ -71,7 +71,6 @@ nosweat.fitness/gym/comet/dashboard   → Member dashboard
 - **Member Dashboard** — Today's WOD, upcoming bookings, profile management
 - **Member Management** — Admin panel with roles, invitations, and directory
 - **Coach Analytics** — Muscle group tracking, volume analysis, programming balance
-- **Accounting Integration** — QuickBooks and Xero sync for payments and invoices
 - **Custom Domains** - Gyms can use their own domain (e.g., www.mygym.com) as a paid feature with automatic DNS verification
 - **Feature Toggles** - Gym owners enable/disable features from admin panel
 - **Full Brand Customisation** - Logo, colours, fonts, and theme per tenant
@@ -97,7 +96,6 @@ nosweat.fitness/gym/comet/dashboard   → Member dashboard
 | **Authentication** | Supabase Auth |
 | **Database** | Supabase (PostgreSQL) with RLS |
 | **Payments** | Stripe (PaymentIntents & SetupIntents) |
-| **Accounting** | QuickBooks / Xero integration |
 | **Containerisation** | Docker Compose (dev + prod) |
 | **Deployment** | Vercel (frontend + serverless functions) |
 
@@ -187,7 +185,7 @@ docker-compose down
 | Service | Container | Port | Description |
 |---------|-----------|------|-------------|
 | Frontend | `gymnosweatfitness-frontend-1` | 5173 | Vite dev server, proxies API to backend |
-| Backend | `gymnosweatfitness-backend-1` | 3001 | Express API: payments, accounting, webhooks |
+| Backend | `gymnosweatfitness-backend-1` | 3001 | Express API: payments, webhooks |
 
 Both services mount the project directory for live reloading. Node modules live in an anonymous Docker volume.
 
@@ -210,7 +208,6 @@ nosweat/
 │   ├── connect/                     # Stripe Connect account management
 │   ├── payments/
 │   ├── subscriptions/
-│   ├── accounting/
 │   └── webhooks/
 ├── server/                           # Express API server (local development)
 ├── public/                           # Static assets
@@ -491,12 +488,6 @@ STRIPE_WEBHOOK_SECRET=whsec_xxx
 
 # API (set automatically by docker-compose)
 VITE_API_URL=http://localhost:3001
-
-# Accounting (optional)
-QUICKBOOKS_CLIENT_ID=xxx
-QUICKBOOKS_CLIENT_SECRET=xxx
-QUICKBOOKS_REDIRECT_URI=http://localhost:3001/api/accounting/callback
-QUICKBOOKS_ENVIRONMENT=sandbox
 ```
 
 ### Vercel Production
@@ -574,7 +565,7 @@ Returns `429` when exceeded; fails open if the limiter itself errors.
 Point an uptime monitor at the `?deep=1` URL.
 
 ### Error tracking (Sentry)
-Optional, off by default. Set `VITE_SENTRY_DSN` (frontend) and `SENTRY_DSN` (backend) to enable - the SDK is a no-op without them. Frontend uses `@sentry/react` (init + ErrorBoundary in `src/main.tsx`); backend uses `@sentry/node` via `api/lib/sentry.ts` `captureError()`, wired into the payment, Stripe-webhook and accounting-sync handlers. Free hosted tier at sentry.io, or self-host GlitchTip (same SDK). **New API handlers should call `captureError(err, { endpoint })` in their catch block.**
+Optional, off by default. Set `VITE_SENTRY_DSN` (frontend) and `SENTRY_DSN` (backend) to enable - the SDK is a no-op without them. Frontend uses `@sentry/react` (init + ErrorBoundary in `src/main.tsx`); backend uses `@sentry/node` via `api/lib/sentry.ts` `captureError()`, wired into the payment and Stripe-webhook handlers. Free hosted tier at sentry.io, or self-host GlitchTip (same SDK). **New API handlers should call `captureError(err, { endpoint })` in their catch block.**
 
 ### Backups & recovery
 - **Schema**: every change is a migration in `supabase/migrations/`, auto-applied on merge to `main`.
