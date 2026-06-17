@@ -79,7 +79,7 @@ const SETUP_STEPS = [
   {
     title: 'Create or import your program',
     detail:
-      'Build your programming in the workout editor with a full movement database, or import what you already run. Every session feeds built-in analytics that track training volume, movement balance, time domains and modality split, so you can see at a glance where the gaps are, keep your athletes progressing and prove your programming stays balanced week to week.',
+      'Build your programming in the workout editor, or import what you already run. Every session feeds built-in analytics covering volume, movement balance and time domains, so you can spot gaps and keep your athletes progressing.',
   },
 ];
 
