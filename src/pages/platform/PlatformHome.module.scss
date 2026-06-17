@@ -276,6 +276,12 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   @media (max-width: 768px) {
     justify-content: center;
   }
+
+  // On small mobile, stack the buttons full-width to match the panel below.
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 // ── Hero Stats Strip ──
@@ -291,6 +297,9 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   border-radius: 16px;
 
   @media (max-width: 600px) {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
     flex-direction: column;
     gap: 0.75rem;
     padding: 1.25rem 1.5rem;
@@ -370,6 +379,13 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
     color: #ffffff;
     transform: translateY(0) scale(0.97);
   }
+
+  @media (max-width: 600px) {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+  }
 }
 
 .ctaSecondary {
@@ -398,6 +414,14 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   &:active {
     color: $platform-text;
     transform: translateY(0) scale(0.97);
+  }
+
+  @media (max-width: 600px) {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+    text-align: center;
   }
 }
 
