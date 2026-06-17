@@ -88,11 +88,10 @@ const SETUP_STEPS = [
 // plus a thickness profile so the ends stay thin (taperPow > 1 concentrates the
 // width in the middle). Each word gets a different wave phase so the three do
 // not look mechanically identical.
-const buildUnderline = (waveAmp: number, phase: number): string => {
+const buildUnderline = (waveAmp: number, phase: number, maxHalf = 1.05): string => {
   const SAMPLES = 48;
   const WIDTH = 200;
   const CENTER_Y = 7;
-  const MAX_HALF = 1.05; // half the thickest point (mid-line)
   const TAPER_POW = 1.7; // higher = thinner, finer ends
   const top: string[] = [];
   const bottom: string[] = [];
@@ -100,7 +99,7 @@ const buildUnderline = (waveAmp: number, phase: number): string => {
     const t = i / SAMPLES;
     const x = +(t * WIDTH).toFixed(1);
     const center = CENTER_Y + waveAmp * Math.sin(phase + t * Math.PI * 2);
-    const half = MAX_HALF * Math.pow(Math.sin(Math.PI * t), TAPER_POW);
+    const half = maxHalf * Math.pow(Math.sin(Math.PI * t), TAPER_POW);
     top.push(`${x} ${(center - half).toFixed(2)}`);
     bottom.push(`${x} ${(center + half).toFixed(2)}`);
   }
@@ -114,6 +113,10 @@ const UNDERLINE_PATHS = [
   buildUnderline(0.6, 2.3),
   buildUnderline(0.4, 4.2),
 ];
+
+// Thicker, straighter variant for small body-text contexts where the standard
+// underline would render too thin.
+const UNDERLINE_PATH_THICK = buildUnderline(0.35, 1.5, 2.4);
 
 // Detailed flexed-arm ("strong arm") line glyph stroked with the blue-to-purple
 // accent gradient, inline in the hero subtitle. Artwork is the OpenMoji
@@ -142,12 +145,12 @@ const StrongArmIcon = () => {
   );
 };
 
-const HandUnderline = ({ children, path }: { children: React.ReactNode; path: string }) => {
+const HandUnderline = ({ children, path, svgClassName }: { children: React.ReactNode; path: string; svgClassName?: string }) => {
   const gradId = useId();
   return (
     <span className={styles.underlinedWord}>
       {children}
-      <svg className={styles.underlineSvg} viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+      <svg className={`${styles.underlineSvg} ${svgClassName ?? ''}`} viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
         <defs>
           <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#2563eb" />
@@ -404,7 +407,7 @@ const PlatformHome = () => {
             <Link to="/signup" className={styles.pricingCta}>
               Get Started
             </Link>
-            <p className={styles.pricingNote}>No contracts. Cancel anytime.</p>
+            <p className={styles.pricingNote}>No contracts. <HandUnderline path={UNDERLINE_PATH_THICK} svgClassName={styles.underlineSvgNote}>Cancel anytime</HandUnderline>.</p>
           </div>
         </div>
       </section>

@@ -274,6 +274,13 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   pointer-events: none;
 }
 
+// Variant for small body-text: thicker line that sits lower (more breathing
+// room under the text).
+.underlineSvgNote {
+  height: 0.5em;
+  bottom: -0.42em;
+}
+
 .heroSubtitle {
   font-size: 1.2rem;
   line-height: 1.7;
