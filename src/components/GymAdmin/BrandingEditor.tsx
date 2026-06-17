@@ -3,12 +3,13 @@ import { useTenant, DEFAULT_BRANDING } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { AVAILABLE_FONTS } from '../../hooks/useTenantTheme';
 import { FEATURES, type FeatureDefinition } from '../../config/features';
-import type { FeatureKey, HeroCards } from '../../types/tenant';
+import type { FeatureKey, HeroCards, HeroCardKey, AboutValue } from '../../types/tenant';
 import { Button } from '../common';
 import ImageUpload from './ImageUpload';
 import FeatureDisableModal from './FeatureDisableModal';
 import { extractPaletteFromImage, type ExtractedPalette } from '../../lib/colorExtractor';
 import { derivePalette } from '../../lib/colorUtils';
+import { ABOUT_ICON_OPTIONS, DEFAULT_ABOUT_VALUES } from '../../data/aboutValues';
 import type { GymBranding } from '../../types/tenant';
 import styles from './BrandingEditor.module.scss';
 
@@ -17,13 +18,19 @@ const HERO_EFFECTS = [
   { value: 'gradient', label: 'Gradient Shift' },
 ];
 
-const SECTION_OPTIONS = [
-  { key: 'hero', label: 'Hero Banner' },
-  { key: 'programs', label: 'Programs' },
-  { key: 'stats', label: 'Stats' },
-  { key: 'wod', label: 'Workout of the Day' },
-  { key: 'cta', label: 'Call to Action' },
-];
+const SECTION_LABELS: Record<string, string> = {
+  hero: 'Hero Banner',
+  programs: 'Programs',
+  stats: 'Stats',
+  wod: 'Workout of the Day',
+  cta: 'Call to Action',
+};
+
+const HERO_CARD_LABELS: Record<HeroCardKey, string> = {
+  daypass: 'Day Pass',
+  trial: 'Free Trial',
+  schedule: 'Schedule',
+};
 
 interface BrandingEditorProps {
   onDraftChange?: (data: Partial<GymBranding> | null) => void;
@@ -88,17 +95,26 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
     hero_subtitle: source.hero_subtitle,
     cta_headline: source.cta_headline,
     cta_subtitle: source.cta_subtitle,
+    cta_primary_text: source.cta_primary_text || DEFAULT_BRANDING.cta_primary_text || '',
+    cta_secondary_text: source.cta_secondary_text || DEFAULT_BRANDING.cta_secondary_text || '',
+    cta_note: source.cta_note ?? DEFAULT_BRANDING.cta_note ?? '',
     about_mission: source.about_mission || '',
     about_philosophy: source.about_philosophy || '',
     about_facility: source.about_facility || '',
+    about_values: source.about_values ?? DEFAULT_ABOUT_VALUES,
     footer_text: source.footer_text || '',
+    // SEO
+    seo_title: source.seo_title || '',
+    seo_description: source.seo_description || '',
     // Custom code
     custom_css: source.custom_css || '',
     hero_effect: source.hero_effect || 'none',
     // Sections
     visible_sections: source.visible_sections ?? { hero: true, programs: true, wod: true, cta: true, stats: true },
+    section_order: source.section_order ?? DEFAULT_BRANDING.section_order,
     // Hero cards
     hero_cards: source.hero_cards ?? DEFAULT_BRANDING.hero_cards,
+    hero_card_order: source.hero_card_order ?? DEFAULT_BRANDING.hero_card_order,
   });
 
   const [formData, setFormData] = useState(buildFormData);
@@ -167,6 +183,55 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
         },
       },
     }));
+  };
+
+  const handleHeroCardEnabledToggle = (card: HeroCardKey) => {
+    setFormData((prev) => ({
+      ...prev,
+      hero_cards: {
+        ...prev.hero_cards,
+        [card]: { ...prev.hero_cards[card], enabled: prev.hero_cards[card].enabled === false },
+      },
+    }));
+  };
+
+  // Move an item up/down within an ordered string array stored on formData.
+  const moveInOrder = (field: 'section_order' | 'hero_card_order', index: number, dir: -1 | 1) => {
+    setFormData((prev) => {
+      const arr = [...prev[field]];
+      const target = index + dir;
+      if (target < 0 || target >= arr.length) return prev;
+      [arr[index], arr[target]] = [arr[target], arr[index]];
+      return { ...prev, [field]: arr };
+    });
+  };
+
+  const handleAboutValueChange = (index: number, field: keyof AboutValue, value: string) => {
+    setFormData((prev) => {
+      const next = prev.about_values.map((v, i) => (i === index ? { ...v, [field]: value } : v));
+      return { ...prev, about_values: next };
+    });
+  };
+
+  const handleAboutValueMove = (index: number, dir: -1 | 1) => {
+    setFormData((prev) => {
+      const arr = [...prev.about_values];
+      const target = index + dir;
+      if (target < 0 || target >= arr.length) return prev;
+      [arr[index], arr[target]] = [arr[target], arr[index]];
+      return { ...prev, about_values: arr };
+    });
+  };
+
+  const handleAboutValueAdd = () => {
+    setFormData((prev) => ({
+      ...prev,
+      about_values: [...prev.about_values, { icon: ABOUT_ICON_OPTIONS[0], title: 'New value', description: 'Describe what makes your gym different.' }],
+    }));
+  };
+
+  const handleAboutValueRemove = (index: number) => {
+    setFormData((prev) => ({ ...prev, about_values: prev.about_values.filter((_, i) => i !== index) }));
   };
 
   const handleImageUpload = async (field: string, url: string) => {
@@ -239,17 +304,26 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
           hero_subtitle: formData.hero_subtitle,
           cta_headline: formData.cta_headline,
           cta_subtitle: formData.cta_subtitle,
+          cta_primary_text: formData.cta_primary_text || null,
+          cta_secondary_text: formData.cta_secondary_text || null,
+          cta_note: formData.cta_note || null,
           about_mission: formData.about_mission || null,
           about_philosophy: formData.about_philosophy || null,
           about_facility: formData.about_facility || null,
+          about_values: formData.about_values,
           footer_text: formData.footer_text || null,
+          // SEO
+          seo_title: formData.seo_title || null,
+          seo_description: formData.seo_description || null,
           // Custom code
           custom_css: formData.custom_css,
           hero_effect: formData.hero_effect,
-          // Sections
+          // Sections + order
           visible_sections: formData.visible_sections,
+          section_order: formData.section_order,
           // Hero cards
           hero_cards: formData.hero_cards,
+          hero_card_order: formData.hero_card_order,
         })
         .eq('gym_id', gym.id);
 
@@ -717,19 +791,26 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
       {/* ━━ HOMEPAGE ━━ */}
       <div className={styles.sectionGroupHeading}>Homepage</div>
 
-      {/* ── Visible Sections ── */}
-      {renderAccordion('sections', 'Visible Sections',
+      {/* ── Sections: visibility + order ── */}
+      {renderAccordion('sections', 'Sections & Order',
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>,
-        <div className={styles.sectionsGrid}>
-          {SECTION_OPTIONS.map((section) => (
-            <label key={section.key} className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={formData.visible_sections[section.key] !== false}
-                onChange={() => handleSectionToggle(section.key)}
-              />
-              <span>{section.label}</span>
-            </label>
+        <div className={styles.contentGrid}>
+          <p className={styles.featuresHint}>Show, hide and reorder the sections on your homepage. Use the arrows to move a section up or down.</p>
+          {formData.section_order.map((key, i) => (
+            <div key={key} className={styles.orderRow}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={formData.visible_sections[key] !== false}
+                  onChange={() => handleSectionToggle(key)}
+                />
+                <span>{SECTION_LABELS[key] ?? key}</span>
+              </label>
+              <div className={styles.orderControls}>
+                <button type="button" className={styles.orderButton} aria-label={`Move ${SECTION_LABELS[key] ?? key} up`} disabled={i === 0} onClick={() => moveInOrder('section_order', i, -1)}>↑</button>
+                <button type="button" className={styles.orderButton} aria-label={`Move ${SECTION_LABELS[key] ?? key} down`} disabled={i === formData.section_order.length - 1} onClick={() => moveInOrder('section_order', i, 1)}>↓</button>
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -763,56 +844,39 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>,
         <div className={styles.contentGrid}>
           <p className={styles.featuresHint}>
-            Customise the title, description, and button text for each action card on your homepage hero. Cards only appear when their feature is enabled.
+            Toggle, reorder and edit each action card on your homepage hero. A card also requires its feature to be enabled to appear (e.g. the Day Pass card needs Day Passes on).
           </p>
 
-          <div className={styles.heroCardGroup}>
-            <span className={styles.heroCardGroupLabel}>Day Pass Card</span>
-            <div className={styles.brandingFormField}>
-              <label htmlFor="daypass_title">Title</label>
-              <input type="text" id="daypass_title" value={formData.hero_cards.daypass.title} onChange={(e) => handleHeroCardChange('daypass', 'title', e.target.value)} className={styles.brandingInput} placeholder="Day Pass" />
+          {(formData.hero_card_order as HeroCardKey[]).map((card, i) => (
+            <div key={card} className={styles.heroCardGroup}>
+              <div className={styles.heroCardGroupHeader}>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={formData.hero_cards[card].enabled !== false}
+                    onChange={() => handleHeroCardEnabledToggle(card)}
+                  />
+                  <span className={styles.heroCardGroupLabel}>{HERO_CARD_LABELS[card]} Card</span>
+                </label>
+                <div className={styles.orderControls}>
+                  <button type="button" className={styles.orderButton} aria-label={`Move ${HERO_CARD_LABELS[card]} up`} disabled={i === 0} onClick={() => moveInOrder('hero_card_order', i, -1)}>↑</button>
+                  <button type="button" className={styles.orderButton} aria-label={`Move ${HERO_CARD_LABELS[card]} down`} disabled={i === formData.hero_card_order.length - 1} onClick={() => moveInOrder('hero_card_order', i, 1)}>↓</button>
+                </div>
+              </div>
+              <div className={styles.brandingFormField}>
+                <label htmlFor={`${card}_title`}>Title</label>
+                <input type="text" id={`${card}_title`} value={formData.hero_cards[card].title} onChange={(e) => handleHeroCardChange(card, 'title', e.target.value)} className={styles.brandingInput} />
+              </div>
+              <div className={styles.brandingFormField}>
+                <label htmlFor={`${card}_desc`}>Description</label>
+                <input type="text" id={`${card}_desc`} value={formData.hero_cards[card].description} onChange={(e) => handleHeroCardChange(card, 'description', e.target.value)} className={styles.brandingInput} />
+              </div>
+              <div className={styles.brandingFormField}>
+                <label htmlFor={`${card}_btn`}>Button Text</label>
+                <input type="text" id={`${card}_btn`} value={formData.hero_cards[card].button} onChange={(e) => handleHeroCardChange(card, 'button', e.target.value)} className={styles.brandingInput} />
+              </div>
             </div>
-            <div className={styles.brandingFormField}>
-              <label htmlFor="daypass_desc">Description</label>
-              <input type="text" id="daypass_desc" value={formData.hero_cards.daypass.description} onChange={(e) => handleHeroCardChange('daypass', 'description', e.target.value)} className={styles.brandingInput} placeholder="Drop in for a single session..." />
-            </div>
-            <div className={styles.brandingFormField}>
-              <label htmlFor="daypass_btn">Button Text</label>
-              <input type="text" id="daypass_btn" value={formData.hero_cards.daypass.button} onChange={(e) => handleHeroCardChange('daypass', 'button', e.target.value)} className={styles.brandingInput} placeholder="Book Day Pass" />
-            </div>
-          </div>
-
-          <div className={styles.heroCardGroup}>
-            <span className={styles.heroCardGroupLabel}>Free Trial Card</span>
-            <div className={styles.brandingFormField}>
-              <label htmlFor="trial_title">Title</label>
-              <input type="text" id="trial_title" value={formData.hero_cards.trial.title} onChange={(e) => handleHeroCardChange('trial', 'title', e.target.value)} className={styles.brandingInput} placeholder="Free Trial" />
-            </div>
-            <div className={styles.brandingFormField}>
-              <label htmlFor="trial_desc">Description</label>
-              <input type="text" id="trial_desc" value={formData.hero_cards.trial.description} onChange={(e) => handleHeroCardChange('trial', 'description', e.target.value)} className={styles.brandingInput} placeholder="Try your first class on us..." />
-            </div>
-            <div className={styles.brandingFormField}>
-              <label htmlFor="trial_btn">Button Text</label>
-              <input type="text" id="trial_btn" value={formData.hero_cards.trial.button} onChange={(e) => handleHeroCardChange('trial', 'button', e.target.value)} className={styles.brandingInput} placeholder="Book Trial Pass" />
-            </div>
-          </div>
-
-          <div className={styles.heroCardGroup}>
-            <span className={styles.heroCardGroupLabel}>Schedule Card</span>
-            <div className={styles.brandingFormField}>
-              <label htmlFor="schedule_title">Title</label>
-              <input type="text" id="schedule_title" value={formData.hero_cards.schedule.title} onChange={(e) => handleHeroCardChange('schedule', 'title', e.target.value)} className={styles.brandingInput} placeholder="Class Schedule" />
-            </div>
-            <div className={styles.brandingFormField}>
-              <label htmlFor="schedule_desc">Description</label>
-              <input type="text" id="schedule_desc" value={formData.hero_cards.schedule.description} onChange={(e) => handleHeroCardChange('schedule', 'description', e.target.value)} className={styles.brandingInput} placeholder="View our full timetable..." />
-            </div>
-            <div className={styles.brandingFormField}>
-              <label htmlFor="schedule_btn">Button Text</label>
-              <input type="text" id="schedule_btn" value={formData.hero_cards.schedule.button} onChange={(e) => handleHeroCardChange('schedule', 'button', e.target.value)} className={styles.brandingInput} placeholder="View Schedule" />
-            </div>
-          </div>
+          ))}
         </div>
       )}
 
@@ -827,6 +891,18 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
           <div className={styles.brandingFormField}>
             <label htmlFor="cta_subtitle">Subtitle</label>
             <input type="text" id="cta_subtitle" value={formData.cta_subtitle} onChange={(e) => handleChange('cta_subtitle', e.target.value)} className={styles.brandingInput} placeholder="Join us today..." />
+          </div>
+          <div className={styles.brandingFormField}>
+            <label htmlFor="cta_primary_text">Primary Button</label>
+            <input type="text" id="cta_primary_text" value={formData.cta_primary_text} onChange={(e) => handleChange('cta_primary_text', e.target.value)} className={styles.brandingInput} placeholder="Book Free Trial" />
+          </div>
+          <div className={styles.brandingFormField}>
+            <label htmlFor="cta_secondary_text">Secondary Button</label>
+            <input type="text" id="cta_secondary_text" value={formData.cta_secondary_text} onChange={(e) => handleChange('cta_secondary_text', e.target.value)} className={styles.brandingInput} placeholder="Contact Us" />
+          </div>
+          <div className={styles.brandingFormField}>
+            <label htmlFor="cta_note">Small Note (under buttons)</label>
+            <input type="text" id="cta_note" value={formData.cta_note} onChange={(e) => handleChange('cta_note', e.target.value)} className={styles.brandingInput} placeholder="No commitment required..." />
           </div>
         </div>
       )}
@@ -854,6 +930,41 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
         </div>
       )}
 
+      {/* ── About Value Cards ── */}
+      {renderAccordion('aboutValues', 'About: Value Cards',
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>,
+        <div className={styles.contentGrid}>
+          <p className={styles.featuresHint}>The "What makes us different" cards on your About page. Edit, reorder, add or remove them.</p>
+          {formData.about_values.map((value, i) => (
+            <div key={i} className={styles.heroCardGroup}>
+              <div className={styles.heroCardGroupHeader}>
+                <span className={styles.heroCardGroupLabel}>Card {i + 1}</span>
+                <div className={styles.orderControls}>
+                  <button type="button" className={styles.orderButton} aria-label="Move card up" disabled={i === 0} onClick={() => handleAboutValueMove(i, -1)}>↑</button>
+                  <button type="button" className={styles.orderButton} aria-label="Move card down" disabled={i === formData.about_values.length - 1} onClick={() => handleAboutValueMove(i, 1)}>↓</button>
+                  <button type="button" className={styles.orderButton} aria-label="Remove card" onClick={() => handleAboutValueRemove(i)}>✕</button>
+                </div>
+              </div>
+              <div className={styles.brandingFormField}>
+                <label htmlFor={`av_icon_${i}`}>Icon</label>
+                <select id={`av_icon_${i}`} value={value.icon} onChange={(e) => handleAboutValueChange(i, 'icon', e.target.value)} className={styles.brandingSelect}>
+                  {ABOUT_ICON_OPTIONS.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+              </div>
+              <div className={styles.brandingFormField}>
+                <label htmlFor={`av_title_${i}`}>Title</label>
+                <input type="text" id={`av_title_${i}`} value={value.title} onChange={(e) => handleAboutValueChange(i, 'title', e.target.value)} className={styles.brandingInput} />
+              </div>
+              <div className={styles.brandingFormField}>
+                <label htmlFor={`av_desc_${i}`}>Description</label>
+                <input type="text" id={`av_desc_${i}`} value={value.description} onChange={(e) => handleAboutValueChange(i, 'description', e.target.value)} className={styles.brandingInput} />
+              </div>
+            </div>
+          ))}
+          <Button variant="ghost" onClick={handleAboutValueAdd} disabled={isLoading}>+ Add card</Button>
+        </div>
+      )}
+
       {/* ━━ SITE-WIDE ━━ */}
       <div className={styles.sectionGroupHeading}>Site-wide</div>
 
@@ -864,6 +975,22 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange }) => {
           <div className={styles.brandingFormField}>
             <label htmlFor="footer_text">Footer Text</label>
             <input type="text" id="footer_text" value={formData.footer_text} onChange={(e) => handleChange('footer_text', e.target.value)} className={styles.brandingInput} placeholder="Additional footer text..." />
+          </div>
+        </div>
+      )}
+
+      {/* ── SEO ── */}
+      {renderAccordion('seo', 'SEO & Sharing',
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>,
+        <div className={styles.contentGrid}>
+          <p className={styles.featuresHint}>How your site shows up in search results and link previews. Leave blank to use your gym name.</p>
+          <div className={styles.brandingFormField}>
+            <label htmlFor="seo_title">Page Title</label>
+            <input type="text" id="seo_title" value={formData.seo_title} onChange={(e) => handleChange('seo_title', e.target.value)} className={styles.brandingInput} placeholder={gym?.name || 'Your Gym'} />
+          </div>
+          <div className={styles.brandingFormField}>
+            <label htmlFor="seo_description">Meta Description</label>
+            <textarea id="seo_description" value={formData.seo_description} onChange={(e) => handleChange('seo_description', e.target.value)} className={styles.brandingTextarea} rows={2} placeholder="A short description of your gym for search engines and social previews." />
           </div>
         </div>
       )}
