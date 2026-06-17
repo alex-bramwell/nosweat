@@ -116,6 +116,14 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   }
 }
 
+.heroStepsHeading {
+  margin: 0 0 0.35rem 0;
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: $platform-text;
+}
+
 .heroStepsTitle {
   margin: 0 0 0.4rem 0;
   font-size: 0.78rem;
