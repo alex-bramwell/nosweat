@@ -78,16 +78,36 @@ const SETUP_STEPS = [
   },
 ];
 
-// Hand-drawn underlines as filled, tapered brush strokes (thin and sharp at
-// both ends, fuller in the middle). Three distinct wave shapes so the three
-// underlined words do not look mechanically identical.
+// Hand-drawn underlines as filled brush strokes: a mostly straight line with a
+// gentle wave, tapering to fine points at both ends. Built from a centerline
+// plus a thickness profile so the ends stay thin (taperPow > 1 concentrates the
+// width in the middle). Each word gets a different wave phase so the three do
+// not look mechanically identical.
+const buildUnderline = (waveAmp: number, phase: number): string => {
+  const SAMPLES = 48;
+  const WIDTH = 200;
+  const CENTER_Y = 7;
+  const MAX_HALF = 1.05; // half the thickest point (mid-line)
+  const TAPER_POW = 1.7; // higher = thinner, finer ends
+  const top: string[] = [];
+  const bottom: string[] = [];
+  for (let i = 0; i <= SAMPLES; i++) {
+    const t = i / SAMPLES;
+    const x = +(t * WIDTH).toFixed(1);
+    const center = CENTER_Y + waveAmp * Math.sin(phase + t * Math.PI * 2);
+    const half = MAX_HALF * Math.pow(Math.sin(Math.PI * t), TAPER_POW);
+    top.push(`${x} ${(center - half).toFixed(2)}`);
+    bottom.push(`${x} ${(center + half).toFixed(2)}`);
+  }
+  const topEdge = top.map((p, i) => (i === 0 ? `M${p}` : `L${p}`)).join('');
+  const bottomEdge = bottom.reverse().map((p) => `L${p}`).join('');
+  return `${topEdge}${bottomEdge}Z`;
+};
+
 const UNDERLINE_PATHS = [
-  // gentle single rise
-  'M2 8.3C45 5.3 95 4.6 140 5.5C165 6 185 6.7 198 7.4C185 9.2 165 8.8 140 8.5C95 9.2 45 10.4 2 8.3Z',
-  // dips then lifts
-  'M2 6.8C40 8.3 72 9.5 112 8.7C142 8.1 172 6.8 198 5.9C178 7.7 150 9.2 116 10.2C78 11 42 9.9 2 6.8Z',
-  // subtle S-curve
-  'M2 7.8C38 5.6 68 5.3 100 6.5C130 7.6 162 8.8 198 6.7C168 8.9 132 9.4 100 8.4C66 7.4 40 7.8 2 7.8Z',
+  buildUnderline(0.45, 0.4),
+  buildUnderline(0.6, 2.3),
+  buildUnderline(0.4, 4.2),
 ];
 
 const HandUnderline = ({ children, path }: { children: React.ReactNode; path: string }) => {
