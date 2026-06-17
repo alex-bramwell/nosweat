@@ -102,12 +102,15 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   align-items: center;
   text-decoration: none;
   color: $platform-text;
-  transition: opacity 250ms cubic-bezier(0.25, 0.1, 0.25, 1);
 
-  &:visited {
+  // The logo is just a home link - keep it static (no colour change on
+  // hover/press; overrides the global a:hover in index.css).
+  &:visited,
+  &:hover,
+  &:active,
+  &:focus {
     color: $platform-text;
   }
-
 }
 
 .logoMark {
