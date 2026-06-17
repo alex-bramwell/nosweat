@@ -1,9 +1,22 @@
 import type { StripeError } from '@stripe/stripe-js';
 
-// Day-pass price, single source of truth. PENCE is the amount charged via Stripe;
-// LABEL is the short display form (no decimals) used in marketing/info copy.
+// Day-pass price fallback. The real price is owner-configured per gym
+// (gyms.day_pass_price_pence) and read from TenantContext; these constants are
+// only used when tenant data isn't available yet.
 export const DAY_PASS_PRICE_PENCE = 1000;
 export const DAY_PASS_PRICE_LABEL = '£10';
+
+// Short price label for marketing/info copy: drops the ".00" on whole pounds
+// (e.g. 1000 -> "£10", 1050 -> "£10.50").
+export function formatPriceShort(pence: number, currency: string = 'gbp'): string {
+  const whole = pence % 100 === 0;
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+    minimumFractionDigits: whole ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(pence / 100);
+}
 
 export function formatCurrency(amount: number, currency: string = 'gbp'): string {
   const formatter = new Intl.NumberFormat('en-GB', {

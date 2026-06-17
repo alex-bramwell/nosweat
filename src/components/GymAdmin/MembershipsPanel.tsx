@@ -1,10 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTenant } from '../../contexts/TenantContext';
+import { supabase } from '../../lib/supabase';
 import { useMessage } from '../../hooks/useMessage';
 import { membershipService, type MembershipDraft } from '../../services/membershipService';
 import type { GymMembership } from '../../types/tenant';
 import { Button, Card } from '../common';
 import styles from './MembershipsPanel.module.scss';
+
+// Stripe's minimum GBP card charge is 30p.
+const MIN_DAY_PASS_PENCE = 30;
 
 let draftCounter = 0;
 const newDraftId = () => `new:${(draftCounter += 1)}`;
@@ -40,12 +44,14 @@ const penceFromPounds = (pounds: string): number | null => {
 };
 
 const MembershipsPanel: React.FC = () => {
-  const { gym, refreshTenant } = useTenant();
+  const { gym, features, refreshTenant } = useTenant();
   const { message, showSuccess, showError } = useMessage();
   const [originals, setOriginals] = useState<GymMembership[]>([]);
   const [drafts, setDrafts] = useState<MembershipDraft[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [dayPassInput, setDayPassInput] = useState('');
+  const [savingDayPass, setSavingDayPass] = useState(false);
 
   const load = useCallback(async () => {
     if (!gym) return;
@@ -65,6 +71,31 @@ const MembershipsPanel: React.FC = () => {
     load();
   }, [load]);
 
+  useEffect(() => {
+    if (gym) setDayPassInput(poundsFromPence(gym.day_pass_price_pence ?? 1000));
+  }, [gym]);
+
+  const handleSaveDayPass = async () => {
+    if (!gym) return;
+    const pence = penceFromPounds(dayPassInput);
+    if (pence === null || pence < MIN_DAY_PASS_PENCE) {
+      showError('Day-pass price must be at least £0.30, the minimum card charge Stripe allows.');
+      return;
+    }
+    setSavingDayPass(true);
+    try {
+      const { error } = await supabase.from('gyms').update({ day_pass_price_pence: pence }).eq('id', gym.id);
+      if (error) throw error;
+      await refreshTenant();
+      showSuccess('Day-pass price saved.');
+    } catch {
+      showError('Could not save the day-pass price. Please try again.');
+    } finally {
+      setSavingDayPass(false);
+    }
+  };
+
+  const dayPassDirty = gym ? penceFromPounds(dayPassInput) !== (gym.day_pass_price_pence ?? 1000) : false;
   const paymentsConnected = gym?.stripe_account_status === 'active';
   const isDirty = JSON.stringify(drafts) !== JSON.stringify(originals.map(toDraft));
 
@@ -154,12 +185,44 @@ const MembershipsPanel: React.FC = () => {
       )}
 
       <div className={styles.panelIntro}>
-        <h2 className={styles.panelTitle}>Membership Plans</h2>
+        <h2 className={styles.panelTitle}>Pricing &amp; Plans</h2>
         <p className={styles.panelSubtitle}>
-          Define the recurring memberships your gym offers. These appear on your site and members
-          subscribe to them with a card on file, billed automatically each period.
+          Set what you charge across your site: the price of a single day pass, and the recurring
+          membership plans members can subscribe to.
         </p>
       </div>
+
+      <Card className={styles.dayPassCard}>
+        <div className={styles.dayPassHeader}>
+          <div>
+            <h3 className={styles.dayPassTitle}>Day pass</h3>
+            <p className={styles.dayPassSubtitle}>
+              The price for a single class without a membership.
+              {!features?.day_passes && ' Day passes are currently turned off in the Features tab.'}
+            </p>
+          </div>
+        </div>
+        <div className={styles.dayPassRow}>
+          <div className={styles.dayPassField}>
+            <label htmlFor="day_pass_price">Price (£)</label>
+            <input
+              type="number"
+              id="day_pass_price"
+              min="0.30"
+              step="0.01"
+              value={dayPassInput}
+              onChange={(e) => setDayPassInput(e.target.value)}
+              className={styles.planInput}
+              placeholder="10.00"
+            />
+          </div>
+          <Button variant="primary" onClick={handleSaveDayPass} disabled={!dayPassDirty || savingDayPass}>
+            {savingDayPass ? 'Saving...' : 'Save price'}
+          </Button>
+        </div>
+      </Card>
+
+      <h3 className={styles.sectionHeading}>Membership plans</h3>
 
       {!paymentsConnected && (
         <div className={styles.connectNotice}>

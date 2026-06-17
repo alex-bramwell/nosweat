@@ -144,7 +144,7 @@ const GymAdmin: React.FC = () => {
                 <path d="M3 9h18M3 15h18M7 4v16M17 4v16" />
               </svg>
             </span>
-            <span>Memberships</span>
+            <span>Pricing &amp; Plans</span>
           </button>
           <button
             className={`${styles.adminTab} ${activeTab === 'payments' ? styles.adminTabActive : ''}`}
