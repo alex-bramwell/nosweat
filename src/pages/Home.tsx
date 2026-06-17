@@ -29,6 +29,7 @@ import Hero from '../components/sections/Hero';
 import Programs from '../components/sections/Programs';
 import WOD from '../components/sections/WOD';
 import Stats from '../components/sections/Stats';
+import Memberships from '../components/sections/Memberships';
 import CTA from '../components/sections/CTA';
 import { FeatureGate } from '../components/common';
 import { useBrandingWithOverrides } from '../hooks/useBrandingWithOverrides';
@@ -36,17 +37,22 @@ import { useIsBuilder } from '../contexts/BrandingOverrideContext';
 import { DEFAULT_BRANDING } from '../contexts/TenantContext';
 import LockedSectionPlaceholder from '../components/GymAdmin/LockedSectionPlaceholder';
 
+// Canonical section keys - any not in a gym's stored order get appended, so
+// new sections (e.g. memberships) show up for existing gyms without a backfill.
+const CANONICAL_SECTIONS = ['hero', 'programs', 'wod', 'stats', 'memberships', 'cta'];
+
 const Home = () => {
   const branding = useBrandingWithOverrides();
   const isBuilder = useIsBuilder();
   const vis = branding.visible_sections ?? {};
   const isVisible = (section: string) => vis[section] !== false;
-  // Owner-defined order; fall back to the default so older gyms keep working.
-  const order = branding.section_order ?? DEFAULT_BRANDING.section_order;
+  // Owner-defined order, with any missing canonical sections appended.
+  const stored = branding.section_order ?? DEFAULT_BRANDING.section_order;
+  const order = [...stored, ...CANONICAL_SECTIONS.filter((k) => !stored.includes(k))];
 
   // Each homepage section, keyed for ordering. WOD and CTA carry their own
   // feature gate (with a builder-only "locked" placeholder when the feature is
-  // off); Stats self-handles its empty state.
+  // off); Stats and Memberships self-handle their empty states.
   const sections: Record<string, ReactNode> = {
     hero: <Hero />,
     programs: <Programs />,
@@ -59,6 +65,7 @@ const Home = () => {
       </FeatureGate>
     ),
     stats: <Stats />,
+    memberships: <Memberships />,
     cta: (
       <FeatureGate
         feature="class_booking"

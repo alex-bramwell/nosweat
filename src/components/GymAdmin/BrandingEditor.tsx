@@ -23,8 +23,13 @@ const SECTION_LABELS: Record<string, string> = {
   programs: 'Programs',
   stats: 'Stats',
   wod: 'Workout of the Day',
+  memberships: 'Memberships',
   cta: 'Call to Action',
 };
+
+// Canonical homepage sections, used to append any the gym hasn't stored yet
+// (so a new section like Memberships shows up in the order list for old gyms).
+const CANONICAL_SECTIONS = ['hero', 'programs', 'wod', 'stats', 'memberships', 'cta'];
 
 const HERO_CARD_LABELS: Record<HeroCardKey, string> = {
   daypass: 'Day Pass',
@@ -110,9 +115,13 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange, onDirtyC
     // Custom code
     custom_css: source.custom_css || '',
     hero_effect: source.hero_effect || 'none',
-    // Sections
+    // Sections - append any missing canonical sections (e.g. memberships) so they
+    // appear in the order list even for gyms saved before the section existed.
     visible_sections: source.visible_sections ?? { hero: true, programs: true, wod: true, cta: true, stats: true },
-    section_order: source.section_order ?? DEFAULT_BRANDING.section_order,
+    section_order: (() => {
+      const stored = source.section_order ?? DEFAULT_BRANDING.section_order;
+      return [...stored, ...CANONICAL_SECTIONS.filter((k) => !stored.includes(k))];
+    })(),
     // Hero cards
     hero_cards: source.hero_cards ?? DEFAULT_BRANDING.hero_cards,
     hero_card_order: source.hero_card_order ?? DEFAULT_BRANDING.hero_card_order,
