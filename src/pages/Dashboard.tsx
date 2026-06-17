@@ -60,6 +60,7 @@ const Dashboard = () => {
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [subscription, setSubscription] = useState<MemberSubscription | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false);
 
   // Build bookable class instances for the next 7 days from the gym's real
   // schedule. Each schedule slot becomes a dated instance with a stable id.
@@ -344,6 +345,19 @@ const Dashboard = () => {
       console.error('Error starting checkout:', error);
       showError(error instanceof Error ? error.message : 'Could not start checkout. Please try again.');
       setSubscribingId(null);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    if (!gym) return;
+    setIsOpeningPortal(true);
+    try {
+      const url = await subscriptionService.openBillingPortal(gym.id);
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error opening billing portal:', error);
+      showError(error instanceof Error ? error.message : 'Could not open billing. Please try again.');
+      setIsOpeningPortal(false);
     }
   };
 
@@ -823,6 +837,17 @@ const Dashboard = () => {
                           {subscription.planName || 'Gym membership'}
                           {subscription.pricePence ? ` — £${(subscription.pricePence / 100).toFixed(2)}/${subscription.billingPeriod === 'yearly' ? 'year' : 'month'}` : ''}
                         </div>
+
+                        {subscription.status === 'past_due' && (
+                          <div className={styles.pastDueBanner}>
+                            <strong>Your last payment didn't go through.</strong>
+                            <span>Update your card to keep your membership active. We'll automatically retry the payment.</span>
+                            <Button variant="primary" size="compact" onClick={handleManageBilling} disabled={isOpeningPortal}>
+                              {isOpeningPortal ? 'Opening...' : 'Update payment method'}
+                            </Button>
+                          </div>
+                        )}
+
                         {subscription.cancelAtPeriodEnd ? (
                           <p className={styles.bookingNote}>
                             Your membership is set to end
@@ -832,6 +857,14 @@ const Dashboard = () => {
                           </p>
                         ) : (
                           <div className={styles.membershipActions}>
+                            <Button
+                              variant="outline"
+                              size="compact"
+                              onClick={handleManageBilling}
+                              disabled={isOpeningPortal}
+                            >
+                              {isOpeningPortal ? 'Opening...' : 'Manage billing'}
+                            </Button>
                             <Button
                               variant="secondary"
                               size="compact"

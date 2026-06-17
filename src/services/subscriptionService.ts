@@ -86,6 +86,18 @@ export const subscriptionService = {
   },
 
   /**
+   * Open the Stripe Billing Portal so the member can update their card (the key
+   * action when a payment is past due), view invoices, or cancel. Returns the
+   * hosted portal URL to redirect to.
+   */
+  async openBillingPortal(gymId: string): Promise<string> {
+    const { url } = await authFetch<{ url: string }>('/api/subscriptions/create-portal-session', {
+      gymId,
+    });
+    return url;
+  },
+
+  /**
    * Cancel the subscription at the end of the current billing period.
    * The member keeps access until then.
    */

@@ -981,3 +981,26 @@
   margin: 0;
   flex: 1;
 }
+
+// ── Past-due / dunning banner ──
+.pastDueBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--border-radius);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+
+  strong {
+    color: #dc2626;
+  }
+
+  span {
+    color: var(--color-text);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+}
