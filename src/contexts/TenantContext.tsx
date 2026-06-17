@@ -85,11 +85,19 @@ export const DEFAULT_BRANDING: GymBranding = {
   custom_css: '',
   hero_effect: 'none',
   visible_sections: { hero: true, programs: true, wod: true, cta: true, stats: true },
+  section_order: ['hero', 'programs', 'wod', 'stats', 'cta'],
   hero_cards: {
-    daypass: { title: 'Day Pass', description: 'Drop in for a single session and experience our community', button: 'Book Day Pass' },
-    trial: { title: 'Free Trial', description: 'New here? Try your first class on us, no commitment', button: 'Book Trial Pass' },
-    schedule: { title: 'Class Schedule', description: 'View our full timetable and find a class that fits your day', button: 'View Schedule' },
+    daypass: { title: 'Day Pass', description: 'Drop in for a single session and experience our community', button: 'Book Day Pass', enabled: true },
+    trial: { title: 'Free Trial', description: 'New here? Try your first class on us, no commitment', button: 'Book Trial Pass', enabled: true },
+    schedule: { title: 'Class Schedule', description: 'View our full timetable and find a class that fits your day', button: 'View Schedule', enabled: true },
   },
+  hero_card_order: ['daypass', 'trial', 'schedule'],
+  cta_primary_text: 'Book Free Trial',
+  cta_secondary_text: 'Contact Us',
+  cta_note: 'No commitment required. Come see what makes our community special.',
+  seo_title: null,
+  seo_description: null,
+  about_values: null,
 };
 
 // -------------------------------------------------------------------
