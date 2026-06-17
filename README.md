@@ -426,6 +426,8 @@ The guide page (`/guide`) is built from data-driven components:
 
 This project follows **GitFlow** with conventional commits.
 
+> **Local-first, ship on request.** Day to day, work happens **locally**: make the change on a branch, verify it locally (`npm run lint`, `npm run build`, and exercise the affected pages), and iterate. **Do not push, open PRs, or merge to `develop`/`main` until you explicitly want to go live** - merging to `main` deploys to production. Local commits are fine for checkpointing; the push -> PR -> merge promotion below is the "go live" step, run deliberately rather than on every change.
+
 ### Branch Structure
 
 ```
