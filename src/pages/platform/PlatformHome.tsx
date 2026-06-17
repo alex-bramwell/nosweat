@@ -220,24 +220,9 @@ const PlatformHome = () => {
               See All Features
             </Link>
           </div>
-          <div className={styles.heroStats}>
-            <div className={styles.heroStat}>
-              <span className={styles.heroStatValue}>{price.formatted}/mo</span>
-              <span className={styles.heroStatLabel}>Everything included</span>
-            </div>
-            <div className={styles.heroStatDivider} />
-            <div className={styles.heroStat}>
-              <span className={styles.heroStatValue}>Simple</span>
-              <span className={styles.heroStatLabel}>To set up</span>
-            </div>
-            <div className={styles.heroStatDivider} />
-            <div className={styles.heroStat}>
-              <span className={styles.heroStatValue}>0</span>
-              <span className={styles.heroStatLabel}>Other apps needed</span>
-            </div>
-          </div>
           </div>
 
+          <div className={styles.heroSide}>
           <div className={styles.heroSteps}>
             <h2 className={styles.heroStepsHeading}>Gym management software</h2>
             <p className={styles.heroStepsTitle}>Up and running in a few steps</p>
@@ -269,6 +254,23 @@ const PlatformHome = () => {
                 <path fill="#635BFF" d="M59.64 14.28h-8.06c.19 1.93 1.6 2.55 3.2 2.55 1.64 0 2.96-.37 4.05-.95v3.32a8.33 8.33 0 0 1-4.56 1.1c-4.01 0-6.83-2.5-6.83-7.48 0-4.19 2.39-7.52 6.3-7.52 3.92 0 5.96 3.28 5.96 7.5 0 .4-.04 1.26-.06 1.48zm-5.92-5.62c-1.03 0-2.17.73-2.17 2.58h4.25c0-1.85-1.07-2.58-2.08-2.58zM40.95 20.3c-1.44 0-2.32-.6-2.9-1.04l-.02 4.63-4.12.87V5.57h3.76l.08 1.02a4.7 4.7 0 0 1 3.23-1.29c2.9 0 5.62 2.6 5.62 7.4 0 5.23-2.7 7.6-5.63 7.6zM40 8.95c-.95 0-1.54.34-1.97.81l.02 6.12c.4.44.98.78 1.95.78 1.52 0 2.54-1.65 2.54-3.87 0-2.15-1.04-3.84-2.54-3.84zM28.24 5.57h4.13v14.44h-4.13V5.57zm0-4.7L32.37 0v3.36l-4.13.88V.88zm-4.32 9.35v9.79H19.8V5.57h3.7l.12 1.22c1-1.77 3.01-1.41 3.62-1.22v3.79c-.59-.19-2.31-.39-3.32.74zm-8.55 4.72c0 2.43 2.6 1.68 3.12 1.46v3.36c-.55.3-1.54.54-2.89.54a4.15 4.15 0 0 1-4.27-4.24l.02-13.21 4.02-.86v3.54h3.14V9.1h-3.14v5.64zM4.24 9.93c0 .65.6.9 1.58 1.31 1.97.84 4.5 1.91 4.51 4.41 0 2.95-2.36 4.59-5.79 4.59-1.42 0-2.97-.27-4.5-.93v-3.93c1.38.75 3.12 1.3 4.5 1.3.93 0 1.6-.25 1.6-1.02 0-.71-.65-.97-1.69-1.4C2.99 13.41.55 12.42.55 9.93c0-2.9 2.31-4.65 5.61-4.65 1.41 0 2.81.21 4.22.73v3.88c-1.29-.7-2.92-1.1-4.22-1.1-.88 0-1.42.27-1.42.95z" />
               </svg>
             </div>
+          </div>
+          <div className={styles.heroStats}>
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatValue}>{price.formatted}/mo</span>
+              <span className={styles.heroStatLabel}>Everything included</span>
+            </div>
+            <div className={styles.heroStatDivider} />
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatValue}>Simple</span>
+              <span className={styles.heroStatLabel}>To set up</span>
+            </div>
+            <div className={styles.heroStatDivider} />
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatValue}>0</span>
+              <span className={styles.heroStatLabel}>Apps needed</span>
+            </div>
+          </div>
           </div>
         </div>
       </section>

@@ -97,6 +97,14 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   min-width: 0;
 }
 
+// Right column: the accordion panel with the stats strip stacked beneath it.
+.heroSide {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
 // ── Hero "3 steps" accordion panel (right column) ──
 .heroSteps {
   display: flex;
@@ -316,12 +324,15 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   }
 }
 
-// ── Hero Stats Strip ──
+// ── Hero Stats Strip (sits under the accordion, matching its width) ──
 .heroStats {
-  display: inline-flex;
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1rem 2rem;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.75rem;
   background: $platform-glass-bg;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -329,9 +340,6 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   border-radius: 16px;
 
   @media (max-width: 600px) {
-    display: flex;
-    width: 100%;
-    box-sizing: border-box;
     flex-direction: column;
     gap: 0.75rem;
     padding: 1.25rem 1.5rem;
