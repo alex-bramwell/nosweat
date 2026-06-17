@@ -37,8 +37,12 @@ const GymAdminBuilder: React.FC = () => {
   const [draftBranding, setDraftBranding] = useState<Partial<GymBranding> | null>(null);
   const [previewPage, setPreviewPage] = useState<PreviewPage>('home');
   const [viewAsRole, setViewAsRole] = useState<ViewRole>('admin');
+  const [isDirty, setIsDirty] = useState(false);
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   usePreviewTheme(previewRef, draftBranding);
+
+  const deviceMaxWidth = previewDevice === 'mobile' ? '420px' : previewDevice === 'tablet' ? '820px' : '100%';
 
   const allPreviewPages: { id: PreviewPage; label: string; locked: boolean; visibleTo: ViewRole[] }[] = [
     { id: 'home', label: 'Home', locked: false, visibleTo: ['admin', 'coach', 'member', 'public'] },
@@ -124,7 +128,15 @@ const GymAdminBuilder: React.FC = () => {
       {/* ── Toolbar ── */}
       <div className={styles.builderToolbar}>
         <div className={styles.toolbarLeft}>
-          <Link to="/dashboard" className={styles.builderBackLink}>
+          <Link
+            to="/dashboard"
+            className={styles.builderBackLink}
+            onClick={(e) => {
+              if (isDirty && !window.confirm('You have unsaved changes. Leave the builder without saving?')) {
+                e.preventDefault();
+              }
+            }}
+          >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5" /><path d="M12 19l-7-7 7-7" />
             </svg>
@@ -162,25 +174,47 @@ const GymAdminBuilder: React.FC = () => {
               <option value="public">Public</option>
             </select>
           </div>
+          <div className={styles.deviceToggle} role="group" aria-label="Preview device">
+            {([
+              { id: 'desktop', label: 'Desktop' },
+              { id: 'tablet', label: 'Tablet' },
+              { id: 'mobile', label: 'Mobile' },
+            ] as const).map((d) => (
+              <button
+                key={d.id}
+                type="button"
+                className={`${styles.deviceButton} ${previewDevice === d.id ? styles.deviceButtonActive : ''}`}
+                onClick={() => setPreviewDevice(d.id)}
+                aria-pressed={previewDevice === d.id}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
         </div>
 
       </div>
 
       {/* ── Workspace ── */}
       <div className={styles.builderWorkspace}>
-        <BuilderSidebar onDraftChange={setDraftBranding} onNavigatePage={handleBuilderNavigate} activePage={previewPage} viewAsRole={viewAsRole} />
+        <BuilderSidebar onDraftChange={setDraftBranding} onDirtyChange={setIsDirty} onNavigatePage={handleBuilderNavigate} activePage={previewPage} viewAsRole={viewAsRole} />
 
         {/* Site Preview */}
         <div className={styles.builderPreview} ref={previewRef}>
-          <BrandingOverrideProvider overrides={draftBranding} onNavigatePage={handleBuilderNavigate}>
-            <ViewAsProvider role={viewAsRole}>
-              <Navbar />
-              <main style={{ flex: 1 }}>
-                {renderPreviewPage()}
-              </main>
-              <Footer />
-            </ViewAsProvider>
-          </BrandingOverrideProvider>
+          <div
+            className={`${styles.previewFrame} ${previewDevice !== 'desktop' ? styles.previewFrameConstrained : ''}`}
+            style={{ maxWidth: deviceMaxWidth }}
+          >
+            <BrandingOverrideProvider overrides={draftBranding} onNavigatePage={handleBuilderNavigate}>
+              <ViewAsProvider role={viewAsRole}>
+                <Navbar />
+                <main style={{ flex: 1 }}>
+                  {renderPreviewPage()}
+                </main>
+                <Footer />
+              </ViewAsProvider>
+            </BrandingOverrideProvider>
+          </div>
         </div>
       </div>
     </div>

@@ -5,4 +5,4 @@
  * even though no real data is entered - the sample data is generated relative to
  * today, so it never goes stale.
  */
-export const DEMO_GYM_SLUG = 'comet';
+export const DEMO_GYM_SLUG = 'my-new-gym';

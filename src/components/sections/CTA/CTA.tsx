@@ -2,11 +2,18 @@ import { useState } from 'react';
 import { Section, Container, Button } from '../../common';
 import { TrialModal } from '../../TrialModal';
 import { useBrandingWithOverrides } from '../../../hooks/useBrandingWithOverrides';
+import { useGymPath } from '../../../contexts/TenantContext';
+import { DEFAULT_BRANDING } from '../../../contexts/TenantContext';
 import styles from './CTA.module.scss';
 
 const CTA = () => {
   const branding = useBrandingWithOverrides();
+  const gymPath = useGymPath();
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
+
+  const primaryText = branding.cta_primary_text || DEFAULT_BRANDING.cta_primary_text || 'Book Free Trial';
+  const secondaryText = branding.cta_secondary_text || DEFAULT_BRANDING.cta_secondary_text || 'Contact Us';
+  const note = branding.cta_note ?? DEFAULT_BRANDING.cta_note ?? '';
 
   const openTrialModal = () => {
     setIsTrialModalOpen(true);
@@ -27,15 +34,13 @@ const CTA = () => {
             </p>
             <div className={styles.ctaActions}>
               <Button variant="primary" size="prominent" onClick={openTrialModal}>
-                Book Free Trial
+                {primaryText}
               </Button>
-              <Button variant="outline" size="prominent" as="a" href="/about#visit">
-                Contact Us
+              <Button variant="outline" size="prominent" as="a" href={gymPath('/about#visit')}>
+                {secondaryText}
               </Button>
             </div>
-            <p className={styles.ctaNote}>
-              No commitment required. Come see what makes our community special.
-            </p>
+            {note && <p className={styles.ctaNote}>{note}</p>}
           </div>
         </Container>
       </Section>

@@ -24,13 +24,16 @@
 //
 // =============================================================================
 
+import { Fragment, type ReactNode } from 'react';
 import Hero from '../components/sections/Hero';
 import Programs from '../components/sections/Programs';
 import WOD from '../components/sections/WOD';
+import Stats from '../components/sections/Stats';
 import CTA from '../components/sections/CTA';
 import { FeatureGate } from '../components/common';
 import { useBrandingWithOverrides } from '../hooks/useBrandingWithOverrides';
 import { useIsBuilder } from '../contexts/BrandingOverrideContext';
+import { DEFAULT_BRANDING } from '../contexts/TenantContext';
 import LockedSectionPlaceholder from '../components/GymAdmin/LockedSectionPlaceholder';
 
 const Home = () => {
@@ -38,28 +41,41 @@ const Home = () => {
   const isBuilder = useIsBuilder();
   const vis = branding.visible_sections ?? {};
   const isVisible = (section: string) => vis[section] !== false;
+  // Owner-defined order; fall back to the default so older gyms keep working.
+  const order = branding.section_order ?? DEFAULT_BRANDING.section_order;
 
-  return (
-    <>
-      {/* Hero and Programs are always available - no feature gate needed */}
-      {isVisible('hero') && <Hero />}
-      {isVisible('programs') && <Programs />}
-
-      {/* WOD section - gated behind wod_programming feature flag */}
+  // Each homepage section, keyed for ordering. WOD and CTA carry their own
+  // feature gate (with a builder-only "locked" placeholder when the feature is
+  // off); Stats self-handles its empty state.
+  const sections: Record<string, ReactNode> = {
+    hero: <Hero />,
+    programs: <Programs />,
+    wod: (
       <FeatureGate
         feature="wod_programming"
         fallback={isBuilder ? <LockedSectionPlaceholder feature="wod_programming" /> : null}
       >
-        {isVisible('wod') && <WOD />}
+        <WOD />
       </FeatureGate>
-
-      {/* CTA section - gated behind class_booking since the CTA drives bookings */}
+    ),
+    stats: <Stats />,
+    cta: (
       <FeatureGate
         feature="class_booking"
         fallback={isBuilder ? <LockedSectionPlaceholder feature="class_booking" /> : null}
       >
-        {isVisible('cta') && <CTA />}
+        <CTA />
       </FeatureGate>
+    ),
+  };
+
+  return (
+    <>
+      {order
+        .filter((key) => sections[key] && isVisible(key))
+        .map((key) => (
+          <Fragment key={key}>{sections[key]}</Fragment>
+        ))}
     </>
   );
 };

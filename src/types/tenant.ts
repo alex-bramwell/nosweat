@@ -93,23 +93,47 @@ export interface GymBranding {
   custom_css: string;
   hero_effect: string;
 
-  // Section visibility
+  // Section visibility + order
   visible_sections: Record<string, boolean>;
+  section_order: string[];
 
   // Hero action cards
   hero_cards: HeroCards;
+  hero_card_order: string[];
+
+  // CTA buttons
+  cta_primary_text: string | null;
+  cta_secondary_text: string | null;
+  cta_note: string | null;
+
+  // SEO / meta
+  seo_title: string | null;
+  seo_description: string | null;
+
+  // About "what makes us different" value cards (null = use defaults)
+  about_values: AboutValue[] | null;
 }
 
 export interface HeroCardContent {
   title: string;
   description: string;
   button: string;
+  /** Whether the owner wants this card shown (still also requires its feature). Defaults to true. */
+  enabled?: boolean;
 }
 
 export interface HeroCards {
   daypass: HeroCardContent;
   trial: HeroCardContent;
   schedule: HeroCardContent;
+}
+
+export type HeroCardKey = keyof HeroCards;
+
+export interface AboutValue {
+  icon: string;
+  title: string;
+  description: string;
 }
 
 export interface GymFeature {
