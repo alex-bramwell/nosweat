@@ -78,9 +78,8 @@ const SETUP_STEPS = [
   },
 ];
 
-// A word with a sketchy, hand-drawn underline in the blue-to-purple accent
-// gradient. Two slightly offset strokes give it the hand-drawn feel. Sized in
-// em so it scales with the headline.
+// A word with a single sketchy, hand-drawn underline in the blue-to-purple
+// accent gradient. Sized in em so it scales with the headline.
 const HandUnderline = ({ children }: { children: React.ReactNode }) => {
   const gradId = useId();
   return (
@@ -94,7 +93,6 @@ const HandUnderline = ({ children }: { children: React.ReactNode }) => {
           </linearGradient>
         </defs>
         <path d="M4 9c34-5 70-6 104-3 30 3 58 2 88-2" stroke={`url(#${gradId})`} strokeWidth="4" strokeLinecap="round" />
-        <path d="M8 13c40-4 78-3 120-1 24 1 48 0 66-3" stroke={`url(#${gradId})`} strokeWidth="3" strokeLinecap="round" opacity="0.65" />
       </svg>
     </span>
   );
