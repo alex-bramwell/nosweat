@@ -72,27 +72,92 @@ const SETUP_STEPS = [
       'Invite your coaches and front-desk team, choose what each can do, and let them manage classes, programming and the schedule.',
   },
   {
-    title: 'Add members and get paid',
+    title: 'Invite your members',
     detail:
       'Taking payment is built in. Memberships, trials and day passes run straight through your own site with Stripe, so there is no separate payment app to wire up. Bring your members on board, take bookings and track attendance from day one.',
   },
+  {
+    title: 'Create or import your program',
+    detail:
+      'Build your programming in the workout editor, or import what you already run. Every session feeds built-in analytics covering volume, movement balance and time domains, so you can spot gaps and keep your athletes progressing.',
+  },
 ];
 
-// A word with a single sketchy, hand-drawn underline in the blue-to-purple
-// accent gradient. Sized in em so it scales with the headline.
-const HandUnderline = ({ children }: { children: React.ReactNode }) => {
+// Hand-drawn underlines as filled brush strokes: a mostly straight line with a
+// gentle wave, tapering to fine points at both ends. Built from a centerline
+// plus a thickness profile so the ends stay thin (taperPow > 1 concentrates the
+// width in the middle). Each word gets a different wave phase so the three do
+// not look mechanically identical.
+const buildUnderline = (waveAmp: number, phase: number, maxHalf = 1.05): string => {
+  const SAMPLES = 48;
+  const WIDTH = 200;
+  const CENTER_Y = 7;
+  const TAPER_POW = 1.7; // higher = thinner, finer ends
+  const top: string[] = [];
+  const bottom: string[] = [];
+  for (let i = 0; i <= SAMPLES; i++) {
+    const t = i / SAMPLES;
+    const x = +(t * WIDTH).toFixed(1);
+    const center = CENTER_Y + waveAmp * Math.sin(phase + t * Math.PI * 2);
+    const half = maxHalf * Math.pow(Math.sin(Math.PI * t), TAPER_POW);
+    top.push(`${x} ${(center - half).toFixed(2)}`);
+    bottom.push(`${x} ${(center + half).toFixed(2)}`);
+  }
+  const topEdge = top.map((p, i) => (i === 0 ? `M${p}` : `L${p}`)).join('');
+  const bottomEdge = bottom.reverse().map((p) => `L${p}`).join('');
+  return `${topEdge}${bottomEdge}Z`;
+};
+
+const UNDERLINE_PATHS = [
+  buildUnderline(0.45, 0.4),
+  buildUnderline(0.6, 2.3),
+  buildUnderline(0.4, 4.2),
+];
+
+// Thicker, straighter variant for small body-text contexts where the standard
+// underline would render too thin.
+const UNDERLINE_PATH_THICK = buildUnderline(0.35, 1.5, 2.4);
+
+// Detailed flexed-arm ("strong arm") line glyph stroked with the blue-to-purple
+// accent gradient, inline in the hero subtitle. Artwork is the OpenMoji
+// "flexed biceps" emoji (https://openmoji.org, CC BY-SA 4.0).
+const StrongArmIcon = () => {
+  const gradId = useId();
+  return (
+    <svg className={styles.strongArmIcon} viewBox="0 0 72 72" role="img" aria-label="strong arm">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#2563eb" />
+          <stop offset="100%" stopColor="#7c3aed" />
+        </linearGradient>
+      </defs>
+      <g fill="none" stroke={`url(#${gradId})`} strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4">
+        <path d="M27.4684,40.5519c-0.4282-4.2794-1.1326-12.7197-1.9548-13.7543c0,0,5.2009,1.1102,7.8117-2.9736" />
+        <path d="M34.5031,53.0878c0,0,10.8019,2.7012,19.2868-4.3269" />
+        <path d="M27.7195,50.6312c0,0,2.8688-14.4737,16.3682-16.3928s20.2138,8.5143,20.2138,8.5143s0.2302,0.2755,0.5269,0.7704c2.0724,3.4564,1.2505,7.9342-1.8035,10.5637C52.0326,63.551,36.5991,65.7993,16.5066,65.6836c0,0-3.7502,1.1456-4.6096-3.574c0,0-0.7689-20.9388,3.8178-35.6261c0,0-0.1965-6.0013,0.0307-9.9287c0.0388-0.67,0.3337-1.2971,0.827-1.7521c5.7789-5.3313,8.3742-6.1149,8.3742-6.1149l8.3881-1.4838c1.436,0.9837,4.7256,4.7388,3.5707,11.4953" />
+        <path d="M25.5888,19.2948c0,0,1.8163,2.5911,3.6325-0.2835V16l-0.46-1.6583l-0.3606-0.278" />
+        <path d="M29.5442,19.2948c0,0,1.8163,2.5911,3.6325-0.2835V16l-0.8731-2.1254" />
+        <path d="M36.8203,19.0113c-1.9616,1.8889-3.3207,0-3.3207,0" />
+        <path d="M20.301,16.4465c0.5038,0.4387,1.1429,1.2206,1.2784,2.4327c0.0322,0.2877,0.131,0.5691,0.3359,0.7736c0.595,0.5939,1.9586,1.5167,3.3223-0.6415V16l-0.6351-1.2677" />
+        <path d="M40.3564,18.289c1.9261,0.5697,2.2618,3.4266-0.7028,4.0993c-6.3283,1.4358-6.3283,1.4358-6.3283,1.4358" />
+      </g>
+    </svg>
+  );
+};
+
+const HandUnderline = ({ children, path, svgClassName }: { children: React.ReactNode; path: string; svgClassName?: string }) => {
   const gradId = useId();
   return (
     <span className={styles.underlinedWord}>
       {children}
-      <svg className={styles.underlineSvg} viewBox="0 0 200 16" preserveAspectRatio="none" fill="none" aria-hidden="true">
+      <svg className={`${styles.underlineSvg} ${svgClassName ?? ''}`} viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
         <defs>
           <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#2563eb" />
             <stop offset="100%" stopColor="#7c3aed" />
           </linearGradient>
         </defs>
-        <path d="M4 9c34-5 70-6 104-3 30 3 58 2 88-2" stroke={`url(#${gradId})`} strokeWidth="4" strokeLinecap="round" />
+        <path d={path} fill={`url(#${gradId})`} />
       </svg>
     </span>
   );
@@ -101,7 +166,7 @@ const HandUnderline = ({ children }: { children: React.ReactNode }) => {
 const PlatformHome = () => {
   const price = useMemo(() => getLocalizedPrice(), []);
   const [activeRole, setActiveRole] = useState<RoleTab>('owners');
-  const [openStep, setOpenStep] = useState(0);
+  const [openStep, setOpenStep] = useState(-1);
   const [contactOpen, setContactOpen] = useState(false);
   const touchStartX = useRef(0);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -146,11 +211,12 @@ const PlatformHome = () => {
         <div className={styles.heroContent}>
           <div className={styles.heroMain}>
           <h1 className={styles.heroHeadline}>
-            No Sweat <HandUnderline>runs</HandUnderline> your gym so you can <HandUnderline>focus</HandUnderline> on what <HandUnderline>matters</HandUnderline>
+            No Sweat <HandUnderline path={UNDERLINE_PATHS[0]}>runs</HandUnderline> your gym so you can <HandUnderline path={UNDERLINE_PATHS[1]}>focus</HandUnderline> on what <HandUnderline path={UNDERLINE_PATHS[2]}>matters</HandUnderline>
           </h1>
           <p className={styles.heroSubtitle}>
             Everything a gym needs, inside your own website. Built for gym owners, by athletes.{' '}
-            <span className={styles.heroSubtitleAccent}>No Apps needed</span>
+            <span className={styles.heroSubtitleAccent}>No Apps needed</span>. We've done our
+            mobility, our software is flexible to suit your needs <StrongArmIcon />
           </p>
           <div className={styles.heroCtas}>
             <Link to="/signup" className={styles.ctaPrimary}>
@@ -163,26 +229,12 @@ const PlatformHome = () => {
               See All Features
             </Link>
           </div>
-          <div className={styles.heroStats}>
-            <div className={styles.heroStat}>
-              <span className={styles.heroStatValue}>{price.formatted}/mo</span>
-              <span className={styles.heroStatLabel}>Everything included</span>
-            </div>
-            <div className={styles.heroStatDivider} />
-            <div className={styles.heroStat}>
-              <span className={styles.heroStatValue}>Minutes</span>
-              <span className={styles.heroStatLabel}>To set up</span>
-            </div>
-            <div className={styles.heroStatDivider} />
-            <div className={styles.heroStat}>
-              <span className={styles.heroStatValue}>0</span>
-              <span className={styles.heroStatLabel}>Other apps needed</span>
-            </div>
-          </div>
           </div>
 
+          <div className={styles.heroSide}>
           <div className={styles.heroSteps}>
-            <p className={styles.heroStepsTitle}>Up and running in 3 steps</p>
+            <h2 className={styles.heroStepsHeading}>Gym management software</h2>
+            <p className={styles.heroStepsTitle}>Up and running in a few steps</p>
             {SETUP_STEPS.map((step, i) => {
               const open = openStep === i;
               return (
@@ -205,6 +257,29 @@ const PlatformHome = () => {
                 </div>
               );
             })}
+            <div className={styles.heroStepsFooter}>
+              <span>powered by</span>
+              <svg className={styles.stripeWordmark} viewBox="0 0 60 25" fill="none" role="img" aria-label="stripe">
+                <path fill="#635BFF" d="M59.64 14.28h-8.06c.19 1.93 1.6 2.55 3.2 2.55 1.64 0 2.96-.37 4.05-.95v3.32a8.33 8.33 0 0 1-4.56 1.1c-4.01 0-6.83-2.5-6.83-7.48 0-4.19 2.39-7.52 6.3-7.52 3.92 0 5.96 3.28 5.96 7.5 0 .4-.04 1.26-.06 1.48zm-5.92-5.62c-1.03 0-2.17.73-2.17 2.58h4.25c0-1.85-1.07-2.58-2.08-2.58zM40.95 20.3c-1.44 0-2.32-.6-2.9-1.04l-.02 4.63-4.12.87V5.57h3.76l.08 1.02a4.7 4.7 0 0 1 3.23-1.29c2.9 0 5.62 2.6 5.62 7.4 0 5.23-2.7 7.6-5.63 7.6zM40 8.95c-.95 0-1.54.34-1.97.81l.02 6.12c.4.44.98.78 1.95.78 1.52 0 2.54-1.65 2.54-3.87 0-2.15-1.04-3.84-2.54-3.84zM28.24 5.57h4.13v14.44h-4.13V5.57zm0-4.7L32.37 0v3.36l-4.13.88V.88zm-4.32 9.35v9.79H19.8V5.57h3.7l.12 1.22c1-1.77 3.01-1.41 3.62-1.22v3.79c-.59-.19-2.31-.39-3.32.74zm-8.55 4.72c0 2.43 2.6 1.68 3.12 1.46v3.36c-.55.3-1.54.54-2.89.54a4.15 4.15 0 0 1-4.27-4.24l.02-13.21 4.02-.86v3.54h3.14V9.1h-3.14v5.64zM4.24 9.93c0 .65.6.9 1.58 1.31 1.97.84 4.5 1.91 4.51 4.41 0 2.95-2.36 4.59-5.79 4.59-1.42 0-2.97-.27-4.5-.93v-3.93c1.38.75 3.12 1.3 4.5 1.3.93 0 1.6-.25 1.6-1.02 0-.71-.65-.97-1.69-1.4C2.99 13.41.55 12.42.55 9.93c0-2.9 2.31-4.65 5.61-4.65 1.41 0 2.81.21 4.22.73v3.88c-1.29-.7-2.92-1.1-4.22-1.1-.88 0-1.42.27-1.42.95z" />
+              </svg>
+            </div>
+          </div>
+          <div className={styles.heroStats}>
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatValue}>{price.formatted}/mo</span>
+              <span className={styles.heroStatLabel}>Everything included</span>
+            </div>
+            <div className={styles.heroStatDivider} />
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatValue}>Simple</span>
+              <span className={styles.heroStatLabel}>To set up</span>
+            </div>
+            <div className={styles.heroStatDivider} />
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatValue}>0</span>
+              <span className={styles.heroStatLabel}>Apps needed</span>
+            </div>
+          </div>
           </div>
         </div>
       </section>
@@ -332,7 +407,7 @@ const PlatformHome = () => {
             <Link to="/signup" className={styles.pricingCta}>
               Get Started
             </Link>
-            <p className={styles.pricingNote}>No contracts. Cancel anytime.</p>
+            <p className={styles.pricingNote}>No contracts. <HandUnderline path={UNDERLINE_PATH_THICK} svgClassName={styles.underlineSvgNote}>Cancel anytime</HandUnderline>.</p>
           </div>
         </div>
       </section>

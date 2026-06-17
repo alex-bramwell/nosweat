@@ -97,6 +97,14 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   min-width: 0;
 }
 
+// Right column: the accordion panel with the stats strip stacked beneath it.
+.heroSide {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
 // ── Hero "3 steps" accordion panel (right column) ──
 .heroSteps {
   display: flex;
@@ -116,6 +124,14 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   }
 }
 
+.heroStepsHeading {
+  margin: 0 0 0.35rem 0;
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: $platform-text;
+}
+
 .heroStepsTitle {
   margin: 0 0 0.4rem 0;
   font-size: 0.78rem;
@@ -123,6 +139,22 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: $platform-text-muted;
+}
+
+.heroStepsFooter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  padding-left: 0.1rem;
+  font-size: 0.85rem;
+  color: $platform-text-muted;
+}
+
+.stripeWordmark {
+  display: block;
+  height: 1.15em;
+  width: auto;
 }
 
 .heroStep {
@@ -242,6 +274,13 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   pointer-events: none;
 }
 
+// Variant for small body-text: thicker line that sits lower (more breathing
+// room under the text).
+.underlineSvgNote {
+  height: 0.5em;
+  bottom: -0.42em;
+}
+
 .heroSubtitle {
   font-size: 1.2rem;
   line-height: 1.7;
@@ -267,6 +306,14 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   color: transparent;
 }
 
+.strongArmIcon {
+  display: inline-block;
+  width: 1.7em;
+  height: 1.7em;
+  vertical-align: -0.5em;
+  margin-left: 0.1em;
+}
+
 .heroCtas {
   display: flex;
   gap: 1rem;
@@ -276,14 +323,23 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   @media (max-width: 768px) {
     justify-content: center;
   }
+
+  // On small mobile, stack the buttons full-width to match the panel below.
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
-// ── Hero Stats Strip ──
+// ── Hero Stats Strip (sits under the accordion, matching its width) ──
 .heroStats {
-  display: inline-flex;
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1rem 2rem;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.75rem;
   background: $platform-glass-bg;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -370,6 +426,13 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
     color: #ffffff;
     transform: translateY(0) scale(0.97);
   }
+
+  @media (max-width: 600px) {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+  }
 }
 
 .ctaSecondary {
@@ -398,6 +461,14 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   &:active {
     color: $platform-text;
     transform: translateY(0) scale(0.97);
+  }
+
+  @media (max-width: 600px) {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+    text-align: center;
   }
 }
 
