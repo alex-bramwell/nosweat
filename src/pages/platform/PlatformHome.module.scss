@@ -133,6 +133,22 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   color: $platform-text-muted;
 }
 
+.heroStepsFooter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  padding-left: 0.1rem;
+  font-size: 0.85rem;
+  color: $platform-text-muted;
+}
+
+.stripeWordmark {
+  display: block;
+  height: 1.15em;
+  width: auto;
+}
+
 .heroStep {
   border-radius: 12px;
   border: 1px solid $platform-border;
