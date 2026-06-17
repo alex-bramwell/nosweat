@@ -8,12 +8,9 @@ import { SAMPLE_WORKOUT, generateSampleMonth } from '../data/sampleContent';
 import { WODEditorEnhanced } from '../components/WODEditor/WODEditorEnhanced';
 import { CoachAnalytics } from '../components/CoachAnalytics/CoachAnalytics';
 import { UserManagement } from '../components/UserManagement';
-import { AccountingIntegrationCard } from '../components/AccountingIntegration/AccountingIntegrationCard';
 import { workoutService } from '../services/workoutService';
 import { analyticsService } from '../services/analyticsService';
-import { accountingService } from '../services/accountingService';
 import type { WorkoutDB, WorkoutFormData, MuscleGroup } from '../types';
-import type { AccountingIntegration } from '../components/AccountingIntegration/AccountingIntegrationCard';
 import styles from './CoachDashboard.module.scss';
 
 // Calendar helper functions
@@ -63,7 +60,7 @@ const CoachDashboard = () => {
   const permissions = usePermissions();
   const isBuilder = useIsBuilder();
   const sampleData = useMemo(() => isBuilder ? generateSampleMonth() : null, [isBuilder]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'create' | 'manage' | 'drafts' | 'analytics' | 'users' | 'staff' | 'accounting'>(isBuilder ? 'manage' : 'overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'create' | 'manage' | 'drafts' | 'analytics' | 'users' | 'staff'>(isBuilder ? 'manage' : 'overview');
   const [workouts, setWorkouts] = useState<WorkoutDB[]>(sampleData?.workouts ?? []);
   const [todaysWorkout, setTodaysWorkout] = useState<WorkoutDB | null>(sampleData?.workouts.find(w => w.date === new Date().toISOString().split('T')[0]) ?? null);
   const [editingWorkout, setEditingWorkout] = useState<WorkoutDB | null>(null);
@@ -84,32 +81,10 @@ const CoachDashboard = () => {
   const [isEditorModalOpen, setIsEditorModalOpen] = useState(false);
   const [modalEditingWorkout, setModalEditingWorkout] = useState<WorkoutDB | null>(null);
   const [modalNewDate, setModalNewDate] = useState<string | null>(null);
-  const [accountingIntegrations, setAccountingIntegrations] = useState<AccountingIntegration[]>([]);
-  const [accountingLoading, setAccountingLoading] = useState(false);
 
   useEffect(() => {
     if (!isBuilder) loadWorkouts();
   }, [isBuilder]);
-
-  useEffect(() => {
-    if (isBuilder) return;
-    // Handle OAuth callback on page load
-    const callbackResult = accountingService.handleOAuthCallback();
-    if (callbackResult.success && callbackResult.provider) {
-      alert(`Successfully connected to ${callbackResult.provider === 'quickbooks' ? 'QuickBooks' : 'Xero'}!`);
-      loadAccountingIntegrations();
-      setActiveTab('accounting');
-    } else if (!callbackResult.success && callbackResult.error) {
-      alert(`Failed to connect: ${callbackResult.error}`);
-      setActiveTab('accounting');
-    }
-  }, [isBuilder]);
-
-  useEffect(() => {
-    if (activeTab === 'accounting') {
-      loadAccountingIntegrations();
-    }
-  }, [activeTab]);
 
   const loadWorkouts = async () => {
     setIsLoading(true);
@@ -176,42 +151,6 @@ const CoachDashboard = () => {
   const handleLogout = () => {
     logout();
     window.location.href = '/';
-  };
-
-  const loadAccountingIntegrations = async () => {
-    setAccountingLoading(true);
-    try {
-      const integrations = await accountingService.getIntegrations();
-      setAccountingIntegrations(integrations);
-    } catch (error) {
-      console.error('Error loading accounting integrations:', error);
-      alert('Failed to load accounting integrations');
-    } finally {
-      setAccountingLoading(false);
-    }
-  };
-
-  const handleConnectAccounting = async (provider: 'quickbooks' | 'xero') => {
-    try {
-      // Get authorization URL from backend
-      const authUrl = await accountingService.connectProvider(provider);
-
-      // Redirect to OAuth authorization page
-      window.location.href = authUrl;
-    } catch (error) {
-      console.error('Error connecting to accounting provider:', error);
-      throw error;
-    }
-  };
-
-  const handleDisconnectAccounting = async (provider: 'quickbooks' | 'xero') => {
-    try {
-      await accountingService.disconnectProvider(provider);
-      await loadAccountingIntegrations();
-    } catch (error) {
-      console.error('Error disconnecting from accounting provider:', error);
-      throw error;
-    }
   };
 
   // Calendar navigation
@@ -407,12 +346,6 @@ const CoachDashboard = () => {
                   onClick={() => setActiveTab('staff')}
                 >
                   Manage Staff
-                </button>
-                <button
-                  className={`${styles.navigationTab} ${activeTab === 'accounting' ? styles.navigationTabActive : ''}`}
-                  onClick={() => setActiveTab('accounting')}
-                >
-                  Accounting
                 </button>
               </>
             )}
@@ -890,58 +823,6 @@ const CoachDashboard = () => {
               </div>
             )}
 
-            {activeTab === 'accounting' && (
-              <div className={styles.tabPanel}>
-                <div style={{ marginBottom: '2rem' }}>
-                  <h2 className={styles.coachSectionHeading}>Accounting Software Integration</h2>
-                  <p style={{ color: 'var(--color-text-secondary, #666)', marginTop: '0.5rem' }}>
-                    Connect your accounting software to automatically sync payment transactions.
-                    Currently supporting QuickBooks and Xero.
-                  </p>
-                </div>
-
-                {accountingLoading && !accountingIntegrations.length ? (
-                  <Card variant="raised">
-                    <div style={{ padding: '2rem', textAlign: 'center' }}>
-                      Loading integrations...
-                    </div>
-                  </Card>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
-                    <AccountingIntegrationCard
-                      provider="quickbooks"
-                      integration={accountingIntegrations.find(i => i.provider === 'quickbooks') || null}
-                      onConnect={handleConnectAccounting}
-                      onDisconnect={handleDisconnectAccounting}
-                      loading={accountingLoading}
-                    />
-                    <AccountingIntegrationCard
-                      provider="xero"
-                      integration={accountingIntegrations.find(i => i.provider === 'xero') || null}
-                      onConnect={handleConnectAccounting}
-                      onDisconnect={handleDisconnectAccounting}
-                      loading={accountingLoading}
-                    />
-                  </div>
-                )}
-
-                <Card variant="raised" style={{ marginTop: '2rem' }}>
-                  <div style={{ padding: '1.5rem' }}>
-                    <h3 style={{ marginTop: 0 }}>How It Works</h3>
-                    <ol style={{ lineHeight: '1.8', color: 'var(--color-text-secondary, #666)' }}>
-                      <li>Click "Connect to QuickBooks" or "Connect to Xero" above</li>
-                      <li>Sign in to your accounting software and authorize the connection</li>
-                      <li>Payment transactions will automatically sync to your accounting software</li>
-                      <li>View sync history and manage settings in the Accounting dashboard</li>
-                    </ol>
-                    <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: 'var(--color-text-tertiary, #999)' }}>
-                      <strong>Note:</strong> Only administrators can connect and manage accounting integrations.
-                      All OAuth tokens are encrypted using AES-256-GCM encryption for security.
-                    </p>
-                  </div>
-                </Card>
-              </div>
-            )}
           </div>
         </div>
 

@@ -363,41 +363,6 @@ export const DOCS_SECTIONS: DocsSection[] = [
         ],
         relatedTopics: ['wod'],
       },
-      {
-        id: 'accounting',
-        title: 'Accounting Integration',
-        summary:
-          'Connect QuickBooks or Xero and let payments sync automatically into your accounting software.',
-        illustrationKey: 'accounting',
-        steps: [
-          { text: 'Navigate to "Integrations" in the Admin panel.' },
-          {
-            text: 'Select your accounting software: QuickBooks or Xero.',
-          },
-          { text: 'Click "Connect" and authorise access via the OAuth flow.' },
-          {
-            text: 'Configure sync preferences.',
-            detail:
-              'Choose which transaction types to sync: day pass sales, service bookings, subscription revenue.',
-          },
-          { text: 'Transactions sync in real-time as payments are processed through Stripe.' },
-        ],
-        callouts: [
-          {
-            type: 'tip',
-            text: 'Set up accounting integration early so all your revenue data flows through from day one.',
-          },
-          {
-            type: 'warning',
-            text: 'Ensure your chart of accounts in QuickBooks/Xero is set up before connecting. Transactions need valid account categories to sync correctly.',
-          },
-        ],
-        relatedTopics: ['day-passes', 'service-booking'],
-        externalLinks: [
-          { label: 'QuickBooks', url: 'https://quickbooks.intuit.com' },
-          { label: 'Xero', url: 'https://www.xero.com' },
-        ],
-      },
     ],
   },
 ];

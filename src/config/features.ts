@@ -76,16 +76,6 @@ export const FEATURES: FeatureDefinition[] = [
     dependencies: ['coach_profiles'],
   },
   {
-    key: 'accounting_integration',
-    name: 'Accounting Integration',
-    description:
-      'Sync payments and invoices automatically with QuickBooks or Xero. Save hours on bookkeeping.',
-    monthlyPricePence: 1000,
-    category: 'business',
-    icon: '🧾',
-    illustrationKey: 'accounting',
-  },
-  {
     key: 'coach_analytics',
     name: 'Coach Analytics',
     description:

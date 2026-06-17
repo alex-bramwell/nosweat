@@ -16,7 +16,6 @@ const FEATURE_ILLUSTRATION_MAP: Partial<Record<FeatureKey, string>> = {
   day_passes: 'dayPass',
   trial_memberships: 'dayPass',
   service_booking: 'serviceBooking',
-  accounting_integration: 'accounting',
   coach_analytics: 'analytics',
   member_management: 'memberManagement',
 };
@@ -42,7 +41,6 @@ const ROLE_FEATURES: Record<RoleTab, RoleFeature[]> = {
     { key: 'day_passes', name: 'Day Pass Sales', description: 'Sell drop-in passes online with Stripe. Visitors pay, pick a class, and show up. Zero admin on your end.' },
     { key: 'trial_memberships', name: 'Free Trial Funnels', description: 'Offer trial classes with card authorisation. Convert walk-ins to paying members with a seamless sign-up flow.' },
     { key: 'member_management', name: 'Member Management', description: 'View and manage your entire member base. Assign roles, invite coaches, and keep your community organised.' },
-    { key: 'accounting_integration', name: 'Accounting Sync', description: 'Auto-sync every payment and invoice to QuickBooks or Xero. Spend less time on spreadsheets, more time on the gym floor.' },
     { key: 'custom_domain', name: 'Custom Domain', description: 'Use your own domain with SSL included. Your gym site looks fully yours, not hosted on someone else\'s platform.' },
   ],
   coaches: [
