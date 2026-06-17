@@ -205,7 +205,7 @@ const PlatformHome = () => {
             </div>
             <div className={styles.heroStatDivider} />
             <div className={styles.heroStat}>
-              <span className={styles.heroStatValue}>Minutes</span>
+              <span className={styles.heroStatValue}>Simple</span>
               <span className={styles.heroStatLabel}>To set up</span>
             </div>
             <div className={styles.heroStatDivider} />
