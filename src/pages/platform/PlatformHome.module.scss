@@ -291,6 +291,14 @@ $platform-glass-bg-dense: rgba(255, 255, 255, 0.10);
   color: transparent;
 }
 
+.strongArmIcon {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: -0.4em;
+  margin-left: 0.15em;
+}
+
 .heroCtas {
   display: flex;
   gap: 1rem;

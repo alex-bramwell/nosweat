@@ -115,6 +115,27 @@ const UNDERLINE_PATHS = [
   buildUnderline(0.4, 4.2),
 ];
 
+// Flexed-arm ("strong arm") icon filled with the blue-to-purple accent
+// gradient, inline in the hero subtitle. Glyph is Material Design Icons
+// "arm-flex" (Pictogrammers, Apache-2.0).
+const StrongArmIcon = () => {
+  const gradId = useId();
+  return (
+    <svg className={styles.strongArmIcon} viewBox="0 0 24 24" role="img" aria-label="strong arm">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#2563eb" />
+          <stop offset="100%" stopColor="#7c3aed" />
+        </linearGradient>
+      </defs>
+      <path
+        fill={`url(#${gradId})`}
+        d="M3 18.34C3 18.34 4 7.09 7 3L12 4L11 7.09H9V14.25H10C12 11.18 16.14 10.06 18.64 11.18C21.94 12.71 21.64 17.32 18.64 19.36C16.24 21 9 22.43 3 18.34Z"
+      />
+    </svg>
+  );
+};
+
 const HandUnderline = ({ children, path }: { children: React.ReactNode; path: string }) => {
   const gradId = useId();
   return (
@@ -185,7 +206,8 @@ const PlatformHome = () => {
           </h1>
           <p className={styles.heroSubtitle}>
             Everything a gym needs, inside your own website. Built for gym owners, by athletes.{' '}
-            <span className={styles.heroSubtitleAccent}>No Apps needed</span>
+            <span className={styles.heroSubtitleAccent}>No Apps needed</span>. We've done our
+            mobility, our software is flexible to suit your needs <StrongArmIcon />
           </p>
           <div className={styles.heroCtas}>
             <Link to="/signup" className={styles.ctaPrimary}>
