@@ -101,7 +101,7 @@ const HandUnderline = ({ children }: { children: React.ReactNode }) => {
 const PlatformHome = () => {
   const price = useMemo(() => getLocalizedPrice(), []);
   const [activeRole, setActiveRole] = useState<RoleTab>('owners');
-  const [openStep, setOpenStep] = useState(0);
+  const [openStep, setOpenStep] = useState(-1);
   const [contactOpen, setContactOpen] = useState(false);
   const touchStartX = useRef(0);
   const gridRef = useRef<HTMLDivElement>(null);
