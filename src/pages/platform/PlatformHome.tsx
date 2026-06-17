@@ -183,7 +183,7 @@ const PlatformHome = () => {
 
           <div className={styles.heroSteps}>
             <h2 className={styles.heroStepsHeading}>Gym management software</h2>
-            <p className={styles.heroStepsTitle}>Up and running in 3 steps</p>
+            <p className={styles.heroStepsTitle}>Up and running in a few steps</p>
             {SETUP_STEPS.map((step, i) => {
               const open = openStep === i;
               return (
