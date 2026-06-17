@@ -83,21 +83,51 @@ const SETUP_STEPS = [
   },
 ];
 
-// A word with a single sketchy, hand-drawn underline in the blue-to-purple
-// accent gradient. Sized in em so it scales with the headline.
-const HandUnderline = ({ children }: { children: React.ReactNode }) => {
+// Hand-drawn underlines as filled brush strokes: a mostly straight line with a
+// gentle wave, tapering to fine points at both ends. Built from a centerline
+// plus a thickness profile so the ends stay thin (taperPow > 1 concentrates the
+// width in the middle). Each word gets a different wave phase so the three do
+// not look mechanically identical.
+const buildUnderline = (waveAmp: number, phase: number): string => {
+  const SAMPLES = 48;
+  const WIDTH = 200;
+  const CENTER_Y = 7;
+  const MAX_HALF = 1.05; // half the thickest point (mid-line)
+  const TAPER_POW = 1.7; // higher = thinner, finer ends
+  const top: string[] = [];
+  const bottom: string[] = [];
+  for (let i = 0; i <= SAMPLES; i++) {
+    const t = i / SAMPLES;
+    const x = +(t * WIDTH).toFixed(1);
+    const center = CENTER_Y + waveAmp * Math.sin(phase + t * Math.PI * 2);
+    const half = MAX_HALF * Math.pow(Math.sin(Math.PI * t), TAPER_POW);
+    top.push(`${x} ${(center - half).toFixed(2)}`);
+    bottom.push(`${x} ${(center + half).toFixed(2)}`);
+  }
+  const topEdge = top.map((p, i) => (i === 0 ? `M${p}` : `L${p}`)).join('');
+  const bottomEdge = bottom.reverse().map((p) => `L${p}`).join('');
+  return `${topEdge}${bottomEdge}Z`;
+};
+
+const UNDERLINE_PATHS = [
+  buildUnderline(0.45, 0.4),
+  buildUnderline(0.6, 2.3),
+  buildUnderline(0.4, 4.2),
+];
+
+const HandUnderline = ({ children, path }: { children: React.ReactNode; path: string }) => {
   const gradId = useId();
   return (
     <span className={styles.underlinedWord}>
       {children}
-      <svg className={styles.underlineSvg} viewBox="0 0 200 16" preserveAspectRatio="none" fill="none" aria-hidden="true">
+      <svg className={styles.underlineSvg} viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
         <defs>
           <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#2563eb" />
             <stop offset="100%" stopColor="#7c3aed" />
           </linearGradient>
         </defs>
-        <path d="M4 9c34-5 70-6 104-3 30 3 58 2 88-2" stroke={`url(#${gradId})`} strokeWidth="4" strokeLinecap="round" />
+        <path d={path} fill={`url(#${gradId})`} />
       </svg>
     </span>
   );
@@ -151,7 +181,7 @@ const PlatformHome = () => {
         <div className={styles.heroContent}>
           <div className={styles.heroMain}>
           <h1 className={styles.heroHeadline}>
-            No Sweat <HandUnderline>runs</HandUnderline> your gym so you can <HandUnderline>focus</HandUnderline> on what <HandUnderline>matters</HandUnderline>
+            No Sweat <HandUnderline path={UNDERLINE_PATHS[0]}>runs</HandUnderline> your gym so you can <HandUnderline path={UNDERLINE_PATHS[1]}>focus</HandUnderline> on what <HandUnderline path={UNDERLINE_PATHS[2]}>matters</HandUnderline>
           </h1>
           <p className={styles.heroSubtitle}>
             Everything a gym needs, inside your own website. Built for gym owners, by athletes.{' '}
