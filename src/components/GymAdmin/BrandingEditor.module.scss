@@ -737,6 +737,56 @@
   color: var(--color-accent);
 }
 
+.heroCardGroupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+// ── Reorder rows (sections / cards) ──
+.orderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-bg-dark, rgba(255, 255, 255, 0.08));
+  border-radius: var(--border-radius, 0.5rem);
+  background: var(--color-bg-light, rgba(255, 255, 255, 0.02));
+}
+
+.orderControls {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.orderButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--color-bg-dark, rgba(255, 255, 255, 0.12));
+  background: var(--color-surface, rgba(255, 255, 255, 0.04));
+  color: var(--color-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-accent);
+    background: rgba(var(--color-accent-rgb), 0.12);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
 // ── Features Section ──
 .featuresGrid {
   display: flex;
@@ -852,10 +902,22 @@
 // ── Actions ──
 .brandingActions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--color-bg-dark);
+}
+
+.unsavedPill {
+  margin-right: auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-warning, #f59e0b);
+  padding: 0.25rem 0.6rem;
+  border-radius: 1rem;
+  background: rgba(var(--color-warning-rgb, 245, 158, 11), 0.12);
+  white-space: nowrap;
 }
 
 // ── Responsive ──

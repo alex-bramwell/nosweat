@@ -9,12 +9,13 @@ type ViewRole = 'admin' | 'coach' | 'member' | 'public';
 
 interface BuilderSidebarProps {
   onDraftChange?: (data: Partial<GymBranding> | null) => void;
+  onDirtyChange?: (dirty: boolean) => void;
   onNavigatePage?: (path: string) => void;
   activePage?: string;
   viewAsRole?: ViewRole;
 }
 
-const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ onDraftChange, onNavigatePage, activePage, viewAsRole = 'admin' }) => {
+const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ onDraftChange, onDirtyChange, onNavigatePage, activePage, viewAsRole = 'admin' }) => {
   const [panelOpen, setPanelOpen] = useState(
     () => localStorage.getItem('builder-panel') !== 'collapsed'
   );
@@ -94,7 +95,7 @@ const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ onDraftChange, onNaviga
         </nav>
 
         <div className={styles.builderPanelBody}>
-          <BrandingEditor onDraftChange={onDraftChange} />
+          <BrandingEditor onDraftChange={onDraftChange} onDirtyChange={onDirtyChange} />
         </div>
       </div>
     </aside>

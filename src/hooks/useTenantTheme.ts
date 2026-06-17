@@ -157,9 +157,21 @@ export function useTenantTheme() {
     // 4. Set theme mode attribute
     root.setAttribute('data-theme', branding.theme_mode || 'light');
 
-    // 5. Update page title
-    if (gym?.name) {
-      document.title = gym.name;
+    // 5. Update page title (owner SEO title overrides the gym name)
+    const pageTitle = branding.seo_title || gym?.name;
+    if (pageTitle) {
+      document.title = pageTitle;
+    }
+
+    // 5b. Update meta description from the owner's SEO description
+    if (branding.seo_description) {
+      let descMeta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+      if (!descMeta) {
+        descMeta = document.createElement('meta');
+        descMeta.name = 'description';
+        document.head.appendChild(descMeta);
+      }
+      descMeta.content = branding.seo_description;
     }
 
     // 6. Update favicon

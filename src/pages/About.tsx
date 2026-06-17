@@ -1,6 +1,7 @@
 import { Section, Container, Card, Button } from '../components/common';
 import { useTenant } from '../contexts/TenantContext';
 import { useBrandingWithOverrides } from '../hooks/useBrandingWithOverrides';
+import { AboutValueIcon, DEFAULT_ABOUT_VALUES } from '../data/aboutValues';
 import styles from './About.module.scss';
 
 const isValidMapsUrl = (url: string): boolean => {
@@ -95,103 +96,15 @@ const About = () => {
         <Container>
           <h2 className={styles.sectionTitle}>What Makes Us Different</h2>
           <div className={styles.featuresGrid}>
-            <div className={styles.feature}>
-              <div className={styles.featureIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  {/* Dumbbell icon */}
-                  <path d="M6.5 6.5l11 11"/>
-                  <path d="M17.5 6.5l-11 11"/>
-                  <circle cx="5" cy="5" r="2"/>
-                  <circle cx="19" cy="5" r="2"/>
-                  <circle cx="5" cy="19" r="2"/>
-                  <circle cx="19" cy="19" r="2"/>
-                </svg>
+            {(branding.about_values ?? DEFAULT_ABOUT_VALUES).map((value, i) => (
+              <div key={i} className={styles.feature}>
+                <div className={styles.featureIcon}>
+                  <AboutValueIcon name={value.icon} />
+                </div>
+                <h3 className={styles.featureTitle}>{value.title}</h3>
+                <p className={styles.featureText}>{value.description}</p>
               </div>
-              <h3 className={styles.featureTitle}>Functional Fitness</h3>
-              <p className={styles.featureText}>
-                Constantly varied, high-intensity workouts that prepare you for anything life throws your way.
-              </p>
-            </div>
-
-            <div className={styles.feature}>
-              <div className={styles.featureIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  {/* Activity/heart rate icon */}
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                </svg>
-              </div>
-              <h3 className={styles.featureTitle}>Scalable Workouts</h3>
-              <p className={styles.featureText}>
-                Every WOD can be scaled to your fitness level, from day one to day one thousand.
-              </p>
-            </div>
-
-            <div className={styles.feature}>
-              <div className={styles.featureIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  {/* Trophy icon */}
-                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
-                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-                  <path d="M4 22h16"/>
-                  <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
-                  <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
-                  <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
-                </svg>
-              </div>
-              <h3 className={styles.featureTitle}>Track Progress</h3>
-              <p className={styles.featureText}>
-                Monitor your improvements with benchmark workouts and personal record tracking.
-              </p>
-            </div>
-
-            <div className={styles.feature}>
-              <div className={styles.featureIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  {/* Barbell/weight icon */}
-                  <line x1="2" y1="12" x2="22" y2="12"/>
-                  <rect x="2" y="8" width="3" height="8" rx="1"/>
-                  <rect x="19" y="8" width="3" height="8" rx="1"/>
-                  <rect x="7" y="10" width="2" height="4"/>
-                  <rect x="15" y="10" width="2" height="4"/>
-                </svg>
-              </div>
-              <h3 className={styles.featureTitle}>Premium Equipment</h3>
-              <p className={styles.featureText}>
-                Top-tier Rogue equipment and spacious facility designed for optimal training.
-              </p>
-            </div>
-
-            <div className={styles.feature}>
-              <div className={styles.featureIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  {/* Calendar with checkmark icon */}
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                  <path d="M9 16l2 2 4-4"/>
-                </svg>
-              </div>
-              <h3 className={styles.featureTitle}>Flexible Schedule</h3>
-              <p className={styles.featureText}>
-                Multiple classes per week with morning, afternoon, and evening options to fit your lifestyle.
-              </p>
-            </div>
-
-            <div className={styles.feature}>
-              <div className={styles.featureIcon}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  {/* Target/bullseye icon */}
-                  <circle cx="12" cy="12" r="10"/>
-                  <circle cx="12" cy="12" r="6"/>
-                  <circle cx="12" cy="12" r="2"/>
-                </svg>
-              </div>
-              <h3 className={styles.featureTitle}>Specialty Programs</h3>
-              <p className={styles.featureText}>
-                From Olympic Lifting to Gymnastics, enhance your skills with targeted programming.
-              </p>
-            </div>
+            ))}
           </div>
         </Container>
       </Section>
