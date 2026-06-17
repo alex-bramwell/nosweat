@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTenant, useGymPath } from '../contexts/TenantContext';
 import { Container } from '../components/common';
 import FeatureTogglePanel from '../components/GymAdmin/FeatureTogglePanel';
+import MembershipsPanel from '../components/GymAdmin/MembershipsPanel';
 import GymSettings from '../components/GymAdmin/GymSettings';
 import DataManagement from '../components/GymAdmin/DataManagement';
 import GettingStarted from '../components/GymAdmin/GettingStarted';
@@ -12,7 +13,7 @@ import StripeConnectPanel from '../components/GymAdmin/StripeConnectPanel';
 import { DEMO_GYM_SLUG } from '../config/demo';
 import styles from './GymAdmin.module.scss';
 
-const TABS = ['features', 'payments', 'settings', 'billing', 'data'] as const;
+const TABS = ['features', 'memberships', 'payments', 'settings', 'billing', 'data'] as const;
 type Tab = (typeof TABS)[number];
 
 const GymAdmin: React.FC = () => {
@@ -135,6 +136,17 @@ const GymAdmin: React.FC = () => {
             <span>Features</span>
           </button>
           <button
+            className={`${styles.adminTab} ${activeTab === 'memberships' ? styles.adminTabActive : ''}`}
+            onClick={() => setActiveTab('memberships')}
+          >
+            <span className={styles.adminTabIcon}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9h18M3 15h18M7 4v16M17 4v16" />
+              </svg>
+            </span>
+            <span>Memberships</span>
+          </button>
+          <button
             className={`${styles.adminTab} ${activeTab === 'payments' ? styles.adminTabActive : ''}`}
             onClick={() => setActiveTab('payments')}
           >
@@ -188,6 +200,7 @@ const GymAdmin: React.FC = () => {
 
         <div className={styles.adminTabContent}>
           {activeTab === 'features' && <FeatureTogglePanel />}
+          {activeTab === 'memberships' && <MembershipsPanel />}
           {activeTab === 'payments' && <StripeConnectPanel />}
           {activeTab === 'settings' && <GymSettings />}
           {activeTab === 'billing' && <PlatformBillingPanel />}
