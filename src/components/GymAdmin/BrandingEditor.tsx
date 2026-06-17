@@ -3,7 +3,7 @@ import { useTenant, DEFAULT_BRANDING } from '../../contexts/TenantContext';
 import { supabase } from '../../lib/supabase';
 import { AVAILABLE_FONTS } from '../../hooks/useTenantTheme';
 import { FEATURES, type FeatureDefinition } from '../../config/features';
-import type { FeatureKey, HeroCards, HeroCardKey, AboutValue } from '../../types/tenant';
+import type { FeatureKey, HeroCards, HeroCardKey, AboutValue, GalleryItem } from '../../types/tenant';
 import { Button } from '../common';
 import ImageUpload from './ImageUpload';
 import FeatureDisableModal from './FeatureDisableModal';
@@ -23,8 +23,11 @@ const SECTION_LABELS: Record<string, string> = {
   programs: 'Programs',
   stats: 'Stats',
   wod: 'Workout of the Day',
+  gallery: 'Gallery',
   cta: 'Call to Action',
 };
+
+const CANONICAL_SECTIONS = ['hero', 'programs', 'wod', 'stats', 'gallery', 'cta'];
 
 const HERO_CARD_LABELS: Record<HeroCardKey, string> = {
   daypass: 'Day Pass',
@@ -103,6 +106,8 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange, onDirtyC
     about_philosophy: source.about_philosophy || '',
     about_facility: source.about_facility || '',
     about_values: source.about_values ?? DEFAULT_ABOUT_VALUES,
+    gallery_items: source.gallery_items ?? [],
+    gallery_layout: source.gallery_layout ?? 'grid',
     footer_text: source.footer_text || '',
     // SEO
     seo_title: source.seo_title || '',
@@ -110,9 +115,13 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange, onDirtyC
     // Custom code
     custom_css: source.custom_css || '',
     hero_effect: source.hero_effect || 'none',
-    // Sections
+    // Sections - append any missing canonical sections (e.g. gallery) so they
+    // appear in the order list even for gyms saved before the section existed.
     visible_sections: source.visible_sections ?? { hero: true, programs: true, wod: true, cta: true, stats: true },
-    section_order: source.section_order ?? DEFAULT_BRANDING.section_order,
+    section_order: (() => {
+      const stored = source.section_order ?? DEFAULT_BRANDING.section_order;
+      return [...stored, ...CANONICAL_SECTIONS.filter((k) => !stored.includes(k))];
+    })(),
     // Hero cards
     hero_cards: source.hero_cards ?? DEFAULT_BRANDING.hero_cards,
     hero_card_order: source.hero_card_order ?? DEFAULT_BRANDING.hero_card_order,
@@ -251,6 +260,45 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange, onDirtyC
     setFormData((prev) => ({ ...prev, about_values: prev.about_values.filter((_, i) => i !== index) }));
   };
 
+  // ── Gallery ──
+  const handleGalleryImageAdd = (url: string) => {
+    setFormData((prev) => ({ ...prev, gallery_items: [...prev.gallery_items, { type: 'image', url } as GalleryItem] }));
+  };
+
+  const handleGalleryVideoAdd = (url: string) => {
+    const trimmed = url.trim();
+    if (!trimmed) return;
+    setFormData((prev) => {
+      // Only one video allowed - replace any existing one.
+      const withoutVideo = prev.gallery_items.filter((i) => i.type !== 'video');
+      return { ...prev, gallery_items: [...withoutVideo, { type: 'video', url: trimmed } as GalleryItem] };
+    });
+  };
+
+  const handleGalleryMove = (index: number, dir: -1 | 1) => {
+    setFormData((prev) => {
+      const arr = [...prev.gallery_items];
+      const target = index + dir;
+      if (target < 0 || target >= arr.length) return prev;
+      [arr[index], arr[target]] = [arr[target], arr[index]];
+      return { ...prev, gallery_items: arr };
+    });
+  };
+
+  const handleGalleryRemove = (index: number) => {
+    setFormData((prev) => {
+      const next = prev.gallery_items.filter((_, i) => i !== index);
+      // Carousel needs >3 photos; drop back to grid if we no longer qualify.
+      const photoCount = next.filter((i) => i.type === 'image').length;
+      const layout = photoCount > 3 ? prev.gallery_layout : 'grid';
+      return { ...prev, gallery_items: next, gallery_layout: layout };
+    });
+  };
+
+  const handleGalleryLayoutToggle = () => {
+    setFormData((prev) => ({ ...prev, gallery_layout: prev.gallery_layout === 'carousel' ? 'grid' : 'carousel' }));
+  };
+
   const handleImageUpload = async (field: string, url: string) => {
     setFormData((prev) => ({ ...prev, [field]: url }));
     // Extract colors when a logo is uploaded and Smart Colour is enabled
@@ -328,6 +376,8 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange, onDirtyC
           about_philosophy: formData.about_philosophy || null,
           about_facility: formData.about_facility || null,
           about_values: formData.about_values,
+          gallery_items: formData.gallery_items,
+          gallery_layout: formData.gallery_layout,
           footer_text: formData.footer_text || null,
           // SEO
           seo_title: formData.seo_title || null,
@@ -979,6 +1029,83 @@ const BrandingEditor: React.FC<BrandingEditorProps> = ({ onDraftChange, onDirtyC
             </div>
           ))}
           <Button variant="ghost" onClick={handleAboutValueAdd} disabled={isLoading}>+ Add card</Button>
+        </div>
+      )}
+
+      {/* ── Gallery ── */}
+      {renderAccordion('gallery', 'Gallery',
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>,
+        <div className={styles.contentGrid}>
+          <p className={styles.featuresHint}>An optional section to show off your space, classes and community. Add photos and up to one video. It stays hidden until you switch it on.</p>
+
+          <label className={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={formData.visible_sections.gallery === true}
+              onChange={() => handleSectionToggle('gallery')}
+            />
+            <span>Show the gallery on my homepage</span>
+          </label>
+
+          {formData.gallery_items.length > 0 && (
+            <div className={styles.galleryItemList}>
+              {formData.gallery_items.map((item, i) => (
+                <div key={i} className={styles.galleryItemRow}>
+                  {item.type === 'image' ? (
+                    <img src={item.url} alt="" className={styles.galleryItemThumb} />
+                  ) : (
+                    <div className={`${styles.galleryItemThumb} ${styles.galleryItemVideoThumb}`}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                    </div>
+                  )}
+                  <span className={styles.galleryItemLabel}>
+                    {item.type === 'video' ? 'Video' : `Photo ${formData.gallery_items.slice(0, i + 1).filter((x) => x.type === 'image').length}`}
+                  </span>
+                  <div className={styles.orderControls}>
+                    <button type="button" className={styles.orderButton} aria-label="Move up" disabled={i === 0} onClick={() => handleGalleryMove(i, -1)}>↑</button>
+                    <button type="button" className={styles.orderButton} aria-label="Move down" disabled={i === formData.gallery_items.length - 1} onClick={() => handleGalleryMove(i, 1)}>↓</button>
+                    <button type="button" className={styles.orderButton} aria-label="Remove" onClick={() => handleGalleryRemove(i)}>✕</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <ImageUpload
+            label="Add a photo"
+            description="Upload your gym photos one at a time. JPG or PNG up to 5MB each."
+            value=""
+            gymId={gym?.id || ''}
+            assetType="gallery"
+            onUpload={handleGalleryImageAdd}
+            onRemove={() => {}}
+          />
+
+          <div className={styles.brandingFormField}>
+            <label htmlFor="gallery_video">Video link (optional, max 1)</label>
+            <div className={styles.galleryVideoRow}>
+              <input
+                type="url"
+                id="gallery_video"
+                className={styles.brandingInput}
+                placeholder="Paste a YouTube, Vimeo or .mp4 link"
+                defaultValue={formData.gallery_items.find((i) => i.type === 'video')?.url ?? ''}
+                onBlur={(e) => handleGalleryVideoAdd(e.target.value)}
+              />
+            </div>
+            <p className={styles.featuresHint}>Paste a link and click away to add it. Re-pasting replaces the current video.</p>
+          </div>
+
+          {formData.gallery_items.filter((i) => i.type === 'image').length > 3 && (
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.gallery_layout === 'carousel'}
+                onChange={handleGalleryLayoutToggle}
+              />
+              <span>Display as a sliding carousel (instead of a grid)</span>
+            </label>
+          )}
         </div>
       )}
 

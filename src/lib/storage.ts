@@ -2,7 +2,7 @@ import { supabase } from './supabase';
 
 const BUCKET = 'gym-assets';
 
-export type AssetType = 'logo' | 'logo_dark' | 'favicon' | 'hero_image' | 'about_image' | 'og_image';
+export type AssetType = 'logo' | 'logo_dark' | 'favicon' | 'hero_image' | 'about_image' | 'og_image' | 'gallery';
 
 export async function uploadGymAsset(
   gymId: string,
