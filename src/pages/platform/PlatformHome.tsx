@@ -115,23 +115,29 @@ const UNDERLINE_PATHS = [
   buildUnderline(0.4, 4.2),
 ];
 
-// Flexed-arm ("strong arm") icon filled with the blue-to-purple accent
-// gradient, inline in the hero subtitle. Glyph is Material Design Icons
-// "arm-flex" (Pictogrammers, Apache-2.0).
+// Detailed flexed-arm ("strong arm") line glyph stroked with the blue-to-purple
+// accent gradient, inline in the hero subtitle. Artwork is the OpenMoji
+// "flexed biceps" emoji (https://openmoji.org, CC BY-SA 4.0).
 const StrongArmIcon = () => {
   const gradId = useId();
   return (
-    <svg className={styles.strongArmIcon} viewBox="0 0 24 24" role="img" aria-label="strong arm">
+    <svg className={styles.strongArmIcon} viewBox="0 0 72 72" role="img" aria-label="strong arm">
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#2563eb" />
           <stop offset="100%" stopColor="#7c3aed" />
         </linearGradient>
       </defs>
-      <path
-        fill={`url(#${gradId})`}
-        d="M3 18.34C3 18.34 4 7.09 7 3L12 4L11 7.09H9V14.25H10C12 11.18 16.14 10.06 18.64 11.18C21.94 12.71 21.64 17.32 18.64 19.36C16.24 21 9 22.43 3 18.34Z"
-      />
+      <g fill="none" stroke={`url(#${gradId})`} strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4">
+        <path d="M27.4684,40.5519c-0.4282-4.2794-1.1326-12.7197-1.9548-13.7543c0,0,5.2009,1.1102,7.8117-2.9736" />
+        <path d="M34.5031,53.0878c0,0,10.8019,2.7012,19.2868-4.3269" />
+        <path d="M27.7195,50.6312c0,0,2.8688-14.4737,16.3682-16.3928s20.2138,8.5143,20.2138,8.5143s0.2302,0.2755,0.5269,0.7704c2.0724,3.4564,1.2505,7.9342-1.8035,10.5637C52.0326,63.551,36.5991,65.7993,16.5066,65.6836c0,0-3.7502,1.1456-4.6096-3.574c0,0-0.7689-20.9388,3.8178-35.6261c0,0-0.1965-6.0013,0.0307-9.9287c0.0388-0.67,0.3337-1.2971,0.827-1.7521c5.7789-5.3313,8.3742-6.1149,8.3742-6.1149l8.3881-1.4838c1.436,0.9837,4.7256,4.7388,3.5707,11.4953" />
+        <path d="M25.5888,19.2948c0,0,1.8163,2.5911,3.6325-0.2835V16l-0.46-1.6583l-0.3606-0.278" />
+        <path d="M29.5442,19.2948c0,0,1.8163,2.5911,3.6325-0.2835V16l-0.8731-2.1254" />
+        <path d="M36.8203,19.0113c-1.9616,1.8889-3.3207,0-3.3207,0" />
+        <path d="M20.301,16.4465c0.5038,0.4387,1.1429,1.2206,1.2784,2.4327c0.0322,0.2877,0.131,0.5691,0.3359,0.7736c0.595,0.5939,1.9586,1.5167,3.3223-0.6415V16l-0.6351-1.2677" />
+        <path d="M40.3564,18.289c1.9261,0.5697,2.2618,3.4266-0.7028,4.0993c-6.3283,1.4358-6.3283,1.4358-6.3283,1.4358" />
+      </g>
     </svg>
   );
 };
