@@ -112,6 +112,10 @@ export interface GymBranding {
 
   // About "what makes us different" value cards (null = use defaults)
   about_values: AboutValue[] | null;
+
+  // Gallery (opt-in section)
+  gallery_items: GalleryItem[];
+  gallery_layout: 'grid' | 'carousel';
 }
 
 export interface HeroCardContent {
@@ -134,6 +138,11 @@ export interface AboutValue {
   icon: string;
   title: string;
   description: string;
+}
+
+export interface GalleryItem {
+  type: 'image' | 'video';
+  url: string;
 }
 
 export interface GymFeature {
