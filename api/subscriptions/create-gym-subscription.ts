@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!assertMethod(req, res, 'POST')) return;
 
   try {
-    const { gymId, membershipId, userId } = req.body;
+    const { gymId, membershipId, userId, promoCode } = req.body;
 
     if (!gymId || !membershipId || !userId) {
       return res.status(400).json({ error: 'Missing required fields: gymId, membershipId, userId' });
@@ -97,30 +97,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Get or create Stripe product + price on the connected account
+    // DESTINATION CHARGE MODEL: the product, price, customer and subscription all
+    // live on the PLATFORM account; each invoice's funds are routed to the gym's
+    // connected account via transfer_data, minus the platform application fee.
+    // This keeps the customer + saved card on the platform account (simpler for
+    // dunning and the billing portal) and means subscription webhooks arrive on
+    // our existing platform webhook rather than per-connected-account.
     let stripePriceId = membership.stripe_price_id;
 
     if (!stripePriceId) {
-      // Create product on connected account
       const product = await stripe.products.create({
         name: `${gym.name} — ${membership.display_name}`,
         metadata: {
           gym_id: gymId,
           membership_id: membershipId,
         },
-      }, {
-        stripeAccount: gym.stripe_account_id,
       });
 
-      // Create recurring price on connected account
       const interval = membership.billing_period === 'yearly' ? 'year' : 'month';
       const price = await stripe.prices.create({
         product: product.id,
         unit_amount: membership.price_pence,
         currency: 'gbp',
         recurring: { interval },
-      }, {
-        stripeAccount: gym.stripe_account_id,
       });
 
       stripePriceId = price.id;
@@ -135,19 +134,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .eq('id', membershipId);
     }
 
+    // Resolve a promo code if supplied. We only accept codes that belong to THIS
+    // gym (and are active), then pre-apply them as a discount. This is what keeps
+    // one gym's code from being used on another's checkout - we never let codes be
+    // free-typed at Stripe Checkout.
+    let discountPromotionCodeId: string | undefined;
+    if (promoCode) {
+      const normalised = String(promoCode).trim().toUpperCase();
+      const { data: promo } = await supabase
+        .from('gym_promo_codes')
+        .select('stripe_promotion_code_id')
+        .eq('gym_id', gymId)
+        .eq('code', normalised)
+        .eq('active', true)
+        .single();
+
+      if (!promo?.stripe_promotion_code_id) {
+        return res.status(400).json({ error: 'That promo code is not valid for this gym.' });
+      }
+      discountPromotionCodeId = promo.stripe_promotion_code_id;
+    }
+
     // Calculate application fee (platform cut)
     const feePercent = gym.platform_fee_percent || 10;
     const applicationFeePercent = feePercent / 100;
 
     const origin = req.headers.origin || 'https://nosweat.fitness';
 
-    // Create checkout session on connected account with application fee
+    // Create the subscription Checkout Session on the platform account, routing
+    // funds to the gym with an application fee retained by the platform.
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: stripeCustomerId,
       line_items: [{ price: stripePriceId, quantity: 1 }],
+      // Pre-apply the validated gym-scoped code, if any. We deliberately do NOT
+      // set allow_promotion_codes (which would let any platform code be typed).
+      ...(discountPromotionCodeId
+        ? { discounts: [{ promotion_code: discountPromotionCodeId }] }
+        : {}),
       subscription_data: {
         application_fee_percent: applicationFeePercent * 100,
+        transfer_data: {
+          destination: gym.stripe_account_id,
+        },
         metadata: {
           gym_id: gymId,
           membership_id: membershipId,
@@ -161,9 +190,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         payment_type: 'gym-membership',
       },
       success_url: `${origin}/gym/${gym.slug}/dashboard?subscription=success`,
-      cancel_url: `${origin}/gym/${gym.slug}?subscription=cancelled`,
-    }, {
-      stripeAccount: gym.stripe_account_id,
+      cancel_url: `${origin}/gym/${gym.slug}/dashboard?subscription=cancelled`,
     });
 
     return res.status(200).json({

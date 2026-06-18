@@ -29,6 +29,7 @@ import Hero from '../components/sections/Hero';
 import Programs from '../components/sections/Programs';
 import WOD from '../components/sections/WOD';
 import Stats from '../components/sections/Stats';
+import Memberships from '../components/sections/Memberships';
 import Gallery from '../components/sections/Gallery';
 import CTA from '../components/sections/CTA';
 import { FeatureGate } from '../components/common';
@@ -38,8 +39,8 @@ import { DEFAULT_BRANDING } from '../contexts/TenantContext';
 import LockedSectionPlaceholder from '../components/GymAdmin/LockedSectionPlaceholder';
 
 // Canonical section keys - any not in a gym's stored order get appended, so
-// new sections (e.g. gallery) show up for existing gyms without a data backfill.
-const CANONICAL_SECTIONS = ['hero', 'programs', 'wod', 'stats', 'gallery', 'cta'];
+// new sections (e.g. memberships, gallery) show up for existing gyms without a backfill.
+const CANONICAL_SECTIONS = ['hero', 'programs', 'wod', 'stats', 'memberships', 'gallery', 'cta'];
 
 const Home = () => {
   const branding = useBrandingWithOverrides();
@@ -52,7 +53,7 @@ const Home = () => {
 
   // Each homepage section, keyed for ordering. WOD and CTA carry their own
   // feature gate (with a builder-only "locked" placeholder when the feature is
-  // off); Stats and Gallery self-handle their empty states.
+  // off); Stats, Memberships and Gallery self-handle their empty states.
   const sections: Record<string, ReactNode> = {
     hero: <Hero />,
     programs: <Programs />,
@@ -65,6 +66,7 @@ const Home = () => {
       </FeatureGate>
     ),
     stats: <Stats />,
+    memberships: <Memberships />,
     gallery: <Gallery />,
     cta: (
       <FeatureGate

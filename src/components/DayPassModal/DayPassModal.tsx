@@ -5,7 +5,7 @@ import { Modal, Button, CardFields } from '../common';
 import { useStripePayment } from '../../hooks/useStripePayment';
 import { stripePromise } from '../../lib/stripe';
 import { supabase } from '../../lib/supabase';
-import { formatCurrency, handlePaymentError, DAY_PASS_PRICE_PENCE, DAY_PASS_PRICE_LABEL } from '../../utils/payment';
+import { formatCurrency, formatPriceShort, handlePaymentError, DAY_PASS_PRICE_PENCE } from '../../utils/payment';
 import { useTenant, useGymPath } from '../../contexts/TenantContext';
 import type { User } from '@supabase/supabase-js';
 import type { ClassSchedule } from '../../types';
@@ -33,6 +33,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   onSuccess,
   onError,
 }) => {
+  const { gym } = useTenant();
+  const pricePence = gym?.day_pass_price_pence ?? DAY_PASS_PRICE_PENCE;
   const { submit, isProcessing, stripe } = useStripePayment({
     mode: 'payment',
     clientSecret,
@@ -55,7 +57,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         fullWidth
         disabled={!stripe || isProcessing}
       >
-        {isProcessing ? 'Processing...' : `Pay ${formatCurrency(DAY_PASS_PRICE_PENCE, 'gbp')} and Book Class`}
+        {isProcessing ? 'Processing...' : `Pay ${formatCurrency(pricePence, 'gbp')} and Book Class`}
       </Button>
     </form>
   );
@@ -65,6 +67,8 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const gymPath = useGymPath();
   const { schedule, gym, isDemoGym } = useTenant();
+  const dayPassPence = gym?.day_pass_price_pence ?? DAY_PASS_PRICE_PENCE;
+  const dayPassLabel = formatPriceShort(dayPassPence);
 
   const weeklySchedule: ClassSchedule[] = useMemo(() =>
     schedule.map(entry => ({
@@ -355,7 +359,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
         {currentStep === 'class-selection' && (
           <div className={styles.dayPassStepBody}>
             <h2 className={styles.dayPassTitle}>Select Your Class</h2>
-            <p className={styles.dayPassSubtitle}>Choose from the next 7 days ({DAY_PASS_PRICE_LABEL} per class)</p>
+            <p className={styles.dayPassSubtitle}>Choose from the next 7 days ({dayPassLabel} per class)</p>
 
             {/* Class Type Toggle */}
             <div className={styles.classTypeToggle}>
@@ -513,7 +517,7 @@ const DayPassModal: React.FC<DayPassModalProps> = ({ isOpen, onClose }) => {
               )}
               <div className={styles.detailRow}>
                 <span className={styles.dayPassDetailLabel}>Price:</span>
-                <span className={styles.priceValue}>{formatCurrency(DAY_PASS_PRICE_PENCE, 'gbp')}</span>
+                <span className={styles.priceValue}>{formatCurrency(dayPassPence, 'gbp')}</span>
               </div>
             </div>
 

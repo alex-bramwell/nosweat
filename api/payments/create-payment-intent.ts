@@ -62,30 +62,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Get or create the Stripe customer for this user (idempotent).
     const stripeCustomerId = await getOrCreateStripeCustomer(userId, user.email);
 
-    // Stripe Connect - look up whether this gym has completed Connect onboarding.
-    // If they have, payments are routed through their Connect account with a
-    // platform fee (default 10%) retained by noSweat. If not, payments go
-    // directly to the platform's Stripe account (pre-Connect fallback).
+    // Look up the gym: the day-pass price is owner-configured (day_pass_price_pence,
+    // default £10), and we always resolve the charge amount server-side from the
+    // database - never trust an amount from the client. We also check whether the
+    // gym has completed Connect onboarding to route the payment + platform fee.
+    const { data: gym } = await supabase
+      .from('gyms')
+      .select('stripe_account_id, stripe_onboarding_complete, platform_fee_percent, day_pass_price_pence')
+      .eq('id', gymId)
+      .single();
+
+    // Resolve the price from the gym record, with a sane floor. Stripe's minimum
+    // GBP card charge is 30p, so never let a misconfigured price fall below that.
+    const amount = Math.max(gym?.day_pass_price_pence ?? 1000, 30);
+
     let connectAccountId: string | undefined;
     let applicationFeeAmount: number | undefined;
 
-    if (gymId) {
-      const { data: gym } = await supabase
-        .from('gyms')
-        .select('stripe_account_id, stripe_onboarding_complete, platform_fee_percent')
-        .eq('id', gymId)
-        .single();
-
-      if (gym?.stripe_account_id && gym.stripe_onboarding_complete) {
-        connectAccountId = gym.stripe_account_id;
-        const feePercent = gym.platform_fee_percent || 10;
-        applicationFeeAmount = Math.round(1000 * (feePercent / 100));
-      }
+    if (gym?.stripe_account_id && gym.stripe_onboarding_complete) {
+      connectAccountId = gym.stripe_account_id;
+      const feePercent = gym.platform_fee_percent || 10;
+      applicationFeeAmount = Math.round(amount * (feePercent / 100));
     }
 
-    // Create payment intent for £10 (1000 pence)
+    // Create payment intent for the gym's configured day-pass price.
     const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
-      amount: 1000, // £10 in pence
+      amount,
       currency: 'gbp',
       customer: stripeCustomerId,
       metadata: {
@@ -121,7 +123,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       gym_id: gymId,
       stripe_payment_intent_id: paymentIntent.id,
       stripe_customer_id: stripeCustomerId,
-      amount: 1000,
+      amount,
       currency: 'gbp',
       status: 'pending',
       payment_type: 'day-pass',

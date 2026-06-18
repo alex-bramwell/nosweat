@@ -23,6 +23,7 @@ export interface Gym {
   stripe_account_status: 'not_started' | 'onboarding' | 'active' | 'restricted' | 'disabled';
   stripe_onboarding_complete: boolean;
   platform_fee_percent: number;
+  day_pass_price_pence: number;
   trial_start_date: string | null;
   trial_end_date: string | null;
   trial_member_limit: number;

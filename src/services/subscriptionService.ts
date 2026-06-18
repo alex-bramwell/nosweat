@@ -72,6 +72,33 @@ export const subscriptionService = {
   },
 
   /**
+   * Start a Stripe Checkout session for the member to subscribe to a plan, and
+   * return the hosted checkout URL to redirect to. The server resolves the price
+   * from the membership record, so only identifiers are sent here.
+   */
+  async startCheckout(gymId: string, membershipId: string, userId: string, promoCode?: string): Promise<string> {
+    const { url } = await authFetch<{ url: string }>('/api/subscriptions/create-gym-subscription', {
+      gymId,
+      membershipId,
+      userId,
+      ...(promoCode ? { promoCode } : {}),
+    });
+    return url;
+  },
+
+  /**
+   * Open the Stripe Billing Portal so the member can update their card (the key
+   * action when a payment is past due), view invoices, or cancel. Returns the
+   * hosted portal URL to redirect to.
+   */
+  async openBillingPortal(gymId: string): Promise<string> {
+    const { url } = await authFetch<{ url: string }>('/api/subscriptions/create-portal-session', {
+      gymId,
+    });
+    return url;
+  },
+
+  /**
    * Cancel the subscription at the end of the current billing period.
    * The member keeps access until then.
    */
