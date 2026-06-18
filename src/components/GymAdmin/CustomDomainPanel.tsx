@@ -51,6 +51,26 @@ const PencilIcon = () => (
   </svg>
 );
 
+// Per-provider help. Links go to a web search for that provider's own CNAME
+// guide, so they never 404 and always land the owner on the current article.
+const REGISTRAR_HELP: { name: string; query: string }[] = [
+  { name: 'GoDaddy', query: 'GoDaddy add CNAME record' },
+  { name: 'Namecheap', query: 'Namecheap add CNAME record' },
+  { name: 'Cloudflare', query: 'Cloudflare add CNAME record' },
+  { name: 'Google / Squarespace', query: 'Squarespace domains add CNAME record' },
+  { name: 'Wix', query: 'Wix add CNAME record' },
+  { name: 'IONOS', query: 'IONOS add CNAME record' },
+  { name: '123 Reg', query: '123-reg add CNAME record' },
+  { name: 'Other provider', query: 'how to add a CNAME DNS record' },
+];
+
+// A "bare"/apex domain like mygym.com (no www, two labels) needs different DNS
+// to a subdomain - steer the owner to the simpler www. version.
+function isApexDomain(value: string): boolean {
+  const v = value.trim().toLowerCase();
+  return v.length > 0 && !v.startsWith('www.') && v.split('.').filter(Boolean).length === 2;
+}
+
 const CustomDomainPanel: React.FC<CustomDomainPanelProps> = ({ gymName, onNameChange, slug, onSlugChange }) => {
   const { gym, refreshTenant } = useTenant();
   const hasFeature = useFeature('custom_domain');
@@ -403,6 +423,22 @@ const CustomDomainPanel: React.FC<CustomDomainPanelProps> = ({ gymName, onNameCh
               <strong>Name</strong> is the part before your domain - use <strong>www</strong> for
               www.yourgym.com, or <strong>@</strong> for the bare yourgym.com.
             </p>
+            <div className={styles.providerHelp}>
+              <span className={styles.providerHelpLabel}>Not sure where to add it? Open your provider's step-by-step guide:</span>
+              <div className={styles.providerHelpLinks}>
+                {REGISTRAR_HELP.map((r) => (
+                  <a
+                    key={r.name}
+                    href={`https://www.google.com/search?q=${encodeURIComponent(r.query)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.providerHelpLink}
+                  >
+                    {r.name}
+                  </a>
+                ))}
+              </div>
+            </div>
             <p className={styles.autoCheckNote}>
               {autoChecking
                 ? "Checking automatically - this page switches to Active on its own once your domain is ready. It usually takes a few minutes (occasionally up to 48 hours). Feel free to carry on with the rest of your dashboard meanwhile."
@@ -528,9 +564,9 @@ const CustomDomainPanel: React.FC<CustomDomainPanelProps> = ({ gymName, onNameCh
 
               <InfoBox title="How it works">
                 <ol>
-                  <li>Enter your domain below</li>
+                  <li>Enter your domain below (we recommend the <strong>www.</strong> version - it's the simplest and works everywhere)</li>
                   <li>We give you one DNS record to add where you bought your domain</li>
-                  <li>Add the record (we show you exactly what to paste, with Copy buttons)</li>
+                  <li>Add the record (we show you exactly what to paste, with Copy buttons, plus a guide for your provider)</li>
                   <li>That's it - we check automatically and your domain goes live on its own</li>
                 </ol>
               </InfoBox>
@@ -550,6 +586,15 @@ const CustomDomainPanel: React.FC<CustomDomainPanelProps> = ({ gymName, onNameCh
                     if (e.key === 'Enter' && domainInput.trim()) handleAddDomain();
                   }}
                 />
+                {isApexDomain(domainInput) && (
+                  <button
+                    type="button"
+                    className={styles.apexSuggestion}
+                    onClick={() => setDomainInput(`www.${domainInput.trim()}`)}
+                  >
+                    Tip: use <strong>www.{domainInput.trim()}</strong> instead - bare domains need extra setup some providers don't support. Click to use it.
+                  </button>
+                )}
               </div>
 
               {error && (

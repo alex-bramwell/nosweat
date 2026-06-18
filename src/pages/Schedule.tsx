@@ -9,14 +9,15 @@ import { useTenant } from '../contexts/TenantContext';
 import { useIsBuilder } from '../contexts/BrandingOverrideContext';
 import { SAMPLE_SCHEDULE } from '../data/sampleContent';
 import type { ClassSchedule } from '../types';
-import { DAY_PASS_PRICE_LABEL } from '../utils/payment';
+import { DAY_PASS_PRICE_PENCE, formatPriceShort } from '../utils/payment';
 import { isPrimaryClass, getClassTypes, classifyClass } from '../utils/classType';
 import styles from './Schedule.module.scss';
 
 const Schedule = () => {
   const { isAuthenticated, user, isLoading } = useAuth();
   const { intent, updateStep } = useRegistrationIntent();
-  const { schedule, isDemoGym } = useTenant();
+  const { schedule, isDemoGym, gym } = useTenant();
+  const dayPassLabel = formatPriceShort(gym?.day_pass_price_pence ?? DAY_PASS_PRICE_PENCE);
   const isBuilder = useIsBuilder();
   // On the demo gym, class names are genericised to "Group Training".
   const groupLabel = isDemoGym ? 'Group Training' : 'CrossFit';
@@ -139,7 +140,7 @@ const Schedule = () => {
                     <line x1="12" y1="16" x2="12" y2="12"/>
                     <line x1="12" y1="8" x2="12.01" y2="8"/>
                   </svg>
-                  <span className={styles.infoText}>Select a class to book your day pass ({DAY_PASS_PRICE_LABEL})</span>
+                  <span className={styles.infoText}>Select a class to book your day pass ({dayPassLabel})</span>
                 </span>
               </div>
             )}
@@ -155,7 +156,7 @@ const Schedule = () => {
                   </span>
                 </span>
                 <Button variant="primary" size="compact" onClick={handleContinueToPayment}>
-                  Continue to Payment ({DAY_PASS_PRICE_LABEL})
+                  Continue to Payment ({dayPassLabel})
                 </Button>
               </div>
             )}

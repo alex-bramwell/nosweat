@@ -266,10 +266,15 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       return;
     }
 
-    // Handle gym membership subscriptions (via Connect)
+    // Handle gym membership subscriptions (destination charge on the platform
+    // account, with funds routed to the gym's connected account).
     if (paymentType === 'gym-membership') {
       const gymId = session.metadata?.gym_id;
       const membershipId = session.metadata?.membership_id;
+
+      // Pull the billing period so the member's renewal date shows right away,
+      // rather than waiting for the first customer.subscription.updated event.
+      const sub = await stripe.subscriptions.retrieve(subscriptionId);
 
       await supabase.from('member_subscriptions').insert({
         gym_id: gymId,
@@ -277,7 +282,9 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         membership_id: membershipId,
         stripe_subscription_id: subscriptionId,
         stripe_customer_id: session.customer as string,
-        status: 'active',
+        status: sub.status === 'trialing' ? 'trialing' : 'active',
+        current_period_start: subscriptionPeriodStart(sub),
+        current_period_end: subscriptionPeriodEnd(sub),
       });
 
       // Update user profile membership type

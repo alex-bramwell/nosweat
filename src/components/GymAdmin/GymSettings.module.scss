@@ -356,6 +356,62 @@
   line-height: 1.5;
 }
 
+// ── Provider-specific DNS help ─────────────────────
+.providerHelp {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border, rgba(var(--color-text-rgb), 0.1));
+}
+
+.providerHelpLabel {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  margin-bottom: 0.5rem;
+}
+
+.providerHelpLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.providerHelpLink {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.3rem 0.7rem;
+  border-radius: 1rem;
+  text-decoration: none;
+  color: var(--color-accent);
+  background: rgba(var(--color-accent-rgb), 0.1);
+  border: 1px solid rgba(var(--color-accent-rgb), 0.25);
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(var(--color-accent-rgb), 0.18);
+  }
+}
+
+// Inline "use www instead" nudge under the domain input.
+.apexSuggestion {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text);
+  background: rgba(var(--color-warning-rgb, 245, 158, 11), 0.1);
+  border: 1px solid rgba(var(--color-warning-rgb, 245, 158, 11), 0.3);
+  border-radius: var(--border-radius, 0.5rem);
+  cursor: pointer;
+
+  strong {
+    color: var(--color-text);
+  }
+}
+
 // ── Modal helpers ─────────────────────────────────
 // Body, header, title, subtitle, fieldGroup, fieldLabel, input, error, actions
 // are now shared via modalStyles from common/Modal/Modal.module.scss

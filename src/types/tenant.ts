@@ -23,6 +23,7 @@ export interface Gym {
   stripe_account_status: 'not_started' | 'onboarding' | 'active' | 'restricted' | 'disabled';
   stripe_onboarding_complete: boolean;
   platform_fee_percent: number;
+  day_pass_price_pence: number;
   trial_start_date: string | null;
   trial_end_date: string | null;
   trial_member_limit: number;
@@ -112,6 +113,10 @@ export interface GymBranding {
 
   // About "what makes us different" value cards (null = use defaults)
   about_values: AboutValue[] | null;
+
+  // Gallery (opt-in section)
+  gallery_items: GalleryItem[];
+  gallery_layout: 'grid' | 'carousel';
 }
 
 export interface HeroCardContent {
@@ -134,6 +139,11 @@ export interface AboutValue {
   icon: string;
   title: string;
   description: string;
+}
+
+export interface GalleryItem {
+  type: 'image' | 'video';
+  url: string;
 }
 
 export interface GymFeature {

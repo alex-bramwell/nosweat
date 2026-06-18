@@ -1,0 +1,109 @@
+@use '../../../styles/variables' as *;
+
+.membershipsSection {
+  position: relative;
+}
+
+.membershipsHeader {
+  text-align: center;
+  max-width: 40rem;
+  margin: 0 auto 2.5rem;
+}
+
+.membershipsTitle {
+  font-family: var(--font-header);
+  color: var(--color-header);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  margin: 0 0 0.75rem;
+}
+
+.membershipsSubtitle {
+  color: var(--color-muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.membershipsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.planCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.planTop {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.planName {
+  font-family: var(--font-header);
+  color: var(--color-header);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.planPrice {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.planAmount {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--color-accent);
+  line-height: 1;
+}
+
+.planPeriod {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.planDescription {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0.25rem 0 0;
+}
+
+.planFeatures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  flex: 1;
+}
+
+.planFeature {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  line-height: 1.4;
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    color: var(--color-accent);
+  }
+}
+
+.planAction {
+  margin-top: auto;
+}

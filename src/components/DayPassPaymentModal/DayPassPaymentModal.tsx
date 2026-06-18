@@ -38,6 +38,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   onSuccess,
   onError,
 }) => {
+  const { gym } = useTenant();
+  const pricePence = gym?.day_pass_price_pence ?? DAY_PASS_PRICE_PENCE;
   const { submit, isProcessing, stripe } = useStripePayment({
     mode: 'payment',
     clientSecret,
@@ -76,7 +78,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       <div className={styles.priceSection}>
         <div className={styles.priceRow}>
           <span className={styles.priceLabel}>Day Pass:</span>
-          <span className={styles.priceValue}>{formatCurrency(DAY_PASS_PRICE_PENCE, 'gbp')}</span>
+          <span className={styles.priceValue}>{formatCurrency(pricePence, 'gbp')}</span>
         </div>
       </div>
 
@@ -89,7 +91,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         fullWidth
         disabled={!stripe || isProcessing}
       >
-        {isProcessing ? 'Processing...' : `Pay ${formatCurrency(DAY_PASS_PRICE_PENCE, 'gbp')} and Book Class`}
+        {isProcessing ? 'Processing...' : `Pay ${formatCurrency(pricePence, 'gbp')} and Book Class`}
       </Button>
     </form>
   );
