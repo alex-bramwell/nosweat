@@ -148,6 +148,10 @@ npm run build          # Production build (TypeScript + Vite)
 npm run preview        # Preview production build
 npm run lint           # ESLint checks
 
+# Storybook (component library)
+npm run storybook        # Storybook dev server on :6006
+npm run build-storybook  # Static build (storybook-static/)
+
 # Database
 npm run db:run-sql     # Run SQL files against database
 npm run db:pull        # Copy prod data + storage into local

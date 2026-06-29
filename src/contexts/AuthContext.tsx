@@ -60,6 +60,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Exported so tests/Storybook can supply a mock auth value via AuthContext.Provider
+// without standing up the real Supabase-backed AuthProvider.
+export { AuthContext };
+export type { AuthContextType };
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

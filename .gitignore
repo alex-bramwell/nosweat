@@ -43,3 +43,6 @@ CLAUDE.md
 # Data-sync artifacts (db:pull / db:push-data)
 backups/
 supabase/.tmp/
+
+# Storybook
+storybook-static
