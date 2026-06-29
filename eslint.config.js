@@ -45,6 +45,16 @@ export default defineConfig([
     },
   },
 
+  // Storybook stories + config: files intentionally export a default meta plus
+  // named stories (and the .storybook helpers export decorators/mock data), which
+  // the Fast-Refresh rule flags. That rule is irrelevant to non-app files.
+  {
+    files: ['**/*.stories.{ts,tsx}', '.storybook/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+
   // Frontend: no debug logging in committed code (console.warn/error are fine).
   {
     files: ['src/**/*.{ts,tsx}'],
