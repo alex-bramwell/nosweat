@@ -1,0 +1,51 @@
+name: Deploy Storybook
+
+# Rebuilds and publishes the Storybook component library to GitHub Pages
+# (https://alex-bramwell.github.io/nosweat/) whenever component or story source
+# changes land on develop or main. Publishes by force-pushing the static build
+# to the gh-pages branch, which Pages serves - so the app's Vercel deploy and
+# the Supabase migration workflow are untouched.
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - 'src/**'
+      - '.storybook/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/deploy-storybook.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-storybook
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and publish Storybook
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build-storybook
+      - name: Publish to gh-pages
+        run: |
+          cd storybook-static
+          touch .nojekyll
+          git init -q
+          git checkout -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Deploy Storybook from ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
