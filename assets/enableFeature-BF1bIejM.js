@@ -1,0 +1,1 @@
+import{s as r}from"./iframe-smjXhKmG.js";async function o(t,a){const{error:e}=await r.from("gym_features").upsert({gym_id:t,feature_key:a,enabled:!0,enabled_at:new Date().toISOString()},{onConflict:"gym_id,feature_key"});if(e)throw e}export{o as e};

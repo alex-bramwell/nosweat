@@ -1,0 +1,1 @@
+import{R as o}from"./RouteFallback-Bg8XPnGA.js";import"./iframe-smjXhKmG.js";import"./preload-helper-PPVm8Dsz.js";const s={title:"Common/RouteFallback",component:o},e={};e.parameters={...e.parameters,docs:{...e.parameters?.docs,source:{originalSource:"{}",...e.parameters?.docs?.source}}};const m=["Default"];export{e as Default,m as __namedExportsOrder,s as default};

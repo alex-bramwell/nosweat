@@ -1,0 +1,5 @@
+import{j as r}from"./iframe-smjXhKmG.js";import{E as o}from"./EmptyStatePreview-BuwII2It.js";import{C as s}from"./Card-sMFCjOf_.js";import{B as a}from"./Button-B5QbUlEo.js";import"./preload-helper-PPVm8Dsz.js";const l={title:"Common/EmptyStatePreview",component:o,args:{title:"Memberships",description:"This is sample content. Add your own plans to replace it.",children:r.jsxs(s,{variant:"outlined",children:[r.jsx("h3",{style:{marginTop:0},children:"Unlimited - £69/month"}),r.jsx("p",{style:{color:"var(--color-muted)"},children:"Unlimited access to all classes."})]})}},t={},e={args:{action:r.jsx(a,{size:"compact",children:"Add a plan"})}};t.parameters={...t.parameters,docs:{...t.parameters?.docs,source:{originalSource:"{}",...t.parameters?.docs?.source}}};e.parameters={...e.parameters,docs:{...e.parameters?.docs,source:{originalSource:`{
+  args: {
+    action: <Button size="compact">Add a plan</Button>
+  }
+}`,...e.parameters?.docs?.source}}};const d=["Default","WithAction"];export{t as Default,e as WithAction,d as __namedExportsOrder,l as default};

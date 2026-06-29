@@ -1,0 +1,3 @@
+import{j as t,r as n}from"./iframe-smjXhKmG.js";import{D as a}from"./DurationInput-Ck3y0L0h.js";import"./preload-helper-PPVm8Dsz.js";const p={title:"Common/DurationInput",component:a,args:{value:"20 min",placeholder:"0",min:0,max:999,onChange:()=>{}}},m=e=>{const[o,s]=n.useState(e.value);return t.jsx("div",{style:{maxWidth:220},children:t.jsx(a,{...e,value:o,onChange:s})})},r={render:e=>t.jsx(m,{...e})};r.parameters={...r.parameters,docs:{...r.parameters?.docs,source:{originalSource:`{
+  render: args => <Interactive {...args} />
+}`,...r.parameters?.docs?.source}}};const l=["Default"];export{r as Default,l as __namedExportsOrder,p as default};

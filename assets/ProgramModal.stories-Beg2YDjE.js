@@ -1,0 +1,9 @@
+import{P as p}from"./ProgramModal-DN4C--IT.js";import{w as m}from"./iframe-smjXhKmG.js";import"./Button-B5QbUlEo.js";import"./Card-sMFCjOf_.js";import"./Section-B6ca5VHv.js";import"./Container-2PDQuxo8.js";import"./Modal-BR97K09B.js";import"./CloseButton-BSgrvTRE.js";import"./Select-BiXoY_mJ.js";import"./useDismiss-D_2lBmGb.js";import"./NumberInput-D9GBtqAC.js";import"./DurationInput-Ck3y0L0h.js";import"./InfoTooltip-BpBG58aH.js";import"./index-Bgeceq6O.js";import"./index-Bn142nAq.js";import"./FeatureNotEnabled-D9PZ2Ovp.js";import"./features-CFjQOLln.js";import"./EmptyStatePreview-BuwII2It.js";import"./StatusBadge-CZp99nK0.js";import"./DetailGrid-eBvufevI.js";import"./SelectableCard-CzkM3BPC.js";import"./InfoBox-YDmaZweb.js";import"./CardFields-DUUD8URq.js";import"./SectionNav-BHT5Fy2O.js";import"./RouteFallback-Bg8XPnGA.js";import"./AuthModal-B2KwYDvT.js";import"./security-BeESc-kM.js";import"./PasswordVisibilityToggle-DXQij4-U.js";import"./AuthModal.module-DLcHoNkw.js";import"./PasswordRequirementsList-NifVSkHk.js";import"./AuthCompletionScreen-B6j4rROT.js";import"./preload-helper-PPVm8Dsz.js";const B={title:"Modals/ProgramModal",component:p,parameters:{layout:"fullscreen"},decorators:[m],args:{isOpen:!0,onClose:()=>{},programId:"prog-1"}},r={},o={args:{programId:"prog-2"}},t={args:{programId:"prog-3"}};r.parameters={...r.parameters,docs:{...r.parameters?.docs,source:{originalSource:"{}",...r.parameters?.docs?.source}}};o.parameters={...o.parameters,docs:{...o.parameters?.docs,source:{originalSource:`{
+  args: {
+    programId: 'prog-2'
+  }
+}`,...o.parameters?.docs?.source}}};t.parameters={...t.parameters,docs:{...t.parameters?.docs,source:{originalSource:`{
+  args: {
+    programId: 'prog-3'
+  }
+}`,...t.parameters?.docs?.source}}};const D=["GroupClasses","Fundamentals","Competitor"];export{t as Competitor,o as Fundamentals,r as GroupClasses,D as __namedExportsOrder,B as default};

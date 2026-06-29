@@ -1,0 +1,1 @@
+import{r as e}from"./iframe-smjXhKmG.js";const n=e.createContext(null),s=e.createContext({isBuilder:!1}),o=()=>e.useContext(n),u=()=>e.useContext(s).isBuilder,a=()=>{const t=e.useContext(s);return t.isBuilder?t.navigatePage??null:null};export{u as a,a as b,o as u};

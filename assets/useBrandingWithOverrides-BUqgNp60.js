@@ -1,0 +1,1 @@
+import{u as n,r as s}from"./iframe-smjXhKmG.js";import{u as t}from"./BrandingOverrideContext-iuMyj1rc.js";function u(){const{branding:r}=n(),e=t();return s.useMemo(()=>e?{...r,...e}:r,[r,e])}export{u};
